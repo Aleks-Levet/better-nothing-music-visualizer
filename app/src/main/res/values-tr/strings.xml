@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Better Nothing Müzik Görselleştirici</string>
-
     <!-- Audio Screen -->
     <string name="audio_screen_title">Better Nothing\nMüzik Görselleştirici</string>
     <string name="audio_description_running">Gerçek zamanlı ses görselleştirici aktif. Telefonunuz şimdi ritme göre dans ediyor! Hiçbir içerik kaydedilmez ve gizliliğe saygı duyulur.</string>
@@ -13,14 +12,12 @@
     <string name="latency_compensation_description">Gecikme telafisi, özellikle Bluetooth cihazları için kullanışlıdır ve Gliflerin tam olarak ritme göre yanmasını sağlar.</string>
     <string name="latency_compensation">Gecikme Telafisi</string>
     <string name="live_spectrum">Canlı Ses Spektrumu</string>
-
     <!-- Glyph Screen -->
     <string name="glyph_controls">Glif kontrolleri</string>
     <string name="gamma_control">Gama kontrolü</string>
     <string name="gamma_description">Daha yüksek bir gama değeri, daha az ince ayrıntı ve genel parlaklık ile daha vurucu bir görünüm verir. Daha düşük bir değer ise daha parlak ancak daha az vurucudur.</string>
     <string name="light_gamma">Işık Gaması:</string>
     <string name="visualizer_presets">Görselleştirici hazır ayarları</string>
-
     <!-- Settings Screen -->
     <string name="settings_title">Ayarlar</string>
     <string name="app_theme">Uygulama Teması</string>
@@ -35,7 +32,6 @@
     <string name="font_ntype">NType</string>
     <string name="typography_help_text">Uygulama genelinde NDot ve NType yazı tipleri arasında geçiş yapın.</string>
     <string name="more_settings_coming">Daha fazla ayar yakında gelecek...</string>
-
     <!-- Haptics Screen -->
     <string name="haptics_title">Haptik</string>
     <string name="haptics_header">Haptik</string>
@@ -51,7 +47,6 @@
     <string name="haptics_gamma_label">Gama (Tepki): %.1f</string>
     <string name="haptics_speed_label">Hız: %.1f</string>
     <string name="haptics_richtap_freq_label">RichTap Frekansı: %d</string>
-
     <!-- Flashlight Screen -->
     <string name="flashlight_title">Fener</string>
     <string name="flashlight_header">Fener görselleştirici</string>
@@ -65,7 +60,6 @@
     <string name="flashlight_gamma_label">Yoğunluk Gaması: %.1f</string>
     <string name="flashlight_multiplier_label">Genlik Çarpanı: %.1fx</string>
     <string name="flashlight_monitor_label">Fener Monitörü</string>
-
     <string name="experimental_features">Deneysel Özellikler</string>
     <string name="developer_mode">Geliştirici Modu</string>
     <string name="developer_mode_description">Gelişmiş test ve cihaz taklidi (spoofing) özelliklerini etkinleştirin.</string>
@@ -85,7 +79,6 @@
     <string name="glyph_debug_desc_dev_options">Android 15 yüklü Nothing Phone (1) cihazında öncelikle Geliştirici seçeneklerinin etkinleştirilmesi gerekir. Ardından bu ADB komutunu çalıştırın:</string>
     <string name="glyph_debug_command">adb shell settings put global nt_glyph_interface_debug_enable 1</string>
     <string name="glyph_debug_instruction">Komutu ADB yüklü bir bilgisayardan bir kez çalıştırın, eğer Glifler hala yanıt vermiyorsa uygulamayı yeniden açın.</string>
-
     <!-- About Screen -->
     <string name="about_title">Uygulama bilgileri ve güncellemeler</string>
     <string name="about_description">ACİLEN ADAMAKILLI BİR HAKKINDA EKRANINA İHTİYACIMIZ VAR!! O zamana kadar lütfen bilgi için GitHub\'a göz atın.</string>
