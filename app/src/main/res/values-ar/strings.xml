@@ -3,24 +3,24 @@
     <string name="app_name">BNMV</string>
 
     <!-- Audio Screen -->
-    <string name="audio_screen_title">مُصوِّر الموسيقى المرئي\nBetter Nothing</string>
-    <string name="audio_description_running">المصوّر المرئي للصوت الفوري نشط الآن. هاتفك يرقص الآن على الإيقاع! لا يتم حفظ أي محتوى صوتي.</string>
-    <string name="audio_description_idle">تم تطوير هذا التطبيق بواسطة Aleks Levet وrKyzen وOliver lebaigue.\n\nملاحظة الخصوصية: نحن نستخدم فقط تدفق الصوت. لا يُسجَّل أي محتوى للشاشة.</string>
-    <string name="audio_warning_vizualizer">تحذير: يستخدم هذا المصدر تدفق الصوت المرئي القياسي الخاص بنظام أندرويد. جودته منخفضة وقد تكون غير مرضية.</string>
+    <string name="audio_screen_title">مصور موسيقى\nNothing المحسن</string>
+    <string name="audio_description_running">المصور المرئي للصوت نشط الآن. هاتفك يرقص الآن على الإيقاع! لا يتم حفظ أي محتوى صوتي.</string>
+    <string name="audio_description_idle">تم تطوير هذا التطبيق بواسطة Aleks Levet وrKyzen وOliver lebaigue.\n\nملاحظة الخصوصية: نحن نستخدم فقط بث الصوت. لا يتم تسجيل أي محتوى للشاشة.</string>
+    <string name="audio_warning_vizualizer">تنويه: يستخدم هذا المصدر بث الصوت المرئي القياسي الخاص بنظام Android. جودته منخفضة وقد يؤدي إلى نتائج غير مرضية.</string>
     <string name="auto_memorize_device">حفظ الجهاز تلقائيًا</string>
-    <string name="saving_latency_for">جارٍ حفظ زمن الاستجابة لـ: %s</string>
+    <string name="saving_latency_for">جارٍ حفظ زمن التأخير لـ: %s</string>
     <string name="internal_speaker">مكبر الصوت الداخلي</string>
     <string name="manual_mode_global_latency">الوضع اليدوي (زمن استجابة عام)</string>
-    <string name="latency_compensation_description">تعويض زمن الاستجابة يضمن مزامنة الرموز الضوئية بدقة مع الإيقاع، وهو مفيد بشكل خاص لأجهزة البلوتوث.</string>
-    <string name="latency_compensation">تعويض زمن الاستجابة</string>
+    <string name="latency_compensation_description">تعويض زمن التأخير يضمن مزامنة Glyph بدقة مع الإيقاع، وهو مفيد خصوصًا لأجهزة Bluetooth.</string>
+    <string name="latency_compensation">تعويض زمن التأخير</string>
     <string name="live_spectrum">طيف الصوت المباشر</string>
 
     <!-- Glyph Screen -->
-    <string name="glyph_controls">عناصر تحكم الرموز الضوئية</string>
+    <string name="glyph_controls">عناصر تحكم Glyph</string>
     <string name="gamma_control">التحكم في جاما</string>
     <string name="gamma_description">القيمة الأعلى لجاما تمنح مظهرًا أكثر حدة، لكن بتفاصيل أقل دقة وسطوع إجمالي أقل. أما القيمة الأدنى فهي أكثر سطوعًا وأقل حدة.</string>
     <string name="light_gamma">جاما الإضاءة:</string>
-    <string name="visualizer_presets">الإعدادات المسبقة للمصوّر المرئي</string>
+    <string name="visualizer_presets">الإعدادات المسبقة للمصور المرئي</string>
 
     <!-- Settings Screen -->
     <string name="settings_title">الإعدادات</string>
@@ -30,23 +30,23 @@
     <string name="theme_nothing">Nothing</string>
     <string name="theme_nothing_red">Nothing أحمر</string>
     <string name="theme_material_you">Material You</string>
-    <string name="theme_music">الموسيقى (يجلب غلاف الألبوم)</string>
+    <string name="theme_music">الموسيقى (باستخدام صورة غلاف الألبوم)</string>
     <string name="theme_help_text">تُطبَّق التغييرات بعد إعادة تشغيل التطبيق.</string>
-    <string name="typography">الطباعة</string>
+    <string name="typography">الخط</string>
     <string name="font_ndot">NDot</string>
     <string name="font_ntype">NType</string>
     <string name="typography_help_text">التبديل بين خطي NDot وNType على مستوى التطبيق بأكمله.</string>
-    <string name="more_settings_coming">مزيد من الإعدادات قريبًا…</string>
+    <string name="more_settings_coming">المزيد من الإعدادات قريبًا…</string>
 
     <!-- Haptics Screen -->
-    <string name="haptics_title">الاهتزاز اللمسي</string>
-    <string name="haptics_header">عناصر تحكم الاهتزاز اللمسي</string>
-    <string name="haptics_mode_label">وضع محرك الاهتزاز اللمسي</string>
+    <string name="haptics_title">الاهتزاز</string>
+    <string name="haptics_header">عناصر تحكم الاهتزاز</string>
+    <string name="haptics_mode_label">وضع محرك الاهتزاز</string>
     <string name="haptics_mode_bass">شدة صوت الجهير</string>
-    <string name="haptics_mode_beat">كشف الإيقاع</string>
+    <string name="haptics_mode_beat">التعرف على الإيقاع</string>
     <string name="haptics_beat_detection_desc">يهتز عند اكتشاف الإيقاعات ضمن نطاق التردد المحدد. أكثر انسيابية لكنه أحيانًا أقل ثباتًا. هذه ميزة تجريبية.</string>
-    <string name="haptics_motor_title">تصوير الاهتزاز اللمسي</string>
-    <string name="haptics_frequency_label">التردد: %1$d - %2$d هرتز</string>
+    <string name="haptics_motor_title">تصوير الاهتزاز</string>
+    <string name="haptics_frequency_label">التردد: %1$d - %2$d Hz</string>
     <string name="haptics_frequency_desc">يهتز بناءً على شدة الصوت ضمن هذا النطاق.</string>
     <string name="haptics_amplitude_label">قوة المحرك: %.1fx</string>
     <string name="haptics_audio_gain_label">كسب الصوت: %.1fx</string>
@@ -58,81 +58,81 @@
     <string name="haptics_decay_instant">بلا تنعيم (فوري)</string>
     <string name="haptics_decay_smooth">التنعيم مفعّل</string>
     <!-- Flashlight Screen -->
-    <string name="flashlight_title">المصباح اليدوي</string>
-    <string name="flashlight_header">مصوّر المصباح اليدوي المرئي</string>
-    <string name="flashlight_sync_title">مزامنة المصباح اليدوي</string>
-    <string name="flashlight_mode_label">وضع محرك المصباح اليدوي</string>
+    <string name="flashlight_title">الكشاف</string>
+    <string name="flashlight_header">مصور الكشاف المرئي</string>
+    <string name="flashlight_sync_title">مزامنة الكشاف</string>
+    <string name="flashlight_mode_label">وضع محرك الكشاف</string>
     <string name="flashlight_mode_amplitude">شدة الصوت</string>
     <string name="flashlight_mode_beat">كشف الإيقاع</string>
     <string name="flashlight_intensity_label">مستويات الشعلة: %1$d</string>
-    <string name="flashlight_frequency_label">التردد: %1$d - %2$d هرتز</string>
-    <string name="flashlight_frequency_desc">نطاق التردد بالهرتز الذي سيستجيب له المصباح اليدوي. أقل للجهير، وأعلى للطبل الخفيف/الأصوات.</string>
+    <string name="flashlight_frequency_label">التردد: %1$d - %2$d Hz</string>
+    <string name="flashlight_frequency_desc">نطاق التردد بالهرتز الذي سيستجيب له الكشاف. أقل للجهير، وأعلى للطبل الخفيف/الأصوات.</string>
     <string name="flashlight_threshold_label">العتبة: %.2f</string>
     <string name="flashlight_threshold_desc">إذا كان مصباحك اليدوي يحتوي على مستوى واحد فقط، فإن هذا يشغّله ويطفئه.</string>
     <string name="flashlight_beat_sensitivity_label">حساسية الإيقاع: %.1f</string>
     <string name="flashlight_beat_sensitivity_desc">القيم الأعلى تتجاهل الإشارات الانتقالية الأضعف.</string>
-    <string name="flashlight_speed_label">السرعة: %.0f مللي ثانية</string>
+    <string name="flashlight_speed_label">السرعة: %.0f ms</string>
     <string name="flashlight_speed_desc">القيم الأدنى تجعل الوميض أسرع. 40 مللي ثانية هو أسرع حد مدعوم.</string>
-    <string name="flashlight_monitor_label">مراقبة المصباح اليدوي</string>
+    <string name="flashlight_monitor_label">مراقبة الكشاف</string>
 
     <string name="experimental_features">ميزات تجريبية</string>
     <string name="developer_mode">وضع المطوّر</string>
     <string name="developer_mode_description">تفعيل ميزات الاختبار المتقدمة ومحاكاة الأجهزة.</string>
     <string name="spoof_device">محاكاة جهاز</string>
     <string name="spoof_device_description">يجبر التطبيق على التصرف كما لو كان يعمل على الجهاز المحدد.</string>
-    <string name="spoof_locale">محاكاة اللغة المحلية</string>
+    <string name="spoof_locale">محاكاة اللغة</string>
     <string name="spoof_locale_description">إجبار التطبيق على استخدام لغة معينة لأغراض الاختبار.</string>
     <string name="idle_breathing_title">التنفّس عند الخمول</string>
-    <string name="idle_breathing_desc">تنبض الرموز الضوئية بلطف عندما يكون المصوّر المرئي نشطًا ولا يوجد صوت قيد التشغيل.</string>
-    <string name="disable_glyphs_when_silent_title">تعطيل الرموز الضوئية عند الصمت</string>
-    <string name="disable_glyphs_when_silent_desc">إيقاف تشغيل الرموز الضوئية تمامًا وإنهاء الجلسة عند عدم اكتشاف أي صوت.</string>
+    <string name="idle_breathing_desc">تنبض Glyph بلطف عندما يكون المصور المرئي نشطًا ولا يوجد صوت قيد التشغيل.</string>
+    <string name="disable_glyphs_when_silent_title">تعطيل Glyph عند الصمت</string>
+    <string name="disable_glyphs_when_silent_desc">إيقاف تشغيل Glyph تمامًا وإنهاء الجلسة عند عدم اكتشاف أي صوت.</string>
     <string name="start_visualizer">بدء</string>
     <string name="stop_visualizer">إيقاف</string>
-    <string name="glyph_no_config">لم يتم تحميل أي إعداد. يُرجى التحقق من التحديثات في الإعدادات لتنزيل أحدث الإعدادات المسبقة للمصوّر المرئي.</string>
-    <string name="glyph_debug_title">هاتف Nothing Phone (1) على أندرويد 15</string>
-    <string name="glyph_debug_desc_adb_enabled">تحتاج ميزات الرموز الضوئية إلى تفعيل واجهة تصحيح أخطاء Glyph الخاصة بـ Nothing عبر ADB على هذا الجهاز.</string>
-    <string name="glyph_debug_desc_dev_options">تحتاج ميزات الرموز الضوئية إلى تفعيل خيارات المطوّر أولًا على هاتف Nothing Phone (1) الذي يعمل بنظام أندرويد 15. بعد ذلك، نفّذ أمر ADB التالي:</string>
+    <string name="glyph_no_config">لم يتم تحميل أي إعداد. يُرجى التحقق من التحديثات في الإعدادات لتنزيل أحدث الإعدادات المسبقة للمصور المرئي.</string>
+    <string name="glyph_debug_title">هاتف Nothing Phone (1) على Android 15</string>
+    <string name="glyph_debug_desc_adb_enabled">تحتاج ميزات Glyph إلى تفعيل واجهة تصحيح أخطاء Glyph الخاصة بـNothing عبر ADB على هذا الجهاز.</string>
+    <string name="glyph_debug_desc_dev_options">تحتاج ميزات Glyph إلى تفعيل خيارات المطوّر أولًا على هاتف Nothing Phone (1) الذي يعمل بنظام Android 15. بعد ذلك، نفّذ أمر ADB التالي:</string>
     <string name="glyph_debug_command">adb shell settings put global nt_glyph_interface_debug_enable 1</string>
-    <string name="glyph_debug_instruction">نفّذ الأمر مرة واحدة من جهاز حاسوب مزوّد بـ ADB، ثم أعد فتح التطبيق إذا ظلت الرموز الضوئية غير مستجيبة.</string>
+    <string name="glyph_debug_instruction">نفّذ الأمر مرة واحدة من جهاز كمبيوتر مزوّد بـADB، ثم أعد فتح التطبيق إذا لم تستجب Glyph.</string>
 
     <!-- About Screen -->
     <string name="about_title">معلومات التطبيق والتحديثات</string>
     <string name="about_intro">يُطلق تطبيق Better Nothing Music Visualizer الإمكانات الكاملة لواجهة Glyph من خلال تحليل ترددي فوري وعالي الدقة.</string>
-    <string name="about_section_why">لماذا نحن أفضل من تطبيق Nothing الأصلي:</string>
+    <string name="about_section_why">لماذا نحن أفضل من مصور Nothing الأصلي:</string>
     <string name="analytics_disclaimer_title">التحليلات</string>
     <string name="analytics_disclaimer_text">يستخدم هذا التطبيق خدمة Google Analytics (Firebase) لجمع إحصاءات استخدام مجهولة الهوية وتقارير الأعطال للمساعدة في تحسين تجربة التطبيق. لا يتم جمع أي بيانات شخصية أو محتوى صوتي.</string>
-    <string name="about_why_1">• سطوع 12 بت (4096 مستوى) مقابل نحو 2 بت في النسخة الأصلية (3 مستويات)</string>
-    <string name="about_why_2">• رسوم متحركة سلسة بمعدل 60 إطارًا في الثانية مقابل نحو 25 إطارًا في النسخة الأصلية</string>
-    <string name="about_why_3">• مزامنة دقيقة عبر تحويل فورييه السريع مقابل استجابة شبه عشوائية</string>
+    <string name="about_why_1">• سطوع 12 بت (4096 مستوى) مقابل نحو 2 بت في المصور الأصلي (3 مستويات)</string>
+    <string name="about_why_2">• معدل تحديث 60 Hz مقابل نحو 25 Hz في المصور الأصلي</string>
+    <string name="about_why_3">• مزامنة دقيقة عبر FFT مقابل استجابة شبه عشوائية</string>
     <string name="about_why_4">• تحكم مستقل بالمناطق الفرعية</string>
     <string name="github_repository">مستودع GitHub</string>
-    <string name="view_source">عرض الشيفرة المصدرية</string>
+    <string name="view_source">عرض المصدر</string>
     <string name="version_info">الإصدار %s</string>
-    <string name="zones_config_version">إصدار إعداد المناطق: %s</string>
-    <string name="media_projection_info">يُستخدم MediaProjection فقط لتشغيل المصوّر المرئي الفوري. لا يتم إجراء أي تسجيل أو تخزين بيانات غير ضروري.</string>
+    <string name="zones_config_version">إصدار الإعداد: %s</string>
+    <string name="media_projection_info">يُستخدم MediaProjection فقط لتشغيل المصور المرئي الفوري. لا يتم إجراء أي تسجيل أو تخزين بيانات غير ضروري.</string>
     <string name="credits">شكر وتقدير</string>
     <string name="open_github_profile">فتح الملف الشخصي على GitHub</string>
     <string name="check_for_app_updates">التحقق من تحديثات التطبيق</string>
-    <string name="discord_server">خادم Discord</string>
+    <string name="discord_server">مجتمع Discord</string>
     <string name="join_discord">انضم إلى مجتمعنا على Discord</string>
     <string name="checking_for_updates">جارٍ التحقق من التحديثات…</string>
-    <string name="app_up_to_date">التطبيق محدَّث بالكامل</string>
+    <string name="app_up_to_date">التطبيق محدَّث لآخر إصدار</string>
 
     <!-- Capture Source Labels -->
-    <string name="capture_media_projection">إسقاط الوسائط\n(الافتراضي، الأفضل)</string>
+    <string name="capture_media_projection">MediaProjection\n(الافتراضي، الأفضل)</string>
     <string name="capture_microphone">الميكروفون</string>
-    <string name="capture_vizualizer">المصوّر المرئي المدمج في أندرويد</string>
+    <string name="capture_vizualizer">المصور المرئي المدمج في Android</string>
     <string name="capture_shizuku">Shizuku</string>
     <string name="update_available">تحديث متاح: %s</string>
     <string name="update_now">التحديث الآن</string>
     <string name="credit_alekslevet_role">المؤسس والمنسّق وصاحب الفكرة الرئيسية والمالك</string>
-    <string name="credit_rkyzen_role">مطوّر تطبيق أندرويد (تدفق الموسيقى الفوري)</string>
+    <string name="credit_rkyzen_role">مطوّر تطبيق Android (بث الموسيقى الفوري)</string>
     <string name="credit_oliver_role">مطوّر مشارك لهذا التطبيق الرائع</string>
-    <string name="credit_nicouschulas_role">تحسينات ملف Readme والويكي</string>
+    <string name="credit_nicouschulas_role">تحسينات ملف Readme والـwiki</string>
     <string name="credit_sebiai_role">تعديل ودعم Glyph</string>
     <string name="credit_earnedel_role">تحسينات ملف Readme</string>
-    <string name="credit_ake_role">مطوّر يعمل على تطبيق موسيقى بتكامل</string>
-    <string name="credit_interlastic_role">روبوت Discord لاختبار السكربت (مُتوقف عنه)</string>
+    <string name="credit_ake_role">مطوّر يعمل على تطبيق موسيقى متوافق</string>
+    <string name="credit_interlastic_role">روبوت Discord لاختبار نص الأوامر (لا يعمل حاليًا)</string>
 
     <string name="app_news">أخبار التطبيق</string>
     <string name="music_theme_notification_access">يتطلب مظهر الموسيقى الوصول إلى الإشعارات. يُرجى تفعيله لهذا التطبيق.</string>
@@ -149,7 +149,7 @@
     <string name="developer_access">وصول المطوّر</string>
     <string name="developer_access_desc">يُرجى إدخال كلمة مرور المطوّر للوصول إلى أدوات الإدارة.</string>
     <string name="password">كلمة المرور</string>
-    <string name="unlock">فتح القفل</string>
+    <string name="unlock">إلغاء القفل</string>
     <string name="incorrect_password">كلمة المرور غير صحيحة</string>
     <string name="cancel">إلغاء</string>
     <string name="back">رجوع</string>
@@ -168,20 +168,20 @@
     <string name="auto_distribute">توزيع تلقائي</string>
     <string name="editing_segment">تعديل المقطع رقم %d</string>
     <string name="editing_segments_count">تعديل %d مقاطع</string>
-    <string name="frequency_range_label">نطاق التردد: %1$d هرتز - %2$d هرتز</string>
+    <string name="frequency_range_label">نطاق التردد: %1$d هرتز - %2$d Hz</string>
     <string name="no_presets_found">لم يُعثر على أي إعدادات مسبقة. كن أول من يشارك واحدًا!</string>
     <string name="preset_by_author">بواسطة %1$s • %2$s</string>
-    <string name="downloads_count">%1$s • %2$d تنزيلًا</string>
+    <string name="downloads_count">%1$s • %2$d تنزيل</string>
     <string name="clear">مسح</string>
     <string name="global_announcements">إعلانات عامة</string>
     <string name="global_announcements_desc">إخطار جميع المستخدمين بالتحديثات أو الأخبار</string>
     <string name="create">إنشاء</string>
     <string name="unlock_shizuku_source">فتح مصدر Shizuku</string>
-    <string name="unlock_shizuku_source_desc">التقاط تجريبي عالي الدقة</string>
+    <string name="unlock_shizuku_source_desc">التقاط عالي الدقة تجريبي</string>
     <string name="expressive_ui">واجهة تعبيرية</string>
     <string name="sync_ui_to_beat">مزامنة الواجهة مع الإيقاع</string>
     <string name="nav_overlay">تراكب شريط التنقل</string>
-    <string name="lens_visualizer">مصوّر العدسة المرئي</string>
+    <string name="lens_visualizer">مصور العدسة المرئي</string>
     <string name="lens_radius">نصف قطر العدسة</string>
     <string name="lens_bar_width">عرض الشريط</string>
     <string name="lens_max_height">أقصى ارتفاع للشريط</string>
@@ -194,13 +194,13 @@
     <string name="overlay_sensitivity">حساسية التراكب</string>
     <string name="vertical_position">الموضع الرأسي</string>
     <string name="dynamic_gain">الكسب الديناميكي</string>
-    <string name="flashlight_multi_intensity_forced_title">تعدد شدة المصباح اليدوي</string>
-    <string name="flashlight_multi_intensity_forced_desc">يجبر المصباح اليدوي على استخدام مستويات سطوع متعددة حتى لو لم يكن ذلك مدعومًا رسميًا من العتاد. (تجريبي)</string>
+    <string name="flashlight_multi_intensity_forced_title">تعدد شدة الكشاف</string>
+    <string name="flashlight_multi_intensity_forced_desc">يجبر الكشاف على استخدام مستويات سطوع متعددة حتى لو لم يكن ذلك مدعومًا رسميًا من العتاد. (تجريبي)</string>
 
     <string name="notification_controls_title">عناصر تحكم الإشعارات</string>
     <string name="notification_controls_desc">اختر الأزرار التي تظهر في الإشعار الدائم.</string>
     <string name="notification_button_set_presets">الإعدادات المسبقة</string>
-    <string name="notification_button_set_quick_controls">عناصر التحكم السريعة</string>
+    <string name="notification_button_set_quick_controls">عناصر التحكم السريع</string>
 
     <string name="profile">الملف الشخصي</string>
     <string name="leaderboard_nickname">الاسم المستعار في لوحة المتصدرين</string>
@@ -224,10 +224,10 @@
     <string name="authenticated_user">حساب موثّق</string>
 
     <string name="tab_audio">الصوت</string>
-    <string name="tab_glyphs">الرموز الضوئية</string>
+    <string name="tab_glyphs">Glyph</string>
     <string name="tab_visuals">المرئيات</string>
-    <string name="tab_haptics">الاهتزاز اللمسي</string>
-    <string name="tab_flashlight">المصباح اليدوي</string>
+    <string name="tab_haptics">الاهتزاز</string>
+    <string name="tab_flashlight">الكشاف</string>
     <string name="tab_settings">الإعدادات</string>
 
     <string name="update_available_title">تحديث متاح: %s</string>
@@ -238,23 +238,23 @@
     <string name="not_now">ليس الآن</string>
     <string name="downloading_update">جارٍ تنزيل التحديث...</string>
 
-    <string name="app_name_caps">بيتر ناثينغ ميوزك فيجوالايزر</string>
+    <string name="app_name_caps">BETTER NOTHING MUSIC VISUALIZER</string>
     <string name="appreciate_support">نُقدّر دعمكم.</string>
     <string name="youre_welcome">على الرحب والسعة!</string>
 
-    <string name="mediaprojection_permission">إذن إسقاط الوسائط</string>
-    <string name="mediaprojection_description">يتيح هذا الإذن للتطبيق الوصول إلى تدفق صوت الجهاز عبر نظام الالتقاط الخاص بأندرويد، لكي يستجيب مصوّر الرموز الضوئية المرئي في الوقت الفعلي. لا تُخزَّن أي تسجيلات غير ضرورية، ولا يحفظ التطبيق وسائطك أو بياناتك الخاصة.</string>
+    <string name="mediaprojection_permission">إذن MediaProjection</string>
+    <string name="mediaprojection_description">يتيح هذا الإذن للتطبيق الوصول إلى البث الصوتي للجهاز عبر نظام الالتقاط الخاص بـAndroid، لكي يستجيب مصور Glyph المرئي في الوقت الفعلي. لا يتم تخزين أي تسجيلات غير ضرورية، ولا يحفظ التطبيق وسائطك أو بياناتك الخاصة.</string>
     <string name="continue_label">متابعة</string>
 
     <string name="shizuku_permission_required">إذن Shizuku مطلوب لهذا المصدر</string>
-    <string name="shizuku_not_running">Shizuku غير قيد التشغيل أو غير مثبّت</string>
+    <string name="shizuku_not_running">Shizuku متوقف أو غير مثبّت</string>
     <string name="announcement_posted">تم نشر الإعلان!</string>
     <string name="failed_to_post">فشل النشر: %s</string>
     <string name="audio_permission_required">إذن تسجيل الصوت مطلوب</string>
     <string name="screen_capture_denied">تم رفض إذن التقاط الشاشة</string>
-    <string name="notifications_required">الإشعارات مطلوبة أثناء نشاط المصوّر المرئي</string>
+    <string name="notifications_required">الإشعارات مطلوبة أثناء نشاط المصور المرئي</string>
     <string name="overlay_permission_denied">تم رفض إذن التراكب</string>
-    <string name="notification_access_required">يُرجى تفعيل الوصول إلى الإشعارات لهذه الميزة</string>
+    <string name="notification_access_required">يُرجى تفعيل الوصول إلى الإشعارات لاستخدام هذه الميزة</string>
 
     <string name="thanks_downloading">شكرًا لتنزيلك التطبيق</string>
     <string name="thanks_installing">شكرًا لتثبيتك التطبيق</string>
@@ -283,23 +283,23 @@
     <string name="license_organization">المؤسسة</string>
     <string name="license_organization_name">Luminus Labs</string>
     <string name="license_section_1">1. تمهيد</string>
-    <string name="license_preamble_1">تُعدّ اتفاقية الترخيص هذه (\"الاتفاقية\") اتفاقًا قانونيًا بينك (\"المرخَّص له\") وبين Oliver Lebaigue (\"المرخِّص\") بشأن استخدام ومراجعة وتعديل تطبيق المصوّر الموسيقي المرئي المعروف باسم \"better-nothing-music-visualizer\" (\"البرنامج\")، وهو مشروع أسّسه Aleks Levet تحت مظلة مؤسسة Luminus Labs.</string>
-    <string name="license_preamble_2">الشيفرة المصدرية للبرنامج مستضافة علنًا على الرابط https://github.com/aleks-levet/better-nothing-music-visualizer. وبمجرد الوصول إلى البرنامج أو شيفرته المصدرية أو تنزيله أو نسخه أو استخدامه بأي شكل آخر، يوافق المرخَّص له على الالتزام بأحكام هذه الاتفاقية.</string>
+    <string name="license_preamble_1">تُعدّ اتفاقية الترخيص هذه (\"الاتفاقية\") اتفاقًا قانونيًا بينك (\"المرخَّص له\") وبين Oliver Lebaigue (\"المرخِّص\") بشأن استخدام ومراجعة وتعديل تطبيق المصور الموسيقي المرئي المعروف باسم \"better-nothing-music-visualizer\" (\"البرنامج\")، وهو مشروع أسّسه Aleks Levet تحت مظلة مؤسسة Luminus Labs.</string>
+    <string name="license_preamble_2">المصدر للبرنامج مستضاف علنًا على الرابط https://github.com/aleks-levet/better-nothing-music-visualizer. وبمجرد الوصول إلى البرنامج أو مصدره أو تنزيله أو نسخه أو استخدامه بأي شكل آخر، يوافق المرخَّص له على الالتزام بأحكام هذه الاتفاقية.</string>
     <string name="license_section_2">2. التعريفات</string>
-    <string name="license_def_1">2.1 يُقصد بـ\"البرنامج\" تطبيق better-nothing-music-visualizer، بما يشمل على سبيل المثال لا الحصر الشيفرة المصدرية، ووحدات معالجة الصوت، ومحركات العرض، والأصول المرئية، ومكتبات الرسوميات، وسكربتات الإعداد، والوثائق، وملفات الكائنات، والملفات التنفيذية الثنائية، وأي وسائط أو أصول مرتبطة بها.</string>
-    <string name="license_def_2">2.2 يُقصد بـ\"الشيفرة المصدرية\" الملفات المُفصَح عنها علنًا للبرنامج، بما يشمل جميع ملفات السكربتات، وشيفرة التظليل، والأصول، وإعدادات البناء.</string>
+    <string name="license_def_1">2.1 يُقصد بـ\"البرنامج\" تطبيق better-nothing-music-visualizer، بما يشمل على سبيل المثال لا الحصر المصدر، ووحدات معالجة الصوت، ومحركات العرض، والأصول المرئية، ومكتبات الرسوميات، ونصوص الإعداد، والوثائق، وملفات الكائنات، والملفات القابلة للتشغيل، وأي وسائط أو أصول ذات صلة.</string>
+    <string name="license_def_2">2.2 يُقصد بـ\"المصدر\" الملفات المُفصَح عنها علنًا للبرنامج، بما يشمل جميع ملفات نصوص الأوامر، ونصوص أوامر الرسوميات، والأصول، وإعدادات البناء.</string>
     <string name="license_section_3">3. منح الترخيص وإمكانية الوصول</string>
     <string name="license_section_3_1">3.1 التوفر العام</string>
-    <string name="license_grant_3_1">يُقرّ المرخِّص بأن الشيفرة المصدرية متاحة للعموم. يُمنح المرخَّص له ترخيصًا غير حصري وغير قابل للتحويل وقابلًا للإلغاء لتنزيل الشيفرة المصدرية والاطلاع عليها وتعديلها لأغراض شخصية وتعليمية وتقييمية غير تجارية فقط.</string>
+    <string name="license_grant_3_1">يُقرّ المرخِّص بأن المصدر متاح للعموم. يُمنح المرخَّص له ترخيصًا غير حصري وغير قابل للتحويل وقابلًا للإلغاء لتنزيل المصدر والاطلاع عليه وتعديله لأغراض شخصية وتعليمية وتقييمية غير تجارية فقط.</string>
     <string name="license_section_3_2">3.2 القيود</string>
     <string name="license_grant_3_2">لا يجوز للمرخَّص له:</string>
     <string name="license_restriction_a">* (أ) إعادة توزيع البرنامج أو نسخ معدّلة منه على أطراف ثالثة، إلا عبر النسخ الفرعية (forks) المعتادة على GitHub، شريطة أن تظل تلك النسخ الفرعية ملتزمة بأحكام هذا الترخيص ذاته.</string>
     <string name="license_restriction_b">* (ب) استخدام البرنامج أو أي أعمال مشتقة منه لأغراض تجارية، أو عروض علنية، أو بث تجاري، أو أي أنشطة مُدرّة للدخل دون إذن كتابي منفصل.</string>
     <string name="license_restriction_c">* (ج) إزالة أو تعديل أو إخفاء أي إشعارات حقوق نشر أو علامات تجارية أو براءات اختراع أو حقوق ملكية موضوعة على البرنامج أو داخله، بما في ذلك أي إشارة إلى Aleks Levet أو Luminus Labs أو المرخِّص.</string>
-    <string name="license_restriction_d">* (د) استخدام البرنامج لتطوير أي برنامج أو منصة تجارية منافسة للمصوّرات الموسيقية المرئية.</string>
+    <string name="license_restriction_d">* (د) استخدام البرنامج لتطوير أي برنامج أو منصة تجارية منافسة للمصورات الموسيقية المرئية.</string>
     <string name="license_section_4">4. حقوق الملكية الفكرية</string>
     <string name="license_section_4_1">4.1 الملكية</string>
-    <string name="license_ownership">يحتفظ المرخِّص وAleks Levet وLuminus Labs بجميع الحقوق والملكية والمصالح الخاصة بكل منهم في البرنامج، بما في ذلك جميع حقوق الملكية الفكرية المتعلقة به. ولا يُشكّل الإفصاح العلني عن الشيفرة المصدرية تنازلًا عن حقوق النشر أو الملكية.</string>
+    <string name="license_ownership">يحتفظ المرخِّص وAleks Levet وLuminus Labs بجميع الحقوق والملكية والمصالح الخاصة بكل منهم في البرنامج، بما في ذلك جميع حقوق الملكية الفكرية المتعلقة به. ولا يُشكّل الإفصاح العلني عن المصدر تنازلًا عن حقوق النشر أو الملكية.</string>
     <string name="license_section_5">5. إخلاء المسؤولية عن الضمان</string>
     <string name="license_section_5_1">5.1 إخلاء المسؤولية</string>
     <string name="license_warranty_disclaimer">يُقدَّم البرنامج \"كما هو\" و\"بجميع عيوبه.\" وإلى أقصى حد يسمح به القانون المعمول به، يُخلي المرخِّص مسؤوليته عن جميع الضمانات والشروط الأخرى، سواء كانت صريحة أو ضمنية أو قانونية، بما في ذلك على سبيل المثال لا الحصر أي ضمانات ضمنية للتسويق، أو الملاءمة لغرض معين، أو الملكية، أو عدم التعدي على حقوق الغير.</string>
