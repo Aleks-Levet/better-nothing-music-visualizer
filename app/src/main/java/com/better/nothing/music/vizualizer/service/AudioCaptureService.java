@@ -49,6 +49,7 @@ import android.provider.Settings;
 import android.service.quicksettings.TileService;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
 import android.view.WindowManager;
 import android.graphics.PixelFormat;
 
@@ -56,6 +57,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 import com.better.nothing.music.vizualizer.ui.VisualizerOverlayView;
+import com.better.nothing.music.vizualizer.ui.EdgeVisualizerView;
 
 import com.nothing.ketchum.Common;
 import rikka.shizuku.Shizuku;
@@ -275,6 +277,7 @@ public class AudioCaptureService extends Service {
     private boolean mDisableGlyphsWhenSilent = false;
 
     private boolean mOverlayEnabled = false;
+    private boolean mEdgeVisualizerEnabled = false;
     private boolean mLensVisualizerEnabled = false;
     public volatile float mLensVisualizerRadius = 40f;
     public volatile float mLensVisualizerX = 0.5f;
@@ -309,6 +312,16 @@ public class AudioCaptureService extends Service {
     private boolean mOverlayTopEnabled = true;
     private boolean mOverlayBottomEnabled = false;
     private int mOverlayColor = android.graphics.Color.WHITE;
+
+    private int mEdgeThickness = 12;
+    private float mEdgeSensitivity = 1.0f;
+    private int mEdgeBarCountHoriz = 20;
+    private int mEdgeBarCountVert = 40;
+    private float mEdgeCornerRadius = 2f;
+    private boolean mEdgeTopEnabled = true;
+    private boolean mEdgeBottomEnabled = true;
+    private EdgeVisualizerView mEdgeVisualizerView;
+
     private WindowManager mWindowManager;
     private VisualizerOverlayView mOverlayView;
 
@@ -494,6 +507,15 @@ public class AudioCaptureService extends Service {
         mOverlaySensitivityBottom = appPrefs.getFloat("overlay_sensitivity_bottom", 1.0f);
         mOverlayTopEnabled = appPrefs.getBoolean("overlay_top_enabled", true);
         mOverlayBottomEnabled = appPrefs.getBoolean("overlay_bottom_enabled", false);
+        
+        mEdgeVisualizerEnabled = appPrefs.getBoolean("edge_visualizer_enabled", false);
+        mEdgeThickness = appPrefs.getInt("edge_thickness", 12);
+        mEdgeSensitivity = appPrefs.getFloat("edge_sensitivity", 1.0f);
+        mEdgeBarCountHoriz = appPrefs.getInt("edge_bar_count_horiz", 20);
+        mEdgeBarCountVert = appPrefs.getInt("edge_bar_count_vert", 40);
+        mEdgeCornerRadius = appPrefs.getFloat("edge_corner_radius", 2f);
+        mEdgeTopEnabled = appPrefs.getBoolean("edge_top_enabled", true);
+        mEdgeBottomEnabled = appPrefs.getBoolean("edge_bottom_enabled", true);
 
         boolean dynamicGainEnabled = appPrefs.getBoolean("dynamic_gain_enabled", true);
         if (mAudioProcessor != null) {
@@ -1173,9 +1195,12 @@ public class AudioCaptureService extends Service {
 
     public void setOverlayEnabled(boolean enabled) {
         mOverlayEnabled = enabled;
-        if (mWorkerHandler != null) {
-            mWorkerHandler.post(this::updateOverlayVisibility);
-        }
+        updateOverlayVisibility();
+    }
+
+    public void setEdgeVisualizerEnabled(boolean enabled) {
+        mEdgeVisualizerEnabled = enabled;
+        updateOverlayVisibility();
     }
 
     public void setOverlayWidth(int width) {
@@ -1234,6 +1259,49 @@ public class AudioCaptureService extends Service {
         }
     }
 
+    public void setEdgeThickness(int thickness) {
+        mEdgeThickness = thickness;
+        if (mEdgeVisualizerView != null) {
+            mMainHandler.post(() -> mEdgeVisualizerView.setThickness((int) (thickness * getResources().getDisplayMetrics().density)));
+        }
+    }
+
+    public void setEdgeSensitivity(float sensitivity) {
+        mEdgeSensitivity = sensitivity;
+        if (mEdgeVisualizerView != null) {
+            mMainHandler.post(() -> mEdgeVisualizerView.setSensitivity(sensitivity));
+        }
+    }
+
+    public void setEdgeBarCounts(int horiz, int vert) {
+        mEdgeBarCountHoriz = horiz;
+        mEdgeBarCountVert = vert;
+        if (mEdgeVisualizerView != null) {
+            mMainHandler.post(() -> mEdgeVisualizerView.setBarCounts(horiz, vert));
+        }
+    }
+
+    public void setEdgeCornerRadius(float radius) {
+        mEdgeCornerRadius = radius;
+        if (mEdgeVisualizerView != null) {
+            mMainHandler.post(() -> mEdgeVisualizerView.setScreenRadius(radius * getResources().getDisplayMetrics().density));
+        }
+    }
+
+    public void setEdgeTopEnabled(boolean enabled) {
+        mEdgeTopEnabled = enabled;
+        if (mEdgeVisualizerView != null) {
+            mMainHandler.post(() -> mEdgeVisualizerView.setTopEnabled(enabled));
+        }
+    }
+
+    public void setEdgeBottomEnabled(boolean enabled) {
+        mEdgeBottomEnabled = enabled;
+        if (mEdgeVisualizerView != null) {
+            mMainHandler.post(() -> mEdgeVisualizerView.setBottomEnabled(enabled));
+        }
+    }
+
     private void updateOverlayViewSettings() {
         if (mOverlayView != null) {
             mMainHandler.post(() -> {
@@ -1268,7 +1336,6 @@ public class AudioCaptureService extends Service {
                 if (totalHeightPx <= 0) totalHeightPx = 1;
                 
                 params.height = totalHeightPx;
-                // Adjust Y so the baseline (between top and bottom) stays at mOverlayYOffset
                 params.y = (int) (mOverlayYOffset * density) - bottomHeightPx;
                 mWindowManager.updateViewLayout(mOverlayView, params);
             } catch (Exception e) {
@@ -1285,16 +1352,25 @@ public class AudioCaptureService extends Service {
     }
 
     private void updateOverlayVisibility() {
-        boolean anyOverlay = mOverlayEnabled || mLensVisualizerEnabled;
+        boolean anyOverlay = mOverlayEnabled || mLensVisualizerEnabled || mEdgeVisualizerEnabled;
         if (anyOverlay && sIsRunning) {
             if (Settings.canDrawOverlays(this)) {
                 if (mOverlayEnabled && mOverlayView == null) {
                     mMainHandler.post(this::showOverlay);
+                } else if (!mOverlayEnabled && mOverlayView != null) {
+                    mMainHandler.post(this::hideOverlay);
+                }
+
+                if (mEdgeVisualizerEnabled && mEdgeVisualizerView == null) {
+                    mMainHandler.post(this::showEdgeVisualizer);
+                } else if (!mEdgeVisualizerEnabled && mEdgeVisualizerView != null) {
+                    mMainHandler.post(this::hideEdgeVisualizer);
                 }
                 updateVisualizerService();
             }
         } else {
             mMainHandler.post(this::hideOverlay);
+            mMainHandler.post(this::hideEdgeVisualizer);
             stopVisualizerService();
         }
     }
@@ -1336,12 +1412,78 @@ public class AudioCaptureService extends Service {
         );
 
         params.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-        // Adjust Y so the baseline (between top and bottom) stays at mOverlayYOffset
         params.y = (int) (mOverlayYOffset * density) - bottomHeightPx;
         try {
             mWindowManager.addView(mOverlayView, params);
         } catch (Exception e) {
             Log.e(TAG, "Failed to add overlay view", e);
+        }
+    }
+
+    private void showEdgeVisualizer() {
+        if (mEdgeVisualizerView != null) return;
+        mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        mEdgeVisualizerView = new EdgeVisualizerView(this);
+        mEdgeVisualizerView.setColor(mOverlayColor);
+        
+        // Explicitly set flags for true full-screen click-through
+        mEdgeVisualizerView.setSystemUiVisibility(
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        );
+
+        android.util.DisplayMetrics metrics = new android.util.DisplayMetrics();
+        mWindowManager.getDefaultDisplay().getRealMetrics(metrics);
+        int realWidth = metrics.widthPixels;
+        int realHeight = metrics.heightPixels;
+
+        float density = getResources().getDisplayMetrics().density;
+        mEdgeVisualizerView.setThickness((int) (mEdgeThickness * density));
+        mEdgeVisualizerView.setSensitivity(mEdgeSensitivity);
+        mEdgeVisualizerView.setBarCounts(mEdgeBarCountHoriz, mEdgeBarCountVert);
+        mEdgeVisualizerView.setScreenRadius(mEdgeCornerRadius * density);
+        mEdgeVisualizerView.setTopEnabled(mEdgeTopEnabled);
+        mEdgeVisualizerView.setBottomEnabled(mEdgeBottomEnabled);
+
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                realWidth,
+                realHeight,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | 
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | 
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | 
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS |
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                PixelFormat.TRANSLUCENT
+        );
+        params.gravity = Gravity.TOP | Gravity.START;
+        params.x = 0;
+        params.y = 0;
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            params.setFitInsetsTypes(0);
+            params.setFitInsetsIgnoringVisibility(true);
+        }
+
+        try {
+            mWindowManager.addView(mEdgeVisualizerView, params);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to add edge visualizer view", e);
+        }
+    }
+
+    private void hideEdgeVisualizer() {
+        if (mWindowManager != null && mEdgeVisualizerView != null) {
+            try {
+                mWindowManager.removeView(mEdgeVisualizerView);
+            } catch (Exception ignored) {}
+            mEdgeVisualizerView = null;
         }
     }
 
@@ -1837,6 +1979,14 @@ public class AudioCaptureService extends Service {
                         mOverlayView.updateMagnitudes(latestDueFrame.magnitude);
                     } catch (Exception e) {
                         Log.e(TAG, "Error updating overlay magnitudes", e);
+                    }
+                }
+
+                if (mEdgeVisualizerView != null) {
+                    try {
+                        mEdgeVisualizerView.updateMagnitudes(latestDueFrame.magnitude);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error updating edge magnitudes", e);
                     }
                 }
 

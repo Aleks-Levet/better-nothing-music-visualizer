@@ -42,6 +42,15 @@ fun VisualsScreen(
     val overlayTopEnabled by viewModel.overlayTopEnabled.collectAsStateWithLifecycle()
     val overlayBottomEnabled by viewModel.overlayBottomEnabled.collectAsStateWithLifecycle()
     
+    val edgeVisualizerEnabled by viewModel.edgeVisualizerEnabled.collectAsStateWithLifecycle()
+    val edgeThickness by viewModel.edgeThickness.collectAsStateWithLifecycle()
+    val edgeSensitivity by viewModel.edgeSensitivity.collectAsStateWithLifecycle()
+    val edgeBarCountHoriz by viewModel.edgeBarCountHoriz.collectAsStateWithLifecycle()
+    val edgeBarCountVert by viewModel.edgeBarCountVert.collectAsStateWithLifecycle()
+    val edgeCornerRadius by viewModel.edgeCornerRadius.collectAsStateWithLifecycle()
+    val edgeTopEnabled by viewModel.edgeTopEnabled.collectAsStateWithLifecycle()
+    val edgeBottomEnabled by viewModel.edgeBottomEnabled.collectAsStateWithLifecycle()
+    
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
@@ -290,6 +299,212 @@ fun VisualsScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
+                }
+            }
+        }
+
+        // Edge Visualizer
+        ExpressiveCard {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(
+                        Icons.Default.Layers,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Edge Visualizer",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+                Switch(
+                    checked = edgeVisualizerEnabled,
+                    onCheckedChange = { enabled ->
+                        if (enabled && !Settings.canDrawOverlays(context)) {
+                            onOverlayPermissionRequest()
+                        } else {
+                            viewModel.setEdgeVisualizerEnabled(enabled)
+                        }
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = MaterialTheme.colorScheme.primary
+                    ),
+                    modifier = Modifier.size(height = 24.dp, width = 48.dp)
+                )
+            }
+
+            AnimatedVisibility(visible = edgeVisualizerEnabled) {
+                Column(
+                    modifier = Modifier.padding(top = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // Height Slider
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Edge Bar Height",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "${edgeThickness}dp",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    ExpressiveSlider(
+                        value = edgeThickness.toFloat(),
+                        onValueChange = { viewModel.setEdgeThickness(it.toInt()) },
+                        valueRange = 1f..128f,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Top Segment Toggle
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Checkbox(
+                            checked = edgeTopEnabled,
+                            onCheckedChange = { viewModel.setEdgeTopEnabled(it) }
+                        )
+                        Text(
+                            text = "Top Edge Segment",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    // Bottom Segment Toggle
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Checkbox(
+                            checked = edgeBottomEnabled,
+                            onCheckedChange = { viewModel.setEdgeBottomEnabled(it) }
+                        )
+                        Text(
+                            text = "Bottom Edge Segment",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    // Screen Corner Radius Slider
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Screen Corner Radius",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "${edgeCornerRadius.toInt()}dp",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    ExpressiveSlider(
+                        value = edgeCornerRadius,
+                        onValueChange = { viewModel.setEdgeCornerRadius(it) },
+                        valueRange = 0f..60f,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Horizontal Bar Count Slider
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Horizontal Bar Count",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "$edgeBarCountHoriz",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    ExpressiveSlider(
+                        value = edgeBarCountHoriz.toFloat(),
+                        onValueChange = { viewModel.setEdgeBarCountHoriz(it.toInt()) },
+                        valueRange = 4f..100f,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Vertical Bar Count Slider
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Vertical Bar Count",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "$edgeBarCountVert",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    ExpressiveSlider(
+                        value = edgeBarCountVert.toFloat(),
+                        onValueChange = { viewModel.setEdgeBarCountVert(it.toInt()) },
+                        valueRange = 4f..100f,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Sensitivity Slider
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Edge Sensitivity",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = String.format("%.2fx", edgeSensitivity),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    ExpressiveSlider(
+                        value = edgeSensitivity,
+                        onValueChange = { viewModel.setEdgeSensitivity(it) },
+                        valueRange = 0.01f..1.0f,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
         }

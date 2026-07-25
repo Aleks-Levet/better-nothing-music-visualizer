@@ -384,6 +384,24 @@ class MainActivity : ComponentActivity() {
             it.setLensVisualizerMaxHeight(viewModel.lensVisualizerMaxHeight.value)
             it.setLensVisualizerBarCount(viewModel.lensVisualizerBarCount.value)
             it.setLensVisualizerSensitivity(viewModel.lensVisualizerSensitivity.value)
+            
+            it.setOverlayEnabled(viewModel.overlayEnabled.value)
+            it.setOverlayTopEnabled(viewModel.overlayTopEnabled.value)
+            it.setOverlayBottomEnabled(viewModel.overlayBottomEnabled.value)
+            it.setOverlayWidth(viewModel.overlayWidth.value)
+            it.setOverlayHeight(viewModel.overlayHeight.value)
+            it.setOverlayHeightBottom(viewModel.overlayHeightBottom.value)
+            it.setOverlayYOffset(viewModel.overlayYOffset.value)
+            it.setOverlaySensitivity(viewModel.overlaySensitivity.value)
+            it.setOverlaySensitivityBottom(viewModel.overlaySensitivityBottom.value)
+            
+            it.setEdgeVisualizerEnabled(viewModel.edgeVisualizerEnabled.value)
+            it.setEdgeThickness(viewModel.edgeThickness.value)
+            it.setEdgeSensitivity(viewModel.edgeSensitivity.value)
+            it.setEdgeBarCounts(viewModel.edgeBarCountHoriz.value, viewModel.edgeBarCountVert.value)
+            it.setEdgeCornerRadius(viewModel.edgeCornerRadius.value)
+            it.setEdgeTopEnabled(viewModel.edgeTopEnabled.value)
+            it.setEdgeBottomEnabled(viewModel.edgeBottomEnabled.value)
         }
     }
 

@@ -334,6 +334,94 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val _edgeVisualizerEnabled = MutableStateFlow(false)
+    val edgeVisualizerEnabled = _edgeVisualizerEnabled.asStateFlow()
+    fun setEdgeVisualizerEnabled(enabled: Boolean) {
+        _edgeVisualizerEnabled.value = enabled
+        MainActivity.serviceStatic?.setEdgeVisualizerEnabled(enabled)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("edge_visualizer_enabled", enabled) }
+        }
+    }
+
+    private val _edgeThickness = MutableStateFlow(12)
+    val edgeThickness = _edgeThickness.asStateFlow()
+    fun setEdgeThickness(thickness: Int) {
+        _edgeThickness.value = thickness
+        MainActivity.serviceStatic?.setEdgeThickness(thickness)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putInt("edge_thickness", thickness) }
+        }
+    }
+
+    private val _edgeSensitivity = MutableStateFlow(1.0f)
+    val edgeSensitivity = _edgeSensitivity.asStateFlow()
+    fun setEdgeSensitivity(sensitivity: Float) {
+        _edgeSensitivity.value = sensitivity
+        MainActivity.serviceStatic?.setEdgeSensitivity(sensitivity)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("edge_sensitivity", sensitivity) }
+        }
+    }
+
+    private val _edgeBarCountHoriz = MutableStateFlow(20)
+    val edgeBarCountHoriz = _edgeBarCountHoriz.asStateFlow()
+    fun setEdgeBarCountHoriz(count: Int) {
+        _edgeBarCountHoriz.value = count
+        MainActivity.serviceStatic?.setEdgeBarCounts(count, _edgeBarCountVert.value)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putInt("edge_bar_count_horiz", count) }
+        }
+    }
+
+    private val _edgeBarCountVert = MutableStateFlow(40)
+    val edgeBarCountVert = _edgeBarCountVert.asStateFlow()
+    fun setEdgeBarCountVert(count: Int) {
+        _edgeBarCountVert.value = count
+        MainActivity.serviceStatic?.setEdgeBarCounts(_edgeBarCountHoriz.value, count)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putInt("edge_bar_count_vert", count) }
+        }
+    }
+
+    private val _edgeCornerRadius = MutableStateFlow(2f)
+    val edgeCornerRadius = _edgeCornerRadius.asStateFlow()
+    fun setEdgeCornerRadius(radius: Float) {
+        _edgeCornerRadius.value = radius
+        MainActivity.serviceStatic?.setEdgeCornerRadius(radius)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("edge_corner_radius", radius) }
+        }
+    }
+
+    private val _edgeTopEnabled = MutableStateFlow(true)
+    val edgeTopEnabled = _edgeTopEnabled.asStateFlow()
+    fun setEdgeTopEnabled(enabled: Boolean) {
+        _edgeTopEnabled.value = enabled
+        MainActivity.serviceStatic?.setEdgeTopEnabled(enabled)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("edge_top_enabled", enabled) }
+        }
+    }
+
+    private val _edgeBottomEnabled = MutableStateFlow(true)
+    val edgeBottomEnabled = _edgeBottomEnabled.asStateFlow()
+    fun setEdgeBottomEnabled(enabled: Boolean) {
+        _edgeBottomEnabled.value = enabled
+        MainActivity.serviceStatic?.setEdgeBottomEnabled(enabled)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("edge_bottom_enabled", enabled) }
+        }
+    }
+
     private val _lensVisualizerEnabled = MutableStateFlow(false)
     val lensVisualizerEnabled = _lensVisualizerEnabled.asStateFlow()
     fun setLensVisualizerEnabled(enabled: Boolean) {
@@ -1926,6 +2014,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _overlayYOffset.value = prefs.getInt("overlay_y_offset", 2)
         _overlaySensitivity.value = prefs.getFloat("overlay_sensitivity", 1.0f)
         _overlaySensitivityBottom.value = prefs.getFloat("overlay_sensitivity_bottom", 1.0f)
+        _edgeVisualizerEnabled.value = prefs.getBoolean("edge_visualizer_enabled", false)
+        _edgeThickness.value = prefs.getInt("edge_thickness", 12)
+        _edgeSensitivity.value = prefs.getFloat("edge_sensitivity", 1.0f)
+        _edgeBarCountHoriz.value = prefs.getInt("edge_bar_count_horiz", 20)
+        _edgeBarCountVert.value = prefs.getInt("edge_bar_count_vert", 40)
+        _edgeCornerRadius.value = prefs.getFloat("edge_corner_radius", 2f)
+        _edgeTopEnabled.value = prefs.getBoolean("edge_top_enabled", true)
+        _edgeBottomEnabled.value = prefs.getBoolean("edge_bottom_enabled", true)
 
         _lensVisualizerEnabled.value = prefs.getBoolean("lens_visualizer_enabled", false)
         _lensVisualizerRadius.value = prefs.getFloat("lens_visualizer_radius", 16f)
