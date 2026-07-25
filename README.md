@@ -1,4 +1,4 @@
-<img src="/Docs/Banners/Banner4.png" alt="Better Nothing Music Visualizer"/> 
+<img src="/Docs/Banners/Banner4.png" alt="Better Nothing Music Visualizer"/>
 
 🌐 Read this in other languages (not updated):  🇮🇳 [हिन्दी](Docs/README_HI.md), 🇮🇳 [Marathi](Docs/README_MR.md), 🇹🇷 [Türkçe](Docs/README_TR.md), 🇸🇦 [العربية](Docs/README_AR.md)
 
