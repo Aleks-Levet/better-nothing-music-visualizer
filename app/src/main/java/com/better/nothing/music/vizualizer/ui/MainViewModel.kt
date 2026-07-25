@@ -257,6 +257,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val _overlayTopEnabled = MutableStateFlow(true)
+    val overlayTopEnabled = _overlayTopEnabled.asStateFlow()
+    fun setOverlayTopEnabled(enabled: Boolean) {
+        _overlayTopEnabled.value = enabled
+        MainActivity.serviceStatic?.setOverlayTopEnabled(enabled)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("overlay_top_enabled", enabled) }
+        }
+    }
+
+    private val _overlayBottomEnabled = MutableStateFlow(false)
+    val overlayBottomEnabled = _overlayBottomEnabled.asStateFlow()
+    fun setOverlayBottomEnabled(enabled: Boolean) {
+        _overlayBottomEnabled.value = enabled
+        MainActivity.serviceStatic?.setOverlayBottomEnabled(enabled)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("overlay_bottom_enabled", enabled) }
+        }
+    }
+
     private val _overlayHeight = MutableStateFlow(12)
     val overlayHeight = _overlayHeight.asStateFlow()
     fun setOverlayHeight(height: Int) {
@@ -265,6 +287,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putInt("overlay_height", height) }
+        }
+    }
+
+    private val _overlayHeightBottom = MutableStateFlow(12)
+    val overlayHeightBottom = _overlayHeightBottom.asStateFlow()
+    fun setOverlayHeightBottom(height: Int) {
+        _overlayHeightBottom.value = height
+        MainActivity.serviceStatic?.setOverlayHeightBottom(height)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putInt("overlay_height_bottom", height) }
         }
     }
 
@@ -287,6 +320,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putFloat("overlay_sensitivity", sensitivity) }
+        }
+    }
+
+    private val _overlaySensitivityBottom = MutableStateFlow(1.0f)
+    val overlaySensitivityBottom = _overlaySensitivityBottom.asStateFlow()
+    fun setOverlaySensitivityBottom(sensitivity: Float) {
+        _overlaySensitivityBottom.value = sensitivity
+        MainActivity.serviceStatic?.setOverlaySensitivityBottom(sensitivity)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("overlay_sensitivity_bottom", sensitivity) }
         }
     }
 
@@ -1874,10 +1918,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _strobeEnabled.value = prefs.getBoolean("strobe_enabled", false)
         _disableGlyphsWhenSilent.value = prefs.getBoolean("disable_glyphs_when_silent", false)
         _overlayEnabled.value = prefs.getBoolean("overlay_enabled", false)
+        _overlayTopEnabled.value = prefs.getBoolean("overlay_top_enabled", true)
+        _overlayBottomEnabled.value = prefs.getBoolean("overlay_bottom_enabled", false)
         _overlayWidth.value = prefs.getInt("overlay_width", 120)
         _overlayHeight.value = prefs.getInt("overlay_height", 12)
+        _overlayHeightBottom.value = prefs.getInt("overlay_height_bottom", 12)
         _overlayYOffset.value = prefs.getInt("overlay_y_offset", 2)
         _overlaySensitivity.value = prefs.getFloat("overlay_sensitivity", 1.0f)
+        _overlaySensitivityBottom.value = prefs.getFloat("overlay_sensitivity_bottom", 1.0f)
 
         _lensVisualizerEnabled.value = prefs.getBoolean("lens_visualizer_enabled", false)
         _lensVisualizerRadius.value = prefs.getFloat("lens_visualizer_radius", 16f)

@@ -191,7 +191,11 @@
     <string name="lens_sensitivity">Lens Sensitivity</string>
     <string name="overlay_width">Overlay Width</string>
     <string name="overlay_height">Overlay Height</string>
+    <string name="overlay_height_bottom">Bottom Height</string>
     <string name="overlay_sensitivity">Overlay Sensitivity</string>
+    <string name="overlay_sensitivity_bottom">Bottom Sensitivity</string>
+    <string name="overlay_top_segment">Top Segment</string>
+    <string name="overlay_bottom_segment">Bottom Segment</string>
     <string name="vertical_position">Vertical Position</string>
     <string name="dynamic_gain">Dynamic Gain</string>
     <string name="flashlight_multi_intensity_forced_title">Flashlight Multi-Intensity</string>

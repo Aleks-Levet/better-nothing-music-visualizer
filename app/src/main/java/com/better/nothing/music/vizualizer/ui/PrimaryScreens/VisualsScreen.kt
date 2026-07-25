@@ -35,8 +35,12 @@ fun VisualsScreen(
 ) {
     val overlayWidth by viewModel.overlayWidth.collectAsStateWithLifecycle()
     val overlayHeight by viewModel.overlayHeight.collectAsStateWithLifecycle()
+    val overlayHeightBottom by viewModel.overlayHeightBottom.collectAsStateWithLifecycle()
     val overlayYOffset by viewModel.overlayYOffset.collectAsStateWithLifecycle()
     val overlaySensitivity by viewModel.overlaySensitivity.collectAsStateWithLifecycle()
+    val overlaySensitivityBottom by viewModel.overlaySensitivityBottom.collectAsStateWithLifecycle()
+    val overlayTopEnabled by viewModel.overlayTopEnabled.collectAsStateWithLifecycle()
+    val overlayBottomEnabled by viewModel.overlayBottomEnabled.collectAsStateWithLifecycle()
     
     val context = LocalContext.current
     val scrollState = rememberScrollState()
@@ -125,54 +129,6 @@ fun VisualsScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Height Slider
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.overlay_height),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "${overlayHeight}dp",
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    ExpressiveSlider(
-                        value = overlayHeight.toFloat(),
-                        onValueChange = { viewModel.setOverlayHeight(it.toInt()) },
-                        valueRange = 1f..128f,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    // Sensitivity Slider
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.overlay_sensitivity),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = String.format("%.2fx", overlaySensitivity),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    ExpressiveSlider(
-                        value = overlaySensitivity,
-                        onValueChange = { viewModel.setOverlaySensitivity(it) },
-                        valueRange = 0.01f..1.0f,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
                     // Y Offset Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -196,6 +152,144 @@ fun VisualsScreen(
                         valueRange = -300f..300f,
                         modifier = Modifier.fillMaxWidth()
                     )
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant)
+
+                    // Top Segment
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Checkbox(
+                            checked = overlayTopEnabled,
+                            onCheckedChange = { viewModel.setOverlayTopEnabled(it) }
+                        )
+                        Text(
+                            text = stringResource(R.string.overlay_top_segment),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    if (overlayTopEnabled) {
+                        // Top Height Slider
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(R.string.overlay_height),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "${overlayHeight}dp",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        ExpressiveSlider(
+                            value = overlayHeight.toFloat(),
+                            onValueChange = { viewModel.setOverlayHeight(it.toInt()) },
+                            valueRange = 1f..128f,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        // Top Sensitivity Slider
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(R.string.overlay_sensitivity),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = String.format("%.2fx", overlaySensitivity),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        ExpressiveSlider(
+                            value = overlaySensitivity,
+                            onValueChange = { viewModel.setOverlaySensitivity(it) },
+                            valueRange = 0.01f..1.0f,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant)
+
+                    // Bottom Segment
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Checkbox(
+                            checked = overlayBottomEnabled,
+                            onCheckedChange = { viewModel.setOverlayBottomEnabled(it) }
+                        )
+                        Text(
+                            text = stringResource(R.string.overlay_bottom_segment),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    if (overlayBottomEnabled) {
+                        // Bottom Height Slider
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(R.string.overlay_height_bottom),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "${overlayHeightBottom}dp",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        ExpressiveSlider(
+                            value = overlayHeightBottom.toFloat(),
+                            onValueChange = { viewModel.setOverlayHeightBottom(it.toInt()) },
+                            valueRange = 1f..128f,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        // Bottom Sensitivity Slider
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(R.string.overlay_sensitivity_bottom),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = String.format("%.2fx", overlaySensitivityBottom),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        ExpressiveSlider(
+                            value = overlaySensitivityBottom,
+                            onValueChange = { viewModel.setOverlaySensitivityBottom(it) },
+                            valueRange = 0.01f..1.0f,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
         }

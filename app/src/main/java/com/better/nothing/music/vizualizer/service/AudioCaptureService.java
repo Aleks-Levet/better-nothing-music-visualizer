@@ -302,8 +302,12 @@ public class AudioCaptureService extends Service {
     public void setLensVisualizerSensitivity(float sensitivity) { mLensVisualizerSensitivity = sensitivity; }
     private int mOverlayWidth = 120;
     private int mOverlayHeight = 12;
+    private int mOverlayHeightBottom = 12;
     private int mOverlayYOffset = 2;
     private float mOverlaySensitivity = 1.0f;
+    private float mOverlaySensitivityBottom = 1.0f;
+    private boolean mOverlayTopEnabled = true;
+    private boolean mOverlayBottomEnabled = false;
     private int mOverlayColor = android.graphics.Color.WHITE;
     private WindowManager mWindowManager;
     private VisualizerOverlayView mOverlayView;
@@ -484,8 +488,12 @@ public class AudioCaptureService extends Service {
         mOverlayEnabled = appPrefs.getBoolean("overlay_enabled", false);
         mOverlayWidth = appPrefs.getInt("overlay_width", 120);
         mOverlayHeight = appPrefs.getInt("overlay_height", 12);
+        mOverlayHeightBottom = appPrefs.getInt("overlay_height_bottom", 12);
         mOverlayYOffset = appPrefs.getInt("overlay_y_offset", 2);
         mOverlaySensitivity = appPrefs.getFloat("overlay_sensitivity", 1.0f);
+        mOverlaySensitivityBottom = appPrefs.getFloat("overlay_sensitivity_bottom", 1.0f);
+        mOverlayTopEnabled = appPrefs.getBoolean("overlay_top_enabled", true);
+        mOverlayBottomEnabled = appPrefs.getBoolean("overlay_bottom_enabled", false);
 
         boolean dynamicGainEnabled = appPrefs.getBoolean("dynamic_gain_enabled", true);
         if (mAudioProcessor != null) {
@@ -1179,6 +1187,15 @@ public class AudioCaptureService extends Service {
 
     public void setOverlayHeight(int height) {
         mOverlayHeight = height;
+        updateOverlayViewSettings();
+        if (mOverlayView != null && mWorkerHandler != null) {
+            mWorkerHandler.post(this::updateOverlayLayout);
+        }
+    }
+
+    public void setOverlayHeightBottom(int height) {
+        mOverlayHeightBottom = height;
+        updateOverlayViewSettings();
         if (mOverlayView != null && mWorkerHandler != null) {
             mWorkerHandler.post(this::updateOverlayLayout);
         }
@@ -1193,8 +1210,46 @@ public class AudioCaptureService extends Service {
 
     public void setOverlaySensitivity(float sensitivity) {
         mOverlaySensitivity = sensitivity;
+        updateOverlayViewSettings();
+    }
+
+    public void setOverlaySensitivityBottom(float sensitivity) {
+        mOverlaySensitivityBottom = sensitivity;
+        updateOverlayViewSettings();
+    }
+
+    public void setOverlayTopEnabled(boolean enabled) {
+        mOverlayTopEnabled = enabled;
+        updateOverlayViewSettings();
+        if (mOverlayView != null && mWorkerHandler != null) {
+            mWorkerHandler.post(this::updateOverlayLayout);
+        }
+    }
+
+    public void setOverlayBottomEnabled(boolean enabled) {
+        mOverlayBottomEnabled = enabled;
+        updateOverlayViewSettings();
+        if (mOverlayView != null && mWorkerHandler != null) {
+            mWorkerHandler.post(this::updateOverlayLayout);
+        }
+    }
+
+    private void updateOverlayViewSettings() {
         if (mOverlayView != null) {
-            mMainHandler.post(() -> mOverlayView.setSensitivity(sensitivity));
+            mMainHandler.post(() -> {
+                if (mOverlayView != null) {
+                    mOverlayView.setTopEnabled(mOverlayTopEnabled);
+                    mOverlayView.setBottomEnabled(mOverlayBottomEnabled);
+                    mOverlayView.setTopSensitivity(mOverlaySensitivity);
+                    mOverlayView.setBottomSensitivity(mOverlaySensitivityBottom);
+                    
+                    float density = getResources().getDisplayMetrics().density;
+                    mOverlayView.setHeights(
+                        (int) (mOverlayHeight * density),
+                        (int) (mOverlayHeightBottom * density)
+                    );
+                }
+            });
         }
     }
 
@@ -1203,10 +1258,18 @@ public class AudioCaptureService extends Service {
         mMainHandler.post(() -> {
             if (mOverlayView == null || mWindowManager == null) return;
             try {
+                float density = getResources().getDisplayMetrics().density;
                 WindowManager.LayoutParams params = (WindowManager.LayoutParams) mOverlayView.getLayoutParams();
-                params.width = (int) (mOverlayWidth * getResources().getDisplayMetrics().density);
-                params.height = (int) (mOverlayHeight * getResources().getDisplayMetrics().density);
-                params.y = (int) (mOverlayYOffset * getResources().getDisplayMetrics().density);
+                params.width = (int) (mOverlayWidth * density);
+                
+                int topHeightPx = mOverlayTopEnabled ? (int) (mOverlayHeight * density) : 0;
+                int bottomHeightPx = mOverlayBottomEnabled ? (int) (mOverlayHeightBottom * density) : 0;
+                int totalHeightPx = topHeightPx + bottomHeightPx;
+                if (totalHeightPx <= 0) totalHeightPx = 1;
+                
+                params.height = totalHeightPx;
+                // Adjust Y so the baseline (between top and bottom) stays at mOverlayYOffset
+                params.y = (int) (mOverlayYOffset * density) - bottomHeightPx;
                 mWindowManager.updateViewLayout(mOverlayView, params);
             } catch (Exception e) {
                 Log.e(TAG, "Failed to update overlay layout", e);
@@ -1254,21 +1317,27 @@ public class AudioCaptureService extends Service {
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         mOverlayView = new VisualizerOverlayView(this);
         mOverlayView.setColor(mOverlayColor);
-        mOverlayView.setSensitivity(mOverlaySensitivity);
+        updateOverlayViewSettings();
 
-        int height = (int) (mOverlayHeight * getResources().getDisplayMetrics().density);
-        int width = (int) (mOverlayWidth * getResources().getDisplayMetrics().density);
+        float density = getResources().getDisplayMetrics().density;
+        int width = (int) (mOverlayWidth * density);
+        
+        int topHeightPx = mOverlayTopEnabled ? (int) (mOverlayHeight * density) : 0;
+        int bottomHeightPx = mOverlayBottomEnabled ? (int) (mOverlayHeightBottom * density) : 0;
+        int totalHeightPx = topHeightPx + bottomHeightPx;
+        if (totalHeightPx <= 0) totalHeightPx = 1;
 
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 width,
-                height,
+                totalHeightPx,
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 PixelFormat.TRANSLUCENT
         );
 
         params.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-        params.y = (int) (mOverlayYOffset * getResources().getDisplayMetrics().density);
+        // Adjust Y so the baseline (between top and bottom) stays at mOverlayYOffset
+        params.y = (int) (mOverlayYOffset * density) - bottomHeightPx;
         try {
             mWindowManager.addView(mOverlayView, params);
         } catch (Exception e) {

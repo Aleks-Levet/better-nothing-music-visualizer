@@ -10,9 +10,16 @@ public class VisualizerOverlayView extends View {
     private float[] mMagnitudes;
     private final Paint mPaint = new Paint();
     private static final int NUM_BARS = 16;
-    private final float[] mSmoothedMagnitudes = new float[NUM_BARS];
+    private final float[] mSmoothedMagnitudesTop = new float[NUM_BARS];
+    private final float[] mSmoothedMagnitudesBottom = new float[NUM_BARS];
     private int mColor = Color.WHITE;
-    private float mSensitivity = 1.0f;
+    
+    private boolean mTopEnabled = true;
+    private boolean mBottomEnabled = false;
+    private float mTopSensitivity = 1.0f;
+    private float mBottomSensitivity = 1.0f;
+    private int mTopHeightPx = 0;
+    private int mBottomHeightPx = 0;
 
     public VisualizerOverlayView(Context context) {
         super(context);
@@ -27,8 +34,28 @@ public class VisualizerOverlayView extends View {
         invalidate();
     }
 
-    public void setSensitivity(float sensitivity) {
-        this.mSensitivity = sensitivity;
+    public void setTopEnabled(boolean enabled) {
+        this.mTopEnabled = enabled;
+        invalidate();
+    }
+
+    public void setBottomEnabled(boolean enabled) {
+        this.mBottomEnabled = enabled;
+        invalidate();
+    }
+
+    public void setTopSensitivity(float sensitivity) {
+        this.mTopSensitivity = sensitivity;
+    }
+
+    public void setBottomSensitivity(float sensitivity) {
+        this.mBottomSensitivity = sensitivity;
+    }
+
+    public void setHeights(int topPx, int bottomPx) {
+        this.mTopHeightPx = topPx;
+        this.mBottomHeightPx = bottomPx;
+        invalidate();
     }
 
     public void updateMagnitudes(float[] magnitudes) {
@@ -57,8 +84,14 @@ public class VisualizerOverlayView extends View {
             float avg = count > 0 ? sum / count : 0f;
             
             // Smoothing for visual stability
-            float current = avg * 60.0f * mSensitivity; // Gain
-            mSmoothedMagnitudes[i] = mSmoothedMagnitudes[i] * 0.7f + current * 0.3f;
+            if (mTopEnabled) {
+                float currentTop = avg * 60.0f * mTopSensitivity;
+                mSmoothedMagnitudesTop[i] = mSmoothedMagnitudesTop[i] * 0.7f + currentTop * 0.3f;
+            }
+            if (mBottomEnabled) {
+                float currentBottom = avg * 60.0f * mBottomSensitivity;
+                mSmoothedMagnitudesBottom[i] = mSmoothedMagnitudesBottom[i] * 0.7f + currentBottom * 0.3f;
+            }
         }
         postInvalidateOnAnimation();
     }
@@ -69,24 +102,37 @@ public class VisualizerOverlayView extends View {
         if (mMagnitudes == null) return;
 
         int width = getWidth();
-        int height = getHeight();
         float barWidth = (float) width / NUM_BARS;
         float spacing = 1.5f;
         float cornerRadius = 2f;
 
+        float baselineY = mTopEnabled ? mTopHeightPx : 0;
+
         for (int i = 0; i < NUM_BARS; i++) {
-            float val = mSmoothedMagnitudes[i];
-            float barHeight = val * height;
-            if (barHeight > height) barHeight = height;
-            if (barHeight < 1.0f) barHeight = 1.0f; // Baseline
-
             float left = i * barWidth + spacing;
-            float top = height - barHeight;
             float right = (i + 1) * barWidth - spacing;
-            float bottom = height;
 
-            // Draw rounded bars
-            canvas.drawRoundRect(left, top, right, bottom, cornerRadius, cornerRadius, mPaint);
+            if (mTopEnabled) {
+                float valTop = mSmoothedMagnitudesTop[i];
+                float barHeightTop = valTop * mTopHeightPx;
+                if (barHeightTop > mTopHeightPx) barHeightTop = mTopHeightPx;
+                if (barHeightTop < 1.0f) barHeightTop = 1.0f;
+
+                float top = baselineY - barHeightTop;
+                float bottom = baselineY;
+                canvas.drawRoundRect(left, top, right, bottom, cornerRadius, cornerRadius, mPaint);
+            }
+
+            if (mBottomEnabled) {
+                float valBottom = mSmoothedMagnitudesBottom[i];
+                float barHeightBottom = valBottom * mBottomHeightPx;
+                if (barHeightBottom > mBottomHeightPx) barHeightBottom = mBottomHeightPx;
+                if (barHeightBottom < 1.0f) barHeightBottom = 1.0f;
+
+                float top = baselineY;
+                float bottom = baselineY + barHeightBottom;
+                canvas.drawRoundRect(left, top, right, bottom, cornerRadius, cornerRadius, mPaint);
+            }
         }
     }
 }
