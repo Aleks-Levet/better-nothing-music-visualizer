@@ -58,15 +58,14 @@ public class VisualizerOverlayView extends View {
         invalidate();
     }
 
-    public void updateMagnitudes(float[] magnitudes) {
+    public void updateMagnitudes(float[] magnitudes, int sampleRate) {
         if (magnitudes == null || magnitudes.length == 0) return;
         this.mMagnitudes = magnitudes;
         
         // Logarithmic grouping for better visual representation
         float minFreq = 20f;
         float maxFreq = 12000f; // Human hearing energy mostly below here for visuals
-        float sampleRate = 44100f;
-        float hzPerBin = sampleRate / (2f * (magnitudes.length - 1));
+        float hzPerBin = (float) sampleRate / (2f * (magnitudes.length - 1));
 
         for (int i = 0; i < NUM_BARS; i++) {
             float lowFreq = (float) (minFreq * Math.pow(maxFreq / minFreq, (double) i / NUM_BARS));

@@ -106,6 +106,13 @@ class MainActivity : ComponentActivity() {
     }
 
     private val mainHandler = Handler(Looper.getMainLooper())
+    
+    private val shizukuPermissionListener = Shizuku.OnRequestPermissionResultListener { requestCode, grantResult ->
+        if (requestCode == 1001 && grantResult == PackageManager.PERMISSION_GRANTED) {
+            service?.startVisualizer()
+        }
+    }
+
     private val audioDeviceCallback = object : AudioDeviceCallback() {
         override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo>) {
             refreshConnectedAudioRoute()
@@ -219,6 +226,7 @@ class MainActivity : ComponentActivity() {
         bindService(intent, serviceConnection, BIND_AUTO_CREATE)
 
         audioManager.registerAudioDeviceCallback(audioDeviceCallback, mainHandler)
+        Shizuku.addRequestPermissionResultListener(shizukuPermissionListener)
 
         val mediaSessionManager = getSystemService(MEDIA_SESSION_SERVICE) as MediaSessionManager
         if (isNotificationServiceEnabled()) {
@@ -447,6 +455,7 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
         unbindService(serviceConnection)
         audioManager.unregisterAudioDeviceCallback(audioDeviceCallback)
+        Shizuku.removeRequestPermissionResultListener(shizukuPermissionListener)
         musicThemeHandler.onDestroy()
         val mediaSessionManager = getSystemService(MEDIA_SESSION_SERVICE) as MediaSessionManager
         if (isNotificationServiceEnabled()) {

@@ -87,14 +87,13 @@ public class EdgeVisualizerView extends View {
         invalidate();
     }
 
-    public void updateMagnitudes(float[] magnitudes) {
+    public void updateMagnitudes(float[] magnitudes, int sampleRate) {
         if (magnitudes == null || magnitudes.length == 0) return;
         this.mMagnitudes = magnitudes;
         
         float minFreq = 20f;
         float maxFreq = 12000f;
-        float sampleRate = 44100f;
-        float hzPerBin = sampleRate / (2f * (magnitudes.length - 1));
+        float hzPerBin = (float) sampleRate / (2f * (magnitudes.length - 1));
 
         for (int i = 0; i < mBarCountHoriz; i++) {
             float center = (mBarCountHoriz - 1) / 2.0f;
