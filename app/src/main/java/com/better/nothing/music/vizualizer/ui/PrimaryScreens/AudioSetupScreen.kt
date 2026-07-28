@@ -7,10 +7,12 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -185,6 +187,16 @@ fun AudioScreen(
             )
         )
 
+        val headerSpacerHeight by animateDpAsState(
+            targetValue = if (isRunning) 0.dp else 160.dp,
+            animationSpec = tween(durationMillis = 600, easing = EaseOutCubic),
+            label = "headerSpacerHeight"
+        )
+
+        if (headerSpacerHeight > 0.dp) {
+            Spacer(Modifier.height(headerSpacerHeight))
+        }
+
         CaptureSourceCard(
             selectedSource = captureSource,
             onSourceSelected = { source ->
@@ -202,8 +214,7 @@ fun AudioScreen(
             },
             shizukuUnlocked = shizukuUnlocked
         )
-
-        val descriptionText = if (isRunning) {
+        if (isRunning) {
             val seconds = (sessionDuration / 1000) % 60
             val minutes = (sessionDuration / (1000 * 60)) % 60
             val hours = (sessionDuration / (1000 * 60 * 60))
@@ -212,20 +223,18 @@ fun AudioScreen(
             } else {
                 String.format(Locale.US, "%02d:%02d", minutes, seconds)
             }
-            stringResource(R.string.audio_description_running) + "\n\nActive Time: $timeStr"
-        } else {
-            stringResource(R.string.audio_description_idle)
-        }
+            val descriptionText = stringResource(R.string.audio_description_running) + "\n\nActive Time: $timeStr"
 
-        ExpressiveCard(
-            containerColor = MaterialTheme.colorScheme.surface.copy(
-                alpha = 0.5f
-            )
-        ) {
-            BodyText(
-                text = descriptionText,
-                size = 14.sp
-            )
+            ExpressiveCard(
+                containerColor = MaterialTheme.colorScheme.surface.copy(
+                    alpha = 0.5f
+                )
+            ) {
+                BodyText(
+                    text = descriptionText,
+                    size = 14.sp
+                )
+            }
         }
 
         AnimatedVisibility(visible = isRunning) {

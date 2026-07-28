@@ -668,7 +668,7 @@ fun NativeBottomBar(
                             }
 
                         when (tab) {
-                            Tab.Audio -> Icon(Icons.AutoMirrored.Filled.VolumeUp, stringResource(tab.labelRes), modifier = iconModifier)
+                            Tab.Audio -> Icon(painter = painterResource(R.drawable.ic_notif_monochrome), contentDescription = stringResource(tab.labelRes), modifier = iconModifier)
                             Tab.Glyphs -> Icon(painter = painterResource(R.drawable.ic_nav_glyphs), contentDescription = stringResource(tab.labelRes), modifier = iconModifier)
                             Tab.Visuals -> Icon(Icons.Default.Layers, stringResource(tab.labelRes), modifier = iconModifier)
                             Tab.Haptics -> Icon(Icons.Filled.Vibration, stringResource(tab.labelRes), modifier = iconModifier)

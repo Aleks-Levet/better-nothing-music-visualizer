@@ -80,7 +80,6 @@ internal fun SettingsScreen(
     padding: PaddingValues = PaddingValues(),
 ) {
     val uiAmplitudeSyncEnabled by viewModel.uiAmplitudeSyncEnabled.collectAsStateWithLifecycle()
-    val dynamicGainEnabled by viewModel.dynamicGainEnabled.collectAsStateWithLifecycle()
     val flashlightMultiIntensityForced by viewModel.flashlightMultiIntensityForced.collectAsStateWithLifecycle()
     val isAnonymous by viewModel.isAnonymous.collectAsStateWithLifecycle()
     val userProfile by viewModel.userProfile.collectAsStateWithLifecycle()
@@ -744,12 +743,6 @@ internal fun SettingsScreen(
                                 onClick = { onDisableGlyphsWhenSilentChanged(!disableGlyphsWhenSilent) }
                             )
                         }
-                        OptionTile(
-                            label = stringResource(R.string.dynamic_gain),
-                            icon = Icons.AutoMirrored.Filled.TrendingUp,
-                            isSelected = dynamicGainEnabled,
-                            onClick = { viewModel.setDynamicGainEnabled(!dynamicGainEnabled) }
-                        )
                         if (viewModel.hasFlashlight) {
                             OptionTile(
                                 label = stringResource(R.string.flashlight_multi_intensity_forced_title),

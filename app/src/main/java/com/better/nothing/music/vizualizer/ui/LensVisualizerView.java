@@ -70,7 +70,8 @@ public class LensVisualizerView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (mSmoothedMagnitudes.length == 0) return;
+        int barCount = mSmoothedMagnitudes.length;
+        if (barCount == 0) return;
 
         int width = getWidth();
         int height = getHeight();
@@ -80,8 +81,8 @@ public class LensVisualizerView extends View {
         float centerY = height * mYPos;
         float radius = mRadius * density;
         
-        for (int i = 0; i < mBarCount; i++) {
-            float angle = (float) (i * 2 * Math.PI / mBarCount);
+        for (int i = 0; i < barCount; i++) {
+            float angle = (float) (i * 2 * Math.PI / barCount);
             float magnitude = mSmoothedMagnitudes[i];
             float barLen = magnitude * mMaxHeight * density;
             

@@ -201,16 +201,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun showProfileSetup() { _isShowingProfileSetup.value = true }
     fun hideProfileSetup() { _isShowingProfileSetup.value = false }
 
-    private val _dynamicGainEnabled = MutableStateFlow(true)
-    val dynamicGainEnabled = _dynamicGainEnabled.asStateFlow()
-    fun setDynamicGainEnabled(enabled: Boolean) {
-        _dynamicGainEnabled.value = enabled
-        MainActivity.serviceStatic?.setDynamicGainEnabled(enabled)
-        viewModelScope.launch(Dispatchers.IO) {
-            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putBoolean("dynamic_gain_enabled", enabled) }
-        }
-    }
 
     private val _flashlightMultiIntensityForced = MutableStateFlow(false)
     val flashlightMultiIntensityForced = _flashlightMultiIntensityForced.asStateFlow()
@@ -1860,27 +1850,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _fftState.value = state
     }
 
-    init {
+        init {
         viewModelScope.launch(Dispatchers.Default) {
             fftState.collect { magnitude ->
-                val hzPerBin = 44100f / 2048f
-                val binLo = if (magnitude.isEmpty()) 0 else (_hapticFreqMin.value / hzPerBin).toInt().coerceIn(0, magnitude.lastIndex)
-                val binHi = if (magnitude.isEmpty()) 0 else (_hapticFreqMax.value / hzPerBin).toInt().coerceIn(binLo, magnitude.lastIndex)
-
-                val fBinLo = if (magnitude.isEmpty()) 0 else (_flashlightFreqMin.value / hzPerBin).toInt().coerceIn(0, magnitude.lastIndex)
-                val fBinHi = if (magnitude.isEmpty()) 0 else (_flashlightFreqMax.value / hzPerBin).toInt().coerceIn(fBinLo, magnitude.lastIndex)
-
-                val target = if (magnitude.isEmpty()) {
+                val service = MainActivity.serviceStatic
+                
+                val target = if (magnitude.isEmpty() || service == null) {
                     _hapticAmplitude.value = 0f
                     _flashlightAmplitude.value = 0f
                     _isBeatDetected.value = false
                     1.0f
                 } else {
-                    var maxMag = 0f
-                    for (i in binLo..binHi) {
-                        if (magnitude[i] > maxMag) maxMag = magnitude[i];
-                    }
-                    val targetHaptic = (maxMag * _hapticAudioGain.value * 12f).coerceIn(0f, 1.0f).toDouble().pow(_hapticGamma.value.toDouble()).toFloat()
+                    // Use pre-calculated peaks from the service to avoid re-scanning bins
+                    val hapticPeak = service.latestHapticPeak
+                    val uiPeak = service.latestUiPeak
+                    val flashlightPeak = service.latestFlashlightPeak
+
+                    val targetHaptic = (hapticPeak * _hapticAudioGain.value * 12f).coerceIn(0f, 1.0f).toDouble().pow(_hapticGamma.value.toDouble()).toFloat()
 
                     // Asymmetric smoothing for haptics
                     if (targetHaptic > smoothedHapticAmplitude) {
@@ -1892,42 +1878,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     val finalValue = (smoothedHapticAmplitude * _hapticMultiplier.value)
                     _hapticAmplitude.value = finalValue.coerceIn(0f, 1.2f)
 
-                    // Flashlight Amplitude Calculation
-                    var fMaxMag = 0f
-                    for (i in fBinLo..fBinHi) {
-                        if (magnitude[i] > fMaxMag) fMaxMag = magnitude[i];
-                    }
-                    val fTarget = (fMaxMag * 16.0f).coerceIn(0f, 1.2f)
+                    // Flashlight Amplitude using the pre-calculated flashlightPeak
+                    val fTarget = (flashlightPeak * 16.0f).coerceIn(0f, 1.2f)
                     val fCur = Math.pow(fTarget.toDouble(), 2.2).toFloat()
-                    
-                    // Add a bit of derivative boost to the UI monitor as well
                     val fDelta = (fCur - _flashlightAmplitude.value).coerceAtLeast(0f)
                     _flashlightAmplitude.value = (fCur + fDelta * 1.5f).coerceIn(0f, 1.2f)
 
-                    // UI Amplitude (70-130 Hz) for global reactive UI elements
-                    val uiBinLo = (70f / hzPerBin).toInt().coerceIn(0, magnitude.lastIndex)
-                    val uiBinHi = (130f / hzPerBin).toInt().coerceIn(uiBinLo, magnitude.lastIndex)
-                    var uiMaxMag = 0f
-                    for (i in uiBinLo..uiBinHi) {
-                        if (magnitude[i] > uiMaxMag) uiMaxMag = magnitude[i]
-                    }
-
-                    // Dynamic gain logic: track peaks and adjust gain
-                    uiPeakValue = uiPeakValue * 0.98f + uiMaxMag * 0.02f
-                    if (uiMaxMag > uiPeakValue) uiPeakValue = uiMaxMag
+                    // UI Amplitude using the pre-calculated uiPeak
+                    uiPeakValue = uiPeakValue * 0.98f + uiPeak * 0.02f
+                    if (uiPeak > uiPeakValue) uiPeakValue = uiPeak
                     
                     val targetGain = if (uiPeakValue > 0.01f) 0.15f / uiPeakValue else 12f
                     uiDynamicGain = uiDynamicGain * 0.9f + targetGain.coerceIn(5f, 25f) * 0.1f
                     
-                    // Apply dynamic gain and map to [0.8, 1.2]
-                    (1.0f + (uiMaxMag * uiDynamicGain - 0.2f)).coerceIn(0.8f, 1.2f)
+                    (1.0f + (uiPeak * uiDynamicGain - 0.2f)).coerceIn(0.8f, 1.2f)
                 }
 
-                // Asymmetric smoothing: very fast attack, faster decay than before
                 if (target > smoothedUiAmplitude) {
                     smoothedUiAmplitude = smoothedUiAmplitude * 0.1f + target * 0.9f
                 } else {
-                    // Faster decay: from 0.92/0.08 to 0.85/0.15
                     smoothedUiAmplitude = smoothedUiAmplitude * 0.85f + target * 0.15f
                 }
                 
@@ -1938,13 +1907,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
 
                 if (magnitude.isEmpty()) return@collect
+                
+                val hzPerBin = 44100f / 2048f
+                val binLo = (_hapticFreqMin.value / hzPerBin).toInt().coerceIn(0, magnitude.lastIndex)
+                val binHi = (_hapticFreqMax.value / hzPerBin).toInt().coerceIn(binLo, magnitude.lastIndex)
 
-                // 2. Beat Detection (matching HapticEngine.kt logic)
+                // 2. Beat Detection
                 if (_hapticMode.value == HapticMode.BEAT_DETECTION) {
                     hapticBeatDetector.sensitivity = _hapticBeatSensitivity.value
                     if (hapticBeatDetector.detect(magnitude, binLo, binHi)) {
                         _isBeatDetected.value = true
-                        // Auto-reset beat after a short duration for the UI flash
                         viewModelScope.launch {
                             delay(50)
                             _isBeatDetected.value = false
@@ -1955,6 +1927,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
 
                 if (_flashlightMode.value == TorchMode.BEAT_DETECTION) {
+                    val fBinLo = (_flashlightFreqMin.value / hzPerBin).toInt().coerceIn(0, magnitude.lastIndex)
+                    val fBinHi = (_flashlightFreqMax.value / hzPerBin).toInt().coerceIn(fBinLo, magnitude.lastIndex)
                     flashlightBeatDetector.sensitivity = _flashlightBeatSensitivity.value
                     if (flashlightBeatDetector.detect(magnitude, fBinLo, fBinHi)) {
                         _isFlashlightBeatDetected.value = true
@@ -1980,7 +1954,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _selectedPreset.value = prefs.getString("selected_preset", "Default") ?: "Default"
         _selectedTheme.value = prefs.getString("selected_theme", "Default") ?: "Default"
         _selectedFont.value = prefs.getString("selected_font", "Default") ?: "Default"
-        _dynamicGainEnabled.value = prefs.getBoolean("dynamic_gain_enabled", true)
         _flashlightMultiIntensityForced.value = prefs.getBoolean("flashlight_multi_intensity_forced", false)
         _notificationButtonSet.value = prefs.getString("notification_button_set", "presets") ?: "presets"
 
