@@ -246,16 +246,26 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(isRunning) {
                 if (isRunning) {
                     while (true) {
-                        service?.currentLightState?.let {
-                            viewModel.setVisualizerState(it)
-                        }
-                        service?.latestMagnitudes?.let {
-                            viewModel.setFftState(it)
+                        service?.let { s ->
+                            s.currentLightState?.let {
+                                viewModel.setVisualizerState(it)
+                            }
+                            val raw = s.latestRawFFT
+                            val decayed = s.latestDecayedFFT
+                            if (raw != null && decayed != null) {
+                                val rawFloat = FloatArray(512)
+                                val decayedFloat = FloatArray(512)
+                                for (i in 0 until 512) {
+                                    rawFloat[i] = raw[i] / 4095f
+                                    decayedFloat[i] = decayed[i] / 4095f
+                                }
+                                viewModel.setFftState(decayedFloat, rawFloat)
+                            }
                         }
                         delay(33.milliseconds)
                     }
                 } else {
-                    viewModel.setFftState(floatArrayOf())
+                    viewModel.setFftStateEmpty()
                     viewModel.setVisualizerState(floatArrayOf())
                 }
             }

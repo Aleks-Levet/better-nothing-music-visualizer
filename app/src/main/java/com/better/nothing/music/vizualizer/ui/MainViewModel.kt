@@ -1871,8 +1871,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _fftState = MutableStateFlow(floatArrayOf())
     val fftState = _fftState.asStateFlow()
 
-    fun setFftState(state: FloatArray) {
-        _fftState.value = state
+    val _fftRawState = MutableStateFlow(floatArrayOf())
+    val fftRawState = _fftRawState.asStateFlow()
+
+    fun setFftState(decayed: FloatArray, raw: FloatArray) {
+        _fftState.value = decayed
+        _fftRawState.value = raw
+    }
+
+    fun setFftStateEmpty() {
+        _fftState.value = floatArrayOf()
+        _fftRawState.value = floatArrayOf()
     }
 
         init {

@@ -649,19 +649,19 @@ internal fun SettingsScreen(
                             }
 
                             val locales = listOf(
-                                null to "System",
-                                "en" to "EN",
-                                "fr" to "FR",
-                                "it" to "IT",
+                                "en" to "English",
+                                "fr" to "Français",
+                                "it" to "Italiano",
                                 "de" to "DE",
-                                "es" to "ES",
+                                "es" to "Espanol",
                                 "ru" to "RU",
                                 "tr" to "TR",
                                 "pt-BR" to "PT-BR",
                                 "zh-CN" to "ZH-CN",
                                 "ja" to "JA",
                                 "hi" to "HI",
-                                "cy" to "CY"
+                                "cy" to "CY",
+                                null to "System Language"
                             )
 
                             ExpressiveSplitButton(

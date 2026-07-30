@@ -34,7 +34,8 @@ public class AudioProcessor {
     private FrequencyRange mUiRange;
 
     // Centralized 512-bin FFT (values 0-4095)
-    private final int[] mCentralizedFFT = new int[512];
+    private final int[] mRawFFT = new int[512];
+    private final int[] mDecayedFFT = new int[512];
     private final int[][] mLogBinToLinearRange = new int[512][2];
 
     // Hardcoded frequency ranges for 512 logarithmic bins (20Hz - 20kHz)
@@ -174,6 +175,7 @@ public class AudioProcessor {
         }
 
         // Map linear magnitude to 512 centralized logarithmic bins
+        float decayFactor = 0.85f; // Usual decay at ~60fps
         for (int i = 0; i < 512; i++) {
             int startBin = mLogBinToLinearRange[i][0];
             int endBin = mLogBinToLinearRange[i][1];
@@ -183,18 +185,27 @@ public class AudioProcessor {
             for (int b = startBin; b <= endBin && b < magnitude.length; b++) {
                 if (magnitude[b] > logMag) logMag = magnitude[b];
             }
-            mCentralizedFFT[i] = (int) Math.min(4095, logMag * 4095f);
+            
+            int rawVal = (int) Math.min(4095, logMag * 4095f);
+            mRawFFT[i] = rawVal;
+            
+            // Apply decay
+            if (rawVal > mDecayedFFT[i]) {
+                mDecayedFFT[i] = rawVal;
+            } else {
+                mDecayedFFT[i] = (int) (mDecayedFFT[i] * decayFactor + rawVal * (1f - decayFactor));
+            }
         }
 
-        // Compute peaks using the centralized FFT and the selected ReadMethod
+        // Compute peaks using the decayed FFT and the selected ReadMethod
         float hapticPeak = hapticRange != null ? computeRangeMagnitude(hapticRange) : 0f;
         float flashlightPeak = flashlightRange != null ? computeRangeMagnitude(flashlightRange) : 0f;
         float uiPeak = mUiRange != null ? computeRangeMagnitude(mUiRange) : 0f;
 
-        // Compute zone magnitudes (uniqueRanges now work with centralized FFT)
+        // Compute zone magnitudes (uniqueRanges now work with centralized decayed FFT)
         float[] uniqueMagnitudes = computeUniqueMagnitudes(config);
 
-        return new AudioFrameResult(uniqueMagnitudes, hapticPeak, uiPeak, flashlightPeak, mCentralizedFFT.clone());
+        return new AudioFrameResult(uniqueMagnitudes, hapticPeak, uiPeak, flashlightPeak, mRawFFT.clone(), mDecayedFFT.clone());
     }
 
     private float[] computeUniqueMagnitudes(VisualizerConfig config) {
@@ -243,18 +254,18 @@ public class AudioProcessor {
         switch (mReadMethod) {
             case MEAN: {
                 long sum = 0;
-                for (int i = start; i <= end; i++) sum += mCentralizedFFT[i];
+                for (int i = start; i <= end; i++) sum += mDecayedFFT[i];
                 return (sum / (float) (end - start + 1)) / 4095f;
             }
             case RMS: {
                 double sumSq = 0;
-                for (int i = start; i <= end; i++) sumSq += Math.pow(mCentralizedFFT[i], 2);
+                for (int i = start; i <= end; i++) sumSq += Math.pow(mDecayedFFT[i], 2);
                 return (float) (Math.sqrt(sumSq / (end - start + 1)) / 4095.0);
             }
             case MAX:
             default: {
                 int max = 0;
-                for (int i = start; i <= end; i++) if (mCentralizedFFT[i] > max) max = mCentralizedFFT[i];
+                for (int i = start; i <= end; i++) if (mDecayedFFT[i] > max) max = mDecayedFFT[i];
                 return max / 4095f;
             }
         }
@@ -341,14 +352,16 @@ public class AudioProcessor {
         public final float hapticPeak;
         public final float uiPeak;
         public final float flashlightPeak;
-        public final int[] centralizedFFT;
+        public final int[] rawFFT;
+        public final int[] decayedFFT;
 
-        public AudioFrameResult(float[] uniqueMagnitudes, float hapticPeak, float uiPeak, float flashlightPeak, int[] centralizedFFT) {
+        public AudioFrameResult(float[] uniqueMagnitudes, float hapticPeak, float uiPeak, float flashlightPeak, int[] rawFFT, int[] decayedFFT) {
             this.uniqueMagnitudes = uniqueMagnitudes;
             this.hapticPeak = hapticPeak;
             this.uiPeak = uiPeak;
             this.flashlightPeak = flashlightPeak;
-            this.centralizedFFT = centralizedFFT;
+            this.rawFFT = rawFFT;
+            this.decayedFFT = decayedFFT;
         }
     }
 }
