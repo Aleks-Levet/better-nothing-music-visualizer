@@ -202,7 +202,7 @@ fun AudioScreen(
         )
 
         val headerSpacerHeight by animateDpAsState(
-            targetValue = if (isRunning) 0.dp else 100.dp,
+            targetValue = if (isRunning) 0.dp else 80.dp,
             animationSpec = tween(durationMillis = 600, easing = EaseOutCubic),
             label = "headerSpacerHeight"
         )
@@ -229,6 +229,16 @@ fun AudioScreen(
             shizukuUnlocked = shizukuUnlocked,
             developerModeEnabled = developerModeEnabled
         )
+
+        val header2SpacerHeight by animateDpAsState(
+            targetValue = if (isRunning) 0.dp else 30.dp,
+            animationSpec = tween(durationMillis = 600, easing = EaseOutCubic),
+            label = "headerSpacerHeight"
+        )
+
+        if (header2SpacerHeight > 0.dp) {
+            Spacer(Modifier.height(header2SpacerHeight))
+        }
 
         OutputSelectionCard(
             glyphsEnabled = glyphsEnabled,
