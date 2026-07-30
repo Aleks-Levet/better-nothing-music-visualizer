@@ -43,11 +43,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Android
+import androidx.compose.material.icons.filled.Cast
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.Flare
 import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Terminal
@@ -77,12 +80,14 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -202,7 +207,7 @@ fun AudioScreen(
         )
 
         val headerSpacerHeight by animateDpAsState(
-            targetValue = if (isRunning) 0.dp else 80.dp,
+            targetValue = if (isRunning) 0.dp else 25.dp,
             animationSpec = tween(durationMillis = 600, easing = EaseOutCubic),
             label = "headerSpacerHeight"
         )
@@ -231,13 +236,17 @@ fun AudioScreen(
         )
 
         val header2SpacerHeight by animateDpAsState(
-            targetValue = if (isRunning) 0.dp else 30.dp,
+            targetValue = if (isRunning) 0.dp else 25.dp,
             animationSpec = tween(durationMillis = 600, easing = EaseOutCubic),
             label = "headerSpacerHeight"
         )
 
         if (header2SpacerHeight > 0.dp) {
             Spacer(Modifier.height(header2SpacerHeight))
+        }
+
+        AnimatedVisibility(visible = isRunning) {
+            FFTSpectrumCard(fftData = fftData)
         }
 
         OutputSelectionCard(
@@ -298,8 +307,6 @@ fun AudioScreen(
                     )
                 }
 
-                FFTSpectrumCard(fftData = fftData)
-
                 ExpressiveCard(
                     containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.3f)
                 ) {
@@ -329,7 +336,7 @@ fun OutputSelectionCard(
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
         CardHeader(title = "Output Selection")
         val outputs = listOf(
-            Triple("Glyphs", Icons.Default.Flare, glyphsEnabled to onGlyphsToggle),
+            Triple("Glyphs", ImageVector.vectorResource(R.drawable.ic_nav_glyphs), glyphsEnabled to onGlyphsToggle),
             Triple("Haptics", Icons.Default.Vibration, hapticsEnabled to onHapticsToggle),
             Triple("Visuals", Icons.Default.Visibility, visualsEnabled to onVisualsToggle),
             Triple("Flashlight", Icons.Default.FlashlightOn, flashlightEnabled to onFlashlightToggle)
@@ -348,7 +355,7 @@ fun OutputSelectionCard(
                     icon = icon,
                     isSelected = isEnabled,
                     onClick = { onToggle(!isEnabled) },
-                    modifier = Modifier.height(64.dp).weight(1f),
+                    modifier = Modifier.height(64.dp),
                     maxLines = 1
                 )
             }
@@ -365,12 +372,12 @@ fun CaptureSourceCard(
     developerModeEnabled: Boolean
 ) {
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-        CardHeader(title = "Capture Source")
+        CardHeader(title = "Select Capture Source")
         val mainSources = listOf(
             Triple(
                 AudioCaptureService.CaptureSource.INTERNAL,
                 stringResource(R.string.capture_media_projection),
-                Icons.Default.PhoneAndroid
+                Icons.Default.Cast
             ),
             Triple(
                 AudioCaptureService.CaptureSource.MIC,
@@ -380,7 +387,7 @@ fun CaptureSourceCard(
             Triple(
                 AudioCaptureService.CaptureSource.VIZUALIZER,
                 stringResource(R.string.capture_vizualizer),
-                Icons.Default.GraphicEq
+                Icons.Default.Android
             )
         )
 
@@ -705,7 +712,7 @@ fun FFTSpectrumCard(fftData: FloatArray) {
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Icon(
-                    Icons.Default.GraphicEq,
+                    Icons.Default.Leaderboard,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -730,9 +737,9 @@ fun FFTSpectrumCard(fftData: FloatArray) {
                 BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(180.dp)
-                        .clip(MaterialTheme.shapes.medium)
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
+                        .height(160.dp)
+                        .clip(MaterialTheme.shapes.small)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .pointerInput(Unit) {
                             detectDragGestures(
                                 onDragStart = { touchX = it.x },
@@ -765,19 +772,13 @@ fun FFTSpectrumCard(fftData: FloatArray) {
                         val w = size.width
                         val h = size.height
 
-                        // Draw Grid
-                        val gridColor = Color.White.copy(alpha = 0.03f)
-                        drawLine(gridColor, Offset(0f, h * 0.25f), Offset(w, h * 0.25f), 1f)
-                        drawLine(gridColor, Offset(0f, h * 0.5f), Offset(w, h * 0.5f), 1f)
-                        drawLine(gridColor, Offset(0f, h * 0.75f), Offset(w, h * 0.75f), 1f)
-
                         val barPath = Path()
                         var first = true
 
                         // Dynamic gradient based on amplitude
                         val gradient = Brush.verticalGradient(
                             colors = listOf(
-                                primaryColor.copy(alpha = 0.4f),
+                                primaryColor.copy(alpha = 0.6f),
                                 primaryColor.copy(alpha = 0.02f)
                             ),
                             startY = 0f,
@@ -785,7 +786,7 @@ fun FFTSpectrumCard(fftData: FloatArray) {
                         )
 
                         val points = data.size - 1
-                        for (i in 0..points) {
+                        for (i in 5..points) {
                             val fraction = i.toFloat() / points
                             val mag = data[i]
 
@@ -811,23 +812,13 @@ fun FFTSpectrumCard(fftData: FloatArray) {
 
                         drawPath(path = fillPath, brush = gradient)
 
-                        // Outer glow
-                        drawPath(
-                            path = barPath,
-                            color = primaryColor.copy(alpha = 0.3f),
-                            style = Stroke(
-                                width = 6.dp.toPx(),
-                                cap = StrokeCap.Round,
-                                join = StrokeJoin.Round
-                            )
-                        )
 
                         // Main line
                         drawPath(
                             path = barPath,
                             color = primaryColor,
                             style = Stroke(
-                                width = 2.dp.toPx(),
+                                width = 3.dp.toPx(),
                                 cap = StrokeCap.Round,
                                 join = StrokeJoin.Round
                             )
@@ -887,12 +878,12 @@ fun FFTSpectrumCard(fftData: FloatArray) {
                         .padding(horizontal = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    val freqLabels = listOf("20Hz", "100Hz", "1kHz", "10kHz", "20kHz")
+                    val freqLabels = listOf("30Hz", "100Hz", "1kHz", "10kHz", "20kHz")
                     freqLabels.forEach { label ->
                         Text(
                             text = label,
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
