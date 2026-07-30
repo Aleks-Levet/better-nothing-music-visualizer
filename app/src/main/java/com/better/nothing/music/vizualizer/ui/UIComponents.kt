@@ -407,10 +407,10 @@ fun FlowRowScope.OptionTile(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
+            Icon(icon, contentDescription = null, modifier = Modifier.size(25.dp))
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.labelMedium,
                 fontWeight = if (isSelected && enabled) FontWeight.Bold else FontWeight.Medium,
                 maxLines = maxLines
             )
@@ -486,7 +486,7 @@ fun CardHeader(
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold
         )
