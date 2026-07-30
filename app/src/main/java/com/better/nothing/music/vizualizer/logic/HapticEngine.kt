@@ -33,10 +33,6 @@ class BeatDetectionHapticEngine(context: Context) {
         waveform = buildWaveform()
     }
 
-    /**
-     * magnitude = FFT magnitude bins
-     * range = already-selected frequency range from UI slider
-     */
     fun performHapticFeedback(
         magnitude: FloatArray,
         range: AudioProcessor.FrequencyRange?
@@ -51,7 +47,7 @@ class BeatDetectionHapticEngine(context: Context) {
             return
         }
 
-        if (beatDetector.detect(magnitude, range.binLo, range.binHi)) {
+        if (beatDetector.detect(magnitude, range.logBinLo, range.logBinHi)) {
             triggerWaveform()
         }
     }

@@ -54,6 +54,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import com.better.nothing.music.vizualizer.logic.AudioProcessor
 import com.better.nothing.music.vizualizer.ui.BodyText
 import com.better.nothing.music.vizualizer.ui.CardHeader
 import com.better.nothing.music.vizualizer.ui.ExpressiveCard
@@ -63,6 +64,7 @@ import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
 import com.better.nothing.music.vizualizer.ui.MainViewModel
 import com.better.nothing.music.vizualizer.ui.OptionTile
 import com.better.nothing.music.vizualizer.ui.ScreenTitle
+import com.better.nothing.music.vizualizer.ui.Tab
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -678,6 +680,70 @@ internal fun SettingsScreen(
                             )
                         }
                     }
+                }
+            }
+        }
+
+        // ── Audio Processing ────────────────────────────────────────────────
+        var processingExpanded by remember { mutableStateOf(false) }
+        val fftReadMethod by viewModel.fftReadMethod.collectAsStateWithLifecycle()
+
+        ExpressiveCard {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                        processingExpanded = !processingExpanded
+                    },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Icon(
+                        Icons.Default.GraphicEq,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = stringResource(R.string.audio_pipeline_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Icon(
+                    imageVector = if (processingExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                )
+            }
+
+            AnimatedVisibility(visible = processingExpanded) {
+                Column(
+                    modifier = Modifier.padding(top = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.freq_detection_method),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    ExpressiveSplitButton(
+                        items = AudioProcessor.ReadMethod.entries,
+                        selectedItem = fftReadMethod,
+                        onItemSelection = { viewModel.setFftReadMethod(it) },
+                        labelProvider = { it.name },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    BodyText(
+                        text = stringResource(R.string.freq_detection_desc),
+                        size = 12.sp
+                    )
                 }
             }
         }

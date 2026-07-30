@@ -501,20 +501,29 @@ internal fun BetterVizApp(
     val isRunning by viewModel.runningState.collectAsStateWithLifecycle()
     val totalVisualizedTime by viewModel.totalVisualizedTime.collectAsStateWithLifecycle()
     val selectedDevice by viewModel.selectedDevice.collectAsStateWithLifecycle()
+    val developerModeEnabled by viewModel.developerModeEnabled.collectAsStateWithLifecycle()
+
+    val glyphsEnabled by viewModel.glyphsEnabled.collectAsStateWithLifecycle()
+    val hapticsEnabled by viewModel.hapticMotorEnabled.collectAsStateWithLifecycle()
+    val visualsEnabled by viewModel.overlayEnabled.collectAsStateWithLifecycle()
+    val flashlightEnabled by viewModel.flashlightEnabled.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
 
-    val visibleTabs = remember(selectedDevice) {
-        var tabs = if (selectedDevice == com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_UNKNOWN) {
-            Tab.entries.filter { it != Tab.Glyphs }
-        } else {
-            Tab.entries.toList()
+    val visibleTabs = remember(selectedDevice, glyphsEnabled, hapticsEnabled, visualsEnabled, flashlightEnabled) {
+        var tabs = Tab.entries.toList()
+
+        if (selectedDevice == com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_UNKNOWN || !glyphsEnabled) {
+            tabs = tabs.filter { it != Tab.Glyphs }
         }
-        if (!viewModel.hasHapticMotor) {
+        if (!viewModel.hasHapticMotor || !hapticsEnabled) {
             tabs = tabs.filter { it != Tab.Haptics }
         }
-        if (!viewModel.hasFlashlight) {
+        if (!viewModel.hasFlashlight || !flashlightEnabled) {
             tabs = tabs.filter { it != Tab.Flashlight }
+        }
+        if (!visualsEnabled) {
+            tabs = tabs.filter { it != Tab.Visuals }
         }
         tabs
     }
@@ -632,6 +641,15 @@ internal fun BetterVizApp(
                             latencyWizardState = latencyWizardState,
                             onRunLatencyWizard = { viewModel.runLatencyWizard() },
                             onResetLatencyWizard = { viewModel.resetLatencyWizard() },
+                            glyphsEnabled = glyphsEnabled,
+                            onGlyphsEnabledChanged = { viewModel.setGlyphsEnabled(it) },
+                            hapticsEnabled = hapticsEnabled,
+                            onHapticsEnabledChanged = { viewModel.setHapticMotorEnabled(it) },
+                            visualsEnabled = visualsEnabled,
+                            onVisualsEnabledChanged = { viewModel.setOverlayEnabled(it) },
+                            flashlightEnabled = flashlightEnabled,
+                            onFlashlightEnabledChanged = { viewModel.setFlashlightEnabled(it) },
+                            developerModeEnabled = developerModeEnabled,
                             padding = padding
                         )
                     }

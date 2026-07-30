@@ -57,6 +57,12 @@
     <string name="haptics_motor_multiplier_desc">Global motor output strength multiplier.</string>
     <string name="haptics_decay_instant">No smoothing (Instant)</string>
     <string name="haptics_decay_smooth">Smoothing active</string>
+
+    <!-- Audio Processing -->
+    <string name="audio_pipeline_title">Audio Pipeline</string>
+    <string name="freq_detection_method">Frequency Range Detection</string>
+    <string name="freq_detection_desc">Determines how a frequency range (e.g. Bass) is calculated from the 512 centralized FFT bins.\n\nMAX: Highest bin value (Responsive).\nMEAN: Average of all bins (Stable).\nRMS: Root Mean Square (Accurate Energy).</string>
+
     <!-- Flashlight Screen -->
     <string name="flashlight_title">Flashlight</string>
     <string name="flashlight_header">Flashlight visualizer</string>

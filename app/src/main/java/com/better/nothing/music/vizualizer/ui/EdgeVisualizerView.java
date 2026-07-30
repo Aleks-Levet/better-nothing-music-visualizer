@@ -91,48 +91,36 @@ public class EdgeVisualizerView extends View {
         if (magnitudes == null || magnitudes.length == 0) return;
         this.mMagnitudes = magnitudes;
         
-        float minFreq = 20f;
-        float maxFreq = 12000f;
-        float hzPerBin = (float) sampleRate / (2f * (magnitudes.length - 1));
-
+        // magnitudes is now 512 log-spaced bins (20Hz - 20kHz)
         for (int i = 0; i < mBarCountHoriz; i++) {
             float center = (mBarCountHoriz - 1) / 2.0f;
             float normDist = Math.abs(i - center) / (mBarCountHoriz / 2f);
-            float avg = getAverageMagnitude(magnitudes, normDist, minFreq, maxFreq, hzPerBin);
-            float current = avg * 60.0f * mSensitivity;
+            float val = getMagnitudeAt(magnitudes, normDist);
+            float current = val * 1.5f * mSensitivity;
             mSmoothedTop[i] = mSmoothedTop[i] * 0.7f + current * 0.3f;
             mSmoothedBottom[i] = mSmoothedBottom[i] * 0.7f + current * 0.3f;
         }
 
         for (int i = 0; i < mBarCountVert; i++) {
             float normPos = 1.0f - ((float) i / (mBarCountVert - 1));
-            float avg = getAverageMagnitude(magnitudes, normPos, minFreq, maxFreq, hzPerBin);
-            float current = avg * 60.0f * mSensitivity;
+            float val = getMagnitudeAt(magnitudes, normPos);
+            float current = val * 1.5f * mSensitivity;
             mSmoothedRight[i] = mSmoothedRight[i] * 0.7f + current * 0.3f;
         }
 
         for (int i = 0; i < mBarCountVert; i++) {
             float normPos = (float) i / (mBarCountVert - 1);
-            float avg = getAverageMagnitude(magnitudes, normPos, minFreq, maxFreq, hzPerBin);
-            float current = avg * 60.0f * mSensitivity;
+            float val = getMagnitudeAt(magnitudes, normPos);
+            float current = val * 1.5f * mSensitivity;
             mSmoothedLeft[i] = mSmoothedLeft[i] * 0.7f + current * 0.3f;
         }
         
         postInvalidateOnAnimation();
     }
 
-    private float getAverageMagnitude(float[] magnitudes, float normalizedIndex, float minFreq, float maxFreq, float hzPerBin) {
-        float lowFreq = (float) (minFreq * Math.pow(maxFreq / minFreq, normalizedIndex));
-        float highFreq = (float) (minFreq * Math.pow(maxFreq / minFreq, normalizedIndex + 0.05f));
-        int binLo = Math.max(0, (int) (lowFreq / hzPerBin));
-        int binHi = Math.max(binLo, Math.min(magnitudes.length - 1, (int) (highFreq / hzPerBin)));
-        float sum = 0;
-        int count = 0;
-        for (int j = binLo; j <= binHi; j++) {
-            sum += magnitudes[j];
-            count++;
-        }
-        return count > 0 ? sum / count : 0f;
+    private float getMagnitudeAt(float[] magnitudes, float normalizedIndex) {
+        int idx = (int) (normalizedIndex * (magnitudes.length - 1));
+        return magnitudes[Math.max(0, Math.min(magnitudes.length - 1, idx))];
     }
 
     @Override

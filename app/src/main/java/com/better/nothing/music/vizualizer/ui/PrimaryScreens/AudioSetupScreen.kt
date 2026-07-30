@@ -42,12 +42,17 @@ import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.FlashlightOn
+import androidx.compose.material.icons.filled.Flare
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material.icons.filled.Vibration
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -118,6 +123,15 @@ fun AudioScreen(
     latencyWizardState: LatencyWizard.State = LatencyWizard.State.Idle,
     onRunLatencyWizard: () -> Unit = {},
     onResetLatencyWizard: () -> Unit = {},
+    glyphsEnabled: Boolean = true,
+    onGlyphsEnabledChanged: (Boolean) -> Unit = {},
+    hapticsEnabled: Boolean = false,
+    onHapticsEnabledChanged: (Boolean) -> Unit = {},
+    visualsEnabled: Boolean = false,
+    onVisualsEnabledChanged: (Boolean) -> Unit = {},
+    flashlightEnabled: Boolean = false,
+    onFlashlightEnabledChanged: (Boolean) -> Unit = {},
+    developerModeEnabled: Boolean = false,
     padding: androidx.compose.foundation.layout.PaddingValues = androidx.compose.foundation.layout.PaddingValues(),
 ) {
     val context = LocalContext.current
@@ -188,7 +202,7 @@ fun AudioScreen(
         )
 
         val headerSpacerHeight by animateDpAsState(
-            targetValue = if (isRunning) 0.dp else 160.dp,
+            targetValue = if (isRunning) 0.dp else 100.dp,
             animationSpec = tween(durationMillis = 600, easing = EaseOutCubic),
             label = "headerSpacerHeight"
         )
@@ -212,7 +226,19 @@ fun AudioScreen(
                     onCaptureSourceChanged(source)
                 }
             },
-            shizukuUnlocked = shizukuUnlocked
+            shizukuUnlocked = shizukuUnlocked,
+            developerModeEnabled = developerModeEnabled
+        )
+
+        OutputSelectionCard(
+            glyphsEnabled = glyphsEnabled,
+            onGlyphsToggle = onGlyphsEnabledChanged,
+            hapticsEnabled = hapticsEnabled,
+            onHapticsToggle = onHapticsEnabledChanged,
+            visualsEnabled = visualsEnabled,
+            onVisualsToggle = onVisualsEnabledChanged,
+            flashlightEnabled = flashlightEnabled,
+            onFlashlightToggle = onFlashlightEnabledChanged
         )
         if (isRunning) {
             val seconds = (sessionDuration / 1000) % 60
@@ -280,14 +306,57 @@ fun AudioScreen(
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
+fun OutputSelectionCard(
+    glyphsEnabled: Boolean,
+    onGlyphsToggle: (Boolean) -> Unit,
+    hapticsEnabled: Boolean,
+    onHapticsToggle: (Boolean) -> Unit,
+    visualsEnabled: Boolean,
+    onVisualsToggle: (Boolean) -> Unit,
+    flashlightEnabled: Boolean,
+    onFlashlightToggle: (Boolean) -> Unit
+) {
+    ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
+        CardHeader(title = "Output Selection")
+        val outputs = listOf(
+            Triple("Glyphs", Icons.Default.Flare, glyphsEnabled to onGlyphsToggle),
+            Triple("Haptics", Icons.Default.Vibration, hapticsEnabled to onHapticsToggle),
+            Triple("Visuals", Icons.Default.Visibility, visualsEnabled to onVisualsToggle),
+            Triple("Flashlight", Icons.Default.FlashlightOn, flashlightEnabled to onFlashlightToggle)
+        )
+
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            maxItemsInEachRow = 2,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            outputs.forEach { (label, icon, statePair) ->
+                val (isEnabled, onToggle) = statePair
+                OptionTile(
+                    label = label,
+                    icon = icon,
+                    isSelected = isEnabled,
+                    onClick = { onToggle(!isEnabled) },
+                    modifier = Modifier.height(64.dp).weight(1f),
+                    maxLines = 1
+                )
+            }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalLayoutApi::class)
 fun CaptureSourceCard(
     selectedSource: AudioCaptureService.CaptureSource,
     onSourceSelected: (AudioCaptureService.CaptureSource) -> Unit,
-    shizukuUnlocked: Boolean
+    shizukuUnlocked: Boolean,
+    developerModeEnabled: Boolean
 ) {
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
         CardHeader(title = "Capture Source")
-        val sources = listOf(
+        val mainSources = listOf(
             Triple(
                 AudioCaptureService.CaptureSource.INTERNAL,
                 stringResource(R.string.capture_media_projection),
@@ -302,11 +371,6 @@ fun CaptureSourceCard(
                 AudioCaptureService.CaptureSource.VIZUALIZER,
                 stringResource(R.string.capture_vizualizer),
                 Icons.Default.GraphicEq
-            ),
-            Triple(
-                AudioCaptureService.CaptureSource.SHIZUKU,
-                stringResource(R.string.capture_shizuku),
-                Icons.Default.Terminal
             )
         )
 
@@ -316,21 +380,45 @@ fun CaptureSourceCard(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            sources.forEach { (source, label, icon) ->
+            mainSources.forEach { (source, label, icon) ->
                 val isSelected = selectedSource == source
-                val isShizuku = source == AudioCaptureService.CaptureSource.SHIZUKU
                 val isInternal = source == AudioCaptureService.CaptureSource.INTERNAL
-                val isEnabled =
-                    (!isShizuku || shizukuUnlocked) && (!isInternal || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                val isEnabled = !isInternal || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
 
                 OptionTile(
-                    label = if (isShizuku && !shizukuUnlocked) "$label (Locked)"
-                    else if (isInternal && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) "$label (API 29+)"
+                    label = if (isInternal && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) "$label (API 29+)"
                     else label,
                     icon = icon,
                     isSelected = isSelected,
                     enabled = isEnabled,
                     onClick = { onSourceSelected(source) },
+                    modifier = Modifier.height(64.dp),
+                    maxLines = 2
+                )
+            }
+            
+            // Placeholder button
+            OptionTile(
+                label = "Coming Soon...",
+                icon = Icons.Default.Add,
+                isSelected = false,
+                enabled = false,
+                onClick = { },
+                modifier = Modifier.height(64.dp),
+                maxLines = 2
+            )
+
+            if (developerModeEnabled) {
+                val isSelected = selectedSource == AudioCaptureService.CaptureSource.SHIZUKU
+                val isEnabled = shizukuUnlocked
+                
+                OptionTile(
+                    label = if (!shizukuUnlocked) stringResource(R.string.capture_shizuku) + " (Locked)" 
+                            else stringResource(R.string.capture_shizuku),
+                    icon = Icons.Default.Terminal,
+                    isSelected = isSelected,
+                    enabled = isEnabled,
+                    onClick = { onSourceSelected(AudioCaptureService.CaptureSource.SHIZUKU) },
                     modifier = Modifier.height(64.dp),
                     maxLines = 2
                 )
@@ -697,15 +785,6 @@ fun FFTSpectrumCard(fftData: FloatArray) {
                         drawLine(gridColor, Offset(0f, h * 0.5f), Offset(w, h * 0.5f), 1f)
                         drawLine(gridColor, Offset(0f, h * 0.75f), Offset(w, h * 0.75f), 1f)
 
-                        val minFreq = 20f
-                        val maxFreq = 20000f
-                        val sampleRate = 44100f
-                        val numBins = data.size
-                        val hzPerBin = sampleRate / (2 * (numBins - 1))
-
-                        val logMin = log10(minFreq)
-                        val logMax = log10(maxFreq)
-
                         val barPath = Path()
                         var first = true
 
@@ -719,23 +798,13 @@ fun FFTSpectrumCard(fftData: FloatArray) {
                             endY = h
                         )
 
-                        val points = 200 // Reduced for better performance and smoother look
+                        val points = data.size - 1
                         for (i in 0..points) {
                             val fraction = i.toFloat() / points
-                            val logFreq = logMin + fraction * (logMax - logMin)
-                            val freq = 10f.pow(logFreq)
-
-                            val binIndex = freq / hzPerBin
-                            val lowerBin = binIndex.toInt()
-                            val upperBin = (lowerBin + 1).coerceAtMost(numBins - 1)
-                            val t = binIndex - lowerBin
-
-                            val mag = if (lowerBin < numBins) {
-                                (1f - t) * data[lowerBin] + t * data[upperBin]
-                            } else 0f
+                            val mag = data[i]
 
                             // Nonlinear scaling for better visuals
-                            val scaledMag = (mag * 70f).coerceIn(0f, 1.2f)
+                            val scaledMag = (mag * 1.2f).coerceIn(0f, 1.2f)
                             val y = h - (scaledMag * (h - 40f)) - 20f
                             val x = fraction * w
 

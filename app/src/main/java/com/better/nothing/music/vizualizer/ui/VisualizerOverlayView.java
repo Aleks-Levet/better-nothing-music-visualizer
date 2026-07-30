@@ -62,33 +62,22 @@ public class VisualizerOverlayView extends View {
         if (magnitudes == null || magnitudes.length == 0) return;
         this.mMagnitudes = magnitudes;
         
-        // Logarithmic grouping for better visual representation
-        float minFreq = 20f;
-        float maxFreq = 12000f; // Human hearing energy mostly below here for visuals
-        float hzPerBin = (float) sampleRate / (2f * (magnitudes.length - 1));
+        // magnitudes is now 512 log-spaced bins (20Hz - 20kHz)
+        int binsPerBar = magnitudes.length / NUM_BARS;
 
         for (int i = 0; i < NUM_BARS; i++) {
-            float lowFreq = (float) (minFreq * Math.pow(maxFreq / minFreq, (double) i / NUM_BARS));
-            float highFreq = (float) (minFreq * Math.pow(maxFreq / minFreq, (double) (i + 1) / NUM_BARS));
-            
-            int binLo = Math.max(0, (int) (lowFreq / hzPerBin));
-            int binHi = Math.min(magnitudes.length - 1, (int) (highFreq / hzPerBin));
-            
-            float sum = 0;
-            int count = 0;
-            for (int j = binLo; j <= binHi; j++) {
-                sum += magnitudes[j];
-                count++;
+            float maxInBar = 0f;
+            for (int j = i * binsPerBar; j < (i + 1) * binsPerBar && j < magnitudes.length; j++) {
+                if (magnitudes[j] > maxInBar) maxInBar = magnitudes[j];
             }
-            float avg = count > 0 ? sum / count : 0f;
             
             // Smoothing for visual stability
             if (mTopEnabled) {
-                float currentTop = avg * 60.0f * mTopSensitivity;
+                float currentTop = maxInBar * 1.5f * mTopSensitivity;
                 mSmoothedMagnitudesTop[i] = mSmoothedMagnitudesTop[i] * 0.7f + currentTop * 0.3f;
             }
             if (mBottomEnabled) {
-                float currentBottom = avg * 60.0f * mBottomSensitivity;
+                float currentBottom = maxInBar * 1.5f * mBottomSensitivity;
                 mSmoothedMagnitudesBottom[i] = mSmoothedMagnitudesBottom[i] * 0.7f + currentBottom * 0.3f;
             }
         }

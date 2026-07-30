@@ -1553,8 +1553,33 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    val _fftReadMethod = MutableStateFlow(AudioProcessor.ReadMethod.MAX)
+    val fftReadMethod = _fftReadMethod.asStateFlow()
+
+    fun setFftReadMethod(method: AudioProcessor.ReadMethod) {
+        _fftReadMethod.value = method
+        MainActivity.serviceStatic?.setReadMethod(method)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putString("fft_read_method", method.name) }
+        }
+    }
+
     val _maxBrightness = MutableStateFlow(4095)
     val maxBrightness = _maxBrightness.asStateFlow()
+
+    val _glyphsEnabled = MutableStateFlow(true)
+    val glyphsEnabled = _glyphsEnabled.asStateFlow()
+
+    fun setGlyphsEnabled(enabled: Boolean) {
+        _glyphsEnabled.value = enabled
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("glyphs_enabled", enabled) }
+        }
+        // If disabling, we might want to also tell the service to stop pushing frames
+        // but the tab visibility change will be the main effect for the user
+    }
 
     fun setMaxBrightness(value: Int) {
         val clamped = value.coerceIn(0, 4500)
@@ -1951,6 +1976,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _gammaValue.value = prefs.getFloat("gamma_value", 1.0f)
         _spectrumGain.value = prefs.getFloat("spectrum_gain", 1.0f)
         _maxBrightness.value = prefs.getInt("max_brightness", 4095)
+        _fftReadMethod.value = AudioProcessor.ReadMethod.valueOf(prefs.getString("fft_read_method", AudioProcessor.ReadMethod.MAX.name)!!)
+        _glyphsEnabled.value = prefs.getBoolean("glyphs_enabled", true)
         _selectedPreset.value = prefs.getString("selected_preset", "Default") ?: "Default"
         _selectedTheme.value = prefs.getString("selected_theme", "Default") ?: "Default"
         _selectedFont.value = prefs.getString("selected_font", "Default") ?: "Default"

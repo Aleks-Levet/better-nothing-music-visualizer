@@ -209,15 +209,15 @@ public final class FlashlightEngine {
             float rawPeak,
             @Nullable AudioProcessor.VisualizerConfig config,
             float[] magnitude,
-            int binLo,
-            int binHi
+            int logBinLo,
+            int logBinHi
     ) {
         if (cameraId == null) {
             return;
         }
 
         if (torchMode == TorchMode.BEAT_DETECTION) {
-            performBeatDetection(magnitude, binLo, binHi);
+            performBeatDetection(magnitude, logBinLo, logBinHi);
             return;
         }
 
@@ -271,8 +271,8 @@ public final class FlashlightEngine {
         submitTorchLevel(1);
     }
 
-    private synchronized void performBeatDetection(float[] magnitude, int binLo, int binHi) {
-        if (beatDetector.detect(magnitude, binLo, binHi)) {
+    private synchronized void performBeatDetection(float[] magnitude, int logBinLo, int logBinHi) {
+        if (beatDetector.detect(magnitude, logBinLo, logBinHi)) {
             triggerBeat();
         }
 

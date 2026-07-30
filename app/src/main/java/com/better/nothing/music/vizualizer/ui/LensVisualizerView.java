@@ -43,25 +43,19 @@ public class LensVisualizerView extends View {
             mSmoothedMagnitudes = new float[mBarCount];
         }
 
-        float hzPerBin = 44100f / (2f * (magnitudes.length - 1));
+        // magnitudes is now 512 log-spaced bins (20Hz - 20kHz)
+        // Focus on lower frequencies (first 3/4 of the spectrum)
+        int focusBins = (int)(magnitudes.length * 0.75f);
+        int binsPerBar = Math.max(1, focusBins / mBarCount);
 
         for (int i = 0; i < mBarCount; i++) {
-            // Focus on lower frequencies for better visual impact
-            float lowFreq = 40f + (i * 1500f / mBarCount);
-            float highFreq = 40f + ((i + 1) * 1500f / mBarCount);
-            
-            int binLo = Math.max(0, (int) (lowFreq / hzPerBin));
-            int binHi = Math.min(magnitudes.length - 1, (int) (highFreq / hzPerBin));
-            
-            float sum = 0;
-            int count = 0;
-            for (int j = binLo; j <= binHi; j++) {
-                sum += magnitudes[j];
-                count++;
+            float maxVal = 0f;
+            int startBin = i * binsPerBar;
+            for (int j = startBin; j < startBin + binsPerBar && j < magnitudes.length; j++) {
+                if (magnitudes[j] > maxVal) maxVal = magnitudes[j];
             }
-            float avg = count > 0 ? sum / count : 0f;
             
-            float current = avg * 50.0f * mSensitivity;
+            float current = maxVal * 1.5f * mSensitivity;
             mSmoothedMagnitudes[i] = mSmoothedMagnitudes[i] * 0.8f + current * 0.2f;
         }
         postInvalidateOnAnimation();
