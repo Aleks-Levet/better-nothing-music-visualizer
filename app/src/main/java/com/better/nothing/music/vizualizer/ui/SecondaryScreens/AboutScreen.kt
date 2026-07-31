@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.Info
@@ -184,6 +185,15 @@ internal fun AboutScreen(
                 title = "GitHub Repository",
                 subtitle = "View source and contributions",
                 onClick = { uriHandler.openUri("https://github.com/Aleks-Levet/better-nothing-music-visualizer") }
+            )
+
+            // Donation Action
+            val isSupporter by viewModel.isSupporter.collectAsStateWithLifecycle()
+            InfoRow(
+                icon = Icons.Default.Favorite,
+                title = stringResource(R.string.donate),
+                subtitle = if (isSupporter) "Thank you for your support!" else stringResource(R.string.donate_desc),
+                onClick = { uriHandler.openUri("https://ko-fi.com/alekslevet") }
             )
 
             // License Action

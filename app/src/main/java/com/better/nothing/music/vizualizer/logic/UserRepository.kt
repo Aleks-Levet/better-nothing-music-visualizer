@@ -13,11 +13,13 @@ import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 
 class UserRepository {
-    private val database = FirebaseDatabase.getInstance("https://bnmv-67120-default-rtdb.europe-west1.firebasedatabase.app").getReference("users")
+    private val database = FirebaseDatabase.getInstance("https://bnmv-67120-default-rtdb.europe-west1.firebasedatabase.app")
+    private val usersRef = database.getReference("users")
+    private val codesRef = database.getReference("premium_codes")
 
     suspend fun getUserProfile(userId: String): UserProfile? {
         return try {
-            val snapshot = database.child(userId).get().await()
+            val snapshot = usersRef.child(userId).get().await()
             snapshot.getValue(UserProfile::class.java)
         } catch (e: Exception) {
             Log.e("UserRepository", "Error fetching profile", e)
@@ -27,10 +29,33 @@ class UserRepository {
 
     suspend fun saveUserProfile(profile: UserProfile) {
         try {
-            database.child(profile.userId).setValue(profile).await()
+            usersRef.child(profile.userId).setValue(profile).await()
         } catch (e: Exception) {
             Log.e("UserRepository", "Error saving profile", e)
             throw e
+        }
+    }
+
+    suspend fun generatePremiumCode(): String = withContext(Dispatchers.IO) {
+        val code = java.util.UUID.randomUUID().toString().take(8).uppercase()
+        codesRef.child(code).setValue(true).await()
+        code
+    }
+
+    suspend fun redeemPremiumCode(userId: String, code: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val codeSnapshot = codesRef.child(code).get().await()
+            if (codeSnapshot.exists()) {
+                // Code is valid. Remove it and grant premium.
+                codesRef.child(code).removeValue().await()
+                usersRef.child(userId).child("supporter").setValue(true).await()
+                true
+            } else {
+                false
+            }
+        } catch (e: Exception) {
+            Log.e("UserRepository", "Error redeeming code", e)
+            false
         }
     }
 

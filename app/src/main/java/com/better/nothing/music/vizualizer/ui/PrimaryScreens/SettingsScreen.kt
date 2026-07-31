@@ -85,6 +85,7 @@ internal fun SettingsScreen(
     val flashlightMultiIntensityForced by viewModel.flashlightMultiIntensityForced.collectAsStateWithLifecycle()
     val isAnonymous by viewModel.isAnonymous.collectAsStateWithLifecycle()
     val userProfile by viewModel.userProfile.collectAsStateWithLifecycle()
+    val isSupporter by viewModel.isSupporter.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
 
     var showNicknameDialog by remember { mutableStateOf(false) }
@@ -679,6 +680,47 @@ internal fun SettingsScreen(
                                 size = 11.sp
                             )
                         }
+
+                        // 5. Premium Code Generation (Admin Only)
+                        if (isAdmin || BuildConfig.DEBUG) {
+                            ExpressiveCard(
+                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
+                                border = BorderStroke(
+                                    1.dp,
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                )
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.CardGiftcard,
+                                        null,
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            stringResource(R.string.premium_generator),
+                                            style = MaterialTheme.typography.titleSmall,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(
+                                            stringResource(R.string.premium_generator_desc),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                        )
+                                    }
+                                    Button(
+                                        onClick = { viewModel.generatePremiumCode() },
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        Text(stringResource(R.string.generate))
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -926,8 +968,18 @@ internal fun SettingsScreen(
                                 text = if (isAnonymous) stringResource(R.string.anonymous_user) else userProfile?.displayName ?: stringResource(R.string.authenticated_user),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.ExtraBold,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.weight(1f, fill = false)
                             )
+                            if (isSupporter) {
+                                Spacer(Modifier.width(6.dp))
+                                Icon(
+                                    Icons.Default.Stars,
+                                    null,
+                                    modifier = Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
                             if (!isAnonymous) {
                                 Spacer(Modifier.width(8.dp))
                                 Icon(
@@ -958,6 +1010,79 @@ internal fun SettingsScreen(
                         Text(stringResource(R.string.sign_in_with_google))
                     }
                 } else {
+                    if (isSupporter) {
+                        Button(
+                            onClick = { /* Already a supporter */ },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = false,
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                contentColor = MaterialTheme.colorScheme.primary,
+                                disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                disabledContentColor = MaterialTheme.colorScheme.primary
+                            ),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+                        ) {
+                            Icon(Icons.Default.Favorite, null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("Already a Supporter! Thank you! ❤️")
+                        }
+                    } else {
+                        var showRedeemDialog by remember { mutableStateOf(false) }
+                        var redeemCode by remember { mutableStateOf("") }
+
+                        if (showRedeemDialog) {
+                            AlertDialog(
+                                onDismissRequest = { showRedeemDialog = false },
+                                title = { Text(stringResource(R.string.redeem_premium)) },
+                                text = {
+                                    Column {
+                                        Text(stringResource(R.string.redeem_premium_desc))
+                                        Spacer(Modifier.height(8.dp))
+                                        OutlinedTextField(
+                                            value = redeemCode,
+                                            onValueChange = { redeemCode = it.uppercase() },
+                                            label = { Text(stringResource(R.string.premium_code)) },
+                                            singleLine = true,
+                                            modifier = Modifier.fillMaxWidth(),
+                                            shape = RoundedCornerShape(12.dp)
+                                        )
+                                    }
+                                },
+                                confirmButton = {
+                                    Button(onClick = {
+                                        viewModel.redeemPremiumCode(redeemCode)
+                                        showRedeemDialog = false
+                                        redeemCode = ""
+                                    }) {
+                                        Text(stringResource(R.string.redeem))
+                                    }
+                                },
+                                dismissButton = {
+                                    TextButton(onClick = { showRedeemDialog = false }) {
+                                        Text(stringResource(R.string.cancel))
+                                    }
+                                }
+                            )
+                        }
+
+                        Button(
+                            onClick = { showRedeemDialog = true },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                contentColor = MaterialTheme.colorScheme.primary
+                            ),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+                        ) {
+                            Icon(Icons.Default.CardGiftcard, null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(stringResource(R.string.redeem_premium))
+                        }
+                    }
+
                     Button(
                         onClick = { viewModel.signOut() },
                         modifier = Modifier.fillMaxWidth(),

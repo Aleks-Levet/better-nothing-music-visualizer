@@ -233,6 +233,22 @@
     <string name="anonymous_user">Guest User</string>
     <string name="authenticated_user">Verified Account</string>
 
+    <!-- Supporter -->
+    <string name="premium_user">SUPPORTER</string>
+    <string name="redeem_premium">Redeem Supporter Code</string>
+    <string name="redeem_premium_desc">If you\'ve donated to the project, enter your code here to unlock special features and a badge.</string>
+    <string name="premium_code">Supporter Code</string>
+    <string name="redeem">Redeem</string>
+    <string name="premium_claimed">Supporter status unlocked! Thank you!</string>
+    <string name="invalid_code">Invalid or already used code.</string>
+    <string name="premium_generator">Supporter Code Generator</string>
+    <string name="premium_generator_desc">Generate a code and copy it to clipboard.</string>
+    <string name="generate">Generate</string>
+    <string name="code_generated">Generated Code: %s (Copied)</string>
+
+    <string name="donate">Donate</string>
+    <string name="donate_desc">Support the project and get a Supporter Code</string>
+
     <string name="tab_audio">BNMV</string>
     <string name="tab_glyphs">Glyphs</string>
     <string name="tab_visuals">Visuals</string>

@@ -101,6 +101,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _userProfile = MutableStateFlow<UserProfile?>(null)
     val userProfile = _userProfile.asStateFlow()
 
+    val isSupporter = _userProfile.map { it?.isSupporter ?: false }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
     val _totalVisualizedTime = MutableStateFlow(0L)
     val totalVisualizedTime = _totalVisualizedTime.asStateFlow()
 
@@ -1007,6 +1010,48 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun generatePremiumCode() {
+        viewModelScope.launch {
+            try {
+                val code = userRepository.generatePremiumCode()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(ctx, ctx.getString(R.string.code_generated, code), Toast.LENGTH_LONG).show()
+                    val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                    val clip = android.content.ClipData.newPlainText("Premium Code", code)
+                    clipboard.setPrimaryClip(clip)
+                }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Failed to generate code", e)
+            }
+        }
+    }
+
+    fun redeemPremiumCode(code: String) {
+        val uid = _userId.value ?: return
+        if (code.isBlank()) return
+        
+        viewModelScope.launch {
+            try {
+                val success = userRepository.redeemPremiumCode(uid, code)
+                if (success) {
+                    syncStats(uid)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(ctx, ctx.getString(R.string.premium_claimed), Toast.LENGTH_LONG).show()
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(ctx, ctx.getString(R.string.invalid_code), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Failed to redeem code", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(ctx, "Redemption failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
     fun updateLeaderboard() {
         val uid = _userId.value ?: return
         if (_isAnonymous.value) return 
@@ -1026,7 +1071,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     name = nicknameForLeaderboard(updatedProfile.displayName),
                     profilePictureUrl = updatedProfile.profilePictureUrl,
                     totalTimeMs = updatedTime,
-                    lastUpdated = System.currentTimeMillis()
+                    lastUpdated = System.currentTimeMillis(),
+                    isSupporter = updatedProfile.isSupporter
                 )
                 leaderboardRepository.updateScore(entry)
             } catch (e: Exception) {
