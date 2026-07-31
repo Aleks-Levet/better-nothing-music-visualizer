@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Better Nothing Music Visualizer</string>
 
     <!-- Audio Screen -->
     <string name="audio_screen_title">Better Nothing\nMusic Visualizer</string>
@@ -85,8 +84,6 @@
     <string name="spoof_locale_description">Force l\'application à utiliser une langue spécifique pour les tests.</string>
     <string name="idle_breathing_title">Respiration au repos</string>
     <string name="idle_breathing_desc">Les Glyphs pulsent subtilement lorsque le visualiseur est actif mais qu\'aucun son n\'est détecté.</string>
-    <string name="notification_flash_title">Flash de notification</string>
-    <string name="notification_flash_desc">Fait clignoter brièvement tous les Glyphs lors de la réception d\'une notification (si le visualiseur est actif).</string>
     <string name="disable_glyphs_when_silent_title">Désactiver si silencieux</string>
     <string name="disable_glyphs_when_silent_desc">Éteint complètement les Glyphs et libère la session lorsqu\'aucun son n\'est détecté.</string>
     <string name="start_visualizer">Démarrer</string>

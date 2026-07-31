@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Better Nothing Music Visualizer</string>
 
     <!-- Audio Screen -->
     <string name="audio_screen_title">Better Nothing\n音楽ビジュアライザー</string>
@@ -63,11 +62,6 @@
     <string name="flashlight_sync_title">懐中電灯同期</string>
     <string name="flashlight_frequency_label">周波数： %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">懐中電灯が反応するHz範囲です。低音には低く、スネアやボーカルには高く設定します。</string>
-    <string name="flashlight_sensitivity_label">感度のしきい値： %.2f</string>
-    <string name="flashlight_sensitivity_desc">しきい値を高くすると、背景のノイズやドラムが除去されます。</string>
-    <string name="flashlight_smoothing_label">スムージング： %.2f</string>
-    <string name="flashlight_smoothing_desc">スムージングを高くすると、ストロボのような点滅ではなく、柔らかいパルス状に光ります。</string>
-    <string name="flashlight_gamma_label">輝度ガンマ： %.1f</string>
     <string name="flashlight_monitor_label">懐中電灯モニター</string>
 
     <string name="experimental_features">実験的機能</string>
@@ -77,8 +71,6 @@
     <string name="spoof_device_description">選択したデバイス上で動作しているかのようにアプリを強制的に動作させます。</string>
     <string name="idle_breathing_title">待機時の呼吸</string>
     <string name="idle_breathing_desc">ビジュアライザーが有効でオーディオが再生されていないとき、Glyphが微妙に点滅します。</string>
-    <string name="notification_flash_title">通知フラッシュ</string>
-    <string name="notification_flash_desc">ビジュアライザーの動作中に新しい通知が届くと、すべてのGlyphが短時間点滅します。</string>
     <string name="disable_glyphs_when_silent_title">無音時にGlyphを無効化</string>
     <string name="disable_glyphs_when_silent_desc">オーディオが検出されない場合、Glyphを完全にオフにしてセッションを解放します。</string>
     <string name="start_visualizer">開始</string>

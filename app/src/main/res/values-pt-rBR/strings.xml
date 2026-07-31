@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Better Nothing Music Visualizer</string>
 
     <!-- Audio Screen -->
     <string name="audio_screen_title">Visualizador de Música\nBetter Nothing</string>
@@ -63,11 +62,6 @@
     <string name="flashlight_sync_title">Sincronização da Lanterna</string>
     <string name="flashlight_frequency_label">Frequência: %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">A faixa de Hz à qual a lanterna reagirá. Menor para graves, maior para caixa/vocais.</string>
-    <string name="flashlight_sensitivity_label">Limiar de Sensibilidade: %.2f</string>
-    <string name="flashlight_sensitivity_desc">Um limiar mais alto filtra ruídos de fundo/bateria.</string>
-    <string name="flashlight_smoothing_label">Suavização: %.2f</string>
-    <string name="flashlight_smoothing_desc">Uma suavização maior faz com que a luz pulse suavemente em vez de estrobos.</string>
-    <string name="flashlight_gamma_label">Gamma de Intensidade: %.1f</string>
     <string name="flashlight_monitor_label">Monitor da Lanterna</string>
 
     <string name="experimental_features">Recursos Experimentais</string>
@@ -77,8 +71,6 @@
     <string name="spoof_device_description">Força o app a se comportar como se estivesse rodando no dispositivo selecionado.</string>
     <string name="idle_breathing_title">Respiração Ociosa</string>
     <string name="idle_breathing_desc">Os Glyphs pulsam sutilmente quando o visualizador está ativo, mas nenhum áudio está sendo reproduzido.</string>
-    <string name="notification_flash_title">Flash de Notificação</string>
-    <string name="notification_flash_desc">Pisca todos os Glyphs brevemente quando uma nova notificação chega enquanto o visualizador está rodando.</string>
     <string name="disable_glyphs_when_silent_title">Desativar Glyphs em silêncio</string>
     <string name="disable_glyphs_when_silent_desc">Desliga completamente os Glyphs e libera a sessão quando nenhum áudio é detectado.</string>
     <string name="start_visualizer">Iniciar</string>

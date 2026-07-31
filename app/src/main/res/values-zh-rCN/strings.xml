@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Better Nothing Music Visualizer</string>
 
     <!-- Audio Screen -->
     <string name="audio_screen_title">Better Nothing\n音乐可视化工具</string>
@@ -63,11 +62,6 @@
     <string name="flashlight_sync_title">手电筒同步</string>
     <string name="flashlight_frequency_label">频率： %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">手电筒响应的频率范围。低音对应较低频率，小军鼓/人声对应较高频率。</string>
-    <string name="flashlight_sensitivity_label">灵敏度阈值： %.2f</string>
-    <string name="flashlight_sensitivity_desc">较高的阈值会过滤背景噪音/鼓声。</string>
-    <string name="flashlight_smoothing_label">平滑度： %.2f</string>
-    <string name="flashlight_smoothing_desc">较高的平滑度使光脉冲柔和而不是闪烁。</string>
-    <string name="flashlight_gamma_label">强度伽马： %.1f</string>
     <string name="flashlight_monitor_label">手电筒监控</string>
 
     <string name="experimental_features">实验性功能</string>
@@ -77,8 +71,6 @@
     <string name="spoof_device_description">强制应用表现得像是在所选设备上运行一样。</string>
     <string name="idle_breathing_title">空闲呼吸灯</string>
     <string name="idle_breathing_desc">当可视化器激活但没有音频播放时，Glyph 会细微地闪动。</string>
-    <string name="notification_flash_title">通知闪烁</string>
-    <string name="notification_flash_desc">当可视化器运行时有新通知到达，所有 Glyph 都会短时间闪烁。</string>
     <string name="disable_glyphs_when_silent_title">静音时禁用 Glyph</string>
     <string name="disable_glyphs_when_silent_desc">当检测不到音频时，完全关闭 Glyph 并释放会话。</string>
     <string name="start_visualizer">开始</string>

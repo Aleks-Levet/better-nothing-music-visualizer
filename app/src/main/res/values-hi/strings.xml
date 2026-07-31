@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Better Nothing Music Visualizer</string>
 
     <!-- Audio Screen -->
     <string name="audio_screen_title">बेटर नथिंग\nम्यूजिक विज़ुअलाइज़र</string>
@@ -51,7 +50,6 @@
     <string name="haptics_amplitude_label">आयाम: %.1fx</string>
     <string name="haptics_gamma_label">गामा (प्रतिक्रिया): %.1f</string>
     <string name="haptics_speed_label">गति: %.1f</string>
-    <string name="haptics_richtap_freq_label">RichTap आवृत्ति: %d</string>
 
     <!-- Flashlight Screen -->
     <string name="flashlight_title">फ्लैशलाइट</string>
@@ -59,11 +57,6 @@
     <string name="flashlight_sync_title">फ्लैशलाइट सिंक</string>
     <string name="flashlight_frequency_label">आवृत्ति: %1$d - %2$d हर्ट्ज</string>
     <string name="flashlight_frequency_desc">वह हर्ट्ज रेंज जिस पर टॉर्च प्रतिक्रिया करेगी। बास के लिए कम, स्नेयर/वोकल्स के लिए उच्च।</string>
-    <string name="flashlight_sensitivity_label">संवेदनशीलता सीमा: %.2f</string>
-    <string name="flashlight_sensitivity_desc">उच्च दहलीज पृष्ठभूमि शोर/ड्रम को फ़िल्टर करती है।</string>
-    <string name="flashlight_smoothing_label">स्मूथिंग: %.2f</string>
-    <string name="flashlight_smoothing_desc">उच्च स्मूथिंग लाइट को स्ट्रोबिंग के बजाय धीरे से पल्स बनाती है।</string>
-    <string name="flashlight_gamma_label">तीव्रता गामा: %.1f</string>
     <string name="flashlight_monitor_label">फ्लैशलाइट मॉनिटर</string>
 
     <string name="experimental_features">प्रायोगिक विशेषताएं</string>
@@ -73,8 +66,6 @@
     <string name="spoof_device_description">ऐप को यह व्यवहार करने के लिए मजबूर करता है जैसे कि यह चयनित डिवाइस पर चल रहा हो।</string>
     <string name="idle_breathing_title">आइडल ब्रीदिंग</string>
     <string name="idle_breathing_desc">जब विज़ुअलाइज़र सक्रिय होता है लेकिन कोई ऑडियो नहीं चल रहा होता है तो ग्लिफ़ सूक्ष्म रूप से पल्स करते हैं।</string>
-    <string name="notification_flash_title">नोटिफिकेशन फ्लैश</string>
-    <string name="notification_flash_desc">विज़ुअलाइज़र चलते समय नया नोटिफिकेशन आने पर सभी ग्लिफ़ को संक्षेप में फ्लैश करता है।</string>
     <string name="disable_glyphs_when_silent_title">शांत होने पर ग्लिफ़ अक्षम करें</string>
     <string name="disable_glyphs_when_silent_desc">जब कोई ऑडियो नहीं मिलता है तो ग्लिफ़ को पूरी तरह से बंद कर दें और सत्र को जारी करें।</string>
     <string name="start_visualizer">प्रारंभ</string>

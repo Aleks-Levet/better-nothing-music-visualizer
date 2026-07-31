@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Better Nothing Music Visualizer</string>
 
     <!-- Audio Screen -->
     <string name="audio_screen_title">Delweddydd Cerddoriaeth\nBetter Nothing</string>
@@ -57,10 +56,6 @@
     <string name="flashlight_sync_title">Cydweddu Fflachlamp</string>
     <string name="flashlight_frequency_label">Amlder: %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">Yr ystod Hz y bydd y fflachlamp yn ymateb iddi. Is ar gyfer bas, uwch ar gyfer drwm/llais.</string>
-    <string name="flashlight_sensitivity_desc">Mae trothwy uwch yn hidlo sŵn cefndir/drymiau.</string>
-    <string name="flashlight_smoothing_label">Llyfnhau: %.2f</string>
-    <string name="flashlight_smoothing_desc">Mae llyfnhau uwch yn gwneud i\'r golau bylsio\'n feddal yn lle strobo.</string>
-    <string name="flashlight_gamma_label">Gamma Dwysedd: %.1f</string>
     <string name="flashlight_monitor_label">Monitor Fflachlamp</string>
 
     <string name="experimental_features">Nodweddion Arbrofol</string>
@@ -72,8 +67,6 @@
     <string name="spoof_locale_description">Gorfodi\'r ap i ddefnyddio iaith benodol ar gyfer profi.</string>
     <string name="idle_breathing_title">Anadlu Segur</string>
     <string name="idle_breathing_desc">Mae Glyphs yn bylsio\'n gynnil pan fydd y delweddydd yn weithredol ond nid oes sain yn chwarae.</string>
-    <string name="notification_flash_title">Fflach Hysbysiad</string>
-    <string name="notification_flash_desc">Yn fflachio pob Glyph yn fyr pan fydd hysbysiad newydd yn cyrraedd tra bod y delweddydd yn rhedeg.</string>
     <string name="disable_glyphs_when_silent_title">Analluogi Glyphs pan fydd yn ddistaw</string>
     <string name="disable_glyphs_when_silent_desc">Diffodd Glyphs yn gyfan gwbl a rhyddhau\'r sesiwn pan na ganfyddir sain.</string>
     <string name="start_visualizer">Dechrau</string>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Better Nothing Music Visualizer</string>
 
     <!-- Audio Screen -->
     <string name="audio_screen_title">Visualizador de Música\nBetter Nothing</string>
@@ -63,11 +62,6 @@
     <string name="flashlight_sync_title">Sincronización de linterna</string>
     <string name="flashlight_frequency_label">Frecuencia: %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">El rango de Hz al que reaccionará la linterna. Más bajo para bajos, más alto para caja/voces.</string>
-    <string name="flashlight_sensitivity_label">Umbral de sensibilidad: %.2f</string>
-    <string name="flashlight_sensitivity_desc">Un umbral más alto filtra el ruido de fondo/batería.</string>
-    <string name="flashlight_smoothing_label">Suavizado: %.2f</string>
-    <string name="flashlight_smoothing_desc">Un suavizado más alto hace que la luz pulse suavemente en lugar de parpadear.</string>
-    <string name="flashlight_gamma_label">Gamma de intensidad: %.1f</string>
     <string name="flashlight_monitor_label">Monitor de linterna</string>
 
     <string name="experimental_features">Funciones experimentales</string>
@@ -77,8 +71,6 @@
     <string name="spoof_device_description">Fuerza a la aplicación a comportarse como si se estuviera ejecutando en el dispositivo seleccionado.</string>
     <string name="idle_breathing_title">Respiración en reposo</string>
     <string name="idle_breathing_desc">Los Glyphs pulsan sutilmente cuando el visualizador está activo pero no se reproduce audio.</string>
-    <string name="notification_flash_title">Destello de notificación</string>
-    <string name="notification_flash_desc">Hace parpadear todos los Glyphs brevemente cuando llega una nueva notificación mientras el visualizador está funcionando.</string>
     <string name="disable_glyphs_when_silent_title">Desactivar Glyphs cuando esté en silencio</string>
     <string name="disable_glyphs_when_silent_desc">Apaga completamente los Glyphs y libera la sesión cuando no se detecta audio.</string>
     <string name="start_visualizer">Iniciar</string>

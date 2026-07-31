@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Better Nothing Music Visualizer</string>
 
     <!-- Audio Screen -->
     <string name="audio_screen_title">Visualizzatore Musicale\nBetter Nothing</string>
@@ -63,11 +62,6 @@
     <string name="flashlight_sync_title">Sincronizzazione torcia</string>
     <string name="flashlight_frequency_label">Frequenza: %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">L\'intervallo di Hz a cui reagirà la torcia. Più basso per i bassi, più alto per rullante/voci.</string>
-    <string name="flashlight_sensitivity_label">Soglia di sensibilità: %.2f</string>
-    <string name="flashlight_sensitivity_desc">Una soglia più alta filtra il rumore di fondo/batteria.</string>
-    <string name="flashlight_smoothing_label">Smussamento: %.2f</string>
-    <string name="flashlight_smoothing_desc">Uno smussamento più alto fa pulsare la luce dolcemente invece di lampeggiare.</string>
-    <string name="flashlight_gamma_label">Gamma intensità: %.1f</string>
     <string name="flashlight_monitor_label">Monitor torcia</string>
 
     <string name="experimental_features">Funzioni sperimentali</string>
@@ -77,8 +71,6 @@
     <string name="spoof_device_description">Forza l\'app a comportarsi come se fosse in esecuzione sul dispositivo selezionato.</string>
     <string name="idle_breathing_title">Respiro a riposo</string>
     <string name="idle_breathing_desc">I Glyph pulsano sottilmente quando il visualizzatore è attivo ma non viene riprodotto audio.</string>
-    <string name="notification_flash_title">Flash notifica</string>
-    <string name="notification_flash_desc">Fa lampeggiare brevemente tutti i Glyph quando arriva una nuova notifica mentre il visualizzatore è in funzione.</string>
     <string name="disable_glyphs_when_silent_title">Disattiva Glyph in silenzio</string>
     <string name="disable_glyphs_when_silent_desc">Spegne completamente i Glyph e rilascia la sessione quando non viene rilevato alcun audio.</string>
     <string name="start_visualizer">Avvia</string>

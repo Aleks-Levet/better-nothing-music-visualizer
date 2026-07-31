@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">BNMV</string>
+    <string name="app_name" translatable="false">BNMV</string>
 
     <!-- Audio Screen -->
     <string name="audio_screen_title">Better Nothing\nMusic Visualizer</string>
@@ -325,13 +325,4 @@
     <string name="license_section_8_1">8.1 Governing Law</string>
     <string name="license_governing_law">This Agreement shall be governed by and construed in accordance with the laws of the jurisdiction in which Oliver Lebaigue resides, without regard to its conflict of law principles.</string>
     <string name="end_of_license">END OF LICENSE AGREEMENT</string>
-    <string name="haptics_richtap_freq_label">h</string>
-    <string name="haptics_mode_richtap">h</string>
-    <string name="flashlight_sensitivity_desc">h</string>
-    <string name="flashlight_smoothing_label">h</string>
-    <string name="flashlight_smoothing_desc">h</string>
-    <string name="flashlight_gamma_label">h</string>
-    <string name="notification_flash_title">h</string>
-    <string name="notification_flash_desc">h</string>
-    <string name="flashlight_sensitivity_label">h</string>
 </resources>

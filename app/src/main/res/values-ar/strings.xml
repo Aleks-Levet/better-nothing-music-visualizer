@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">BNMV</string>
 
     <!-- Audio Screen -->
     <string name="audio_screen_title">مصور موسيقى\nNothing المحسن</string>
@@ -315,13 +314,4 @@
     <string name="license_section_8_1">8.1 القانون الحاكم</string>
     <string name="license_governing_law">تخضع هذه الاتفاقية لأحكام القانون المعمول به في الولاية القضائية التي يقيم فيها Oliver Lebaigue، وتُفسَّر وفقًا له، بصرف النظر عن مبادئ تنازع القوانين فيه.</string>
     <string name="end_of_license">نهاية اتفاقية الترخيص</string>
-    <string name="haptics_richtap_freq_label">h</string>
-    <string name="haptics_mode_richtap">h</string>
-    <string name="flashlight_sensitivity_desc">h</string>
-    <string name="flashlight_smoothing_label">h</string>
-    <string name="flashlight_smoothing_desc">h</string>
-    <string name="flashlight_gamma_label">h</string>
-    <string name="notification_flash_title">h</string>
-    <string name="notification_flash_desc">h</string>
-    <string name="flashlight_sensitivity_label">h</string>
 </resources>

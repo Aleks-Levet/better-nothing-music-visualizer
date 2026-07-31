@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Better Nothing Music Visualizer</string>
 
     <!-- Audio Screen -->
     <string name="audio_screen_title">Better Nothing\nMusik Visualisierer</string>
@@ -63,11 +62,6 @@
     <string name="flashlight_sync_title">Taschenlampen-Sync</string>
     <string name="flashlight_frequency_label">Frequenz: %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">Der Hz-Bereich, auf den die Taschenlampe reagiert. Niedriger für Bass, höher für Snare/Gesang.</string>
-    <string name="flashlight_sensitivity_label">Empfindlichkeitsschwelle: %.2f</string>
-    <string name="flashlight_sensitivity_desc">Höhere Schwelle filtert Hintergrundgeräusche/Schlagzeug heraus.</string>
-    <string name="flashlight_smoothing_label">Glättung: %.2f</string>
-    <string name="flashlight_smoothing_desc">Höhere Glättung lässt das Licht sanft pulsieren, anstatt zu blitzen.</string>
-    <string name="flashlight_gamma_label">Intensitäts-Gamma: %.1f</string>
     <string name="flashlight_monitor_label">Taschenlampen-Monitor</string>
 
     <string name="experimental_features">Experimentelle Funktionen</string>
@@ -77,8 +71,6 @@
     <string name="spoof_device_description">Zwingt die App dazu, sich so zu verhalten, als ob sie auf dem ausgewählten Gerät liefe.</string>
     <string name="idle_breathing_title">Ruheatmung</string>
     <string name="idle_breathing_desc">Glyphen pulsieren dezent, wenn der Visualisierer aktiv ist, aber kein Ton abgespielt wird.</string>
-    <string name="notification_flash_title">Benachrichtigungs-Blitz</string>
-    <string name="notification_flash_desc">Lässt alle Glyphen kurz aufleuchten, wenn eine neue Benachrichtigung eingeht, während der Visualisierer läuft.</string>
     <string name="disable_glyphs_when_silent_title">Glyphen bei Stille deaktivieren</string>
     <string name="disable_glyphs_when_silent_desc">Glyphen vollständig ausschalten und die Sitzung freigeben, wenn kein Ton erkannt wird.</string>
     <string name="start_visualizer">Start</string>

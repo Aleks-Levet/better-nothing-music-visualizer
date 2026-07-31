@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Better Nothing Music Visualizer</string>
 
     <!-- Audio Screen -->
     <string name="audio_screen_title">Better Nothing\nMusic Visualizer</string>
@@ -63,11 +62,6 @@
     <string name="flashlight_sync_title">Fener Senkronizasyonu</string>
     <string name="flashlight_frequency_label">Frekans: %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">Fenerin tepki vereceği Hz aralığı. Bas için düşük, trampet/vokal için yüksek.</string>
-    <string name="flashlight_sensitivity_label">Hassasiyet Eşiği: %.2f</string>
-    <string name="flashlight_sensitivity_desc">Daha yüksek eşik, arka plan gürültüsünü/davulları filtreler.</string>
-    <string name="flashlight_smoothing_label">Yumuşatma: %.2f</string>
-    <string name="flashlight_smoothing_desc">Daha yüksek yumuşatma, ışığın titremek yerine yumuşakça yanıp sönmesini sağlar.</string>
-    <string name="flashlight_gamma_label">Yoğunluk Gaması: %.1f</string>
     <string name="flashlight_monitor_label">Fener Monitörü</string>
 
     <string name="experimental_features">Deneysel Özellikler</string>
@@ -77,8 +71,6 @@
     <string name="spoof_device_description">Uygulamayı seçilen cihazda çalışıyormuş gibi davranmaya zorlar.</string>
     <string name="idle_breathing_title">Boşta (idle) Animasyonu</string>
     <string name="idle_breathing_desc">Görselleştirici aktif fakat herhangi bir medya oynamaz iken Glyphler seçili önayara göre parlar..</string>
-    <string name="notification_flash_title">Bildirim Flaşı</string>
-    <string name="notification_flash_desc">Görselleştirici çalışırken yeni bir bildirim geldiğinde tüm Glyphleri kısa süreliğine yakıp söndürür.</string>
     <string name="disable_glyphs_when_silent_title">Cihaz sessizdeyken Glyphleri deaktive et.</string>
     <string name="disable_glyphs_when_silent_desc">Ses algılanmadığında Glifleri tamamen kapatın ve oturumu serbest bırakın.</string>
     <string name="start_visualizer">Başlat</string>
