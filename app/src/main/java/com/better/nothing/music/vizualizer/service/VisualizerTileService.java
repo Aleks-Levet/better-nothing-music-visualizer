@@ -1,7 +1,7 @@
 package com.better.nothing.music.vizualizer.service;
 
 import com.better.nothing.music.vizualizer.R;
-import com.better.nothing.music.vizualizer.util.PermissionTrampolineActivity;
+import com.better.nothing.music.vizualizer.ui.MainActivity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.drawable.Icon;
@@ -19,7 +19,8 @@ public class VisualizerTileService extends TileService {
         } else {
             refresh(true); // Immediate UI feedback
             unlockAndRun(() -> {
-                Intent i = new Intent(this, PermissionTrampolineActivity.class);
+                Intent i = new Intent(this, MainActivity.class);
+                i.putExtra("request_start", true);
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                 PendingIntent pendingIntent = PendingIntent.getActivity(
                         this,

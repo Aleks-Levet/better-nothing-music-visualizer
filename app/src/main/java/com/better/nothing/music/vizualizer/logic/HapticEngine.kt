@@ -34,7 +34,7 @@ class BeatDetectionHapticEngine(context: Context) {
     }
 
     fun performHapticFeedback(
-        magnitude: FloatArray,
+        fftraw: IntArray,
         range: AudioProcessor.FrequencyRange?
     ) {
         if (
@@ -42,10 +42,14 @@ class BeatDetectionHapticEngine(context: Context) {
             !vibrator.hasVibrator() ||
             waveform == null ||
             range == null ||
-            magnitude.isEmpty()
+            fftraw.isEmpty()
         ) {
             return
         }
+
+        // Convert to 0-1 range for the beat detector
+        val magnitude = FloatArray(fftraw.size)
+        for (i in fftraw.indices) magnitude[i] = fftraw[i] / 4095f
 
         if (beatDetector.detect(magnitude, range.logBinLo, range.logBinHi)) {
             triggerWaveform()
@@ -78,7 +82,6 @@ class BeatDetectionHapticEngine(context: Context) {
             val amp = if (t < sustainMs) {
                 255f
             } else {
-                // Decay starts after sustain
                 val x = 1f - ((t - sustainMs).toFloat() / decayMs.toFloat())
                 255f * x.coerceIn(0f, 1f).pow(hapticGamma)
             }

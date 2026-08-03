@@ -7,7 +7,7 @@ import android.graphics.Paint;
 import android.view.View;
 
 public class VisualizerOverlayView extends View {
-    private float[] mMagnitudes;
+    private int[] mFftRaw;
     private final Paint mPaint = new Paint();
     private static final int NUM_BARS = 16;
     private final float[] mSmoothedMagnitudesTop = new float[NUM_BARS];
@@ -58,26 +58,25 @@ public class VisualizerOverlayView extends View {
         invalidate();
     }
 
-    public void updateMagnitudes(float[] magnitudes, int sampleRate) {
-        if (magnitudes == null || magnitudes.length == 0) return;
-        this.mMagnitudes = magnitudes;
+    public void updateMagnitudes(int[] fftraw) {
+        if (fftraw == null || fftraw.length == 0) return;
+        this.mFftRaw = fftraw;
         
-        // magnitudes is now 512 log-spaced bins (20Hz - 20kHz)
-        int binsPerBar = magnitudes.length / NUM_BARS;
+        int binsPerBar = fftraw.length / NUM_BARS;
 
         for (int i = 0; i < NUM_BARS; i++) {
-            float maxInBar = 0f;
-            for (int j = i * binsPerBar; j < (i + 1) * binsPerBar && j < magnitudes.length; j++) {
-                if (magnitudes[j] > maxInBar) maxInBar = magnitudes[j];
+            int maxInBar = 0;
+            for (int j = i * binsPerBar; j < (i + 1) * binsPerBar && j < fftraw.length; j++) {
+                if (fftraw[j] > maxInBar) maxInBar = fftraw[j];
             }
             
-            // Smoothing for visual stability
+            float val = maxInBar / 4095f;
             if (mTopEnabled) {
-                float currentTop = maxInBar * 1.5f * mTopSensitivity;
+                float currentTop = val * 1.5f * mTopSensitivity;
                 mSmoothedMagnitudesTop[i] = mSmoothedMagnitudesTop[i] * 0.7f + currentTop * 0.3f;
             }
             if (mBottomEnabled) {
-                float currentBottom = maxInBar * 1.5f * mBottomSensitivity;
+                float currentBottom = val * 1.5f * mBottomSensitivity;
                 mSmoothedMagnitudesBottom[i] = mSmoothedMagnitudesBottom[i] * 0.7f + currentBottom * 0.3f;
             }
         }
@@ -87,7 +86,7 @@ public class VisualizerOverlayView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (mMagnitudes == null) return;
+        if (mFftRaw == null) return;
 
         int width = getWidth();
         float barWidth = (float) width / NUM_BARS;

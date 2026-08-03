@@ -3,7 +3,6 @@ package com.better.nothing.music.vizualizer.ui
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import android.content.ComponentName
 import android.os.Build
 import android.os.SystemClock
 import android.os.Vibrator
@@ -12,22 +11,16 @@ import android.graphics.Bitmap
 import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.net.Uri
-import android.util.Base64
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.better.nothing.music.vizualizer.BuildConfig
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.logic.*
 import com.better.nothing.music.vizualizer.model.*
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
-import com.better.nothing.music.vizualizer.util.AnalyticsHelper
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.AuthCredential
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.palette.graphics.Palette
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
@@ -35,23 +28,20 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.tasks.await
 import org.json.JSONException
 import org.json.JSONObject
-import rikka.shizuku.Shizuku
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.math.pow
-import kotlin.math.sqrt
 
 enum class Tab(val label: String, val labelRes: Int) {
     Audio("Audio", R.string.tab_audio), 
     Glyphs("Glyphs", R.string.tab_glyphs), 
-    Visuals("Visuals", R.string.tab_visuals),
     Haptics("Haptics", R.string.tab_haptics), 
     Flashlight("Flashlight", R.string.tab_flashlight), 
+    Visuals("Visuals", R.string.tab_visuals),
     Settings("Settings", R.string.tab_settings);
 }
 
@@ -71,11 +61,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     val ctx = application
-    val communityRepository = CommunityRepository()
-    val announcementRepository = AnnouncementRepository()
-    val leaderboardRepository = LeaderboardRepository()
-    val userRepository = UserRepository()
-    val analytics = AnalyticsHelper(application)
 
     val hasHapticMotor: Boolean by lazy {
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -98,9 +83,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _flashlightLevel = MutableStateFlow(0)
     val flashlightLevel = _flashlightLevel.asStateFlow()
 
-    val _userProfile = MutableStateFlow<UserProfile?>(null)
-    val userProfile = _userProfile.asStateFlow()
-
     val _totalVisualizedTime = MutableStateFlow(0L)
     val totalVisualizedTime = _totalVisualizedTime.asStateFlow()
 
@@ -118,15 +100,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val _totalFlashlightTime = MutableStateFlow(0L)
     val totalFlashlightTime = _totalFlashlightTime.asStateFlow()
-
-    val _userNickname = MutableStateFlow("Anonymous")
-    val userNickname = _userNickname.asStateFlow()
-
-    val _userId = MutableStateFlow<String?>(null)
-    val userId = _userId.asStateFlow()
-
-    val _isAnonymous = MutableStateFlow(true)
-    val isAnonymous = _isAnonymous.asStateFlow()
 
     sealed class AppUpdateStatus {
         object Idle : AppUpdateStatus()
@@ -185,22 +158,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
-
-    private val _isShowingCommunity = MutableStateFlow(false)
-    val isShowingCommunity = _isShowingCommunity.asStateFlow()
-    fun showCommunity() { _isShowingCommunity.value = true }
-    fun hideCommunity() { _isShowingCommunity.value = false }
-
-    private val _isShowingEditor = MutableStateFlow(false)
-    val isShowingEditor = _isShowingEditor.asStateFlow()
-    fun showEditor() { _isShowingEditor.value = true }
-    fun hideEditor() { _isShowingEditor.value = false }
-
-    private val _isShowingProfileSetup = MutableStateFlow(false)
-    val isShowingProfileSetup = _isShowingProfileSetup.asStateFlow()
-    fun showProfileSetup() { _isShowingProfileSetup.value = true }
-    fun hideProfileSetup() { _isShowingProfileSetup.value = false }
-
 
     private val _flashlightMultiIntensityForced = MutableStateFlow(false)
     val flashlightMultiIntensityForced = _flashlightMultiIntensityForced.asStateFlow()
@@ -603,52 +560,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val _isShowingLeaderboard = MutableStateFlow(false)
-    val isShowingLeaderboard = _isShowingLeaderboard.asStateFlow()
-    fun showLeaderboard() { _isShowingLeaderboard.value = true }
-    fun hideLeaderboard() { _isShowingLeaderboard.value = false }
-
     private val _isShowingStats = MutableStateFlow(false)
     val isShowingStats = _isShowingStats.asStateFlow()
     fun showStats() { _isShowingStats.value = true }
     fun hideStats() { _isShowingStats.value = false }
-
-    fun deleteCustomPreset(key: String) {
-        viewModelScope.launch {
-            try {
-                communityRepository.deletePreset(key)
-                analytics.logEvent("preset_deleted", android.os.Bundle().apply { putString("preset_id", key) })
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Failed to delete preset", e)
-            }
-        }
-    }
-
-    fun saveCustomPreset(name: String, zones: List<AudioProcessor.ZoneSpec>, presetKey: String? = null) {
-        val uid = _userId.value ?: return
-        viewModelScope.launch {
-            try {
-                val preset = CommunityPreset(
-                    name = name,
-                    author = _userNickname.value,
-                    authorId = uid,
-                    phoneModel = phoneModelForDevice(selectedDevice.value),
-                    zones = zones.map { ZoneData.fromZoneSpec(it) },
-                    timestamp = System.currentTimeMillis()
-                )
-                communityRepository.uploadPreset(preset)
-                analytics.logPresetShared(name)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(ctx, "Preset uploaded to community!", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Failed to upload preset", e)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(ctx, "Upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
 
     fun checkRemoteConfigVersion() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -685,18 +600,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
     fun importZonesConfig(uri: Uri) {
         _configUpdateStatus.value = ConfigUpdateStatus.Updating
-        viewModelScope.launch {
-            announcementRepository.getLatestAnnouncement().collect { announcement ->
-                _latestAnnouncement.value = announcement
-                if (announcement != null) {
-                    val sharedPrefs = ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                    val lastSeenId = sharedPrefs.getString("last_seen_announcement_id", "")
-                    if (announcement.id.toString() != lastSeenId) {
-                        _showAnnouncementModal.value = true
-                    }
-                }
-            }
-        }
 
         viewModelScope.launch {
             try {
@@ -737,19 +640,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _configUpdateStatus.value = ConfigUpdateStatus.Updating
 
         viewModelScope.launch {
-            announcementRepository.getLatestAnnouncement().collect { announcement ->
-                _latestAnnouncement.value = announcement
-                if (announcement != null) {
-                    val sharedPrefs = ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                    val lastSeenId = sharedPrefs.getString("last_seen_announcement_id", "")
-                    if (announcement.id.toString() != lastSeenId) {
-                        _showAnnouncementModal.value = true
-                    }
-                }
-            }
-        }
-
-        viewModelScope.launch {
             try {
                 // 2. Perform network/download on IO Thread
                 val success = withContext(Dispatchers.IO) {
@@ -760,8 +650,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 if (success) {
                     _configUpdateStatus.value = ConfigUpdateStatus.Success(ctx.getString(R.string.config_update_success))
                 }
-                // Errors are handled inside performUpdateAction setting the status directly now,
-                // or we could return Result object. To keep it simple with existing code:
             } catch (e: Exception) {
                 // Catch unexpected errors
                 _configUpdateStatus.value = ConfigUpdateStatus.Error(ctx.getString(R.string.config_error_updating, e.message))
@@ -826,7 +714,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             connection?.disconnect()
         }
     }
-    // Profile logic now managed via Google Sign-in / Firebase
 
     private val _overlayEnabled = MutableStateFlow(false)
     val overlayEnabled = _overlayEnabled.asStateFlow()
@@ -864,18 +751,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val _strobeEnabled = MutableStateFlow(false)
-    val strobeEnabled = _strobeEnabled.asStateFlow()
-
-    fun setStrobeEnabled(enabled: Boolean) {
-        _strobeEnabled.value = enabled
-        MainActivity.serviceStatic?.setStrobeEnabled(enabled)
-        viewModelScope.launch(Dispatchers.IO) {
-            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putBoolean("strobe_enabled", enabled) }
-        }
-    }
-
     val _disableGlyphsWhenSilent = MutableStateFlow(false)
     val disableGlyphsWhenSilent = _disableGlyphsWhenSilent.asStateFlow()
 
@@ -910,131 +785,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val _isAdmin = MutableStateFlow(false)
-    val isAdmin = _isAdmin.asStateFlow()
-
-    fun syncStats(explicitUid: String? = null) {
-        val uid = explicitUid ?: _userId.value ?: return
-        viewModelScope.launch {
-            try {
-                val prefs = ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                val localTime = _totalVisualizedTime.value
-                var profile = userRepository.getUserProfile(uid)
-                
-                if (profile == null) {
-                    profile = UserProfile(
-                        userId = uid,
-                        displayName = _userNickname.value,
-                        totalVisualizedTime = localTime,
-                        createdAt = System.currentTimeMillis()
-                    )
-                    userRepository.saveUserProfile(profile)
-                } else {
-                    // Reconcile: Take the maximum to avoid progress loss
-                    if (localTime > profile.totalVisualizedTime) {
-                        profile = profile.copy(totalVisualizedTime = localTime)
-                        userRepository.saveUserProfile(profile)
-                    } else if (profile.totalVisualizedTime > localTime) {
-                        _totalVisualizedTime.value = profile.totalVisualizedTime
-                        prefs.edit().putLong("total_visualized_time", profile.totalVisualizedTime).apply()
-                    }
-                }
-                
-                _userProfile.value = profile
-                _userNickname.value = profile.displayName ?: "Anonymous"
-                
-                // If the user has signed in but hasn't set up their profile yet, show the setup dialog
-                if (!_isAnonymous.value && (profile.displayName.isNullOrBlank() || profile.displayName == "Anonymous")) {
-                    showProfileSetup()
-                }
-
-                // Update internal UID if needed (though AuthListener should handle it)
-                if (explicitUid != null) {
-                    _userId.value = explicitUid
-                }
-
-                // Check if admin
-                _isAdmin.value = uid == "acLuGkDEBNNhtIkuWDzlKuFhDI92" || uid == "hOQwgxRFB2fjko5mUaZraIcYRnl1"
-                
-                analytics.logStatsSynced(
-                    _totalVisualizedTime.value,
-                    0, 0, 0 
-                )
-                
-                updateLeaderboard()
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Failed to sync stats", e)
-            }
-        }
-    }
-
-    fun updateProfile(nickname: String, profilePictureBase64: String? = null) {
-        val uid = _userId.value ?: return
-        viewModelScope.launch {
-            try {
-                val currentProfile = _userProfile.value ?: UserProfile(
-                    userId = uid,
-                    displayName = _userNickname.value,
-                    createdAt = System.currentTimeMillis()
-                )
-                val updatedProfile = currentProfile.copy(
-                    displayName = nickname,
-                    profilePictureUrl = profilePictureBase64 ?: currentProfile.profilePictureUrl
-                )
-                userRepository.saveUserProfile(updatedProfile)
-                _userProfile.value = updatedProfile
-                _userNickname.value = nickname
-                
-                // Update leaderboard as well
-                updateLeaderboard()
-                
-                analytics.logProfileUpdate(if (profilePictureBase64 != null) "avatar" else "nickname")
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Failed to update profile", e)
-            }
-        }
-    }
-
-    fun uploadProfilePicture(uri: android.net.Uri) {
-        val uid = _userId.value ?: return
-        viewModelScope.launch {
-            try {
-                val base64 = userRepository.uploadProfilePicture(uid, uri, ctx)
-                updateProfile(_userNickname.value, base64)
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Failed to upload profile picture", e)
-            }
-        }
-    }
-
-    fun updateLeaderboard() {
-        val uid = _userId.value ?: return
-        if (_isAnonymous.value) return 
-
-        viewModelScope.launch {
-            try {
-                val currentProfile = _userProfile.value ?: return@launch
-                val updatedTime = _totalVisualizedTime.value
-                
-                // Update User Profile as well so it's persistent
-                val updatedProfile = currentProfile.copy(totalVisualizedTime = updatedTime)
-                userRepository.saveUserProfile(updatedProfile)
-                _userProfile.value = updatedProfile
-
-                val entry = LeaderboardEntry(
-                    userId = uid,
-                    name = nicknameForLeaderboard(updatedProfile.displayName),
-                    profilePictureUrl = updatedProfile.profilePictureUrl,
-                    totalTimeMs = updatedTime,
-                    lastUpdated = System.currentTimeMillis()
-                )
-                leaderboardRepository.updateScore(entry)
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Failed to update leaderboard", e)
-            }
-        }
-    }
-
     fun saveStatsLocally() {
         val prefs = ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
         viewModelScope.launch(Dispatchers.IO) {
@@ -1049,16 +799,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun nicknameForLeaderboard(name: String): String {
-        return if (name.isBlank() || name == "Anonymous") "Anonymous User" else name
-    }
-
-    fun isNotificationAccessGranted(): Boolean {
-        val flat = android.provider.Settings.Secure.getString(ctx.contentResolver, "enabled_notification_listeners")
-        return flat?.contains(ctx.packageName) == true
-    }
-
-
     private val _notificationButtonSet = MutableStateFlow("presets")
     val notificationButtonSet = _notificationButtonSet.asStateFlow()
 
@@ -1071,127 +811,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         MainActivity.serviceStatic?.reloadConfig()
     }
 
-    val _devPassword = MutableStateFlow<String?>(null)
-
-    fun verifyDeveloperPassword(input: String): Boolean {
-        if (input.isBlank()) return false
-        val encrypted = _devPassword.value ?: return false
-        val decrypted = try {
-            String(Base64.decode(encrypted, Base64.DEFAULT))
-        } catch (e: Exception) {
-            ""
-        }
-        return input == decrypted
-    }
-
-    val _thanksMessage = MutableStateFlow<String?>(null)
-    val thanksQueue = mutableListOf<String>()
-
-    fun dismissThanksMessage() {
-        if (thanksQueue.isNotEmpty()) {
-            _thanksMessage.value = thanksQueue.removeAt(0)
-        } else {
-            _thanksMessage.value = null
-        }
-    }
-
-    fun showThanks(message: String) {
-        if (_thanksMessage.value == null) {
-            _thanksMessage.value = message
-        } else {
-            thanksQueue.add(message)
-        }
-    }
-
     val _favoritePresets = MutableStateFlow<Set<String>>(emptySet())
     val favoritePresets = _favoritePresets.asStateFlow()
 
     val _captureSource = MutableStateFlow(AudioCaptureService.CaptureSource.INTERNAL)
     val captureSource = _captureSource.asStateFlow()
 
-    val _latestAnnouncement = MutableStateFlow<Announcement?>(null)
-    val latestAnnouncement = _latestAnnouncement.asStateFlow()
-
-    val _showAnnouncementModal = MutableStateFlow(false)
-    val showAnnouncementModal = _showAnnouncementModal.asStateFlow()
-
-    val _showAnnouncementEditor = MutableStateFlow(false)
-    val showAnnouncementEditor = _showAnnouncementEditor.asStateFlow()
-
-    val _showAnnouncementHistory = MutableStateFlow(false)
-    val showAnnouncementHistory = _showAnnouncementHistory.asStateFlow()
-
     val _showSpoofingSettings = MutableStateFlow(false)
     val showSpoofingSettings = _showSpoofingSettings.asStateFlow()
 
-    val _shizukuSourceUnlocked = MutableStateFlow(false)
-    val shizukuSourceUnlocked = _shizukuSourceUnlocked.asStateFlow()
-
-    fun setShizukuSourceUnlocked(unlocked: Boolean) {
-        _shizukuSourceUnlocked.value = unlocked
-        viewModelScope.launch(Dispatchers.IO) {
-            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putBoolean("shizuku_source_unlocked", unlocked) }
-        }
-    }
-
     fun setShowSpoofingSettings(show: Boolean) {
         _showSpoofingSettings.value = show
-        analytics.logSettingChanged("show_spoofing_settings", show)
     }
-
-    fun showAnnouncementEditor() { 
-        _showAnnouncementEditor.value = true
-        analytics.logScreenView("announcement_editor")
-    }
-    fun hideAnnouncementEditor() { _showAnnouncementEditor.value = false }
-
-    fun showAnnouncementHistory() { 
-        _showAnnouncementHistory.value = true
-        analytics.logScreenView("announcement_history")
-    }
-    fun hideAnnouncementHistory() { _showAnnouncementHistory.value = false }
-
-    fun dismissAnnouncement() {
-        val announcement = _latestAnnouncement.value ?: return
-        _showAnnouncementModal.value = false
-        analytics.logAnnouncementClicked(announcement.id.toString(), "dismiss")
-        viewModelScope.launch(Dispatchers.IO) {
-            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putString("last_seen_announcement_id", announcement.id.toString()) }
-        }
-    }
-
-    fun postAnnouncement(title: String, message: String, style: String, link: String? = null, linkText: String? = null) {
-        viewModelScope.launch {
-            try {
-                val announcement = Announcement(
-                    id = System.currentTimeMillis().toString(),
-                    title = title,
-                    message = message,
-                    style = style,
-                    link = link.takeIf { it?.isNotBlank() == true },
-                    linkText = linkText.takeIf { it?.isNotBlank() == true },
-                    timestamp = System.currentTimeMillis()
-                )
-                announcementRepository.postAnnouncement(announcement)
-                _showAnnouncementEditor.value = false
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(ctx, ctx.getString(R.string.announcement_posted), Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(ctx, ctx.getString(R.string.failed_to_post, e.message), Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-
-    val announcementHistory = announcementRepository.getAnnouncementHistory()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    val leaderboardEntries = leaderboardRepository.getTopUsers()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val _spoofLocale = MutableStateFlow<String?>(null)
     val spoofLocale = _spoofLocale.asStateFlow()
@@ -1203,7 +834,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val savedSource = prefs.getString("capture_source", AudioCaptureService.CaptureSource.INTERNAL.name)
         _captureSource.value = AudioCaptureService.CaptureSource.valueOf(savedSource ?: AudioCaptureService.CaptureSource.INTERNAL.name)
 
-        _shizukuSourceUnlocked.value = prefs.getBoolean("shizuku_source_unlocked", false)
         _uiAmplitudeSyncEnabled.value = prefs.getBoolean("ui_amplitude_sync_enabled", true)
 
         _totalVisualizedTime.value = prefs.getLong("total_visualized_time", 0L)
@@ -1212,75 +842,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _totalGlyphTime.value = prefs.getLong("total_glyph_time", 0L)
         _totalHapticTime.value = prefs.getLong("total_haptic_time", 0L)
         _totalFlashlightTime.value = prefs.getLong("total_flashlight_time", 0L)
-        _userNickname.value = prefs.getString("user_nickname", "Anonymous") ?: "Anonymous"
         _spoofLocale.value = prefs.getString("spoof_locale", null)
-
-        val auth = FirebaseAuth.getInstance()
-        auth.addAuthStateListener { firebaseAuth ->
-            val user = firebaseAuth.currentUser
-            if (user != null) {
-                _userId.value = user.uid
-                _isAnonymous.value = user.isAnonymous
-                analytics.setUserId(user.uid)
-                prefs.edit().putString("user_id", user.uid).apply()
-
-                // If not anonymous, fetch/sync profile
-                if (!user.isAnonymous) {
-                    syncStats(user.uid)
-                }
-            } else {
-                // User signed out (or never signed in). Clear all stale state so
-                // the UI doesn't keep showing the previous account.
-                _userId.value = null
-                _isAnonymous.value = true
-                _userProfile.value = null
-                _userNickname.value = "Anonymous"
-                analytics.setUserId(null)
-                prefs.edit().remove("user_id").apply()
-            }
-        }
-
-        if (auth.currentUser == null) {
-            // Defer authing-in anonymously until after we've had a chance to
-            // sign in with a real provider. This avoids race conditions where
-            // the init logic immediately re-creates an anonymous account
-            // before the user gets a chance to log in again.
-            viewModelScope.launch {
-                delay(500)
-                // Only auto sign-in if the listener still hasn't reported a user.
-                if (FirebaseAuth.getInstance().currentUser == null) {
-                    auth.signInAnonymously().addOnFailureListener { e ->
-                        Log.e("MainViewModel", "Firebase Auth failed", e)
-                        var uId = prefs.getString("user_id", null)
-                        if (uId == null) {
-                            uId = java.util.UUID.randomUUID().toString()
-                            prefs.edit().putString("user_id", uId).apply()
-                        }
-                        _userId.value = uId
-                    }
-                }
-            }
-        } else {
-            _userId.value = auth.currentUser?.uid
-        }
-
-        // Disable Haptic Tile if no motor
-        try {
-            val hapticTileComponent = ComponentName(ctx, "com.better.nothing.music.vizualizer.service.HapticsTileService")
-            ctx.packageManager.setComponentEnabledSetting(
-                hapticTileComponent,
-                if (hasHapticMotor) PackageManager.COMPONENT_ENABLED_STATE_ENABLED 
-                else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP
-            )
-        } catch (e: Exception) {
-            Log.e("MainViewModel", "Failed to disable HapticsTileService", e)
-        }
-
-        // Track app openings and show thanks messages
-        val openCount = prefs.getInt("app_open_count", 0) + 1
-        prefs.edit().putInt("app_open_count", openCount).apply()
-        analytics.logAppOpen(openCount)
 
         // Time tracking
         viewModelScope.launch {
@@ -1310,17 +872,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                             _totalGlyphTime.value += delta
                         }
                     } else {
-                        // Only count as idle if it's actually running but quiet
                         _totalIdleTime.value += delta
                     }
 
-                    // Save periodically (every 5 seconds to reduce IO, every 60s for leaderboard)
+                    // Save periodically (every 5 seconds to reduce IO)
                     val timestamp = SystemClock.elapsedRealtime()
                     if (timestamp % 5000 < 1100) {
                         saveStatsLocally()
-                    }
-                    if (timestamp % 60000 < 1100) {
-                        updateLeaderboard()
                     }
                 }
             }
@@ -1354,23 +912,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         
         _selectedTab.value = tab
-        analytics.logTabSelected(tab.name)
     }
 
     fun navigateBack(): Boolean {
-        // First check for overlays (order by visual precedence - top-most first)
-        if (_showAnnouncementModal.value) { dismissAnnouncement(); return true }
-        if (_showAnnouncementEditor.value) { hideAnnouncementEditor(); return true }
-        if (_isShowingLeaderboard.value) { hideLeaderboard(); return true }
-        if (_showAnnouncementHistory.value) { hideAnnouncementHistory(); return true }
-        if (_isShowingCommunity.value) { hideCommunity(); return true }
-        if (_isShowingProfileSetup.value) { hideProfileSetup(); return true }
         if (_isShowingStats.value) { hideStats(); return true }
         if (_isShowingLicense.value) { hideLicense(); return true }
         if (_isShowingAbout.value) { hideAbout(); return true }
-        if (_isShowingEditor.value) { hideEditor(); return true }
 
-        // Then check tab history
         if (tabHistory.isNotEmpty()) {
             val previousTab = tabHistory.removeAt(tabHistory.size - 1)
             selectTab(previousTab, recordHistory = false)
@@ -1380,44 +928,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setCaptureSource(source: AudioCaptureService.CaptureSource) {
-        if (source == AudioCaptureService.CaptureSource.SHIZUKU) {
-            if (!checkShizukuPermission()) {
-                return
-            }
-        }
         _captureSource.value = source
         MainActivity.serviceStatic?.setCaptureSource(source)
-        analytics.logCaptureSourceChanged(source.name)
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putString("capture_source", source.name) }
         }
     }
 
-    fun checkShizukuPermission(): Boolean {
-        try {
-            if (Shizuku.isPreV11()) return false
-            if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
-                analytics.logShizukuPermissionResult(true)
-                return true
-            } else if (Shizuku.shouldShowRequestPermissionRationale()) {
-                Toast.makeText(ctx, ctx.getString(R.string.shizuku_permission_required), Toast.LENGTH_LONG).show()
-                analytics.logShizukuPermissionResult(false)
-                return false
-            } else {
-                Shizuku.requestPermission(1001)
-                return false
-            }
-        } catch (e: Exception) {
-            analytics.logError("shizuku_error", e.message ?: "Unknown Shizuku error")
-            Toast.makeText(ctx, ctx.getString(R.string.shizuku_not_running), Toast.LENGTH_LONG).show()
-            return false
-        }
-    }
-
     // ── Device ────────────────────────────────────────────────────────────────
-    // Exposed as MutableStateFlow (not just a val) so the Activity can always
-    // read the latest device synchronously when binding the service.
     val selectedDevice = MutableStateFlow(DeviceProfile.DEVICE_NP2)
 
     val _developerModeEnabled = MutableStateFlow(false)
@@ -1428,7 +947,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setDeveloperModeEnabled(enabled: Boolean) {
         _developerModeEnabled.value = enabled
-        analytics.logSettingChanged("developer_mode", enabled)
         updateSelectedDevice()
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
@@ -1438,7 +956,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setSpoofedDevice(device: Int) {
         _spoofedDevice.value = device
-        analytics.logDeviceSpoofed(phoneModelForDevice(device))
         if (_developerModeEnabled.value) {
             updateSelectedDevice()
         }
@@ -1472,7 +989,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         refreshPresets()
         reloadLatencyForCurrentRoute()
-        // Forward to service if bound
         MainActivity.serviceStatic?.setDevice(targetDevice)
     }
 
@@ -1505,12 +1021,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _latencyPresets = MutableStateFlow(listOf(0, 150, 300, 500))
     val latencyPresets = _latencyPresets.asStateFlow()
 
-    /**
-     * Updates the current system latency and persists it to disk.
-     */
     fun setLatencyMs(value: Int) {
         _latencyMs.value = value
-        analytics.logLatencyChanged(value, activeLatencyRouteKey())
         viewModelScope.launch(Dispatchers.IO) {
             val key = activeLatencyRouteKey()
             if (key != null) {
@@ -1533,7 +1045,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // ── Gamma ─────────────────────────────────────────────────────────────────
-    val _gammaValue = MutableStateFlow(1.0f)
+    val _gammaValue = MutableStateFlow(2.2f)
     val gammaValue = _gammaValue.asStateFlow()
 
     fun setGammaValue(value: Float) {
@@ -1577,8 +1089,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putBoolean("glyphs_enabled", enabled) }
         }
-        // If disabling, we might want to also tell the service to stop pushing frames
-        // but the tab visibility change will be the main effect for the user
     }
 
     fun setMaxBrightness(value: Int) {
@@ -1598,7 +1108,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _runningState.value = running
         if (!running) {
             saveStatsLocally()
-            updateLeaderboard()
         }
     }
 
@@ -1609,7 +1118,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setSelectedPreset(preset: String) {
         _selectedPreset.value = preset
-        analytics.logPresetSelected(preset, false)
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putString("selected_preset", preset) }
@@ -1650,7 +1158,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setHapticMotorEnabled(enabled: Boolean) {
         _hapticMotorEnabled.value = enabled
-        analytics.logSettingChanged("haptic_motor_enabled", enabled)
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putBoolean("haptic_motor_enabled", enabled) }
@@ -1660,7 +1167,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setHapticMode(mode: HapticMode) {
         _hapticMode.value = mode
-        analytics.logSettingChanged("haptic_mode", mode.name)
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putString("haptic_mode", mode.name) }
@@ -1750,7 +1256,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setFlashlightEnabled(enabled: Boolean) {
         _flashlightEnabled.value = enabled
-        analytics.logSettingChanged("flashlight_enabled", enabled)
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putBoolean("flashlight_enabled", enabled) }
@@ -1760,7 +1265,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setFlashlightMode(mode: TorchMode) {
         _flashlightMode.value = mode
-        analytics.logSettingChanged("flashlight_mode", mode.name)
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putString("flashlight_mode", mode.name) }
@@ -1829,8 +1333,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val max = if (_flashlightIntensityLevels.value > 1) 700f else 150f
         val normalized = (gamma - min) / (max - min)
 
-        // For binary (1 level), lower = faster.
-        // For multi (e.g. NP2), higher = longer fade out.
         if (_flashlightIntensityLevels.value <= 1) {
             return 150f - (normalized * 130f)
         }
@@ -1884,7 +1386,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _fftRawState.value = floatArrayOf()
     }
 
-        init {
+    init {
         viewModelScope.launch(Dispatchers.Default) {
             fftState.collect { magnitude ->
                 val service = MainActivity.serviceStatic
@@ -1895,14 +1397,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     _isBeatDetected.value = false
                     1.0f
                 } else {
-                    // Use pre-calculated peaks from the service to avoid re-scanning bins
                     val hapticPeak = service.latestHapticPeak
                     val uiPeak = service.latestUiPeak
                     val flashlightPeak = service.latestFlashlightPeak
 
                     val targetHaptic = (hapticPeak * _hapticAudioGain.value * 12f).coerceIn(0f, 1.0f).toDouble().pow(_hapticGamma.value.toDouble()).toFloat()
 
-                    // Asymmetric smoothing for haptics
                     if (targetHaptic > smoothedHapticAmplitude) {
                         smoothedHapticAmplitude = smoothedHapticAmplitude * 0.15f + targetHaptic * 0.85f
                     } else {
@@ -1912,13 +1412,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     val finalValue = (smoothedHapticAmplitude * _hapticMultiplier.value)
                     _hapticAmplitude.value = finalValue.coerceIn(0f, 1.2f)
 
-                    // Flashlight Amplitude using the pre-calculated flashlightPeak
                     val fTarget = (flashlightPeak * 16.0f).coerceIn(0f, 1.2f)
                     val fCur = Math.pow(fTarget.toDouble(), 2.2).toFloat()
                     val fDelta = (fCur - _flashlightAmplitude.value).coerceAtLeast(0f)
                     _flashlightAmplitude.value = (fCur + fDelta * 1.5f).coerceIn(0f, 1.2f)
 
-                    // UI Amplitude using the pre-calculated uiPeak
                     uiPeakValue = uiPeakValue * 0.98f + uiPeak * 0.02f
                     if (uiPeak > uiPeakValue) uiPeakValue = uiPeak
                     
@@ -1946,7 +1444,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val binLo = (_hapticFreqMin.value / hzPerBin).toInt().coerceIn(0, magnitude.lastIndex)
                 val binHi = (_hapticFreqMax.value / hzPerBin).toInt().coerceIn(binLo, magnitude.lastIndex)
 
-                // 2. Beat Detection
                 if (_hapticMode.value == HapticMode.BEAT_DETECTION) {
                     hapticBeatDetector.sensitivity = _hapticBeatSensitivity.value
                     if (hapticBeatDetector.detect(magnitude, binLo, binHi)) {
@@ -1982,7 +1479,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _spoofedDevice.value = prefs.getInt("spoofed_device", DeviceProfile.DEVICE_NP1)
         _autoDeviceMemorize.value = prefs.getBoolean("auto_device_memorize", true)
         _m3eEnabled.value = prefs.getBoolean("m3e_enabled", true)
-        _gammaValue.value = prefs.getFloat("gamma_value", 1.0f)
+        _gammaValue.value = prefs.getFloat("gamma_value", 2.2f)
         _spectrumGain.value = prefs.getFloat("spectrum_gain", 1.0f)
         _maxBrightness.value = prefs.getInt("max_brightness", 4095)
         _fftReadMethod.value = AudioProcessor.ReadMethod.valueOf(prefs.getString("fft_read_method", AudioProcessor.ReadMethod.MAX.name)!!)
@@ -1990,7 +1487,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _selectedPreset.value = prefs.getString("selected_preset", "Default") ?: "Default"
         _selectedTheme.value = prefs.getString("selected_theme", "Default") ?: "Default"
         _selectedFont.value = prefs.getString("selected_font", "Default") ?: "Default"
-        _flashlightMultiIntensityForced.value = prefs.getBoolean("flashlight_multi_intensity_forced", false)
         _notificationButtonSet.value = prefs.getString("notification_button_set", "presets") ?: "presets"
 
         _hapticMotorEnabled.value = prefs.getBoolean("haptic_motor_enabled", false)
@@ -2012,7 +1508,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         _idleBreathingEnabled.value = prefs.getBoolean("idle_breathing_enabled", false)
         _idlePattern.value = prefs.getString("idle_pattern", "pulse") ?: "pulse"
-        _strobeEnabled.value = prefs.getBoolean("strobe_enabled", false)
         _disableGlyphsWhenSilent.value = prefs.getBoolean("disable_glyphs_when_silent", false)
         _overlayEnabled.value = prefs.getBoolean("overlay_enabled", false)
         _overlayTopEnabled.value = prefs.getBoolean("overlay_top_enabled", true)
@@ -2045,11 +1540,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         updateSelectedDevice()
         refreshPresets()
-        initDatabase()
-    }
-
-    fun initDatabase() {
-        // Mock
     }
 
     fun phoneModelForDevice(device: Int): String {
@@ -2090,7 +1580,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 refreshPresetsInternal()
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Presets refresh failed, pulling from remote", e)
-                // If we are already updating, don't trigger another one
                 if (_configUpdateStatus.value !is ConfigUpdateStatus.Updating) {
                     withContext(Dispatchers.Main) {
                         updateZonesConfig()
@@ -2109,8 +1598,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     val version = root.optString("version", "Unknown")
                     _configVersion.value = version
                     
-                    // If it's a "simple" fallback config, don't show any presets in the UI
-                    // to encourage the user to update to the full version.
                     if (version.contains(".simple")) {
                         Log.d("MainViewModel", "Simple config detected (v$version), clearing preset list")
                         _presetInfos.value = emptyList()
@@ -2165,149 +1652,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun activeLatencyRouteKey(): String? {
         return MainActivity.serviceStatic?.getActiveAudioRouteKey()
-    }
-
-    fun signOut() {
-        // Just clear the user. The init logic will re-create an anonymous
-        // session (after a short delay) if no real sign-in happens.
-        // Previously this called signInAnonymously() immediately, which made
-        // it impossible to ever sign back in with the same provider right
-        // after logging out because Firebase would re-issue the cached
-        // anonymous account.
-        FirebaseAuth.getInstance().signOut()
-    }
-
-    fun signInWithEmail(email: String, password: String, onError: (String) -> Unit) {
-        viewModelScope.launch {
-            try {
-                Log.d("MainViewModel", "Signing in with email: $email")
-                FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password).await()
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(ctx, "Signed in!", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Email sign in failed", e)
-                withContext(Dispatchers.Main) { onError(e.localizedMessage ?: "Sign in failed") }
-            }
-        }
-    }
-
-    fun signUpWithEmail(email: String, password: String, onError: (String) -> Unit) {
-        viewModelScope.launch {
-            try {
-                Log.d("MainViewModel", "Creating account for: $email")
-                FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password).await()
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(ctx, "Account created!", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Email sign up failed", e)
-                withContext(Dispatchers.Main) { onError(e.localizedMessage ?: "Sign up failed") }
-            }
-        }
-    }
-
-    fun linkWithCredential(credential: AuthCredential) {
-        val auth = FirebaseAuth.getInstance()
-        // If there isn't an active user (e.g. logged out just now), fall back
-        // to a plain credential sign in. Otherwise the credential is dropped
-        // on the floor and the user can't log in again.
-        if (auth.currentUser == null) {
-            signInWithCredential(credential)
-            return
-        }
-        val user = auth.currentUser!!
-        viewModelScope.launch {
-            try {
-                Log.d("MainViewModel", "Linking user with credential...")
-                val result = user.linkWithCredential(credential).await()
-                val firebaseUser = result.user
-                
-                // Update profile from firebase user info
-                if (firebaseUser != null) {
-                    val profile = _userProfile.value?.copy(
-                        displayName = firebaseUser.displayName ?: _userNickname.value,
-                        profilePictureUrl = firebaseUser.photoUrl?.toString() ?: _userProfile.value?.profilePictureUrl
-                    ) ?: UserProfile(
-                        userId = firebaseUser.uid,
-                        displayName = firebaseUser.displayName ?: "Anonymous",
-                        profilePictureUrl = firebaseUser.photoUrl?.toString(),
-                        createdAt = System.currentTimeMillis()
-                    )
-                    userRepository.saveUserProfile(profile)
-                    _userProfile.value = profile
-                    _userNickname.value = profile.displayName ?: "Anonymous"
-                }
-                
-                syncStats(firebaseUser?.uid)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(ctx, "Google account linked!", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Linking failed", e)
-                
-                // If linking fails because provider is already linked, try signing in instead
-                val msg = e.message ?: ""
-                if (msg.contains("provider already linked", ignoreCase = true) || 
-                    msg.contains("already in use", ignoreCase = true) ||
-                    msg.contains("credential_already_associated", ignoreCase = true)) {
-                    Log.d("MainViewModel", "Credential already linked, signing in instead...")
-                    signInWithCredential(credential)
-                } else {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(ctx, "Linking failed: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
-                    }
-                }
-            }
-        }
-    }
-
-    fun signInWithCredential(credential: AuthCredential) {
-        viewModelScope.launch {
-            try {
-                Log.d("MainViewModel", "Signing in with credential...")
-                val result = FirebaseAuth.getInstance().signInWithCredential(credential).await()
-                val firebaseUser = result.user
-                if (firebaseUser != null) {
-                    // Try to fetch existing profile
-                    var profile = userRepository.getUserProfile(firebaseUser.uid)
-                    if (profile == null) {
-                        val newProfile = UserProfile(
-                            userId = firebaseUser.uid,
-                            displayName = firebaseUser.displayName ?: "Anonymous",
-                            profilePictureUrl = firebaseUser.photoUrl?.toString(),
-                            createdAt = System.currentTimeMillis()
-                        )
-                        userRepository.saveUserProfile(newProfile)
-                        profile = newProfile
-                    } else if (profile.displayName == "Anonymous") {
-                        // If existing profile has default name, try to use Google name
-                        val googleName = firebaseUser.displayName
-                        if (!googleName.isNullOrBlank()) {
-                            val updatedProfile = profile.copy(displayName = googleName)
-                            userRepository.saveUserProfile(updatedProfile)
-                            profile = updatedProfile
-                        }
-                    }
-                    _userProfile.value = profile
-                    _userNickname.value = profile.displayName
-                    
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(ctx, "Welcome, ${profile.displayName}!", Toast.LENGTH_SHORT).show()
-                    }
-                }
-                syncStats(firebaseUser?.uid)
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Sign in failed", e)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(ctx, "Sign in failed: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }
-
-    fun onDevDepressed() {
-        // Mock
     }
 
     override fun onCleared() {

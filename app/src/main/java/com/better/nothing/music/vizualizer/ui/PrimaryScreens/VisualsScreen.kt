@@ -51,6 +51,15 @@ fun VisualsScreen(
     val edgeTopEnabled by viewModel.edgeTopEnabled.collectAsStateWithLifecycle()
     val edgeBottomEnabled by viewModel.edgeBottomEnabled.collectAsStateWithLifecycle()
     
+    val lensEnabled by viewModel.lensVisualizerEnabled.collectAsStateWithLifecycle()
+    val lensRadius by viewModel.lensVisualizerRadius.collectAsStateWithLifecycle()
+    val lensX by viewModel.lensVisualizerX.collectAsStateWithLifecycle()
+    val lensY by viewModel.lensVisualizerY.collectAsStateWithLifecycle()
+    val lensBarWidth by viewModel.lensVisualizerBarWidth.collectAsStateWithLifecycle()
+    val lensMaxHeight by viewModel.lensVisualizerMaxHeight.collectAsStateWithLifecycle()
+    val lensBarCount by viewModel.lensVisualizerBarCount.collectAsStateWithLifecycle()
+    val lensSensitivity by viewModel.lensVisualizerSensitivity.collectAsStateWithLifecycle()
+
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
@@ -66,46 +75,22 @@ fun VisualsScreen(
 
         ScreenTitle(text = stringResource(R.string.tab_visuals))
 
+        // ── Overlay Visualizer ──────────────────────────────────────────────
         ExpressiveCard {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        Icons.Default.Layers,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.nav_overlay),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-                Switch(
-                    checked = overlayEnabled,
-                    onCheckedChange = { enabled ->
-                        if (enabled && !Settings.canDrawOverlays(context)) {
-                            onOverlayPermissionRequest()
-                        } else {
-                            onOverlayEnabledChanged(enabled)
-                        }
-                    },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.size(height = 24.dp, width = 48.dp)
+                Icon(
+                    Icons.Default.Layers,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = stringResource(R.string.nav_overlay),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
                 )
             }
 
@@ -121,7 +106,7 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = stringResource(R.string.overlay_width),
+                            text = "Overlay Width",
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -145,7 +130,7 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = stringResource(R.string.vertical_position),
+                            text = "Vertical Position",
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -175,7 +160,7 @@ fun VisualsScreen(
                             onCheckedChange = { viewModel.setOverlayTopEnabled(it) }
                         )
                         Text(
-                            text = stringResource(R.string.overlay_top_segment),
+                            text = "Top Edge Overlay",
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
@@ -189,7 +174,7 @@ fun VisualsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = stringResource(R.string.overlay_height),
+                                text = "Bar Height",
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -213,7 +198,7 @@ fun VisualsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = stringResource(R.string.overlay_sensitivity),
+                                text = "Sensitivity",
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -244,7 +229,7 @@ fun VisualsScreen(
                             onCheckedChange = { viewModel.setOverlayBottomEnabled(it) }
                         )
                         Text(
-                            text = stringResource(R.string.overlay_bottom_segment),
+                            text = "Bottom Edge Overlay",
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
@@ -258,7 +243,7 @@ fun VisualsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = stringResource(R.string.overlay_height_bottom),
+                                text = "Bar Height",
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -282,7 +267,7 @@ fun VisualsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = stringResource(R.string.overlay_sensitivity_bottom),
+                                text = "Sensitivity",
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -303,47 +288,22 @@ fun VisualsScreen(
             }
         }
 
-        // Edge Visualizer
+        // ── Edge Visualizer ──────────────────────────────────────────────
         ExpressiveCard {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        Icons.Default.Layers,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Edge Visualizer",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-                Switch(
-                    checked = edgeVisualizerEnabled,
-                    onCheckedChange = { enabled ->
-                        if (enabled && !Settings.canDrawOverlays(context)) {
-                            onOverlayPermissionRequest()
-                        } else {
-                            viewModel.setEdgeVisualizerEnabled(enabled)
-                        }
-                    },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.size(height = 24.dp, width = 48.dp)
+                Icon(
+                    Icons.Default.Layers,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "Edge Visualizer",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
                 )
             }
 
@@ -352,7 +312,6 @@ fun VisualsScreen(
                     modifier = Modifier.padding(top = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // Height Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -376,7 +335,6 @@ fun VisualsScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Top Segment Toggle
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -393,7 +351,6 @@ fun VisualsScreen(
                         )
                     }
 
-                    // Bottom Segment Toggle
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -410,7 +367,6 @@ fun VisualsScreen(
                         )
                     }
 
-                    // Screen Corner Radius Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -434,7 +390,6 @@ fun VisualsScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Horizontal Bar Count Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -458,7 +413,6 @@ fun VisualsScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Vertical Bar Count Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -482,7 +436,6 @@ fun VisualsScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Sensitivity Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -509,56 +462,22 @@ fun VisualsScreen(
             }
         }
 
-        // Lens Visualizer
-        val lensEnabled by viewModel.lensVisualizerEnabled.collectAsStateWithLifecycle()
-        val lensRadius by viewModel.lensVisualizerRadius.collectAsStateWithLifecycle()
-        val lensX by viewModel.lensVisualizerX.collectAsStateWithLifecycle()
-        val lensY by viewModel.lensVisualizerY.collectAsStateWithLifecycle()
-        val lensBarWidth by viewModel.lensVisualizerBarWidth.collectAsStateWithLifecycle()
-        val lensMaxHeight by viewModel.lensVisualizerMaxHeight.collectAsStateWithLifecycle()
-        val lensBarCount by viewModel.lensVisualizerBarCount.collectAsStateWithLifecycle()
-        val lensSensitivity by viewModel.lensVisualizerSensitivity.collectAsStateWithLifecycle()
-
+        // ── Lens Visualizer ──────────────────────────────────────────────
         ExpressiveCard {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        Icons.Default.Layers,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.lens_visualizer),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-                Switch(
-                    checked = lensEnabled,
-                    onCheckedChange = { enabled ->
-                        if (enabled && !Settings.canDrawOverlays(context)) {
-                            onOverlayPermissionRequest()
-                        } else {
-                            viewModel.setLensVisualizerEnabled(enabled)
-                        }
-                    },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.size(height = 24.dp, width = 48.dp)
+                Icon(
+                    Icons.Default.Layers,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "Lens Visualizer",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
                 )
             }
 
@@ -567,14 +486,13 @@ fun VisualsScreen(
                     modifier = Modifier.padding(top = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // Radius Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = stringResource(R.string.lens_radius),
+                            text = "Lens Radius",
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -591,14 +509,13 @@ fun VisualsScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // X Position Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = stringResource(R.string.lens_x_position),
+                            text = "X Position",
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -615,14 +532,13 @@ fun VisualsScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Y Position Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = stringResource(R.string.lens_y_position),
+                            text = "Y Position",
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -639,14 +555,13 @@ fun VisualsScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Bar Width Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = stringResource(R.string.lens_bar_width),
+                            text = "Bar Width",
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -663,14 +578,13 @@ fun VisualsScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Max Height Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = stringResource(R.string.lens_max_height),
+                            text = "Max Height",
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -687,14 +601,13 @@ fun VisualsScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Bar Count Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = stringResource(R.string.lens_bar_count),
+                            text = "Bar Count",
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -705,20 +618,19 @@ fun VisualsScreen(
                         )
                     }
                     ExpressiveSlider(
-                        value = lensBarCount.toFloat(),
+                        value = lensBarCount.divideByToOne(),
                         onValueChange = { viewModel.setLensVisualizerBarCount(it.toInt()) },
                         valueRange = 8f..48f,
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Sensitivity Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = stringResource(R.string.lens_sensitivity),
+                            text = "Sensitivity",
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -741,3 +653,5 @@ fun VisualsScreen(
         Spacer(modifier = Modifier.height(85.dp))
     }
 }
+
+private fun Int.divideByToOne(): Float = this.toFloat()

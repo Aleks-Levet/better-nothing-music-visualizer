@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.better.nothing.music.vizualizer.R
-import com.better.nothing.music.vizualizer.service.GlyphNotificationListener
 
 @Composable
 fun BetterVizTheme(
@@ -61,65 +60,6 @@ fun BetterVizTheme(
 
     val targetColorScheme = remember(themeName, isDark, musicPrimaryColor) {
         when (themeName) {
-            "Music" -> {
-                val baseColor = musicPrimaryColor ?: Color(0xFFD71921)
-                
-                // Adjust color for visibility
-                val hsl = FloatArray(3)
-                ColorUtils.colorToHSL(baseColor.toArgb(), hsl)
-                
-                if (isDark) {
-                    // In dark mode, ensure color is visible against black but not pure white
-                    if (hsl[2] < 0.6f) hsl[2] = 0.6f
-                    if (hsl[2] > 0.85f) hsl[2] = 0.85f
-                    if (hsl[1] < 0.1f) { // If it's too grey/white, boost saturation and use a default hue
-                        hsl[1] = 0.5f 
-                    }
-                } else {
-                    // In light mode, ensure color is visible against white but not pure black
-                    if (hsl[2] > 0.45f) hsl[2] = 0.45f
-                    if (hsl[2] < 0.15f) hsl[2] = 0.15f
-                    if (hsl[1] < 0.1f) {
-                        hsl[1] = 0.5f
-                    }
-                }
-                
-                val adjustedPrimary = Color(ColorUtils.HSLToColor(hsl))
-
-                if (isDark) {
-                    androidx.compose.material3.darkColorScheme(
-                        background = Color.Black,
-                        surface = Color(0xFF0D0D0D),
-                        primary = adjustedPrimary,
-                        secondary = adjustedPrimary,
-                        error = adjustedPrimary,
-                        onBackground = Color.White,
-                        onSurface = Color.White,
-                        onPrimary = Color.Black,
-                        onSecondary = Color.Black,
-                        onError = Color.Black,
-                        surfaceVariant = Color(0xFF1A1A1A),
-                        onSurfaceVariant = Color(0xFFB3B3B3),
-                        outline = Color(0xFF333333)
-                    )
-                } else {
-                    androidx.compose.material3.lightColorScheme(
-                        background = Color.White,
-                        surface = Color(0xFFF5F5F5),
-                        primary = adjustedPrimary,
-                        secondary = adjustedPrimary,
-                        error = adjustedPrimary,
-                        onBackground = Color.Black,
-                        onSurface = Color.Black,
-                        onPrimary = Color.White,
-                        onSecondary = Color.White,
-                        onError = Color.White,
-                        surfaceVariant = Color(0xFFE0E0E0),
-                        onSurfaceVariant = Color(0xFF757575),
-                        outline = Color(0xFFBDBDBD)
-                    )
-                }
-            }
             "Material You" -> {
                 val base = if (isDark) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -367,88 +307,7 @@ fun BetterVizTheme(
     }
 }
 
-internal class MusicThemeHandler(
-    private val context: Context,
-    private val viewModel: MainViewModel
-) {
-    private val mediaSessionManager by lazy {
-        context.getSystemService(Context.MEDIA_SESSION_SERVICE) as MediaSessionManager
-    }
 
-    var activeMediaController: MediaController? = null
-        private set
-
-    private val mediaCallback = object : MediaController.Callback() {
-        override fun onMetadataChanged(metadata: MediaMetadata?) {
-            val artwork = getArtworkBitmap(metadata)
-            viewModel.setMusicArtwork(artwork)
-        }
-
-        override fun onPlaybackStateChanged(state: PlaybackState?) {}
-    }
-
-    val sessionsChangedListener = MediaSessionManager.OnActiveSessionsChangedListener {
-        updateActiveMediaController()
-    }
-
-    fun updateActiveMediaController() {
-        try {
-            val controllers = mediaSessionManager.getActiveSessions(
-                ComponentName(context, GlyphNotificationListener::class.java)
-            )
-            val newController = controllers.firstOrNull()
-
-            if (activeMediaController?.packageName != newController?.packageName) {
-                activeMediaController?.unregisterCallback(mediaCallback)
-                activeMediaController = newController
-                activeMediaController?.registerCallback(mediaCallback)
-
-                val artwork = getArtworkBitmap(activeMediaController?.metadata)
-                viewModel.setMusicArtwork(artwork)
-            }
-        } catch (_: SecurityException) {
-            Log.w("MusicThemeHandler", "No notification access to get media sessions")
-        }
-    }
-
-    fun getArtworkBitmap(metadata: MediaMetadata?): Bitmap? {
-        if (metadata == null) return null
-        
-        // Try direct bitmap first
-        val bitmap = try {
-            metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
-                ?: metadata.getBitmap(MediaMetadata.METADATA_KEY_ART)
-                ?: metadata.getBitmap(MediaMetadata.METADATA_KEY_DISPLAY_ICON)
-        } catch (_: Exception) {
-            null
-        }
-        
-        if (bitmap != null) return bitmap
-        
-        // If no bitmap, try loading from URI (some players only provide URIs)
-        val uriString = metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ART_URI)
-            ?: metadata.getString(MediaMetadata.METADATA_KEY_ART_URI)
-            ?: metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI)
-            
-        if (uriString != null) {
-            try {
-                val uri = android.net.Uri.parse(uriString)
-                val inputStream = context.contentResolver.openInputStream(uri)
-                val decoded = android.graphics.BitmapFactory.decodeStream(inputStream)
-                inputStream?.close()
-                return decoded
-            } catch (e: Exception) {
-                Log.w("MusicThemeHandler", "Failed to load artwork from URI: $uriString", e)
-            }
-        }
-        
-        return null
-    }
-
-    fun onDestroy() {
-        activeMediaController?.unregisterCallback(mediaCallback)
-    }
-}
 
 
 val NTypeFontFamily = FontFamily(

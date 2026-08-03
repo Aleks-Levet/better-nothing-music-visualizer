@@ -124,7 +124,6 @@ fun AudioScreen(
     fftData: FloatArray = floatArrayOf(),
     captureSource: AudioCaptureService.CaptureSource = AudioCaptureService.CaptureSource.INTERNAL,
     onCaptureSourceChanged: (AudioCaptureService.CaptureSource) -> Unit = {},
-    shizukuUnlocked: Boolean = false,
     latencyWizardState: LatencyWizard.State = LatencyWizard.State.Idle,
     onRunLatencyWizard: () -> Unit = {},
     onResetLatencyWizard: () -> Unit = {},
@@ -132,11 +131,12 @@ fun AudioScreen(
     onGlyphsEnabledChanged: (Boolean) -> Unit = {},
     hapticsEnabled: Boolean = false,
     onHapticsEnabledChanged: (Boolean) -> Unit = {},
-    visualsEnabled: Boolean = false,
-    onVisualsEnabledChanged: (Boolean) -> Unit = {},
     flashlightEnabled: Boolean = false,
     onFlashlightEnabledChanged: (Boolean) -> Unit = {},
     developerModeEnabled: Boolean = false,
+    isGlyphAvailable: Boolean = true,
+    hasHapticMotor: Boolean = true,
+    hasFlashlight: Boolean = true,
     padding: androidx.compose.foundation.layout.PaddingValues = androidx.compose.foundation.layout.PaddingValues(),
 ) {
     val context = LocalContext.current
@@ -231,7 +231,6 @@ fun AudioScreen(
                     onCaptureSourceChanged(source)
                 }
             },
-            shizukuUnlocked = shizukuUnlocked,
             developerModeEnabled = developerModeEnabled
         )
 
@@ -254,10 +253,11 @@ fun AudioScreen(
             onGlyphsToggle = onGlyphsEnabledChanged,
             hapticsEnabled = hapticsEnabled,
             onHapticsToggle = onHapticsEnabledChanged,
-            visualsEnabled = visualsEnabled,
-            onVisualsToggle = onVisualsEnabledChanged,
             flashlightEnabled = flashlightEnabled,
-            onFlashlightToggle = onFlashlightEnabledChanged
+            onFlashlightToggle = onFlashlightEnabledChanged,
+            isGlyphAvailable = isGlyphAvailable,
+            hasHapticMotor = hasHapticMotor,
+            hasFlashlight = hasFlashlight
         )
         if (isRunning) {
             val seconds = (sessionDuration / 1000) % 60
@@ -317,7 +317,7 @@ fun AudioScreen(
                 }
             }
         }
-        Spacer(modifier = Modifier.height(86.dp)) //no one will notice
+        Spacer(modifier = Modifier.height(86.dp))
     }
 }
 
@@ -328,18 +328,18 @@ fun OutputSelectionCard(
     onGlyphsToggle: (Boolean) -> Unit,
     hapticsEnabled: Boolean,
     onHapticsToggle: (Boolean) -> Unit,
-    visualsEnabled: Boolean,
-    onVisualsToggle: (Boolean) -> Unit,
     flashlightEnabled: Boolean,
-    onFlashlightToggle: (Boolean) -> Unit
+    onFlashlightToggle: (Boolean) -> Unit,
+    isGlyphAvailable: Boolean = true,
+    hasHapticMotor: Boolean = true,
+    hasFlashlight: Boolean = true
 ) {
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
         CardHeader(title = "Output Selection")
         val outputs = listOf(
-            Triple("Glyphs", ImageVector.vectorResource(R.drawable.ic_nav_glyphs), glyphsEnabled to onGlyphsToggle),
-            Triple("Haptics", Icons.Default.Vibration, hapticsEnabled to onHapticsToggle),
-            Triple("Visuals", Icons.Default.Visibility, visualsEnabled to onVisualsToggle),
-            Triple("Flashlight", Icons.Default.FlashlightOn, flashlightEnabled to onFlashlightToggle)
+            Triple("Glyphs", ImageVector.vectorResource(R.drawable.ic_nav_glyphs), Triple(glyphsEnabled, onGlyphsToggle, isGlyphAvailable)),
+            Triple("Haptics", Icons.Default.Vibration, Triple(hapticsEnabled, onHapticsToggle, hasHapticMotor)),
+            Triple("Flashlight", Icons.Default.FlashlightOn, Triple(flashlightEnabled, onFlashlightToggle, hasFlashlight))
         )
 
         FlowRow(
@@ -348,13 +348,14 @@ fun OutputSelectionCard(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            outputs.forEach { (label, icon, statePair) ->
-                val (isEnabled, onToggle) = statePair
+            outputs.forEach { (label, icon, stateTriple) ->
+                val (isEnabled, onToggle, isHardwareAvailable) = stateTriple
                 OptionTile(
                     label = label,
                     icon = icon,
-                    isSelected = isEnabled,
-                    onClick = { onToggle(!isEnabled) },
+                    isSelected = isEnabled && isHardwareAvailable,
+                    enabled = isHardwareAvailable,
+                    onClick = { if (isHardwareAvailable) onToggle(!isEnabled) },
                     modifier = Modifier.height(64.dp),
                     maxLines = 1
                 )
@@ -368,7 +369,6 @@ fun OutputSelectionCard(
 fun CaptureSourceCard(
     selectedSource: AudioCaptureService.CaptureSource,
     onSourceSelected: (AudioCaptureService.CaptureSource) -> Unit,
-    shizukuUnlocked: Boolean,
     developerModeEnabled: Boolean
 ) {
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
@@ -414,7 +414,6 @@ fun CaptureSourceCard(
                 )
             }
             
-            // Placeholder button
             OptionTile(
                 label = "Coming Soon...",
                 icon = Icons.Default.Add,
@@ -424,22 +423,6 @@ fun CaptureSourceCard(
                 modifier = Modifier.height(64.dp),
                 maxLines = 2
             )
-
-            if (developerModeEnabled) {
-                val isSelected = selectedSource == AudioCaptureService.CaptureSource.SHIZUKU
-                val isEnabled = shizukuUnlocked
-                
-                OptionTile(
-                    label = if (!shizukuUnlocked) stringResource(R.string.capture_shizuku) + " (Locked)" 
-                            else stringResource(R.string.capture_shizuku),
-                    icon = Icons.Default.Terminal,
-                    isSelected = isSelected,
-                    enabled = isEnabled,
-                    onClick = { onSourceSelected(AudioCaptureService.CaptureSource.SHIZUKU) },
-                    modifier = Modifier.height(64.dp),
-                    maxLines = 2
-                )
-            }
         }
         if (selectedSource == AudioCaptureService.CaptureSource.VIZUALIZER) {
             Spacer(modifier = Modifier.height(12.dp))
@@ -775,7 +758,6 @@ fun FFTSpectrumCard(fftData: FloatArray) {
                         val barPath = Path()
                         var first = true
 
-                        // Dynamic gradient based on amplitude
                         val gradient = Brush.verticalGradient(
                             colors = listOf(
                                 primaryColor.copy(alpha = 0.6f),
@@ -787,10 +769,9 @@ fun FFTSpectrumCard(fftData: FloatArray) {
 
                         val points = data.size - 1
                         for (i in 5..points) {
-                            val fraction = i.toFloat() / points
+                            val fraction = i.divideBy(points)
                             val mag = data[i]
 
-                            // Nonlinear scaling for better visuals
                             val scaledMag = (mag * 1.2f).coerceIn(0f, 1.2f)
                             val y = h - (scaledMag * (h - 40f)) - 20f
                             val x = fraction * w
@@ -813,7 +794,6 @@ fun FFTSpectrumCard(fftData: FloatArray) {
                         drawPath(path = fillPath, brush = gradient)
 
 
-                        // Main line
                         drawPath(
                             path = barPath,
                             color = primaryColor,
@@ -871,7 +851,6 @@ fun FFTSpectrumCard(fftData: FloatArray) {
                     }
                 }
 
-                // Frequency labels
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -891,6 +870,8 @@ fun FFTSpectrumCard(fftData: FloatArray) {
         }
     }
 }
+
+private fun Int.divideBy(divisor: Int): Float = this.toFloat() / divisor.toFloat()
 
 @Composable
 fun RowScope.FineTuneButton(

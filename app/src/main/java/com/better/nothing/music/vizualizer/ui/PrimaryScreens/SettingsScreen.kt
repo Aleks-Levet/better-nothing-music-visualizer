@@ -1,16 +1,11 @@
 package com.better.nothing.music.vizualizer.ui.PrimaryScreens
 
-import android.content.Intent
 import com.better.nothing.music.vizualizer.R
-import com.better.nothing.music.vizualizer.BuildConfig
 import com.better.nothing.music.vizualizer.model.DeviceProfile
-import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -23,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
 import android.view.HapticFeedbackConstants
@@ -35,36 +29,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
-import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.automirrored.filled.Login
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.res.vectorResource
 import com.better.nothing.music.vizualizer.logic.AudioProcessor
 import com.better.nothing.music.vizualizer.ui.BodyText
-import com.better.nothing.music.vizualizer.ui.CardHeader
 import com.better.nothing.music.vizualizer.ui.ExpressiveCard
 import com.better.nothing.music.vizualizer.ui.ExpressiveSplitButton
-import com.better.nothing.music.vizualizer.ui.ExpressiveSlider
 import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
 import com.better.nothing.music.vizualizer.ui.MainViewModel
 import com.better.nothing.music.vizualizer.ui.OptionTile
 import com.better.nothing.music.vizualizer.ui.ScreenTitle
-import com.better.nothing.music.vizualizer.ui.Tab
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -74,34 +52,18 @@ internal fun SettingsScreen(
     onIdleBreathingEnabledChanged: (Boolean) -> Unit,
     idlePattern: String,
     onIdlePatternChanged: (String) -> Unit,
-    strobeEnabled: Boolean,
-    onStrobeEnabledChanged: (Boolean) -> Unit,
     disableGlyphsWhenSilent: Boolean,
     onDisableGlyphsWhenSilentChanged: (Boolean) -> Unit,
-    onGoogleSignIn: () -> Unit,
     padding: PaddingValues = PaddingValues(),
 ) {
     val uiAmplitudeSyncEnabled by viewModel.uiAmplitudeSyncEnabled.collectAsStateWithLifecycle()
     val flashlightMultiIntensityForced by viewModel.flashlightMultiIntensityForced.collectAsStateWithLifecycle()
-    val isAnonymous by viewModel.isAnonymous.collectAsStateWithLifecycle()
-    val userProfile by viewModel.userProfile.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
-
-    var showNicknameDialog by remember { mutableStateOf(false) }
-    var newNickname by remember { mutableStateOf("") }
-
-    val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri ->
-            uri?.let { viewModel.uploadProfilePicture(it) }
-        }
-    )
 
     val selectedTheme by viewModel.selectedTheme.collectAsStateWithLifecycle()
     val selectedFont by viewModel.selectedFont.collectAsStateWithLifecycle()
     val selectedDevice by viewModel.selectedDevice.collectAsStateWithLifecycle()
     val uriHandler = LocalUriHandler.current
-    val localContext = LocalContext.current
     val haptics = LocalHapticFeedback.current
     var showDevModePanel by remember { mutableStateOf(false) }
 
@@ -122,7 +84,6 @@ internal fun SettingsScreen(
                 showDevModePanel = !showDevModePanel
             }
         )
-
 
         // ── App Theme ───────────────────────────────────────────────────────
         var themeExpanded by remember { mutableStateOf(false) }
@@ -196,7 +157,7 @@ internal fun SettingsScreen(
                         Triple(
                             "Default",
                             stringResource(R.string.theme_normal),
-                            Icons.Default.BrightnessAuto
+                            ImageVector.vectorResource(R.drawable.ic_notif_monochrome)
                         ),
                         Triple(
                             "Liquorice Black",
@@ -206,17 +167,12 @@ internal fun SettingsScreen(
                         Triple(
                             "Nothing",
                             stringResource(R.string.theme_nothing),
-                            Icons.Default.Settings
+                            ImageVector.vectorResource(R.drawable.ic_nav_glyphs)
                         ),
                         Triple(
                             "Material You",
                             stringResource(R.string.theme_material_you),
-                            Icons.Default.Palette
-                        ),
-                        Triple(
-                            "Music",
-                            stringResource(R.string.theme_music),
-                            Icons.Default.MusicNote
+                            Icons.Default.Android
                         )
                     )
 
@@ -233,15 +189,7 @@ internal fun SettingsScreen(
                                 icon = icon,
                                 isSelected = isSelected,
                                 onClick = {
-                                    if (key == "Music" && !viewModel.isNotificationAccessGranted()) {
-                                        val message =
-                                            localContext.getString(R.string.music_theme_notification_access)
-                                        Toast.makeText(localContext, message, Toast.LENGTH_LONG)
-                                            .show()
-                                        localContext.startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
-                                    } else {
-                                        viewModel.setSelectedTheme(key)
-                                    }
+                                    viewModel.setSelectedTheme(key)
                                 },
                                 modifier = Modifier.height(64.dp),
                                 maxLines = 1
@@ -333,61 +281,7 @@ internal fun SettingsScreen(
 
         // ── Developer Mode ──────────────────────────────────────────────────
         if (showDevModePanel) {
-        val devModeEnabled by viewModel.developerModeEnabled.collectAsStateWithLifecycle()
-        var showPasswordDialog by remember { mutableStateOf(false) }
-        var passwordInput by remember { mutableStateOf("") }
-
-        if (showPasswordDialog) {
-            AlertDialog(
-                onDismissRequest = { 
-                    showPasswordDialog = false
-                    passwordInput = ""
-                },
-                title = { Text(stringResource(R.string.developer_access)) },
-                text = {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text(stringResource(R.string.developer_access_desc))
-                        OutlinedTextField(
-                            value = passwordInput,
-                            onValueChange = { passwordInput = it },
-                            label = { Text(stringResource(R.string.password)) },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            visualTransformation = PasswordVisualTransformation(),
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Password,
-                                autoCorrect = false
-                            )
-                        )
-                    }
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            if (viewModel.verifyDeveloperPassword(passwordInput)) {
-                                viewModel.showAnnouncementEditor()
-                                showPasswordDialog = false
-                                passwordInput = ""
-                            } else {
-                                val message = localContext.getString(R.string.incorrect_password)
-                                Toast.makeText(localContext, message, Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    ) {
-                        Text(stringResource(R.string.unlock))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { 
-                        showPasswordDialog = false
-                        passwordInput = ""
-                    }) {
-                        Text(stringResource(R.string.cancel))
-                    }
-                }
-            )
-        }
+            val devModeEnabled by viewModel.developerModeEnabled.collectAsStateWithLifecycle()
 
             ExpressiveCard {
                 Row(
@@ -438,114 +332,6 @@ internal fun SettingsScreen(
                         modifier = Modifier.padding(top = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // 1. Announcements
-                        val isAdmin by viewModel.isAdmin.collectAsStateWithLifecycle()
-                        ExpressiveCard(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                            border = BorderStroke(
-                                1.dp,
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                            )
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                Icon(
-                                    Icons.Default.Campaign,
-                                    null,
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        stringResource(R.string.global_announcements),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        stringResource(R.string.global_announcements_desc),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                    )
-                                }
-                                if (isAdmin || BuildConfig.DEBUG || devModeEnabled) {
-                                    Button(
-                                        onClick = { 
-                                            showPasswordDialog = true
-                                        },
-                                        shape = RoundedCornerShape(12.dp),
-                                        contentPadding = PaddingValues(
-                                            horizontal = 12.dp,
-                                            vertical = 8.dp
-                                        )
-                                    ) {
-                                        Text(
-                                            stringResource(R.string.create),
-                                            style = MaterialTheme.typography.labelMedium
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        // 2. Shizuku Source Toggle
-                        val shizukuUnlocked by viewModel.shizukuSourceUnlocked.collectAsStateWithLifecycle()
-                        ExpressiveCard(
-                            containerColor = if (shizukuUnlocked) MaterialTheme.colorScheme.primary.copy(
-                                alpha = 0.1f
-                            ) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                            border = BorderStroke(
-                                1.dp,
-                                if (shizukuUnlocked) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f) else MaterialTheme.colorScheme.outline.copy(
-                                    alpha = 0.1f
-                                )
-                            )
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(end = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Icon(
-                                        Icons.Default.Terminal,
-                                        null,
-                                        tint = if (shizukuUnlocked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(
-                                            alpha = 0.6f
-                                        )
-                                    )
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            stringResource(R.string.unlock_shizuku_source),
-                                            style = MaterialTheme.typography.titleSmall,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        Text(
-                                            stringResource(R.string.unlock_shizuku_source_desc),
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                        )
-                                    }
-                                }
-                                Switch(
-                                    checked = shizukuUnlocked,
-                                    onCheckedChange = { viewModel.setShizukuSourceUnlocked(it) },
-                                    colors = SwitchDefaults.colors(
-                                        checkedThumbColor = Color.White,
-                                        checkedTrackColor = MaterialTheme.colorScheme.primary
-                                    ),
-                                    modifier = Modifier.size(height = 24.dp, width = 48.dp)
-                                )
-                            }
-                        }
-
                         // 3. Device Spoofing Toggle
                         val showSpoofing by viewModel.showSpoofingSettings.collectAsStateWithLifecycle()
                         Column {
@@ -669,7 +455,6 @@ internal fun SettingsScreen(
                                 selectedItem = currentSpoofLocale,
                                 onItemSelection = { tag -> viewModel.setSpoofLocale(tag) },
                                 labelProvider = { tag ->
-                                    // Find the matching visual label from our list of pairs
                                     locales.firstOrNull { it.first == tag }?.second.orEmpty()
                                 },
                                 modifier = Modifier.fillMaxWidth()
@@ -817,14 +602,6 @@ internal fun SettingsScreen(
                                 onClick = { viewModel.setFlashlightMultiIntensityForced(!flashlightMultiIntensityForced) }
                             )
                         }
-                        if (selectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
-                            OptionTile(
-                                label = stringResource(R.string.strobe_mode),
-                                icon = Icons.Default.Vibration,
-                                isSelected = strobeEnabled,
-                                onClick = { onStrobeEnabledChanged(!strobeEnabled) }
-                            )
-                        }
                     }
 
                     // Notification Button Set
@@ -849,128 +626,48 @@ internal fun SettingsScreen(
                         text = stringResource(R.string.notification_controls_desc),
                         size = 12.sp
                     )
-                }
-            }
-        }
 
-        // ── Account ─────────────────────────────────────────────────────────
-        ExpressiveCard {
-            CardHeader(title = "Account")
+                    // ── UI Amplitude Sync & Visual Toggles (Moved from AudioSetupScreen) ───────────
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Text(
+                        text = "Visual Interface Toggles",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(56.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
-                            .clickable(!isAnonymous) {
-                                photoPickerLauncher.launch(
-                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                )
-                            },
-                        contentAlignment = Alignment.Center
+                    val overlayEnabled by viewModel.overlayEnabled.collectAsStateWithLifecycle()
+                    val edgeVisualizerEnabled by viewModel.edgeVisualizerEnabled.collectAsStateWithLifecycle()
+                    val lensVisualizerEnabled by viewModel.lensVisualizerEnabled.collectAsStateWithLifecycle()
+
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        maxItemsInEachRow = 2,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        if (userProfile?.profilePictureUrl != null) {
-                            AsyncImage(
-                                model = userProfile?.profilePictureUrl,
-                                contentDescription = stringResource(R.string.profile_picture),
-                                modifier = Modifier.fillMaxSize().clip(CircleShape),
-                                contentScale = ContentScale.Crop
-                            )
-                        } else {
-                            Icon(
-                                if (isAnonymous) Icons.Default.CloudOff else Icons.Default.CloudDone,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(28.dp)
-                            )
-                        }
-                        
-                        if (!isAnonymous) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Color.Black.copy(alpha = 0.2f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    Icons.Default.PhotoCamera,
-                                    null,
-                                    tint = Color.White.copy(alpha = 0.8f),
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                        }
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable(!isAnonymous) {
-                                newNickname = userProfile?.displayName ?: ""
-                                showNicknameDialog = true
-                            }
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = if (isAnonymous) stringResource(R.string.anonymous_user) else userProfile?.displayName ?: stringResource(R.string.authenticated_user),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            if (!isAnonymous) {
-                                Spacer(Modifier.width(8.dp))
-                                Icon(
-                                    Icons.Default.Edit,
-                                    null,
-                                    modifier = Modifier.size(14.dp),
-                                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-                                )
-                            }
-                        }
-                        Text(
-                            text = if (isAnonymous) stringResource(R.string.sync_account_desc) else "Your visualization data is synced.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        OptionTile(
+                            label = stringResource(R.string.nav_overlay),
+                            icon = Icons.Default.Layers,
+                            isSelected = overlayEnabled,
+                            onClick = { viewModel.setOverlayEnabled(!overlayEnabled) }
                         )
-                    }
-                }
 
-                if (isAnonymous) {
-                    Button(
-                        onClick = { onGoogleSignIn() },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        Icon(Icons.AutoMirrored.Filled.Login, null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.sign_in_with_google))
-                    }
-                } else {
-                    Button(
-                        onClick = { viewModel.signOut() },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
-                            contentColor = MaterialTheme.colorScheme.error
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        Icon(Icons.AutoMirrored.Filled.Logout, null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.sign_out))
+                        OptionTile(
+                            label = "Edge Visualizer",
+                            icon = Icons.Default.BorderOuter,
+                            isSelected = edgeVisualizerEnabled,
+                            onClick = { viewModel.setEdgeVisualizerEnabled(!edgeVisualizerEnabled) }
+                        )
+
+                        OptionTile(
+                            label = stringResource(R.string.lens_visualizer),
+                            icon = Icons.Default.BlurCircular,
+                            isSelected = lensVisualizerEnabled,
+                            onClick = { viewModel.setLensVisualizerEnabled(!lensVisualizerEnabled) }
+                        )
                     }
                 }
             }
@@ -1003,39 +700,6 @@ internal fun SettingsScreen(
             )
         }
         Spacer(modifier = Modifier.height(85.dp))
-    }
-
-    if (showNicknameDialog) {
-        AlertDialog(
-            onDismissRequest = { showNicknameDialog = false },
-            title = { Text(stringResource(R.string.leaderboard_nickname)) },
-            text = {
-                OutlinedTextField(
-                    value = newNickname,
-                    onValueChange = { if (it.length <= 20) newNickname = it },
-                    label = { Text("Nickname") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        viewModel.updateProfile(newNickname)
-                        showNicknameDialog = false
-                    },
-                    enabled = newNickname.isNotBlank()
-                ) {
-                    Text(stringResource(R.string.save))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showNicknameDialog = false }) {
-                    Text(stringResource(R.string.cancel))
-                }
-            }
-        )
     }
 }
 

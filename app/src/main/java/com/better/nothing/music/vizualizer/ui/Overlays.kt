@@ -4,27 +4,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.better.nothing.music.vizualizer.ui.SecondaryScreens.AboutScreen
-import com.better.nothing.music.vizualizer.ui.SecondaryScreens.LeaderboardScreen
 import com.better.nothing.music.vizualizer.ui.SecondaryScreens.LicenseScreen
 import com.better.nothing.music.vizualizer.ui.SecondaryScreens.StatsScreen
+import android.app.Activity
 
 @Composable
 fun MainOverlays(viewModel: MainViewModel, selectedDevice: Int) {
     val isShowingAbout by viewModel.isShowingAbout.collectAsStateWithLifecycle()
     val isShowingLicense by viewModel.isShowingLicense.collectAsStateWithLifecycle()
     val isShowingStats by viewModel.isShowingStats.collectAsStateWithLifecycle()
-    val isShowingLeaderboard by viewModel.isShowingLeaderboard.collectAsStateWithLifecycle()
-    val isAnonymous by viewModel.isAnonymous.collectAsStateWithLifecycle()
-    val leaderboardEntries by viewModel.leaderboardEntries.collectAsStateWithLifecycle()
-
+    
     if (isShowingAbout) {
-        AboutScreen(onDismiss = { viewModel.hideAbout() })
+        AboutScreen(viewModel = viewModel, onDismiss = { viewModel.hideAbout() })
     }
 
     if (isShowingLicense) {
-        val licenseStatus by viewModel.licenseStatus.collectAsStateWithLifecycle()
         LicenseScreen(
-            status = licenseStatus,
+            viewModel = viewModel,
             onDismiss = { viewModel.hideLicense() }
         )
     }
@@ -33,15 +29,6 @@ fun MainOverlays(viewModel: MainViewModel, selectedDevice: Int) {
         StatsScreen(
             viewModel = viewModel,
             onDismiss = { viewModel.hideStats() }
-        )
-    }
-
-    if (isShowingLeaderboard) {
-        LeaderboardScreen(
-            entries = leaderboardEntries,
-            isAnonymous = isAnonymous,
-            onSignIn = { viewModel.signInPlayGames() },
-            onDismiss = { viewModel.hideLeaderboard() }
         )
     }
 }

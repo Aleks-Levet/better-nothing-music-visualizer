@@ -6,19 +6,10 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.database.FirebaseDatabase
-import com.google.android.material.snackbar.Snackbar
 import android.media.AudioDeviceCallback
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
-import android.media.MediaMetadata
 import android.media.projection.MediaProjectionManager
-import android.media.session.MediaController
-import android.media.session.MediaSessionManager
-import android.media.session.PlaybackState
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -28,25 +19,17 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.EaseOutCubic
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -62,21 +45,24 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
-import com.better.nothing.music.vizualizer.service.GlyphNotificationListener
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import rikka.shizuku.Shizuku
 import kotlin.math.absoluteValue
 import com.better.nothing.music.vizualizer.ui.PrimaryScreens.AudioScreen
 import com.better.nothing.music.vizualizer.ui.PrimaryScreens.FlashlightScreen
 import com.better.nothing.music.vizualizer.ui.PrimaryScreens.GlyphsScreen
 import com.better.nothing.music.vizualizer.ui.PrimaryScreens.HapticsScreen
+import com.better.nothing.music.vizualizer.ui.PrimaryScreens.VisualsScreen
+import com.better.nothing.music.vizualizer.ui.PrimaryScreens.SettingsScreen
+import androidx.compose.animation.*
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import com.better.nothing.music.vizualizer.ui.PrimaryScreens.SettingsScreen
 import com.better.nothing.music.vizualizer.ui.PrimaryScreens.VisualsScreen
 import androidx.compose.runtime.collectAsState
@@ -90,15 +76,11 @@ class MainActivity : ComponentActivity() {
         getSystemService(AUDIO_SERVICE) as AudioManager
     }
 
-
     private var service: AudioCaptureService? = null
     private var bound = false
     private var pendingResultCode = 0
     private var pendingData: Intent? = null
-    private var hasPendingToken = false
     private var pendingVisualizerStart = false
-
-    private val musicThemeHandler by lazy { MusicThemeHandler(this, viewModel) }
 
     companion object {
         const val EXTRA_REQUEST_START = "request_start"
@@ -107,12 +89,6 @@ class MainActivity : ComponentActivity() {
 
     private val mainHandler = Handler(Looper.getMainLooper())
     
-    private val shizukuPermissionListener = Shizuku.OnRequestPermissionResultListener { requestCode, grantResult ->
-        if (requestCode == 1001 && grantResult == PackageManager.PERMISSION_GRANTED) {
-            service?.startVisualizer()
-        }
-    }
-
     private val audioDeviceCallback = object : AudioDeviceCallback() {
         override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo>) {
             refreshConnectedAudioRoute()
@@ -138,13 +114,12 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            if (hasPendingToken) {
-                deliverProjectionToken(pendingResultCode, pendingData!!)
-                hasPendingToken = false
-            }
-
             if (pendingVisualizerStart) {
-                service?.startVisualizer()
+                if (intent.getBooleanExtra(EXTRA_REQUEST_START, false)) {
+                    toggleVisualizer()
+                } else {
+                    service?.startVisualizer()
+                }
                 pendingVisualizerStart = false
             }
         }
@@ -167,77 +142,47 @@ class MainActivity : ComponentActivity() {
             toggleVisualizer()
         } else {
             Toast.makeText(this, getString(R.string.audio_permission_required), Toast.LENGTH_SHORT).show()
+            if (intent.getBooleanExtra(EXTRA_REQUEST_START, false)) {
+                finish()
+            }
         }
     }
 
     private val overlayPermissionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (Settings.canDrawOverlays(this)) {
+            // We don't know which one was requested, so we enable based on intent if possible, 
+            // but for simplicity let's just assume overlay enabled if they granted it.
             viewModel.setOverlayEnabled(true)
         } else {
             Toast.makeText(this, getString(R.string.overlay_permission_denied), Toast.LENGTH_SHORT).show()
         }
     }
 
-    private val googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            try {
-                val account = task.getResult(Exception::class.java)
-                val credential = GoogleAuthProvider.getCredential(account?.idToken, null)
-                viewModel.linkWithCredential(credential)
-            } catch (e: Exception) {
-                Log.e("MainActivity", "Google sign in failed", e)
-                Toast.makeText(this, "Google sign in failed: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun launchGoogleSignIn() {
-        try {
-            val webClientId = getString(R.string.default_web_client_id)
-            if (webClientId.isEmpty()) {
-                Toast.makeText(this, "Web Client ID is missing!", Toast.LENGTH_LONG).show()
-                return
-            }
-            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(webClientId)
-                .requestEmail()
-                .build()
-            val googleSignInClient = GoogleSignIn.getClient(this, gso)
-            googleSignInLauncher.launch(googleSignInClient.signInIntent)
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Failed to launch Google Sign In", e)
-            Toast.makeText(this, "Launcher error: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
+        val isTrampoline = intent.getBooleanExtra(EXTRA_REQUEST_START, false)
+        if (isTrampoline) {
+            setTheme(R.style.Theme_Transparent)
+        }
         super.onCreate(savedInstanceState)
+        
+        if (isTrampoline) {
+            pendingVisualizerStart = true
+        }
+
+
         enableEdgeToEdge(
             statusBarStyle = androidx.activity.SystemBarStyle.auto(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT),
             navigationBarStyle = androidx.activity.SystemBarStyle.auto(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT)
         )
 
-        try {
-            FirebaseDatabase.getInstance().setPersistenceEnabled(true)
-        } catch (_: Exception) {}
-
-        val intent = Intent(this, AudioCaptureService::class.java)
-        bindService(intent, serviceConnection, BIND_AUTO_CREATE)
+        val intentService = Intent(this, AudioCaptureService::class.java)
+        bindService(intentService, serviceConnection, BIND_AUTO_CREATE)
 
         audioManager.registerAudioDeviceCallback(audioDeviceCallback, mainHandler)
-        Shizuku.addRequestPermissionResultListener(shizukuPermissionListener)
-
-        val mediaSessionManager = getSystemService(MEDIA_SESSION_SERVICE) as MediaSessionManager
-        if (isNotificationServiceEnabled()) {
-            mediaSessionManager.addOnActiveSessionsChangedListener(
-                musicThemeHandler.sessionsChangedListener,
-                ComponentName(this, GlyphNotificationListener::class.java)
-            )
-            musicThemeHandler.updateActiveMediaController()
-        }
 
         setContent {
+            if (isTrampoline) return@setContent
+
             val selectedTheme by viewModel.selectedTheme.collectAsStateWithLifecycle()
             val selectedFont by viewModel.selectedFont.collectAsStateWithLifecycle()
             val musicThemeColor by viewModel.musicThemeColor.collectAsStateWithLifecycle()
@@ -275,7 +220,6 @@ class MainActivity : ComponentActivity() {
                 fontName = selectedFont,
                 musicPrimaryColor = musicThemeColor,
             ) {
-                // Predictive Back Handling
                 BackHandler(enabled = true) {
                     if (!viewModel.navigateBack()) {
                         finish()
@@ -285,33 +229,16 @@ class MainActivity : ComponentActivity() {
                 BetterVizApp(
                     viewModel = viewModel,
                     onToggleVisualizer = { toggleVisualizer() },
-                    onGoogleSignIn = { launchGoogleSignIn() },
                     onOverlayPermissionRequest = {
                         val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:$packageName".toUri())
                         overlayPermissionLauncher.launch(intent)
                     }
                 )
 
-                // Overlays
                 MainOverlays(viewModel = viewModel, selectedDevice = viewModel.selectedDevice.collectAsState().value)
-                CommunityOverlays(viewModel = viewModel)
             }
         }
     }
-
-    private fun isNotificationServiceEnabled(): Boolean {
-        val pkgName = packageName
-        val flat = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
-        if (flat != null) {
-            val names = flat.split(":")
-            for (name in names) {
-                val cn = ComponentName.unflattenFromString(name)
-                if (cn != null && cn.packageName == pkgName) return true
-            }
-        }
-        return false
-    }
-
 
     private fun toggleVisualizer() {
         val s = service ?: return
@@ -333,24 +260,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 AudioCaptureService.CaptureSource.VIZUALIZER -> s.startVisualizer()
-                AudioCaptureService.CaptureSource.SHIZUKU -> startShizukuVisualizer()
             }
-        }
-    }
-
-    private fun startShizukuVisualizer() {
-        val s = service ?: return
-        try {
-            if (Shizuku.isPreV11()) return
-            if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
-                s.startVisualizer()
-            } else if (Shizuku.shouldShowRequestPermissionRationale()) {
-                Toast.makeText(this, getString(R.string.shizuku_permission_required), Toast.LENGTH_LONG).show()
-            } else {
-                Shizuku.requestPermission(1001)
-            }
-        } catch (_: Exception) {
-            Toast.makeText(this, getString(R.string.shizuku_not_running), Toast.LENGTH_LONG).show()
         }
     }
 
@@ -363,14 +273,13 @@ class MainActivity : ComponentActivity() {
         val s = service
         if (s != null) {
             s.startCapture(resultCode, data)
+            if (intent.getBooleanExtra(EXTRA_REQUEST_START, false)) {
+                finish()
+            }
         } else {
             pendingResultCode = resultCode
             pendingData = data
-            hasPendingToken = true
             pendingVisualizerStart = true
-            try {
-            FirebaseDatabase.getInstance().setPersistenceEnabled(true)
-        } catch (_: Exception) {}
 
             val intent = Intent(this, AudioCaptureService::class.java)
             bindService(intent, serviceConnection, BIND_AUTO_CREATE)
@@ -392,7 +301,6 @@ class MainActivity : ComponentActivity() {
             viewModel.setFlashlightIntensityLevels(it.flashlightIntensityLevels)
             it.setIdleBreathingEnabled(viewModel.idleBreathingEnabled.value)
             it.setIdlePattern(viewModel.idlePattern.value)
-            it.setStrobeEnabled(viewModel.strobeEnabled.value)
             it.setDisableGlyphsWhenSilent(viewModel.disableGlyphsWhenSilent.value)
             it.setLensVisualizerEnabled(viewModel.lensVisualizerEnabled.value)
             it.setLensVisualizerRadius(viewModel.lensVisualizerRadius.value)
@@ -461,16 +369,22 @@ class MainActivity : ComponentActivity() {
         return preferred?.toAudioRoute()
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.getBooleanExtra(EXTRA_REQUEST_START, false)) {
+            if (bound) {
+                toggleVisualizer()
+            } else {
+                pendingVisualizerStart = true
+            }
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         unbindService(serviceConnection)
         audioManager.unregisterAudioDeviceCallback(audioDeviceCallback)
-        Shizuku.removeRequestPermissionResultListener(shizukuPermissionListener)
-        musicThemeHandler.onDestroy()
-        val mediaSessionManager = getSystemService(MEDIA_SESSION_SERVICE) as MediaSessionManager
-        if (isNotificationServiceEnabled()) {
-            mediaSessionManager.removeOnActiveSessionsChangedListener(musicThemeHandler.sessionsChangedListener)
-        }
     }
 }
 
@@ -495,16 +409,12 @@ fun AudioDeviceInfo.toAudioRoute(): AudioRoute {
     return AudioRoute(type.toString() + "_" + name, name)
 }
 
-val HeavyEasingSpec = tween<Float>(durationMillis = 600)
-
-
 @SuppressLint("FrequentlyChangingValue")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun BetterVizApp(
     viewModel: MainViewModel,
     onToggleVisualizer: () -> Unit,
-    onGoogleSignIn: () -> Unit,
     onOverlayPermissionRequest: () -> Unit
 ) {
     val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
@@ -516,11 +426,13 @@ internal fun BetterVizApp(
     val glyphsEnabled by viewModel.glyphsEnabled.collectAsStateWithLifecycle()
     val hapticsEnabled by viewModel.hapticMotorEnabled.collectAsStateWithLifecycle()
     val visualsEnabled by viewModel.overlayEnabled.collectAsStateWithLifecycle()
+    val edgeEnabled by viewModel.edgeVisualizerEnabled.collectAsStateWithLifecycle()
+    val lensEnabled by viewModel.lensVisualizerEnabled.collectAsStateWithLifecycle()
     val flashlightEnabled by viewModel.flashlightEnabled.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
 
-    val visibleTabs = remember(selectedDevice, glyphsEnabled, hapticsEnabled, visualsEnabled, flashlightEnabled) {
+    val visibleTabs = remember(selectedDevice, glyphsEnabled, hapticsEnabled, visualsEnabled, edgeEnabled, lensEnabled, flashlightEnabled) {
         var tabs = Tab.entries.toList()
 
         if (selectedDevice == com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_UNKNOWN || !glyphsEnabled) {
@@ -532,7 +444,7 @@ internal fun BetterVizApp(
         if (!viewModel.hasFlashlight || !flashlightEnabled) {
             tabs = tabs.filter { it != Tab.Flashlight }
         }
-        if (!visualsEnabled) {
+        if (!visualsEnabled && !edgeEnabled && !lensEnabled) {
             tabs = tabs.filter { it != Tab.Visuals }
         }
         tabs
@@ -541,22 +453,26 @@ internal fun BetterVizApp(
     val pagerState = rememberPagerState(initialPage = visibleTabs.indexOf(selectedTab).coerceAtLeast(0)) { visibleTabs.size }
     var isProgrammaticScroll by remember { mutableStateOf(false) }
 
+    // Sync pager when selectedTab changes (e.g. from bottom bar)
     LaunchedEffect(selectedTab) {
         val target = visibleTabs.indexOf(selectedTab).coerceAtLeast(0)
         if (pagerState.currentPage != target) {
             isProgrammaticScroll = true
             try {
-                val steps = (target - pagerState.currentPage).absoluteValue
-                // Duration scales with distance but stays within a snappy range
-                val duration = (350 + (steps - 1) * 80).coerceAtMost(700)
-                
-                pagerState.animateScrollToPage(
-                    page = target,
-                    animationSpec = tween(
-                        durationMillis = duration,
-                        easing = EaseOutCubic
-                    )
-                )
+                pagerState.scrollToPage(target)
+            } finally {
+                isProgrammaticScroll = false
+            }
+        }
+    }
+
+    // CRITICAL: Handle dynamic tab visibility changes to prevent jumping
+    LaunchedEffect(visibleTabs) {
+        val targetIndex = visibleTabs.indexOf(selectedTab).coerceAtLeast(0)
+        if (pagerState.currentPage != targetIndex) {
+            isProgrammaticScroll = true
+            try {
+                pagerState.scrollToPage(targetIndex)
             } finally {
                 isProgrammaticScroll = false
             }
@@ -564,19 +480,15 @@ internal fun BetterVizApp(
     }
 
     val haptics = LocalHapticFeedback.current
-    LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.currentPage }.collect {
-            haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
-        }
+    LaunchedEffect(pagerState.currentPage) {
+        haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
     }
 
-    LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.settledPage }.collect { page ->
-            if (page < visibleTabs.size) {
-                val tab = visibleTabs[page]
-                if (!isProgrammaticScroll && viewModel.selectedTab.value != tab) {
-                    viewModel.selectTab(tab)
-                }
+    LaunchedEffect(pagerState.settledPage) {
+        if (pagerState.settledPage < visibleTabs.size) {
+            val tab = visibleTabs[pagerState.settledPage]
+            if (!isProgrammaticScroll && viewModel.selectedTab.value != tab) {
+                viewModel.selectTab(tab)
             }
         }
     }
@@ -599,7 +511,7 @@ internal fun BetterVizApp(
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize(),
-            beyondViewportPageCount = visibleTabs.size,
+            beyondViewportPageCount = 1,
             userScrollEnabled = true
         ) { page ->
             if (page >= visibleTabs.size) return@HorizontalPager
@@ -630,7 +542,6 @@ internal fun BetterVizApp(
                         val autoDeviceEnabled by viewModel.autoDeviceMemorize.collectAsStateWithLifecycle()
                         val fftData by viewModel.fftState.collectAsStateWithLifecycle()
                         val captureSource by viewModel.captureSource.collectAsStateWithLifecycle()
-                        val shizukuUnlocked by viewModel.shizukuSourceUnlocked.collectAsStateWithLifecycle()
                         val latencyWizardState by viewModel.latencyWizardState.collectAsStateWithLifecycle()
 
                         AudioScreen(
@@ -647,7 +558,6 @@ internal fun BetterVizApp(
                             fftData = fftData,
                             captureSource = captureSource,
                             onCaptureSourceChanged = { viewModel.setCaptureSource(it) },
-                            shizukuUnlocked = shizukuUnlocked,
                             latencyWizardState = latencyWizardState,
                             onRunLatencyWizard = { viewModel.runLatencyWizard() },
                             onResetLatencyWizard = { viewModel.resetLatencyWizard() },
@@ -655,11 +565,12 @@ internal fun BetterVizApp(
                             onGlyphsEnabledChanged = { viewModel.setGlyphsEnabled(it) },
                             hapticsEnabled = hapticsEnabled,
                             onHapticsEnabledChanged = { viewModel.setHapticMotorEnabled(it) },
-                            visualsEnabled = visualsEnabled,
-                            onVisualsEnabledChanged = { viewModel.setOverlayEnabled(it) },
                             flashlightEnabled = flashlightEnabled,
                             onFlashlightEnabledChanged = { viewModel.setFlashlightEnabled(it) },
                             developerModeEnabled = developerModeEnabled,
+                            isGlyphAvailable = selectedDevice != com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_UNKNOWN,
+                            hasHapticMotor = viewModel.hasHapticMotor,
+                            hasFlashlight = viewModel.hasFlashlight,
                             padding = padding
                         )
                     }
@@ -689,10 +600,9 @@ internal fun BetterVizApp(
                         )
                     }
                     Tab.Visuals -> {
-                        val overlayEnabled by viewModel.overlayEnabled.collectAsStateWithLifecycle()
                         VisualsScreen(
                             viewModel = viewModel,
-                            overlayEnabled = overlayEnabled,
+                            overlayEnabled = visualsEnabled,
                             onOverlayEnabledChanged = { viewModel.setOverlayEnabled(it) },
                             onOverlayPermissionRequest = { onOverlayPermissionRequest() },
                             padding = padding
@@ -795,7 +705,6 @@ internal fun BetterVizApp(
                     Tab.Settings -> {
                         val idleBreathingEnabled by viewModel.idleBreathingEnabled.collectAsStateWithLifecycle()
                         val idlePattern by viewModel.idlePattern.collectAsStateWithLifecycle()
-                        val strobeEnabled by viewModel.strobeEnabled.collectAsStateWithLifecycle()
                         val disableGlyphsWhenSilent by viewModel.disableGlyphsWhenSilent.collectAsStateWithLifecycle()
 
                         SettingsScreen(
@@ -808,15 +717,12 @@ internal fun BetterVizApp(
                             },
                             idlePattern = idlePattern,
                             onIdlePatternChanged = { viewModel.setIdlePattern(it) },
-                            strobeEnabled = strobeEnabled,
-                            onStrobeEnabledChanged = { viewModel.setStrobeEnabled(it) },
                             disableGlyphsWhenSilent = disableGlyphsWhenSilent,
                             onDisableGlyphsWhenSilentChanged = {
                                 viewModel.setDisableGlyphsWhenSilent(
                                     it
                                 )
                             },
-                            onGoogleSignIn = onGoogleSignIn,
                             padding = padding
                         )
                     }

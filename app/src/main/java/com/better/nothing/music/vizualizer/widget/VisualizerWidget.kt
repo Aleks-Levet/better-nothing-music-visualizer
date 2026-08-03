@@ -9,7 +9,7 @@ import android.content.Intent
 import android.widget.RemoteViews
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
-import com.better.nothing.music.vizualizer.util.PermissionTrampolineActivity
+import com.better.nothing.music.vizualizer.ui.MainActivity
 
 class VisualizerWidget : AppWidgetProvider() {
 
@@ -70,7 +70,8 @@ class VisualizerWidget : AppWidgetProvider() {
         val startStopIntent = if (isRunning) {
             Intent(context, AudioCaptureService::class.java).apply { action = AudioCaptureService.ACTION_STOP }
         } else {
-            Intent(context, PermissionTrampolineActivity::class.java).apply {
+            Intent(context, MainActivity::class.java).apply {
+                putExtra(MainActivity.EXTRA_REQUEST_START, true)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             }
         }

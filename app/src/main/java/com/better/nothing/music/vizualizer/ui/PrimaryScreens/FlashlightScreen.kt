@@ -1,20 +1,14 @@
 package com.better.nothing.music.vizualizer.ui.PrimaryScreens
 
-import com.better.nothing.music.vizualizer.R
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,8 +20,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -37,10 +30,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.model.TorchMode
-import com.better.nothing.music.vizualizer.ui.AnimatedToggleCard
 import com.better.nothing.music.vizualizer.ui.BodyText
 import com.better.nothing.music.vizualizer.ui.CardHeader
 import com.better.nothing.music.vizualizer.ui.ExpressiveCard
@@ -76,8 +70,6 @@ fun FlashlightScreen(
     padding: androidx.compose.foundation.layout.PaddingValues = androidx.compose.foundation.layout.PaddingValues(),
 ) {
     val scrollState = rememberScrollState()
-    val haptics = LocalHapticFeedback.current
-    val supportsMultiIntensity = flashlightIntensityLevels > 1
 
     Column(
         modifier = Modifier
@@ -85,220 +77,177 @@ fun FlashlightScreen(
             .padding(padding)
             .padding(horizontal = LocalAppSpacing.current.edge)
             .verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
 
         ScreenTitle(text = stringResource(R.string.flashlight_header))
 
-        AnimatedToggleCard(
-            title = stringResource(R.string.flashlight_sync_title),
-            checked = flashlightEnabled,
-            onCheckedChange = { enabled ->
-                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                onFlashlightEnabledChanged(enabled)
-            },
+        Column(
             modifier = Modifier.fillMaxWidth(),
-        )
-
-        AnimatedVisibility(
-            visible = flashlightEnabled,
-            enter = fadeIn(animationSpec = tween(durationMillis = 320)) +
-                slideInVertically(
-                    animationSpec = tween(durationMillis = 420),
-                    initialOffsetY = { fullHeight -> fullHeight / 3 }
-                ),
-            exit = fadeOut(animationSpec = tween(durationMillis = 220)) +
-                slideOutVertically(
-                    animationSpec = tween(durationMillis = 280),
-                    targetOffsetY = { fullHeight -> fullHeight / 5 }
-                )
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                    CardHeader(
-                        title = stringResource(
-                            R.string.flashlight_intensity_label,
-                            flashlightIntensityLevels
-                        )
+            ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
+                CardHeader(
+                    title = stringResource(
+                        R.string.flashlight_frequency_label,
+                        flashlightFreqMin.toInt(),
+                        flashlightFreqMax.toInt()
                     )
-                    BodyText(
-                        text = if (supportsMultiIntensity) {
-                            "This torch can use multiple brightness levels. Current: $flashlightCurrentLevel / $flashlightIntensityLevels"
-                        } else {
-                            "This torch is binary: it can only be on or off."
-                        },
-                        size = 12.sp,
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
-                }
+                )
 
-                ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                    CardHeader(
-                        title = stringResource(
-                            R.string.flashlight_frequency_label,
-                            flashlightFreqMin.toInt(),
-                            flashlightFreqMax.toInt()
-                        )
-                    )
+                val currentRange =
+                    invLerpLog(flashlightFreqMin, 20f, 1000f)..invLerpLog(flashlightFreqMax, 20f, 1000f)
 
-                    val currentRange = invLerpLog(flashlightFreqMin, 20f, 1000f)..invLerpLog(
-                        flashlightFreqMax,
-                        20f,
-                        1000f
-                    )
+                ExpressiveRangeSlider(
+                    value = currentRange,
+                    onValueChange = { newRange ->
+                        val newMin = lerpLog(newRange.start, 20f, 1000f)
+                        val newMax = lerpLog(newRange.endInclusive, 20f, 1000f)
 
-                    ExpressiveRangeSlider(
-                        value = currentRange,
-                        onValueChange = { newRange ->
-                            val newMin = lerpLog(newRange.start, 20f, 1000f)
-                            val newMax = lerpLog(newRange.endInclusive, 20f, 1000f)
+                        if (newMax - newMin >= 10f) {
+                            onFlashlightFreqRangeChanged(newMin, newMax)
+                        }
+                    },
+                    valueRange = 0f..1f,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                            if (newMax - newMin >= 10f) {
-                                onFlashlightFreqRangeChanged(newMin, newMax)
+                BodyText(
+                    text = stringResource(R.string.flashlight_frequency_desc),
+                    size = 12.sp
+                )
+            }
+
+            ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
+                CardHeader(title = stringResource(R.string.flashlight_mode_label))
+                ExpressiveSplitButton(
+                    items = TorchMode.entries,
+                    selectedItem = flashlightMode,
+                    onItemSelection = onFlashlightModeChanged,
+                    labelProvider = { mode ->
+                        stringResource(
+                            when (mode) {
+                                TorchMode.AMPLITUDE -> R.string.flashlight_mode_amplitude
+                                TorchMode.BEAT_DETECTION -> R.string.flashlight_mode_beat
                             }
-                        },
-                        valueRange = 0f..1f,
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            if (flashlightMode == TorchMode.AMPLITUDE) {
+                ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
+                    CardHeader(
+                        title = stringResource(
+                            R.string.flashlight_threshold_label,
+                            flashlightThreshold
+                        )
+                    )
+                    ExpressiveSlider(
+                        value = flashlightThreshold,
+                        onValueChange = onFlashlightThresholdChanged,
+                        valueRange = 0.05f..0.8f,
                         modifier = Modifier.fillMaxWidth()
                     )
-
                     BodyText(
-                        text = stringResource(R.string.flashlight_frequency_desc),
+                        text = stringResource(R.string.flashlight_threshold_desc),
                         size = 12.sp
                     )
                 }
+            }
 
+            if (flashlightMode == TorchMode.BEAT_DETECTION) {
                 ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                    CardHeader(title = stringResource(R.string.flashlight_mode_label))
-                    ExpressiveSplitButton(
-                        items = TorchMode.entries,
-                        selectedItem = flashlightMode,
-                        onItemSelection = onFlashlightModeChanged,
-                        labelProvider = { mode ->
-                            stringResource(
-                                when (mode) {
-                                    TorchMode.AMPLITUDE -> R.string.flashlight_mode_amplitude
-                                    TorchMode.BEAT_DETECTION -> R.string.flashlight_mode_beat
-                                }
-                            )
-                        },
+                    CardHeader(
+                        title = stringResource(
+                            R.string.flashlight_beat_sensitivity_label,
+                            flashlightBeatSensitivity
+                        )
+                    )
+                    ExpressiveSlider(
+                        value = flashlightBeatSensitivity,
+                        onValueChange = onFlashlightBeatSensitivityChanged,
+                        valueRange = 0.3f..6.0f,
                         modifier = Modifier.fillMaxWidth()
                     )
+                    BodyText(
+                        text = stringResource(R.string.flashlight_beat_sensitivity_desc),
+                        size = 12.sp
+                    )
                 }
+            }
 
-                if (flashlightMode == TorchMode.AMPLITUDE) {
-                    ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                        CardHeader(
-                            title = stringResource(
-                                R.string.flashlight_threshold_label,
-                                flashlightThreshold
+            ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
+                CardHeader(
+                    title = stringResource(
+                        R.string.flashlight_speed_label,
+                        flashlightSpeedMs
+                    )
+                )
+                ExpressiveSlider(
+                    value = flashlightSpeedMs,
+                    onValueChange = onFlashlightSpeedMsChanged,
+                    valueRange = 40f..150f,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                BodyText(
+                    text = stringResource(R.string.flashlight_speed_desc),
+                    size = 12.sp
+                )
+            }
+
+            ExpressiveCard(
+                modifier = Modifier.fillMaxWidth(),
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 1f)
+            ) {
+                CardHeader(title = stringResource(R.string.flashlight_monitor_label))
+
+                val isBeatDetected = isBeatDetectedProvider()
+                val flashlightAmplitude = flashlightAmplitudeProvider()
+
+                val flashColor by animateColorAsState(
+                    targetValue = if (flashlightCurrentLevel > 0) Color.White else MaterialTheme.colorScheme.primary.copy(
+                        alpha = 0.8f
+                    ),
+                    animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                    label = "flashColor"
+                )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .background(
+                            brush = Brush.radialGradient(
+                                colors = listOf(
+                                    flashColor.copy(alpha = 0.1f * flashlightAmplitude),
+                                    Color.Transparent
+                                ),
+                                radius = 300f
                             )
-                        )
-
-                        ExpressiveSlider(
-                            value = flashlightThreshold,
-                            onValueChange = onFlashlightThresholdChanged,
-                            valueRange = 0.0f..1.0f,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        BodyText(
-                            text = stringResource(R.string.flashlight_threshold_desc),
-                            size = 12.sp,
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        )
-                    }
-                }
-
-                if (flashlightMode == TorchMode.BEAT_DETECTION) {
-                    ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                        CardHeader(
-                            title = stringResource(
-                                R.string.flashlight_beat_sensitivity_label,
-                                flashlightBeatSensitivity
-                            )
-                        )
-                        ExpressiveSlider(
-                            value = flashlightBeatSensitivity,
-                            onValueChange = onFlashlightBeatSensitivityChanged,
-                            valueRange = 0.3f..6.0f,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        BodyText(
-                            text = stringResource(R.string.flashlight_beat_sensitivity_desc),
-                            size = 12.sp,
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        )
-                    }
-
-                    ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                        CardHeader(
-                            title = if (supportsMultiIntensity) {
-                                "Fade out duration: ${flashlightSpeedMs.toInt()}ms"
-                            } else {
-                                stringResource(R.string.flashlight_speed_label, flashlightSpeedMs)
-                            }
-                        )
-                        ExpressiveSlider(
-                            value = flashlightSpeedMs,
-                            onValueChange = onFlashlightSpeedMsChanged,
-                            valueRange = if (supportsMultiIntensity) 150f..700f else 20f..150f,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        BodyText(
-                            text = if (supportsMultiIntensity) {
-                                "Adjust how long the flashlight takes to fade out after each beat."
-                            } else {
-                                stringResource(R.string.flashlight_speed_desc)
-                            },
-                            size = 12.sp,
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        )
-                    }
-                }
-
-                ExpressiveCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 1f)
+                        ),
+                    contentAlignment = Alignment.Center
                 ) {
-                    CardHeader(title = stringResource(R.string.flashlight_monitor_label))
-
-                    val flashlightAmplitude = flashlightAmplitudeProvider()
-                    val isBeatDetected = isBeatDetectedProvider()
-                    val flashColor by animateColorAsState(
-                        targetValue = if (isBeatDetected) Color.White else Color.Yellow,
-                        animationSpec = if (isBeatDetected) snap() else spring(stiffness = Spring.StiffnessVeryLow),
-                        label = "flashColor"
+                    MorphingPolygon(
+                        isBeatDetected = isBeatDetected,
+                        amplitude = flashlightAmplitude,
+                        color = flashColor,
+                        modifier = Modifier.size(110.dp)
                     )
 
-                    Box(
+                    // Stats Overlay
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(220.dp)
-                            .background(
-                                brush = Brush.radialGradient(
-                                    colors = listOf(
-                                        flashColor.copy(
-                                            alpha = 0.08f * flashlightAmplitude.coerceIn(
-                                                0f,
-                                                1.2f
-                                            )
-                                        ),
-                                        Color.Transparent
-                                    ),
-                                    radius = 350f
-                                )
-                            ),
-                        contentAlignment = Alignment.Center
+                            .align(Alignment.BottomStart)
+                            .padding(12.dp)
                     ) {
-                        MorphingPolygon(
-                            isBeatDetected = isBeatDetected,
-                            amplitude = flashlightAmplitude,
-                            color = flashColor,
-                            modifier = Modifier.size(110.dp)
+                        Text(
+                            text = "LEVEL: $flashlightCurrentLevel / $flashlightIntensityLevels",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }

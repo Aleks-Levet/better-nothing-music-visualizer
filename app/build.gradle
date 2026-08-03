@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.plugin.compose'
-    id 'com.google.gms.google-services'
 }
 
 android {
@@ -16,7 +15,6 @@ android {
         targetSdk 37
         versionCode 11
         versionName '4.0'
-        buildConfigField "boolean", "SHOW_SHIZUKU", "true"
     }
 
     buildTypes {
@@ -65,14 +63,6 @@ dependencies {
     // 2. Compose BOM - Manages versions for all compose libs below
     implementation platform('androidx.compose:compose-bom:2026.06.00')
 
-    // Firebase
-    implementation platform('com.google.firebase:firebase-bom:34.15.0')
-    implementation 'com.google.firebase:firebase-analytics'
-    implementation 'com.google.firebase:firebase-database'
-    implementation 'com.google.android.gms:play-services-auth:21.6.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.11.0'
-    implementation 'com.google.firebase:firebase-auth'
-
     // Coil for image loading
     implementation("io.coil-kt.coil3:coil-compose:3.5.0")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.5.0")
@@ -111,7 +101,5 @@ dependencies {
     // 8. Debugging
     debugImplementation 'androidx.compose.ui:ui-tooling'
 
-    // Shizuku
-    implementation "dev.rikka.shizuku:api:13.1.5"
-    implementation "dev.rikka.shizuku:provider:13.1.5"
+
 }

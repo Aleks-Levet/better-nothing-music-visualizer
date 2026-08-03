@@ -17,6 +17,7 @@
 
     <!-- Glyph Screen -->
     <string name="glyph_controls">Glyph controls</string>
+    <string name="glyph_brightness">Glyph brightness:</string>
     <string name="gamma_control">Gamma control</string>
     <string name="gamma_description">A higher gamma value gives a more punchy look, but with less subtle details and overall brightness. A lower one is brighter but less punchy.</string>
     <string name="light_gamma">Light Gamma:</string>
@@ -123,7 +124,7 @@
     <string name="join_discord">Join our community on Discord</string>
     <string name="checking_for_updates">Checking for updates…</string>
     <string name="app_up_to_date">App is up to date</string>
-    
+
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">Media Projection\n(default, best)</string>
     <string name="capture_microphone">Microphone</string>

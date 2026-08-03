@@ -4,41 +4,20 @@ import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.FolderOpen
-import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -58,7 +37,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
 import com.better.nothing.music.vizualizer.ui.ScreenTitle
-import com.better.nothing.music.vizualizer.ui.AnimatedToggleCard
 import com.better.nothing.music.vizualizer.ui.GlyphPreview
 import com.better.nothing.music.vizualizer.ui.BodyText
 import com.better.nothing.music.vizualizer.ui.ExpressiveSlider
@@ -103,7 +81,7 @@ internal fun GlyphsScreen(
             text = { Text("Are you sure you want to delete the local preset '${showDeleteConfirm}'?") },
             confirmButton = {
                 TextButton(onClick = { 
-                    showDeleteConfirm?.let { viewModel.deleteCustomPreset(it) }
+                    // viewModel.deleteCustomPreset(it) was removed as part of Community Removal
                     showDeleteConfirm = null
                 }) {
                     Text("Delete", color = Color.Red)
@@ -133,322 +111,243 @@ internal fun GlyphsScreen(
             )
         )
 
-        // Header with external toggle for glyph visualization
-        val hapticsLocal = androidx.compose.ui.platform.LocalHapticFeedback.current
         val DEFAULT_BR = 4095
         val lastNonZero = remember { mutableIntStateOf(if (maxBrightness > 0) maxBrightness else DEFAULT_BR) }
         androidx.compose.runtime.LaunchedEffect(maxBrightness) {
             if (maxBrightness > 0) lastNonZero.intValue = maxBrightness
         }
 
-        val glyphEnabled = maxBrightness > 0
-        AnimatedToggleCard(
-            title = "Glyph visualisation",
-            checked = glyphEnabled,
-            onCheckedChange = { switchEnabled ->
-                hapticsLocal.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
-                if (switchEnabled) {
-                    onMaxBrightnessChanged(lastNonZero.intValue)
-                } else {
-                    onMaxBrightnessChanged(0)
-                }
-            },
-            disabledTopSpacerFraction = 0.4f,
-            modifier = Modifier.fillMaxWidth(),
+        BrightnessCard(
+            maxBrightness = maxBrightness,
+            enabled = true,
+            lastNonZero = lastNonZero.intValue,
+            onLastNonZeroChanged = { v -> lastNonZero.intValue = v },
+            onMaxBrightnessChanged = onMaxBrightnessChanged,
+            gammaValue = gammaValue,
+            onGammaChanged = onGammaChanged
         )
 
-        AnimatedVisibility(
-            visible = glyphEnabled,
-            enter = fadeIn(animationSpec = tween(durationMillis = 320)) +
-                slideInVertically(
-                    animationSpec = tween(durationMillis = 420),
-                    initialOffsetY = { fullHeight -> fullHeight / 3 }
-                ),
-            exit = fadeOut(animationSpec = tween(durationMillis = 220)) +
-                slideOutVertically(
-                    animationSpec = tween(durationMillis = 280),
-                    targetOffsetY = { fullHeight -> fullHeight / 5 }
-                )
+        ExpressiveCard(
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                BrightnessCard(
-                    maxBrightness = maxBrightness,
-                    enabled = glyphEnabled,
-                    lastNonZero = lastNonZero.intValue,
-                    onLastNonZeroChanged = { v -> lastNonZero.intValue = v },
-                    onMaxBrightnessChanged = onMaxBrightnessChanged
+                CardHeader(
+                    title = stringResource(
+                        R.string.visualizer_presets
+                    )
                 )
+            }
 
-                ExpressiveCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
+            val favorites by viewModel.favoritePresets.collectAsStateWithLifecycle()
+            val sortedPresets = remember(presets, favorites) {
+                presets.sortedByDescending { favorites.contains(it.key) }
+            }
+
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 20.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                if (sortedPresets.isNotEmpty()) {
+                    ExpressiveSplitButton(
+                        items = sortedPresets,
+                        selectedItem = sortedPresets.firstOrNull { it.key == selectedPreset }
+                            ?: sortedPresets.first(),
+                        onItemSelection = { preset -> onPresetSelected(preset.key) },
+                        labelProvider = { preset -> preset.key },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        CardHeader(
-                            title = stringResource(
-                                R.string.visualizer_presets
-                            )
-                        )
-                    }
-
-                    val favorites by viewModel.favoritePresets.collectAsStateWithLifecycle()
-                    val sortedPresets = remember(presets, favorites) {
-                        presets.sortedByDescending { favorites.contains(it.key) }
-                    }
-
-                    FlowRow(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 20.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // 1. Grouped Expressive Row for your presets
-                        // Wrapping it allows it to sit neatly alongside the "+ Create New" button inside the FlowRow
-                        if (sortedPresets.isNotEmpty()) {
-                            ExpressiveSplitButton(
-                                items = sortedPresets,
-                                // If no preset matches, safely fall back to the first item in the list
-                                selectedItem = sortedPresets.firstOrNull { it.key == selectedPreset }
-                                    ?: sortedPresets.first(),
-                                onItemSelection = { preset -> onPresetSelected(preset.key) },
-                                labelProvider = { preset -> preset.key },
+                        Crossfade(
+                            targetState = selectedInfo?.description,
+                            label = "desc_fade",
+                            animationSpec = spring(stiffness = Spring.StiffnessMedium),
+                            modifier = Modifier.weight(1f)
+                        ) { description ->
+                            Text(
+                                text = description ?: stringResource(R.string.glyph_no_config),
+                                style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 22.sp),
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
                                 modifier = Modifier.fillMaxWidth(),
                             )
+                        }
 
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                        if (selectedInfo?.description?.startsWith("Custom:") == true) {
+                            IconButton(
+                                onClick = { showDeleteConfirm = selectedInfo.key },
+                                modifier = Modifier.padding(start = 8.dp)
                             ) {
-                                Crossfade(
-                                    targetState = selectedInfo?.description,
-                                    label = "desc_fade",
-                                    animationSpec = spring(stiffness = Spring.StiffnessMedium),
-                                    modifier = Modifier.weight(1f)
-                                ) { description ->
-                                    Text(
-                                        text = description ?: stringResource(R.string.glyph_no_config),
-                                        style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 22.sp),
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
-                                        modifier = Modifier.fillMaxWidth(),
-                                    )
-                                }
-
-                                if (selectedInfo?.description?.startsWith("Custom:") == true) {
-                                    IconButton(
-                                        onClick = { showDeleteConfirm = selectedInfo.key },
-                                        modifier = Modifier.padding(start = 8.dp)
-                                    ) {
-                                        Icon(
-                                            Icons.Default.Delete,
-                                            contentDescription = "Delete Local Preset",
-                                            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
-                                        )
-                                    }
-                                }
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Delete Local Preset",
+                                    tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (configVersion.contains(".simple")) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    "Update Required",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                                Text(
+                                    "Download full config to see presets",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
                         } else {
-                            // Show loading or Update message if presets are empty
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(20.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                if (configVersion.contains(".simple")) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Text(
-                                            "Update Required",
-                                            style = MaterialTheme.typography.titleMedium,
-                                            color = MaterialTheme.colorScheme.error
-                                        )
-                                        Text(
-                                            "Download full config to see presets",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                } else {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(24.dp),
-                                        strokeWidth = 2.dp,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-                        }
-
-                        ExpressiveSplitButton(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 16.dp),
-                            primaryText = "Explore Community",
-                            primaryIcon = Icons.Default.Public,
-                            onPrimaryClick = { viewModel.showCommunity() },
-                            secondaryText = "Create",
-                            secondaryIcon = Icons.Default.Add,
-                            onSecondaryClick = { viewModel.showEditor() }
-                        )
-                    }
-                }
-
-                if (isRunning) {
-                    val vizStateState = viewModel.visualizerState.collectAsStateWithLifecycle()
-                    val previewHeight = when (selectedDevice) {
-                        com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP2 -> 530.dp
-                        com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP1,
-                        com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP3,
-                        com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4A,
-                        com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4B,
-                        com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4APRO -> 560.dp
-                        else -> 400.dp
-                    }
-                    GlyphPreview(
-                        vizStateProvider = { vizStateState.value },
-                        device = selectedDevice,
-                        modifier = Modifier
-                            .width(380.dp)
-                            .height(previewHeight)
-                            .align(Alignment.CenterHorizontally)
-                    )
-                }
-
-                ExpressiveCard( //gamma
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    CardHeader(
-                        title = stringResource(
-                            R.string.gamma_control
-                        )
-                    )
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        GammaPreviewCard(gammaValue = gammaValue)
-                        BodyText(
-                            text = stringResource(R.string.gamma_description),
-                            modifier = Modifier.weight(1f),
-                            size = 14.sp,
-                            lineHeight = 22.sp,
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    GammaSlider(gammaValue = gammaValue, onGammaChanged = onGammaChanged)
-                }
-                // ── Zones Config download ──────────────────────────────────────────────
-                LaunchedEffect(Unit) {
-                    viewModel.checkRemoteConfigVersion()
-                }
-
-                LaunchedEffect(configStatus) {
-                    when (val status = configStatus) {
-                        is com.better.nothing.music.vizualizer.ui.MainViewModel.ConfigUpdateStatus.Success -> {
-                            Toast.makeText(context, status.message, Toast.LENGTH_SHORT).show()
-                            viewModel.resetConfigUpdateStatus()
-                        }
-                        is com.better.nothing.music.vizualizer.ui.MainViewModel.ConfigUpdateStatus.Error -> {
-                            Toast.makeText(context, status.message, Toast.LENGTH_LONG).show()
-                            viewModel.resetConfigUpdateStatus()
-                        }
-                        else -> {}
-                    }
-                }
-
-                ExpressiveCard {
-                    CardHeader(title = "Visualizer Configuration")
-
-                    BodyText(
-                        text = "The zones.config file defines how frequencies map to Glyph LEDs. Updating from GitHub ensures support for new devices and presets.",
-                        size = 13.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Surface(
-                        shape = MaterialTheme.shapes.medium,
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(
-                                    text = "Version: $configVersion",
-                                    style = MaterialTheme.typography.labelLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                if (remoteVersion != null && remoteVersion != "Unknown") {
-                                    val isUpdateAvailable = remoteVersion != configVersion
-                                    Text(
-                                        text = if (isUpdateAvailable) "Latest: $remoteVersion" else "Up to date",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = if (isUpdateAvailable) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
-                                    )
-                                }
-                            }
-
-                            if (remoteVersion != null && remoteVersion != "Unknown" && remoteVersion != configVersion) {
-                                Surface(
-                                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
-                                    shape = MaterialTheme.shapes.small
-                                ) {
-                                    Text(
-                                        text = "UPDATE AVAILABLE",
-                                        modifier = Modifier.padding(
-                                            horizontal = 8.dp,
-                                            vertical = 4.dp
-                                        ),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.error,
-                                        fontWeight = FontWeight.ExtraBold
-                                    )
-                                }
-                            }
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
                         }
                     }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    val filePickerLauncher = rememberLauncherForActivityResult(
-                        ActivityResultContracts.GetContent()
-                    ) { uri ->
-                        uri?.let { viewModel.importZonesConfig(uri) }
-                    }
-
-                    val isUpdateAvailable =
-                        remoteVersion != null && remoteVersion != "Unknown" && remoteVersion != configVersion
-
-                    ExpressiveSplitButton(
-                        primaryText = if (isUpdateAvailable) "Update Now" else "Check GitHub",
-                        primaryIcon = if (configStatus is com.better.nothing.music.vizualizer.ui.MainViewModel.ConfigUpdateStatus.Updating) Icons.Default.Sync else Icons.Default.CloudDownload,
-                        onPrimaryClick = { viewModel.updateZonesConfig() },
-                        secondaryText = "Local",
-                        secondaryIcon = Icons.Default.FolderOpen,
-                        onSecondaryClick = { filePickerLauncher.launch("*/*") },
-                        enabled = configStatus is com.better.nothing.music.vizualizer.ui.MainViewModel.ConfigUpdateStatus.Idle,
-                        modifier = Modifier.fillMaxWidth()
-                    )
                 }
             }
+        }
+
+        if (isRunning) {
+            val vizStateState = viewModel.visualizerState.collectAsStateWithLifecycle()
+            val previewHeight = when (selectedDevice) {
+                com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP2 -> 530.dp
+                com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP1,
+                com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP3,
+                com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4A,
+                com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4B,
+                com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4APRO -> 560.dp
+                else -> 400.dp
+            }
+            GlyphPreview(
+                vizStateProvider = { vizStateState.value },
+                device = selectedDevice,
+                modifier = Modifier
+                    .width(380.dp)
+                    .height(previewHeight)
+                    .align(Alignment.CenterHorizontally)
+            )
+        }
+
+        LaunchedEffect(Unit) {
+            viewModel.checkRemoteConfigVersion()
+        }
+
+        LaunchedEffect(configStatus) {
+            when (val status = configStatus) {
+                is com.better.nothing.music.vizualizer.ui.MainViewModel.ConfigUpdateStatus.Success -> {
+                    Toast.makeText(context, status.message, Toast.LENGTH_SHORT).show()
+                    viewModel.resetConfigUpdateStatus()
+                }
+                is com.better.nothing.music.vizualizer.ui.MainViewModel.ConfigUpdateStatus.Error -> {
+                    Toast.makeText(context, status.message, Toast.LENGTH_LONG).show()
+                    viewModel.resetConfigUpdateStatus()
+                }
+                else -> {}
+            }
+        }
+
+        ExpressiveCard {
+            CardHeader(title = "Visualizer Configuration")
+
+            BodyText(
+                text = "The zones.config file defines how frequencies map to Glyph LEDs. Updating from GitHub ensures support for new devices and presets.",
+                size = 13.sp
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "Version: $configVersion",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        if (remoteVersion != null && remoteVersion != "Unknown") {
+                            val isUpdateAvailable = remoteVersion != configVersion
+                            Text(
+                                text = if (isUpdateAvailable) "Latest: $remoteVersion" else "Up to date",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = if (isUpdateAvailable) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
+                            )
+                        }
+                    }
+
+                    if (remoteVersion != null && remoteVersion != "Unknown" && remoteVersion != configVersion) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
+                            shape = MaterialTheme.shapes.small
+                        ) {
+                            Text(
+                                text = "UPDATE AVAILABLE",
+                                modifier = Modifier.padding(
+                                    horizontal = 8.dp,
+                                    vertical = 4.dp
+                                ),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.error,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            val filePickerLauncher = rememberLauncherForActivityResult(
+                ActivityResultContracts.GetContent()
+            ) { uri ->
+                uri?.let { viewModel.importZonesConfig(uri) }
+            }
+
+            val isUpdateAvailable =
+                remoteVersion != null && remoteVersion != "Unknown" && remoteVersion != configVersion
+
+            ExpressiveSplitButton(
+                primaryText = if (isUpdateAvailable) "Update Now" else "Check GitHub",
+                primaryIcon = if (configStatus is com.better.nothing.music.vizualizer.ui.MainViewModel.ConfigUpdateStatus.Updating) Icons.Default.Sync else Icons.Default.CloudDownload,
+                onPrimaryClick = { viewModel.updateZonesConfig() },
+                secondaryText = "Local",
+                secondaryIcon = Icons.Default.FolderOpen,
+                onSecondaryClick = { filePickerLauncher.launch("*/*") },
+                enabled = configStatus is com.better.nothing.music.vizualizer.ui.MainViewModel.ConfigUpdateStatus.Idle,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
 
         Spacer(modifier = Modifier.height(85.dp))
@@ -463,11 +362,15 @@ fun BrightnessCard(
     lastNonZero: Int,
     onLastNonZeroChanged: (Int) -> Unit,
     onMaxBrightnessChanged: (Int) -> Unit,
+    gammaValue: Float,
+    onGammaChanged: (Float) -> Unit,
 ) {
     androidx.compose.ui.platform.LocalHapticFeedback.current
 
     val MIN_BRIGHTNESS = 50
     val MAX_BRIGHTNESS = 4500
+
+    var isGammaExpanded by remember { mutableStateOf(false) }
 
     // Quadratic mapping: slider position (0..1) -> value = min + (max-min) * pos^2
     fun linearToPos(linear: Int): Float {
@@ -488,7 +391,7 @@ fun BrightnessCard(
         modifier = Modifier.fillMaxWidth(),
     ) {
         CardHeader(
-            title = "Brightness:",
+            title = stringResource(R.string.glyph_brightness),
             trailingContent = {
                 Text(
                     text = "${if (maxBrightness > 0) maxBrightness else lastNonZero}/${MAX_BRIGHTNESS}" + (if (maxBrightness == 4095) " (default)" else ""),
@@ -507,6 +410,38 @@ fun BrightnessCard(
             valueRange = 0f..1f,
             modifier = Modifier.fillMaxWidth(),
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        GammaSlider(
+            gammaValue = gammaValue,
+            onGammaChanged = onGammaChanged,
+            isExpanded = isGammaExpanded,
+            onToggleExpand = { isGammaExpanded = !isGammaExpanded }
+        )
+
+        AnimatedVisibility(
+            visible = isGammaExpanded,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            Column {
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    GammaPreviewCard(gammaValue = gammaValue)
+                    BodyText(
+                        text = stringResource(R.string.gamma_description),
+                        modifier = Modifier.weight(1f),
+                        size = 14.sp,
+                        lineHeight = 22.sp,
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -515,6 +450,8 @@ fun BrightnessCard(
 fun GammaSlider(
     gammaValue: Float,
     onGammaChanged: (Float) -> Unit,
+    isExpanded: Boolean,
+    onToggleExpand: () -> Unit
 ) {
     CardHeader(
         title = stringResource(
@@ -522,17 +459,30 @@ fun GammaSlider(
         ), trailingContent = {
             Text(
                 text = String.format("%.1f", gammaValue),
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.titleMedium
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                style = MaterialTheme.typography.bodyMedium,
             )
         })
 
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         ExpressiveSlider(
             value = gammaValue,
             onValueChange = onGammaChanged,
             valueRange = 0.4f..4.5f,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.weight(1f),
         )
+
+        IconButton(onClick = onToggleExpand) {
+            Icon(
+                imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.Info,
+                contentDescription = "Show Gamma Info",
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+            )
+        }
+    }
 }
 
 @Composable
