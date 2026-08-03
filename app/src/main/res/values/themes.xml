@@ -25,6 +25,7 @@
         <item name="android:backgroundDimEnabled">false</item>
         <item name="android:windowAnimationStyle">@null</item>
         <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowIsFloating">true</item>
     </style>
 
 </resources>

@@ -856,8 +856,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 if (_runningState.value) {
                     _totalVisualizedTime.value += delta
                     
-                    val magnitudes = MainActivity.serviceStatic?.latestMagnitudes ?: _fftState.value
-                    val hasActivity = magnitudes.any { it > 0.001f }
+                    val service = MainActivity.serviceStatic
+                    val hasActivity = if (service != null) {
+                        service.latestMagnitudes.any { it > 4 }
+                    } else {
+                        _fftState.value.any { it > 0.001f }
+                    }
                     
                     if (hasActivity) {
                         _totalActiveTime.value += delta

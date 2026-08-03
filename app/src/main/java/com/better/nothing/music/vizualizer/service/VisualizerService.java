@@ -19,7 +19,7 @@ public class VisualizerService extends Service {
         @Override
         public void run() {
             if (mVisualizerView != null && AudioCaptureService.sInstance != null) {
-                float[] magnitudes = AudioCaptureService.sInstance.getLatestMagnitudes();
+                int[] magnitudes = AudioCaptureService.sInstance.getLatestMagnitudes();
                 mVisualizerView.updateMagnitudes(magnitudes);
                 
                 // Update properties from service instance

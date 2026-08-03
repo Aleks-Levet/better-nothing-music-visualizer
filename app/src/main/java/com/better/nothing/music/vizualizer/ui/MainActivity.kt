@@ -115,10 +115,18 @@ class MainActivity : ComponentActivity() {
             }
 
             if (pendingVisualizerStart) {
-                if (intent.getBooleanExtra(EXTRA_REQUEST_START, false)) {
-                    toggleVisualizer()
+                val isTrampoline = intent.getBooleanExtra(EXTRA_REQUEST_START, false)
+                if (pendingData != null) {
+                    service?.startCapture(pendingResultCode, pendingData!!)
+                    pendingData = null
+                    pendingResultCode = 0
+                    if (isTrampoline) finish()
                 } else {
-                    service?.startVisualizer()
+                    if (isTrampoline) {
+                        toggleVisualizer()
+                    } else {
+                        service?.startVisualizer()
+                    }
                 }
                 pendingVisualizerStart = false
             }
@@ -134,6 +142,10 @@ class MainActivity : ComponentActivity() {
     private val projectionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK && result.data != null) {
             deliverProjectionToken(result.resultCode, result.data!!)
+        } else {
+            if (intent.getBooleanExtra(EXTRA_REQUEST_START, false)) {
+                finish()
+            }
         }
     }
 
@@ -162,6 +174,12 @@ class MainActivity : ComponentActivity() {
         val isTrampoline = intent.getBooleanExtra(EXTRA_REQUEST_START, false)
         if (isTrampoline) {
             setTheme(R.style.Theme_Transparent)
+            if (Build.VERSION.SDK_INT >= 34) {
+                overrideActivityTransition(android.app.Activity.OVERRIDE_TRANSITION_OPEN, 0, 0)
+            } else {
+                @Suppress("DEPRECATION")
+                overridePendingTransition(0, 0)
+            }
         }
         super.onCreate(savedInstanceState)
         
@@ -242,11 +260,13 @@ class MainActivity : ComponentActivity() {
 
     private fun toggleVisualizer() {
         val s = service ?: return
+        val isTrampoline = intent.getBooleanExtra(EXTRA_REQUEST_START, false)
         if (s.isVisualizerRunning) {
             s.stopVisualizer()
+            if (isTrampoline) finish()
         } else {
-            val intent = Intent(this, AudioCaptureService::class.java)
-            startForegroundService(intent)
+            val intentService = Intent(this, AudioCaptureService::class.java)
+            startForegroundService(intentService)
 
             val source = viewModel.captureSource.value
             when (source) {
@@ -255,11 +275,15 @@ class MainActivity : ComponentActivity() {
                 AudioCaptureService.CaptureSource.MIC -> {
                     if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
                         s.startVisualizer()
+                        if (isTrampoline) finish()
                     } else {
                         audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                     }
                 }
-                AudioCaptureService.CaptureSource.VIZUALIZER -> s.startVisualizer()
+                AudioCaptureService.CaptureSource.VIZUALIZER -> {
+                    s.startVisualizer()
+                    if (isTrampoline) finish()
+                }
             }
         }
     }
@@ -385,6 +409,18 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
         unbindService(serviceConnection)
         audioManager.unregisterAudioDeviceCallback(audioDeviceCallback)
+    }
+
+    override fun finish() {
+        super.finish()
+        if (intent.getBooleanExtra(EXTRA_REQUEST_START, false)) {
+            if (Build.VERSION.SDK_INT >= 34) {
+                overrideActivityTransition(android.app.Activity.OVERRIDE_TRANSITION_CLOSE, 0, 0)
+            } else {
+                @Suppress("DEPRECATION")
+                overridePendingTransition(0, 0)
+            }
+        }
     }
 }
 

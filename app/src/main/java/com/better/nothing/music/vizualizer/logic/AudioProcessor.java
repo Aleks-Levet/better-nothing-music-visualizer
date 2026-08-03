@@ -5,20 +5,17 @@ import org.jtransforms.fft.DoubleFFT_1D;
 
 /**
  * Handles audio capture, FFT processing, and frequency analysis.
- * Consolidated to a single 512-bin logarithmic FFT variable (fftraw).
+ * Features independent 3-band auto-gain and centralized raw/decayed FFT variables.
  */
 public class AudioProcessor {
 
     public enum ReadMethod {
-        MAX, MEAN, RMS
+        MAX,
+        AVERAGE,
+        RMS
     }
 
-    private ReadMethod mReadMethod = ReadMethod.MAX;
-
     private int sampleRate = 44100;
-    private static final float SPECTRUM_LEAKAGE_FLOOR_RATIO = 0.12f;
-    private static final float EPSILON = 0.000001f;
-
     private int fftSize;
     private int analysisWindow;
     private float hzPerBin;
@@ -32,8 +29,8 @@ public class AudioProcessor {
     private float[] hann;
     private DoubleFFT_1D fft;
 
-    // The central source of truth for the entire pipeline
     private final int[] mRawFFT = new int[512];
+    private final int[] mDecayedFFT = new int[512];
     private final int[][] mLogBinToLinearRange = new int[512][2];
 
     // 512 logarithmic bins from 30Hz to 16kHz
@@ -47,15 +44,16 @@ public class AudioProcessor {
         }
     }
 
-    // AGC and Manual Gain
-    private float mRunningMax = 0.01f;
-    private float mTargetPeak = 0.45f;
-    private float mAutoGain = 1.0f;
+    // 3-Band Auto-Gain State (Bass, Mids, Highs)
+    // 0: Bass (30-250Hz), 1: Mids (250-4000Hz), 2: Highs (4000-16000Hz)
+    private final float[] mRunningMax = {0.01f, 0.01f, 0.01f};
+    private final float[] mBandGain = {1.0f, 1.0f, 1.0f};
     private float mManualGain = 4.0f;
 
     private static final float DECAY_SLOW = 0.998f;
     private static final float GAIN_SMOOTHING_ATTACK = 0.15f;
     private static final float GAIN_SMOOTHING_DECAY = 0.02f;
+    private static final float TARGET_PEAK = 0.45f;
 
     public AudioProcessor() {
         updateFFTSize();
@@ -94,11 +92,7 @@ public class AudioProcessor {
         }
     }
 
-    public void setReadMethod(ReadMethod method) {
-        this.mReadMethod = method;
-    }
-
-    public AudioFrameResult processAudioFrame(short[] hopBuffer, boolean isInternalSource) {
+    public AudioFrameResult processAudioFrame(short[] hopBuffer, boolean isInternalSource, float decayFactor) {
         if (hopBuffer == null || ring == null || hann == null || fftData == null) return null;
 
         for (short value : hopBuffer) {
@@ -123,33 +117,45 @@ public class AudioProcessor {
         }
         
         int halfFftSize = fftSize / 2;
-        float frameMax = 0f;
+        float[] bandMax = {0f, 0f, 0f};
+
         for (int i = 0; i <= halfFftSize; i++) {
             if (2 * i + 1 >= fftData.length) break;
             double re = fftData[2 * i];
             double im = fftData[2 * i + 1];
             float mag = (float) (Math.hypot(re, im) / (fftSize / 2.0));
             float freq = i * hzPerBin;
+            
+            // High frequency tilt boost (pre-gain)
             float boost = 1f + (freq / 10000f) * 4f;
             float rawMag = mag * boost;
+            
             if (i < magnitude.length) {
                 magnitude[i] = rawMag;
-                if (rawMag > frameMax) frameMax = rawMag;
+                if (freq < 250f) bandMax[0] = Math.max(bandMax[0], rawMag);
+                else if (freq < 4000f) bandMax[1] = Math.max(bandMax[1], rawMag);
+                else if (freq <= 16000f) bandMax[2] = Math.max(bandMax[2], rawMag);
             }
         }
 
-        // Apply AGC
-        float decay = frameMax > mRunningMax ? 0.7f : DECAY_SLOW;
-        mRunningMax = Math.max(mRunningMax * decay, frameMax);
-        float effectiveMax = Math.max(mRunningMax, 0.001f);
-        float targetPeak = isInternalSource ? 0.55f : mTargetPeak;
-        float desiredGain = targetPeak / effectiveMax;
-        desiredGain = Math.max(0.1f, Math.min(200.0f, desiredGain));
-        float smoothing = desiredGain < mAutoGain ? GAIN_SMOOTHING_ATTACK : GAIN_SMOOTHING_DECAY;
-        mAutoGain = (mAutoGain * (1f - smoothing)) + (desiredGain * smoothing);
+        // Compute band-specific gains
+        for (int i = 0; i < 3; i++) {
+            float decay = bandMax[i] > mRunningMax[i] ? 0.7f : DECAY_SLOW;
+            mRunningMax[i] = Math.max(mRunningMax[i] * decay, bandMax[i]);
+            float effectiveMax = Math.max(mRunningMax[i], 0.001f);
+            float target = isInternalSource ? 0.55f : TARGET_PEAK;
+            float desiredGain = target / effectiveMax;
+            desiredGain = Math.max(0.1f, Math.min(200.0f, desiredGain));
+            float smoothing = desiredGain < mBandGain[i] ? GAIN_SMOOTHING_ATTACK : GAIN_SMOOTHING_DECAY;
+            mBandGain[i] = (mBandGain[i] * (1f - smoothing)) + (desiredGain * smoothing);
+        }
 
-        // Map to 512 log bins and apply BOTH dynamic (AutoGain) and static (ManualGain) gain
+        // Map to 512 log bins and apply band-specific AGC + Manual Gain
         for (int i = 0; i < 512; i++) {
+            float fStart = FFT_FREQ_RANGES[i][0];
+            int bandIdx = (fStart < 250f) ? 0 : (fStart < 4000f) ? 1 : 2;
+            float gain = mBandGain[bandIdx] * mManualGain;
+
             int startBin = mLogBinToLinearRange[i][0];
             int endBin = mLogBinToLinearRange[i][1];
             float logMag = 0f;
@@ -157,12 +163,18 @@ public class AudioProcessor {
                 if (magnitude[b] > logMag) logMag = magnitude[b];
             }
             
-            // Only place where dynamic and manual gain are applied to the pipeline
-            int rawVal = (int) Math.min(4095, logMag * 4095f * mAutoGain * mManualGain);
+            int rawVal = (int) Math.min(4095, logMag * 4095f * gain);
             mRawFFT[i] = rawVal;
+            
+            // Derive fftdecayed from fftraw
+            if (rawVal > mDecayedFFT[i]) {
+                mDecayedFFT[i] = rawVal;
+            } else {
+                mDecayedFFT[i] = (int) (mDecayedFFT[i] * decayFactor + rawVal * (1f - decayFactor));
+            }
         }
 
-        return new AudioFrameResult(mRawFFT.clone());
+        return new AudioFrameResult(mRawFFT.clone(), mDecayedFFT.clone());
     }
 
     private static float[] buildHannWindow(int size) {
@@ -183,6 +195,7 @@ public class AudioProcessor {
         return 511;
     }
 
+    // Boilerplate inner classes...
     public static final class VisualizerConfig {
         public final String presetKey;
         public final String description;
@@ -207,10 +220,7 @@ public class AudioProcessor {
         public final float lowPercent;
         public final float highPercent;
         public ZoneSpec(float lowHz, float highHz, float lowPercent, float highPercent) {
-            this.lowHz = lowHz;
-            this.highHz = highHz;
-            this.lowPercent = lowPercent;
-            this.highPercent = highPercent;
+            this.lowHz = lowHz; this.highHz = highHz; this.lowPercent = lowPercent; this.highPercent = highPercent;
         }
         boolean hasPercentSlice() { return !Float.isNaN(lowPercent) && !Float.isNaN(highPercent); }
     }
@@ -221,17 +231,16 @@ public class AudioProcessor {
         public final int logBinLo;
         public final int logBinHi;
         public FrequencyRange(float lowHz, float highHz) {
-            this.lowHz = lowHz;
-            this.highHz = highHz;
-            this.logBinLo = findLogBinIndex(lowHz);
-            this.logBinHi = findLogBinIndex(highHz);
+            this.lowHz = lowHz; this.highHz = highHz; this.logBinLo = findLogBinIndex(lowHz); this.logBinHi = findLogBinIndex(highHz);
         }
     }
 
     public static final class AudioFrameResult {
         public final int[] fftraw;
-        public AudioFrameResult(int[] fftraw) {
+        public final int[] fftdecayed;
+        public AudioFrameResult(int[] fftraw, int[] fftdecayed) {
             this.fftraw = fftraw;
+            this.fftdecayed = fftdecayed;
         }
     }
 }

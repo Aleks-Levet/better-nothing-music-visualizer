@@ -57,8 +57,6 @@ import com.better.nothing.music.vizualizer.ui.VisualizerOverlayView;
 import com.better.nothing.music.vizualizer.ui.EdgeVisualizerView;
 import com.better.nothing.music.vizualizer.ui.LensVisualizerView;
 
-
-
 import com.nothing.ketchum.Glyph;
 import com.nothing.ketchum.GlyphException;
 import com.nothing.ketchum.GlyphManager;
@@ -120,20 +118,16 @@ public class AudioCaptureService extends Service {
     private static final int MAX_GLYPH_BRIGHTNESS = 4567;
 
     private static final String DEFAULT_PRESET_KEY = "np1";
-
     private static final int SAMPLE_RATE = 44100;
     private int mCurrentSampleRate = SAMPLE_RATE;
     private static final int FPS = 60;
-
     private static final long MIN_SEND_INTERVAL_MS = 16L;
     private static final long PROJECTION_SETTLE_DELAY_MS = 500L;
 
     private static volatile boolean sIsRunning = false;
     private static final MutableStateFlow<Boolean> sIsRunningFlow = StateFlowKt.MutableStateFlow(false);
     
-    public StateFlow<Boolean> isRunningFlow() {
-        return sIsRunningFlow;
-    }
+    public StateFlow<Boolean> isRunningFlow() { return sIsRunningFlow; }
 
     private void setRunning(boolean running) {
         boolean wasRunning = sIsRunning;
@@ -150,44 +144,16 @@ public class AudioCaptureService extends Service {
     private final IBinder mBinder = new LocalBinder();
     private final Object mCaptureLock = new Object();
     private final MediaProjection.Callback mProjectionCallback = new MediaProjection.Callback() {
-        @Override
-        public void onStop() {
-            Log.d(TAG, "MediaProjection stopped externally");
-            stopCapture();
-            stopSelf();
-        }
+        @Override public void onStop() { stopCapture(); stopSelf(); }
     };
     private final GlyphManager.Callback mGlyphCallback = new GlyphManager.Callback() {
-        @Override
-        public void onServiceConnected(ComponentName componentName) {
-            if (mGM == null) return;
-            Log.d(TAG, "Glyph service connected");
-            registerGlyphManager();
-            try {
-                if (!mSessionOpen) {
-                    mGM.openSession();
-                    mSessionOpen = true;
-                }
-            } catch (GlyphException e) {
-                Log.e(TAG, "Failed to open Glyph session", e);
-            }
-        }
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            mSessionOpen = false;
-        }
+        @Override public void onServiceConnected(ComponentName name) { registerGlyphManager(); ensureGlyphSession(); }
+        @Override public void onServiceDisconnected(ComponentName name) { mSessionOpen = false; }
     };
 
     private final GlyphMatrixManager.Callback mGlyphMatrixCallback = new GlyphMatrixManager.Callback() {
-        @Override
-        public void onServiceConnected(ComponentName componentName) {
-            if (mGMM == null) return;
-            Log.d(TAG, "Glyph Matrix service connected");
-            registerGlyphMatrixManager();
-        }
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-        }
+        @Override public void onServiceConnected(ComponentName name) { registerGlyphMatrixManager(); }
+        @Override public void onServiceDisconnected(ComponentName name) {}
     };
 
     private void registerGlyphManager() {
@@ -208,29 +174,22 @@ public class AudioCaptureService extends Service {
 
     private void registerGlyphMatrixManager() {
         if (mGMM == null || mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) return;
-        if (mSelectedDevice == DeviceProfile.DEVICE_NP3) {
-            mGMM.register(Glyph.DEVICE_23112);
-        } else if (mSelectedDevice == DeviceProfile.DEVICE_NP4APRO) {
-            mGMM.register(Glyph.DEVICE_25111p);
-        }
+        if (mSelectedDevice == DeviceProfile.DEVICE_NP3) mGMM.register(Glyph.DEVICE_23112);
+        else if (mSelectedDevice == DeviceProfile.DEVICE_NP4APRO) mGMM.register(Glyph.DEVICE_25111p);
     }
 
     private HandlerThread mWorkerThread;
     private Handler mWorkerHandler;
     private AudioManager mAudioManager;
-
     private GlyphManager mGM;
     private GlyphMatrixManager mGMM;
     private volatile boolean mSessionOpen = false;
-
     private MediaProjection mProjection;
     private AudioRecord mAudioRecord;
-
     private Visualizer mVisualizer;
     private final ArrayDeque<PendingFrame> mVisualizerPendingFrames = new ArrayDeque<>();
     private ExecutorService mCaptureExecutor;
     private volatile boolean mCapturing = false;
-
     private volatile AudioProcessor.VisualizerConfig mVisualizerConfig;
     private String mPresetKey = DEFAULT_PRESET_KEY;
     private List<String> mAvailablePresetKeys = Collections.emptyList();
@@ -242,7 +201,6 @@ public class AudioCaptureService extends Service {
 
     private boolean mIdleBreathingEnabled = false;
     private boolean mDisableGlyphsWhenSilent = false;
-
     private boolean mOverlayEnabled = false;
     private boolean mEdgeVisualizerEnabled = false;
     private boolean mLensVisualizerEnabled = false;
@@ -254,17 +212,14 @@ public class AudioCaptureService extends Service {
     public volatile int mLensVisualizerBarCount = 24;
     public volatile float mLensVisualizerSensitivity = 1.0f;
 
-    public void setLensVisualizerEnabled(boolean enabled) {
-        mLensVisualizerEnabled = enabled;
-        updateOverlayVisibility();
-    }
-    public void setLensVisualizerRadius(float radius) { mLensVisualizerRadius = radius; if (mLensVisualizerView != null) mLensVisualizerView.setRadius(radius * 4); }
+    public void setLensVisualizerEnabled(boolean enabled) { mLensVisualizerEnabled = enabled; updateOverlayVisibility(); }
+    public void setLensVisualizerRadius(float r) { mLensVisualizerRadius = r; if (mLensVisualizerView != null) mLensVisualizerView.setRadius(r * 4); }
     public void setLensVisualizerX(float x) { mLensVisualizerX = x; if (mLensVisualizerView != null) mLensVisualizerView.setXPosition(x); }
     public void setLensVisualizerY(float y) { mLensVisualizerY = y; if (mLensVisualizerView != null) mLensVisualizerView.setYPosition(y); }
-    public void setLensVisualizerBarWidth(float width) { mLensVisualizerBarWidth = width; if (mLensVisualizerView != null) mLensVisualizerView.setBarWidth(width * 4); }
-    public void setLensVisualizerMaxHeight(float height) { mLensVisualizerMaxHeight = height; if (mLensVisualizerView != null) mLensVisualizerView.setMaxHeight(height * 4); }
-    public void setLensVisualizerBarCount(int count) { mLensVisualizerBarCount = count; if (mLensVisualizerView != null) mLensVisualizerView.setBarCount(count); }
-    public void setLensVisualizerSensitivity(float sensitivity) { mLensVisualizerSensitivity = sensitivity; if (mLensVisualizerView != null) mLensVisualizerView.setSensitivity(sensitivity); }
+    public void setLensVisualizerBarWidth(float w) { mLensVisualizerBarWidth = w; if (mLensVisualizerView != null) mLensVisualizerView.setBarWidth(w * 4); }
+    public void setLensVisualizerMaxHeight(float h) { mLensVisualizerMaxHeight = h; if (mLensVisualizerView != null) mLensVisualizerView.setMaxHeight(h * 4); }
+    public void setLensVisualizerBarCount(int c) { mLensVisualizerBarCount = c; if (mLensVisualizerView != null) mLensVisualizerView.setBarCount(c); }
+    public void setLensVisualizerSensitivity(float s) { mLensVisualizerSensitivity = s; if (mLensVisualizerView != null) mLensVisualizerView.setSensitivity(s); }
     
     private int mOverlayWidth = 120;
     private int mOverlayHeight = 12;
@@ -294,7 +249,6 @@ public class AudioCaptureService extends Service {
     private volatile float mHapticMinHz = 60;
     private volatile float mHapticMaxHz = 250;
     private volatile AudioProcessor.FrequencyRange mHapticRange;
-
     private volatile float mHapticAudioGain = 1.0f;
     private volatile float mHapticBeatSensitivity = 1.0f;
     private volatile float mHapticBeatGamma = 8.0f;
@@ -312,41 +266,24 @@ public class AudioCaptureService extends Service {
     private ContinuousHapticEngine mContinuousHapticEngine;
     private BeatDetectionHapticEngine mBeatDetectionEngine;
     private FlashlightEngine mFlashlightEngine;
-
     private AudioProcessor mAudioProcessor;
     private GlyphRenderer mGlyphRenderer;
     private long mLastSendMs = 0L;
     private long mCaptureStartTimeMs = 0L;
-    private volatile int[] mLatestFFT = new int[512];
+    private volatile int[] mLatestRawFFT = new int[512];
+    private volatile int[] mLatestDecayedFFT = new int[512];
     private final Object mFftLock = new Object();
 
-    public int[] getLatestFFT() {
-        synchronized (mFftLock) { return mLatestFFT; }
-    }
-
-    public int[] getLatestMagnitudes() {
-        return getLatestFFT();
-    }
-
-    public int[] getLatestRawFFT() {
-        return getLatestFFT();
-    }
-
-    public int[] getLatestDecayedFFT() {
-        return getLatestFFT();
-    }
+    public int[] getLatestRawFFT() { synchronized (mFftLock) { return mLatestRawFFT; } }
+    public int[] getLatestDecayedFFT() { synchronized (mFftLock) { return mLatestDecayedFFT; } }
+    public int[] getLatestMagnitudes() { return getLatestDecayedFFT(); }
 
     private float[] mCurrentLightState = new float[0];
-    public float[] getCurrentLightState() {
-        return mCurrentLightState;
-    }
-
-    public boolean isVisualizerRunning() {
-        return sIsRunning;
-    }
+    public float[] getCurrentLightState() { return mCurrentLightState; }
+    public boolean isVisualizerRunning() { return sIsRunning; }
 
     public float getLatestHapticPeak() {
-        int[] fft = getLatestFFT();
+        int[] fft = getLatestRawFFT();
         if (mHapticRange == null) return 0f;
         int max = 0;
         for (int i = mHapticRange.logBinLo; i <= mHapticRange.logBinHi; i++) if (fft[i] > max) max = fft[i];
@@ -354,30 +291,26 @@ public class AudioCaptureService extends Service {
     }
 
     public float getLatestUiPeak() {
-        int[] fft = getLatestFFT();
+        int[] fft = getLatestDecayedFFT();
         int max = 0;
-        for (int i = 0; i < 64; i++) if (fft[i] > max) max = fft[i]; // Bass focus for UI peak
+        for (int i = 0; i < 64; i++) if (fft[i] > max) max = fft[i];
         return max / 4095f;
     }
 
     public float getLatestFlashlightPeak() {
-        int[] fft = getLatestFFT();
+        int[] fft = getLatestRawFFT();
         if (mFlashlightRange == null) return 0f;
         int max = 0;
         for (int i = mFlashlightRange.logBinLo; i <= mFlashlightRange.logBinHi; i++) if (fft[i] > max) max = fft[i];
         return max / 4095f;
     }
 
-    public long getCaptureDurationMs() {
-        if (!sIsRunning || mCaptureStartTimeMs == 0) return 0;
-        return SystemClock.elapsedRealtime() - mCaptureStartTimeMs;
-    }
+    public long getCaptureDurationMs() { if (!sIsRunning || mCaptureStartTimeMs == 0) return 0; return SystemClock.elapsedRealtime() - mCaptureStartTimeMs; }
     private long mLastAudioActivityMs = 0L;
     private long mLastNotifUpdateMs = 0L;
     private final Handler mMainHandler = new Handler(android.os.Looper.getMainLooper());
     private final Runnable mIdlePulseRunnable = new Runnable() {
-        @Override
-        public void run() {
+        @Override public void run() {
             if (sIsRunning) {
                 long now = SystemClock.elapsedRealtime();
                 if (now - mLastNotifUpdateMs >= 1000) { refreshNotification(); mLastNotifUpdateMs = now; }
@@ -393,32 +326,26 @@ public class AudioCaptureService extends Service {
     };
 
     private final AudioDeviceCallback mAudioDeviceCallback = new AudioDeviceCallback() {
-        @Override
-        public void onAudioDevicesAdded(AudioDeviceInfo[] addedDevices) { refreshLatencyForCurrentAudioRoute(); }
-        @Override
-        public void onAudioDevicesRemoved(AudioDeviceInfo[] removedDevices) { refreshLatencyForCurrentAudioRoute(); }
+        @Override public void onAudioDevicesAdded(AudioDeviceInfo[] added) { refreshLatencyForCurrentAudioRoute(); }
+        @Override public void onAudioDevicesRemoved(AudioDeviceInfo[] removed) { refreshLatencyForCurrentAudioRoute(); }
     };
 
     private void applyEffectiveMaxBrightness() { if (mGlyphRenderer != null) mGlyphRenderer.setMaxBrightness(mMaxBrightness); }
 
     private static final class PendingFrame {
         final int[] fftraw;
+        final int[] fftdecayed;
         final AudioProcessor.VisualizerConfig config;
         final int configVersion;
         final long dueAtMs;
 
-        PendingFrame(int[] fftraw, AudioProcessor.VisualizerConfig config, int configVersion, long dueAtMs) {
+        PendingFrame(int[] fftraw, int[] fftdecayed, AudioProcessor.VisualizerConfig config, int configVersion, long dueAtMs) {
             this.fftraw = fftraw;
+            this.fftdecayed = fftdecayed;
             this.config = config;
             this.configVersion = configVersion;
             this.dueAtMs = dueAtMs;
         }
-    }
-
-    public static final class PresetInfo {
-        public final String key;
-        public final String description;
-        public PresetInfo(String key, String description) { this.key = key; this.description = description; }
     }
 
     public class LocalBinder extends Binder { public AudioCaptureService getService() { return AudioCaptureService.this; } }
@@ -454,7 +381,6 @@ public class AudioCaptureService extends Service {
         mOverlaySensitivity = appPrefs.getFloat("overlay_sensitivity", 1.0f);
 
         AudioProcessor.ReadMethod readMethod = AudioProcessor.ReadMethod.valueOf(appPrefs.getString("fft_read_method", AudioProcessor.ReadMethod.MAX.name()));
-        mAudioProcessor.setReadMethod(readMethod);
         mAudioProcessor.setManualGain(appPrefs.getFloat("spectrum_gain", 4.0f));
 
         mGlyphRenderer = new GlyphRenderer(mGamma, mIdleBreathingEnabled, mSelectedDevice);
@@ -474,8 +400,7 @@ public class AudioCaptureService extends Service {
         mMainHandler.post(mIdlePulseRunnable);
     }
 
-    @Override
-    public IBinder onBind(Intent intent) { return mBinder; }
+    @Override public IBinder onBind(Intent intent) { return mBinder; }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -584,29 +509,12 @@ public class AudioCaptureService extends Service {
     }
 
     public void setLatencyMs(int latencyMs) { setLatencyCompensationMs(latencyMs); }
-
-    public void setReadMethod(AudioProcessor.ReadMethod method) { if (mAudioProcessor != null) mAudioProcessor.setReadMethod(method); }
-
-    public void setLatencyCompensationMs(int latencyMs) {
-        if (mLatencyCompensationMs != latencyMs) {
-            mLatencyCompensationMs = latencyMs;
-            mPresetConfigVersion.incrementAndGet();
-        }
-    }
-
-    public void setGamma(float gamma) {
-        mGamma = gamma;
-        if (mGlyphRenderer != null) mGlyphRenderer.setGamma(gamma);
-    }
-
-    public void setSpectrumGain(float gain) {
-        if (mAudioProcessor != null) mAudioProcessor.setManualGain(gain);
-    }
-
+    public void setReadMethod(AudioProcessor.ReadMethod method) { }
+    public void setLatencyCompensationMs(int latencyMs) { if (mLatencyCompensationMs != latencyMs) { mLatencyCompensationMs = latencyMs; mPresetConfigVersion.incrementAndGet(); } }
+    public void setGamma(float gamma) { mGamma = gamma; if (mGlyphRenderer != null) mGlyphRenderer.setGamma(gamma); }
+    public void setSpectrumGain(float gain) { if (mAudioProcessor != null) mAudioProcessor.setManualGain(gain); }
     public void setSelectedPreset(String presetKey) { applyPresetSelection(presetKey); }
-
     public void setHapticMotorEnabled(boolean enabled) { mHapticEnabled = hasHapticMotor(this) && enabled; }
-
     public void setHapticMode(HapticMode mode) { mHapticMode = mode; }
 
     public void setMaxBrightness(int brightness) {
@@ -628,98 +536,29 @@ public class AudioCaptureService extends Service {
         if (mGlyphRenderer != null) mGlyphRenderer.setIdleBreathingEnabled(enabled);
     }
 
-    public void setIdlePattern(String pattern) {
-        if (mGlyphRenderer != null) mGlyphRenderer.setIdlePattern(pattern);
-    }
-
-    public void setStrobeEnabled(boolean enabled) {
-    }
-
+    public void setIdlePattern(String pattern) { if (mGlyphRenderer != null) mGlyphRenderer.setIdlePattern(pattern); }
     public void setDisableGlyphsWhenSilent(boolean enabled) {
         mDisableGlyphsWhenSilent = enabled;
         if (!enabled && !mSessionOpen && mGM != null) mWorkerHandler.post(this::ensureGlyphSession);
     }
 
-    public void setOverlayEnabled(boolean enabled) {
-        mOverlayEnabled = enabled;
-        if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility);
-    }
+    public void setOverlayEnabled(boolean enabled) { mOverlayEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); }
+    public void setOverlayTopEnabled(boolean enabled) { mOverlayTopEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); }
+    public void setOverlayBottomEnabled(boolean enabled) { mOverlayBottomEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); }
+    public void setOverlayWidth(int width) { mOverlayWidth = width; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); }
+    public void setOverlayHeight(int height) { mOverlayHeight = height; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); }
+    public void setOverlayHeightBottom(int height) { mOverlayHeightBottom = height; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); }
+    public void setOverlayYOffset(int offset) { mOverlayYOffset = offset; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); }
+    public void setOverlaySensitivity(float s) { mOverlaySensitivity = s; if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setTopSensitivity(s)); }
+    public void setOverlaySensitivityBottom(float s) { mOverlaySensitivityBottom = s; if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setBottomSensitivity(s)); }
 
-    public void setOverlayTopEnabled(boolean enabled) {
-        mOverlayTopEnabled = enabled;
-        if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility);
-    }
-
-    public void setOverlayBottomEnabled(boolean enabled) {
-        mOverlayBottomEnabled = enabled;
-        if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility);
-    }
-
-    public void setOverlayWidth(int width) {
-        mOverlayWidth = width;
-        if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility);
-    }
-
-    public void setOverlayHeight(int height) {
-        mOverlayHeight = height;
-        if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility);
-    }
-
-    public void setOverlayHeightBottom(int height) {
-        mOverlayHeightBottom = height;
-        if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility);
-    }
-
-    public void setOverlayYOffset(int offset) {
-        mOverlayYOffset = offset;
-        if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility);
-    }
-
-    public void setOverlaySensitivity(float sensitivity) {
-        mOverlaySensitivity = sensitivity;
-        if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setTopSensitivity(sensitivity));
-    }
-
-    public void setOverlaySensitivityBottom(float sensitivity) {
-        mOverlaySensitivityBottom = sensitivity;
-        if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setBottomSensitivity(sensitivity));
-    }
-
-    public void setEdgeVisualizerEnabled(boolean enabled) {
-        mEdgeVisualizerEnabled = enabled;
-        if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility);
-    }
-
-    public void setEdgeThickness(int thickness) {
-        mEdgeThickness = thickness;
-        if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setThickness(thickness));
-    }
-
-    public void setEdgeSensitivity(float sensitivity) {
-        mEdgeSensitivity = sensitivity;
-        if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setSensitivity(sensitivity));
-    }
-
-    public void setEdgeBarCounts(int horiz, int vert) {
-        mEdgeBarCountHoriz = horiz;
-        mEdgeBarCountVert = vert;
-        if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setBarCounts(horiz, vert));
-    }
-
-    public void setEdgeCornerRadius(float radius) {
-        mEdgeCornerRadius = radius;
-        if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setScreenRadius(radius * 4));
-    }
-
-    public void setEdgeTopEnabled(boolean enabled) {
-        mEdgeTopEnabled = enabled;
-        if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setTopEnabled(enabled));
-    }
-
-    public void setEdgeBottomEnabled(boolean enabled) {
-        mEdgeBottomEnabled = enabled;
-        if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setBottomEnabled(enabled));
-    }
+    public void setEdgeVisualizerEnabled(boolean enabled) { mEdgeVisualizerEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); }
+    public void setEdgeThickness(int thickness) { mEdgeThickness = thickness; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setThickness(thickness)); }
+    public void setEdgeSensitivity(float sensitivity) { mEdgeSensitivity = sensitivity; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setSensitivity(sensitivity)); }
+    public void setEdgeBarCounts(int horiz, int vert) { mEdgeBarCountHoriz = horiz; mEdgeBarCountVert = vert; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setBarCounts(horiz, vert)); }
+    public void setEdgeCornerRadius(float radius) { mEdgeCornerRadius = radius; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setScreenRadius(radius * 4)); }
+    public void setEdgeTopEnabled(boolean enabled) { mEdgeTopEnabled = enabled; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setTopEnabled(enabled)); }
+    public void setEdgeBottomEnabled(boolean enabled) { mEdgeBottomEnabled = enabled; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setBottomEnabled(enabled)); }
 
     public void reloadConfig() {
         if (mWorkerHandler != null) {
@@ -734,144 +573,47 @@ public class AudioCaptureService extends Service {
         }
     }
 
-    public static List<PresetInfo> loadPresetInfos(Context context, int device) {
-        try {
-            JSONObject root = loadZonesConfigRoot(context);
-            String phoneModel = phoneModelForDevice(device);
-            List<String> keys = getPresetKeysForPhoneModel(root, phoneModel);
-            if (keys.isEmpty()) keys = getAllPresetKeys(root);
-            return buildPresetInfos(root, keys);
-        } catch (Exception e) { return Collections.emptyList(); }
-    }
-
-    public void setOverlayColor(int color) {
-        mOverlayColor = color;
-        if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setColor(color));
-    }
-
-    private void updateVisualizerService() {
-        Intent intent = new Intent(this, VisualizerService.class);
-        if (mLensVisualizerEnabled && sIsRunning) startService(intent); else stopService(intent);
-    }
+    public void setOverlayColor(int color) { mOverlayColor = color; if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setColor(color)); }
+    private void updateVisualizerService() { Intent intent = new Intent(this, VisualizerService.class); if (mLensVisualizerEnabled && sIsRunning) startService(intent); else stopService(intent); }
 
     public void setHapticEnabled(boolean enabled) {
         mHapticEnabled = hasHapticMotor(this) && enabled;
-        if (!mHapticEnabled) {
-            if (mContinuousHapticEngine != null) mContinuousHapticEngine.stopHaptics();
-            if (mBeatDetectionEngine != null) mBeatDetectionEngine.stopHaptics();
-        }
-        requestTileRefresh();
-        requestWidgetRefresh();
+        if (!mHapticEnabled) { if (mContinuousHapticEngine != null) mContinuousHapticEngine.stopHaptics(); if (mBeatDetectionEngine != null) mBeatDetectionEngine.stopHaptics(); }
+        requestTileRefresh(); requestWidgetRefresh();
     }
 
-    public void setAudioRoute(com.better.nothing.music.vizualizer.ui.AudioRoute route) {
-        if (route != null) setLatencyCompensationMs(loadLatencyCompensationMs(this, mSelectedDevice, route.getStorageKey()));
-    }
+    public void setHapticFreqRange(float min, float max) { mHapticMinHz = min; mHapticMaxHz = max; if (mBeatDetectionEngine != null) mBeatDetectionEngine.resetDetectionState(); }
+    public void setHapticMultiplier(float m) { if (mContinuousHapticEngine != null) mContinuousHapticEngine.setHapticMultiplier(m); if (mBeatDetectionEngine != null) mBeatDetectionEngine.setHapticMultiplier(m); }
+    public void setHapticAudioGain(float g) { mHapticAudioGain = g; if (mContinuousHapticEngine != null) mContinuousHapticEngine.setHapticAudioGain(g); }
+    public void setHapticGamma(float g) { if (mContinuousHapticEngine != null) mContinuousHapticEngine.setHapticGamma(g); }
+    public void setHapticBeatSensitivity(float s) { mHapticBeatSensitivity = s; if (mBeatDetectionEngine != null) mBeatDetectionEngine.setHapticSensitivity(s); }
+    public void setHapticBeatGamma(float g) { mHapticBeatGamma = g; if (mBeatDetectionEngine != null) mBeatDetectionEngine.setHapticGamma(g); }
 
-    public String getActiveAudioRouteKey() {
-        AudioRouteInfo info = resolveCurrentAudioRoute();
-        return info != null ? info.storageKey : null;
-    }
+    public void setFlashlightEnabled(boolean enabled) { mFlashlightEnabled = hasFlashlight(this) && enabled; if (!mFlashlightEnabled && mFlashlightEngine != null) mFlashlightEngine.stopFlashlight(); requestWidgetRefresh(); }
+    public void setFlashlightFreqRange(float min, float max) { mFlashlightMinHz = min; mFlashlightMaxHz = max; }
+    public void setFlashlightThreshold(float t) { mFlashlightThreshold = t; if (mFlashlightEngine != null) mFlashlightEngine.setFlashlightThreshold(t); }
+    public void setFlashlightMode(TorchMode m) { mFlashlightMode = m; if (mFlashlightEngine != null) mFlashlightEngine.setTorchMode(m); }
+    public void setFlashlightBeatSensitivity(float s) { mFlashlightBeatSensitivity = s; if (mFlashlightEngine != null) mFlashlightEngine.setFlashlightBeatSensitivity(s); }
+    public void setFlashlightSpeedMs(float s) { mFlashlightSpeedMs = s; if (mFlashlightEngine != null) mFlashlightEngine.setFlashlightSpeedMs(s); }
 
-    public String getActiveAudioRouteName() {
-        AudioRouteInfo info = resolveCurrentAudioRoute();
-        return info != null ? info.displayName : null;
-    }
-
-    public void setHapticFreqRange(float minHz, float maxHz) {
-        mHapticMinHz = minHz; mHapticMaxHz = maxHz;
-        if (mBeatDetectionEngine != null) mBeatDetectionEngine.resetDetectionState();
-    }
-
-    public void setHapticMultiplier(float multiplier) {
-        if (mContinuousHapticEngine != null) mContinuousHapticEngine.setHapticMultiplier(multiplier);
-        if (mBeatDetectionEngine != null) mBeatDetectionEngine.setHapticMultiplier(multiplier);
-    }
-
-    public void setHapticAudioGain(float gain) {
-        mHapticAudioGain = gain;
-        if (mContinuousHapticEngine != null) mContinuousHapticEngine.setHapticAudioGain(gain);
-    }
-
-    public void setHapticGamma(float gamma) {
-        if (mContinuousHapticEngine != null) mContinuousHapticEngine.setHapticGamma(gamma);
-    }
-
-    public void setHapticBeatSensitivity(float sensitivity) {
-        mHapticBeatSensitivity = sensitivity;
-        if (mBeatDetectionEngine != null) mBeatDetectionEngine.setHapticSensitivity(sensitivity);
-    }
-
-    public void setHapticBeatGamma(float gamma) {
-        mHapticBeatGamma = gamma;
-        if (mBeatDetectionEngine != null) mBeatDetectionEngine.setHapticGamma(gamma);
-    }
-
-    public void setFlashlightEnabled(boolean enabled) {
-        mFlashlightEnabled = hasFlashlight(this) && enabled;
-        if (!mFlashlightEnabled && mFlashlightEngine != null) mFlashlightEngine.stopFlashlight();
-        requestWidgetRefresh();
-    }
-
-    public void setFlashlightFreqRange(float minHz, float maxHz) {
-        mFlashlightMinHz = minHz; mFlashlightMaxHz = maxHz;
-    }
-
-    public void setFlashlightThreshold(float threshold) {
-        mFlashlightThreshold = threshold;
-        if (mFlashlightEngine != null) mFlashlightEngine.setFlashlightThreshold(threshold);
-    }
-
-    public void setFlashlightMode(TorchMode mode) {
-        mFlashlightMode = mode;
-        if (mFlashlightEngine != null) mFlashlightEngine.setTorchMode(mode);
-    }
-
-    public void setFlashlightBeatSensitivity(float sensitivity) {
-        mFlashlightBeatSensitivity = sensitivity;
-        if (mFlashlightEngine != null) mFlashlightEngine.setFlashlightBeatSensitivity(sensitivity);
-    }
-
-    public void setFlashlightSpeedMs(float speedMs) {
-        mFlashlightSpeedMs = speedMs;
-        if (mFlashlightEngine != null) mFlashlightEngine.setFlashlightSpeedMs(speedMs);
-    }
-
-    public void setFlashlightMultiIntensityForced(boolean forced) {
-        if (mFlashlightEngine != null) {
-            mFlashlightEngine.setForceMultiIntensity(forced);
-            mFlashlightIntensityLevels = mFlashlightEngine.getTorchIntensityLevels();
-        }
-    }
-
-    public int getFlashlightIntensityLevels() {
-        if (mFlashlightEngine != null) return mFlashlightEngine.getTorchIntensityLevels();
-        return mFlashlightIntensityLevels > 0 ? mFlashlightIntensityLevels : 1;
-    }
-
-    public int getFlashlightCurrentLevel() {
-        if (mFlashlightEngine != null) return mFlashlightEngine.getCurrentLevel();
-        return 0;
-    }
+    public void setFlashlightMultiIntensityForced(boolean forced) { if (mFlashlightEngine != null) { mFlashlightEngine.setForceMultiIntensity(forced); mFlashlightIntensityLevels = mFlashlightEngine.getTorchIntensityLevels(); } }
+    public int getFlashlightIntensityLevels() { return mFlashlightEngine != null ? mFlashlightEngine.getTorchIntensityLevels() : (mFlashlightIntensityLevels > 0 ? mFlashlightIntensityLevels : 1); }
+    public int getFlashlightCurrentLevel() { return mFlashlightEngine != null ? mFlashlightEngine.getCurrentLevel() : 0; }
 
     public void startCapture(int resultCode, Intent data) { startCaptureInternal(CaptureSource.INTERNAL, resultCode, data); }
-
     public void startMicCapture() { startCaptureInternal(CaptureSource.MIC, 0, null); }
-
     public void startVizualizerCapture() { startCaptureInternal(CaptureSource.VIZUALIZER, 0, null); }
-
-
 
     private void startCaptureInternal(CaptureSource source, int resultCode, Intent data) {
         mCaptureSource = source;
-        MediaProjectionManager projectionManager = null;
-        if (source == CaptureSource.INTERNAL) projectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
+        MediaProjectionManager pm = null;
+        if (source == CaptureSource.INTERNAL) pm = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
         synchronized (mCaptureLock) {
             stopCaptureLocked();
             if (source == CaptureSource.INTERNAL) {
-                if (projectionManager == null) return;
+                if (pm == null) return;
                 if (Build.VERSION.SDK_INT >= 29) startForeground(NOTIF_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION); else startForeground(NOTIF_ID, buildNotification());
-                mProjection = projectionManager.getMediaProjection(resultCode, data);
+                mProjection = pm.getMediaProjection(resultCode, data);
                 if (mProjection == null) { stopForeground(STOP_FOREGROUND_REMOVE); setRunning(false); return; }
                 mProjection.registerCallback(mProjectionCallback, mWorkerHandler);
             } else if (Build.VERSION.SDK_INT >= 29) startForeground(NOTIF_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE); else startForeground(NOTIF_ID, buildNotification());
@@ -880,23 +622,23 @@ public class AudioCaptureService extends Service {
             mCaptureExecutor.execute(() -> {
                 Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
                 SystemClock.sleep(PROJECTION_SETTLE_DELAY_MS);
-                AudioRecord localRecord = null;
+                AudioRecord lr = null;
                 try {
                     mCurrentSampleRate = (source == CaptureSource.MIC) ? SAMPLE_RATE : 48000;
-                    int captureSampleRate = mCurrentSampleRate;
-                    int bufSize = Math.max(AudioRecord.getMinBufferSize(captureSampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT), 4096);
+                    int csr = mCurrentSampleRate;
+                    int bs = Math.max(AudioRecord.getMinBufferSize(csr, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT), 4096);
                     if (source == CaptureSource.INTERNAL) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && mProjection != null) {
                             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-                                AudioPlaybackCaptureConfiguration config = new AudioPlaybackCaptureConfiguration.Builder(mProjection).addMatchingUsage(AudioAttributes.USAGE_MEDIA).addMatchingUsage(AudioAttributes.USAGE_GAME).build();
-                                localRecord = new AudioRecord.Builder().setAudioPlaybackCaptureConfig(config).setAudioFormat(new AudioFormat.Builder().setSampleRate(captureSampleRate).setChannelMask(AudioFormat.CHANNEL_IN_MONO).setEncoding(AudioFormat.ENCODING_PCM_16BIT).build()).setBufferSizeInBytes(bufSize).build();
+                                AudioPlaybackCaptureConfiguration cfg = new AudioPlaybackCaptureConfiguration.Builder(mProjection).addMatchingUsage(AudioAttributes.USAGE_MEDIA).addMatchingUsage(AudioAttributes.USAGE_GAME).build();
+                                lr = new AudioRecord.Builder().setAudioPlaybackCaptureConfig(cfg).setAudioFormat(new AudioFormat.Builder().setSampleRate(csr).setChannelMask(AudioFormat.CHANNEL_IN_MONO).setEncoding(AudioFormat.ENCODING_PCM_16BIT).build()).setBufferSizeInBytes(bs).build();
                             }
                         }
                     } else if (source == CaptureSource.VIZUALIZER) { setupVisualizerCapture(); return; }
-                    else if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) localRecord = new AudioRecord(MediaRecorder.AudioSource.UNPROCESSED, SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufSize);
-                    if (localRecord != null && localRecord.getState() == AudioRecord.STATE_INITIALIZED) {
-                        synchronized (mCaptureLock) { if (!mCapturing) { localRecord.release(); return; } mAudioRecord = localRecord; }
-                        localRecord.startRecording(); runCaptureLoop(localRecord);
+                    else if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) lr = new AudioRecord(MediaRecorder.AudioSource.UNPROCESSED, SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bs);
+                    if (lr != null && lr.getState() == AudioRecord.STATE_INITIALIZED) {
+                        synchronized (mCaptureLock) { if (!mCapturing) { lr.release(); return; } mAudioRecord = lr; }
+                        lr.startRecording(); runCaptureLoop(lr);
                     }
                 } catch (Exception e) { Log.e(TAG, "Capture failed", e); stopSelf(); }
                 finally { synchronized (mCaptureLock) { releaseAudioRecord(); } }
@@ -904,8 +646,6 @@ public class AudioCaptureService extends Service {
         }
         refreshNotification();
     }
-
-
 
     public void stopCapture() { synchronized (mCaptureLock) { stopCaptureLocked(); } }
     private void stopCaptureLocked() {
@@ -918,23 +658,39 @@ public class AudioCaptureService extends Service {
     private void releaseVisualizer() { if (mVisualizer != null) { try { mVisualizer.release(); } catch (Exception ignored) {} mVisualizer = null; } synchronized (mVisualizerPendingFrames) { mVisualizerPendingFrames.clear(); } }
     private void ensureCaptureExecutor() { if (mCaptureExecutor == null || mCaptureExecutor.isShutdown()) mCaptureExecutor = Executors.newSingleThreadExecutor(); }
     private void shutdownCaptureExecutor() { if (mCaptureExecutor != null) { mCaptureExecutor.shutdownNow(); mCaptureExecutor = null; } }
-    private void showToast(String msg) { mMainHandler.post(() -> android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_LONG).show()); }
 
-    private void processFrame(int[] fftraw, AudioProcessor.VisualizerConfig config, int configVersion) {
+    private void processFrame(int[] fftraw, int[] fftdecayed, AudioProcessor.VisualizerConfig config, int configVersion) {
         if (config == null || configVersion != mPresetConfigVersion.get()) return;
         try {
             long now = SystemClock.elapsedRealtime(); 
             boolean hasActivity = false;
             if (fftraw != null && fftraw.length > 0) { for (int val : fftraw) if (val > 20) { hasActivity = true; break; } }
-            if (hasActivity || (mIdleBreathingEnabled && (mMaxBrightness > 0))) { mLastAudioActivityMs = now; if (!mSessionOpen) ensureGlyphSession(); } else if (mDisableGlyphsWhenSilent && mSessionOpen && (now - mLastAudioActivityMs > 3000)) clearGlyphSession();
-            if (now - mLastSendMs < MIN_SEND_INTERVAL_MS) return;
             
-            int[] frameColors = mGlyphRenderer.processFrame(fftraw, config, now);
-            if (frameColors == null) return;
-            
-            float[] lightState = new float[frameColors.length]; for (int i = 0; i < frameColors.length; i++) lightState[i] = frameColors[i] / 4095f; mCurrentLightState = lightState;
-            if (!canPushGlyphFrames()) return;
-            try { if (DeviceProfile.getMatrixWidth(mSelectedDevice) > 0) { if (mGMM != null) mGMM.setAppMatrixFrame(frameColors); } else if (mGM != null) mGM.setFrameColors(frameColors); mLastSendMs = now; } catch (Exception ignored) {}
+            // Only interact with Glyph library if output is enabled (brightness > 0)
+            if (mMaxBrightness > 0) {
+                if (hasActivity || mIdleBreathingEnabled) { 
+                    mLastAudioActivityMs = now; 
+                    if (!mSessionOpen) ensureGlyphSession(); 
+                } else if (mDisableGlyphsWhenSilent && mSessionOpen && (now - mLastAudioActivityMs > 3000)) {
+                    clearGlyphSession();
+                }
+
+                if (mSessionOpen && (now - mLastSendMs >= MIN_SEND_INTERVAL_MS)) {
+                    int[] frameColors = mGlyphRenderer.processFrame(fftdecayed, config, now);
+                    if (frameColors != null) {
+                        try {
+                            if (DeviceProfile.getMatrixWidth(mSelectedDevice) > 0) {
+                                if (mGMM != null) mGMM.setAppMatrixFrame(frameColors);
+                            } else if (mGM != null) {
+                                mGM.setFrameColors(frameColors);
+                            }
+                            mLastSendMs = now;
+                        } catch (Exception ignored) {}
+                    }
+                }
+            } else if (mSessionOpen) {
+                clearGlyphSession();
+            }
         } catch (Exception e) { Log.e(TAG, "processFrame error", e); }
     }
 
@@ -944,24 +700,25 @@ public class AudioCaptureService extends Service {
         if (latestDueFrame != null) {
             try {
                 synchronized (mFftLock) {
-                    mLatestFFT = latestDueFrame.fftraw;
+                    mLatestRawFFT = latestDueFrame.fftraw;
+                    mLatestDecayedFFT = latestDueFrame.fftdecayed;
                 }
 
-                if (mOverlayView != null) mOverlayView.updateMagnitudes(mLatestFFT);
-                if (mEdgeVisualizerView != null) mEdgeVisualizerView.updateMagnitudes(mLatestFFT);
-                if (mLensVisualizerView != null) mLensVisualizerView.updateMagnitudes(mLatestFFT);
+                if (mOverlayView != null) mOverlayView.updateMagnitudes(mLatestDecayedFFT);
+                if (mEdgeVisualizerView != null) mEdgeVisualizerView.updateMagnitudes(mLatestDecayedFFT);
+                if (mLensVisualizerView != null) mLensVisualizerView.updateMagnitudes(mLatestDecayedFFT);
                 
                 if (mHapticEnabled) {
                     if (mHapticMode == HapticMode.BASS_TO_AMPLITUDE) {
                         if (mContinuousHapticEngine != null) mContinuousHapticEngine.performHapticFeedback(getLatestHapticPeak(), latestDueFrame.config);
                     } else if (mBeatDetectionEngine != null) {
-                        mBeatDetectionEngine.performHapticFeedback(mLatestFFT, mHapticRange);
+                        mBeatDetectionEngine.performHapticFeedback(mLatestRawFFT, mHapticRange);
                     }
                 }
                 if (mFlashlightEnabled && mFlashlightEngine != null) {
-                    mFlashlightEngine.performFlashlightFeedback(getLatestFlashlightPeak(), latestDueFrame.config, mLatestFFT, mFlashlightRange != null ? mFlashlightRange.logBinLo : 0, mFlashlightRange != null ? mFlashlightRange.logBinHi : 0);
+                    mFlashlightEngine.performFlashlightFeedback(getLatestFlashlightPeak(), latestDueFrame.config, mLatestRawFFT, mFlashlightRange != null ? mFlashlightRange.logBinLo : 0, mFlashlightRange != null ? mFlashlightRange.logBinHi : 0);
                 }
-                processFrame(latestDueFrame.fftraw, latestDueFrame.config, latestDueFrame.configVersion);
+                processFrame(latestDueFrame.fftraw, latestDueFrame.fftdecayed, latestDueFrame.config, latestDueFrame.configVersion);
             } catch (Exception e) { Log.e(TAG, "Error dispatching frame", e); }
         }
     }
@@ -977,16 +734,16 @@ public class AudioCaptureService extends Service {
                 @Override public void onFftDataCapture(Visualizer v, byte[] f, int sr) {}
             }, Visualizer.getMaxCaptureRate(), true, false);
             mVisualizer.setEnabled(true);
-        } catch (Exception e) { Log.e(TAG, "Failed to start Visualizer capture", e); releaseVisualizer(); }
+        } catch (Exception e) { releaseVisualizer(); }
     }
 
     private void processVisualizerWaveform(byte[] waveform, int samplingRate) {
         if (!mCapturing || mVisualizerConfig == null) return;
         mAudioProcessor.updateFFTSize(samplingRate / 1000);
         short[] hop = new short[waveform.length]; for (int i = 0; i < waveform.length; i++) hop[i] = (short) (((waveform[i] & 0xFF) - 128) << 8);
-        AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, false);
+        AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, false, mVisualizerConfig.decay);
         if (result == null) return;
-        PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
+        PendingFrame frame = new PendingFrame(result.fftraw, result.fftdecayed, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
         synchronized (mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
     }
 
@@ -994,9 +751,9 @@ public class AudioCaptureService extends Service {
         int hopSize = Math.round(record.getSampleRate() / (float) FPS); short[] hop = new short[hopSize];
         while (mCapturing) {
             int read = record.read(hop, 0, hopSize, AudioRecord.READ_BLOCKING); if (read <= 0) continue;
-            AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, true);
+            AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, true, mVisualizerConfig != null ? mVisualizerConfig.decay : 0.85f);
             if (result == null) continue;
-            PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
+            PendingFrame frame = new PendingFrame(result.fftraw, result.fftdecayed, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
             synchronized(mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
         }
     }
@@ -1006,11 +763,9 @@ public class AudioCaptureService extends Service {
         if (mGMM != null) { int size = DeviceProfile.getMatrixWidth(mSelectedDevice) * DeviceProfile.getMatrixHeight(mSelectedDevice); if (size > 0) try { mGMM.setAppMatrixFrame(new int[size]); } catch (Exception ignored) {} }
     }
 
-    private void ensureGlyphSession() { if (mGM == null || mSessionOpen) return; try { mGM.openSession(); mSessionOpen = true; } catch (Exception e) { Log.e(TAG, "Failed to open Glyph session", e); } }
+    private void ensureGlyphSession() { if (mGM == null || mSessionOpen || mMaxBrightness <= 0) return; try { mGM.openSession(); mSessionOpen = true; } catch (Exception e) { Log.e(TAG, "Failed to open Glyph session", e); } }
 
-    private void clearGlyphSession() {
-        try { turnOffGlyphs(); if (mGM != null && mSessionOpen) { try { mGM.closeSession(); } catch (Exception ignored) {} if (mGMM != null) try { mGMM.closeAppMatrix(); } catch (Exception ignored) {} mSessionOpen = false; } } catch (Exception ignored) {}
-    }
+    private void clearGlyphSession() { try { turnOffGlyphs(); if (mGM != null && mSessionOpen) { try { mGM.closeSession(); } catch (Exception ignored) {} if (mGMM != null) try { mGMM.closeAppMatrix(); } catch (Exception ignored) {} mSessionOpen = false; } } catch (Exception ignored) {} }
 
     private boolean canPushGlyphFrames() { if (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) return false; if (DeviceProfile.getMatrixWidth(mSelectedDevice) > 0) return mGMM != null; return mGM != null && mSessionOpen; }
 
@@ -1031,9 +786,7 @@ public class AudioCaptureService extends Service {
     }
 
     private String formatDuration(long ms) { long s = (ms / 1000) % 60; long m = (ms / 60000) % 60; long h = (ms / 3600000); return h > 0 ? String.format(Locale.US, "%d:%02d:%02d", h, m, s) : String.format(Locale.US, "%02d:%02d", m, s); }
-
     private void ensureNotificationChannel() { NotificationManager nm = getSystemService(NotificationManager.class); if (nm != null && nm.getNotificationChannel(CHANNEL_ID) == null) nm.createNotificationChannel(new NotificationChannel(CHANNEL_ID, "Glyph Visualizer", NotificationManager.IMPORTANCE_LOW)); }
-
     private void refreshNotification() { if (mCapturing) { NotificationManager nm = getSystemService(NotificationManager.class); if (nm != null) nm.notify(NOTIF_ID, buildNotification()); } }
 
     private void updateOverlayVisibility() {
@@ -1077,71 +830,79 @@ public class AudioCaptureService extends Service {
     }
 
     private void requestTileRefresh() { TileService.requestListeningState(this, new ComponentName(this, "com.better.nothing.music.vizualizer.service.VisualizerTileService")); }
-
     public static void requestWidgetRefresh(Context context) { Intent intent = new Intent("com.better.nothing.music.vizualizer.REFRESH_WIDGET"); intent.setPackage(context.getPackageName()); context.sendBroadcast(intent); }
-
     private void requestWidgetRefresh() { requestWidgetRefresh(this); }
-
     public static int loadLatencyCompensationMs(Context context, int device) { return getPreferences(context).getInt("latency_device_" + device, 0); }
     public static int loadLatencyCompensationMs(Context context, int device, String routeKey) { if (routeKey == null || routeKey.isEmpty()) return loadLatencyCompensationMs(context, device); return getPreferences(context).getInt("latency_route_" + device + "_" + routeKey, loadLatencyCompensationMs(context, device)); }
     public static float loadGamma(Context context) { return getPreferences(context).getFloat("gamma", 2.2f); }
     private static SharedPreferences getPreferences(Context context) { return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); }
-
     public static boolean isHapticEnabledGlobal(Context context) { return context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).getBoolean("haptic_motor_enabled", false); }
-
     public static Intent createStopIntent(Context context) { Intent intent = new Intent(context, AudioCaptureService.class); intent.setAction(ACTION_STOP); return intent; }
-
     private void refreshPresetCatalog() throws IOException, JSONException { JSONObject root = loadZonesConfigRoot(this); mAvailablePresetKeys = getPresetKeysForPhoneModel(root, phoneModelForDevice(mSelectedDevice)); if (mAvailablePresetKeys.isEmpty()) mAvailablePresetKeys = getAllPresetKeys(root); }
 
     private AudioProcessor.VisualizerConfig loadVisualizerConfig(String presetKey, int sampleRate) throws IOException, JSONException {
-        JSONObject root = loadZonesConfigRoot(this); JSONObject preset = root.optJSONObject(presetKey); if (preset == null) throw new JSONException("Preset not found"); JSONArray zonesArray = preset.optJSONArray("zones"); if (zonesArray == null || zonesArray.length() == 0) throw new JSONException("No zones"); double decayAlpha = preset.has("decay-alpha") ? preset.optDouble("decay-alpha", 0.8) : root.optDouble("decay-alpha", 0.8); AudioProcessor.ZoneSpec[] zones = parseZoneSpecs(zonesArray); return buildVisualizerConfig(presetKey, preset.optString("description", presetKey), decayAlpha, zones);
+        JSONObject root = loadZonesConfigRoot(this); JSONObject p = root.optJSONObject(presetKey); if (p == null) throw new JSONException("Preset not found"); JSONArray za = p.optJSONArray("zones"); if (za == null || za.length() == 0) throw new JSONException("No zones"); double da = p.has("decay-alpha") ? p.optDouble("decay-alpha", 0.8) : root.optDouble("decay-alpha", 0.8); AudioProcessor.ZoneSpec[] zs = parseZoneSpecs(za); return buildVisualizerConfig(presetKey, p.optString("description", presetKey), da, zs);
     }
 
-    private AudioProcessor.VisualizerConfig buildVisualizerConfig(String presetKey, String description, double decayAlpha, AudioProcessor.ZoneSpec[] zones) {
-        float adjustedDecay = 0.86f + ((float) decayAlpha / 10f); List<float[]> uniquePairs = new ArrayList<>(); Set<String> seenPairs = new HashSet<>();
-        for (AudioProcessor.ZoneSpec zone : zones) { String key = String.format(Locale.US, "%.4f|%.4f", zone.lowHz, zone.highHz); if (seenPairs.add(key)) uniquePairs.add(new float[]{zone.lowHz, zone.highHz}); }
-        uniquePairs.sort((left, right) -> Float.compare(left[0], right[0])); AudioProcessor.FrequencyRange[] uniqueRanges = new AudioProcessor.FrequencyRange[uniquePairs.size()];
-        for (int i = 0; i < uniquePairs.size(); i++) uniqueRanges[i] = new AudioProcessor.FrequencyRange(uniquePairs.get(i)[0], uniquePairs.get(i)[1]);
-        int[][] zoneToRangeIndices = new int[zones.length][];
-        for (int z = 0; z < zones.length; z++) { ArrayList<Integer> overlaps = new ArrayList<>(); for (int r = 0; r < uniqueRanges.length; r++) if (!(uniqueRanges[r].highHz < zones[z].lowHz || uniqueRanges[r].lowHz > zones[z].highHz)) overlaps.add(r); int[] mapping = new int[overlaps.size()]; for (int i = 0; i < overlaps.size(); i++) mapping[i] = overlaps.get(i); zoneToRangeIndices[z] = mapping; }
-        return new AudioProcessor.VisualizerConfig(presetKey, description, adjustedDecay, zones, uniqueRanges, zoneToRangeIndices);
+    private AudioProcessor.VisualizerConfig buildVisualizerConfig(String pk, String d, double da, AudioProcessor.ZoneSpec[] zs) {
+        float ad = 0.86f + ((float) da / 10f); List<float[]> up = new ArrayList<>(); Set<String> sp = new HashSet<>();
+        for (AudioProcessor.ZoneSpec z : zs) { String key = String.format(Locale.US, "%.4f|%.4f", z.lowHz, z.highHz); if (sp.add(key)) up.add(new float[]{z.lowHz, z.highHz}); }
+        up.sort((l, r) -> Float.compare(l[0], r[0])); AudioProcessor.FrequencyRange[] ur = new AudioProcessor.FrequencyRange[up.size()];
+        for (int i = 0; i < up.size(); i++) ur[i] = new AudioProcessor.FrequencyRange(up.get(i)[0], up.get(i)[1]);
+        int[][] zr = new int[zs.length][];
+        for (int z = 0; z < zs.length; z++) { ArrayList<Integer> os = new ArrayList<>(); for (int r = 0; r < ur.length; r++) if (!(ur[r].highHz < zs[z].lowHz || ur[r].lowHz > zs[z].highHz)) os.add(r); int[] m = new int[os.size()]; for (int i = 0; i < os.size(); i++) m[i] = os.get(i); zr[z] = m; }
+        return new AudioProcessor.VisualizerConfig(pk, d, ad, zs, ur, zr);
     }
 
-    private AudioProcessor.ZoneSpec[] parseZoneSpecs(JSONArray zonesArray) throws JSONException {
-        AudioProcessor.ZoneSpec[] zones = new AudioProcessor.ZoneSpec[zonesArray.length()];
-        for (int i = 0; i < zonesArray.length(); i++) { JSONArray zoneArray = zonesArray.getJSONArray(i); float lowHz = (float) zoneArray.getDouble(0); float highHz = (float) zoneArray.getDouble(1); zones[i] = new AudioProcessor.ZoneSpec(Math.min(lowHz, highHz), Math.max(lowHz, highHz), parseOptionalPercent(zoneArray, 3), parseOptionalPercent(zoneArray, 4)); }
-        return zones;
+    private AudioProcessor.ZoneSpec[] parseZoneSpecs(JSONArray za) throws JSONException {
+        AudioProcessor.ZoneSpec[] zs = new AudioProcessor.ZoneSpec[za.length()];
+        for (int i = 0; i < za.length(); i++) { JSONArray z = za.getJSONArray(i); float lh = (float) z.getDouble(0); float hh = (float) z.getDouble(1); zs[i] = new AudioProcessor.ZoneSpec(Math.min(lh, hh), Math.max(lh, hh), parseOptionalPercent(z, 3), parseOptionalPercent(z, 4)); }
+        return zs;
     }
 
-    private static String chooseDefaultPresetKey(String phoneModel, List<String> presetKeys) {
-        if (presetKeys == null || presetKeys.isEmpty()) return DEFAULT_PRESET_KEY;
-        List<String> prefs = switch (phoneModel) { case "PHONE1" -> Arrays.asList("np1s", "np1"); case "PHONE2" -> Collections.singletonList("np2"); case "PHONE2A" -> Collections.singletonList("np2a"); case "PHONE3A" -> Arrays.asList("np3as", "np3a"); case "PHONE3" -> Collections.singletonList("np3test"); case "PHONE4A" -> Collections.singletonList("np4a"); case "PHONE4A_PRO" -> Collections.singletonList("np4ap-test"); case "PHONE4B" -> Collections.singletonList("np4b"); default -> Collections.emptyList(); };
-        for (String p : prefs) if (presetKeys.contains(p)) return p; return presetKeys.get(0);
+    private static String chooseDefaultPresetKey(String pm, List<String> pks) {
+        if (pks == null || pks.isEmpty()) return DEFAULT_PRESET_KEY;
+        List<String> prefs = switch (pm) { case "PHONE1" -> Arrays.asList("np1s", "np1"); case "PHONE2" -> Collections.singletonList("np2"); case "PHONE2A" -> Collections.singletonList("np2a"); case "PHONE3A" -> Arrays.asList("np3as", "np3a"); case "PHONE3" -> Collections.singletonList("np3test"); case "PHONE4A" -> Collections.singletonList("np4a"); case "PHONE4A_PRO" -> Collections.singletonList("np4ap-test"); case "PHONE4B" -> Collections.singletonList("np4b"); default -> Collections.emptyList(); };
+        for (String p : prefs) if (pks.contains(p)) return p; return pks.get(0);
     }
 
-    private static String phoneModelForDevice(int device) { return switch (device) { case DeviceProfile.DEVICE_NP1 -> "PHONE1"; case DeviceProfile.DEVICE_NP2 -> "PHONE2"; case DeviceProfile.DEVICE_NP2A -> "PHONE2A"; case DeviceProfile.DEVICE_NP3A -> "PHONE3A"; case DeviceProfile.DEVICE_NP4A -> "PHONE4A"; case DeviceProfile.DEVICE_NP4APRO -> "PHONE4A_PRO"; case DeviceProfile.DEVICE_NP3 -> "PHONE3"; case DeviceProfile.DEVICE_NP4B -> "PHONE4B"; default -> "UNKNOWN"; }; }
-
-    public static String loadZonesConfigVersion(Context context) { try { return loadZonesConfigRoot(context).optString("version", "Unknown"); } catch (Exception e) { return "Unknown"; } }
-    private static JSONObject loadZonesConfigRoot(Context context) throws IOException, JSONException { return new JSONObject(loadZonesConfigText(context)); }
-    public static String loadZonesConfigText(Context context) throws IOException {
-        File file = new File(context.getFilesDir(), "zones.config");
-        if (file.isFile()) { try (FileInputStream is = new FileInputStream(file)) { return readFully(is); } }
-        try (InputStream is = context.getAssets().open("zones.config")) { return readFully(is); }
+    private static String phoneModelForDevice(int d) { return switch (d) { case DeviceProfile.DEVICE_NP1 -> "PHONE1"; case DeviceProfile.DEVICE_NP2 -> "PHONE2"; case DeviceProfile.DEVICE_NP2A -> "PHONE2A"; case DeviceProfile.DEVICE_NP3A -> "PHONE3A"; case DeviceProfile.DEVICE_NP4A -> "PHONE4A"; case DeviceProfile.DEVICE_NP4APRO -> "PHONE4A_PRO"; case DeviceProfile.DEVICE_NP3 -> "PHONE3"; case DeviceProfile.DEVICE_NP4B -> "PHONE4B"; default -> "UNKNOWN"; }; }
+    public static String loadZonesConfigVersion(Context c) { try { return loadZonesConfigRoot(c).optString("version", "Unknown"); } catch (Exception e) { return "Unknown"; } }
+    private static JSONObject loadZonesConfigRoot(Context c) throws IOException, JSONException { return new JSONObject(loadZonesConfigText(c)); }
+    public static String loadZonesConfigText(Context c) throws IOException {
+        File f = new File(c.getFilesDir(), "zones.config"); if (f.isFile()) { try (FileInputStream is = new FileInputStream(f)) { return readFully(is); } }
+        try (InputStream is = c.getAssets().open("zones.config")) { return readFully(is); }
     }
     private static String readFully(InputStream is) throws IOException { ByteArrayOutputStream os = new ByteArrayOutputStream(); byte[] buf = new byte[4096]; int r; while ((r = is.read(buf)) != -1) os.write(buf, 0, r); return os.toString("UTF-8"); }
     private static List<String> getAllPresetKeys(JSONObject root) { ArrayList<String> res = new ArrayList<>(); JSONArray names = root.names(); if (names != null) for (int i = 0; i < names.length(); i++) res.add(names.optString(i, "")); Collections.sort(res); return res; }
-    private static List<PresetInfo> buildPresetInfos(JSONObject root, List<String> keys) { ArrayList<PresetInfo> res = new ArrayList<>(); for (String key : keys) { JSONObject p = root.optJSONObject(key); if (p != null) res.add(new PresetInfo(key, p.optString("description", key))); } return res; }
-    private static List<String> getPresetKeysForPhoneModel(JSONObject root, String phoneModel) { ArrayList<String> res = new ArrayList<>(); if ("UNKNOWN".equals(phoneModel)) return res; JSONArray names = root.names(); if (names != null) for (int i = 0; i < names.length(); i++) { String key = names.optString(i, ""); JSONObject p = root.optJSONObject(key); if (p != null && phoneModel.equalsIgnoreCase(p.optString("phone_model", ""))) res.add(key); } Collections.sort(res); return res; }
+    private static List<PresetInfo> buildPresetInfos(JSONObject root, List<String> keys) { ArrayList<PresetInfo> res = new ArrayList<>(); for (String k : keys) { JSONObject p = root.optJSONObject(k); if (p != null) res.add(new PresetInfo(k, p.optString("description", k))); } return res; }
+    private static List<String> getPresetKeysForPhoneModel(JSONObject root, String pm) { ArrayList<String> res = new ArrayList<>(); if ("UNKNOWN".equals(pm)) return res; JSONArray names = root.names(); if (names != null) for (int i = 0; i < names.length(); i++) { String k = names.optString(i, ""); JSONObject p = root.optJSONObject(k); if (p != null && pm.equalsIgnoreCase(p.optString("phone_model", ""))) res.add(k); } Collections.sort(res); return res; }
     private static float parseOptionalPercent(JSONArray arr, int idx) { if (idx >= arr.length()) return Float.NaN; Object r = arr.opt(idx); if (r == null || r == JSONObject.NULL) return Float.NaN; try { float v; if (r instanceof Number n) v = n.floatValue(); else { String t = String.valueOf(r).trim(); if (t.endsWith("%")) t = t.substring(0, t.length() - 1).trim(); v = Float.parseFloat(t); } if (v >= 0f && v <= 1f) v *= 100f; return v; } catch (Exception ignored) { return Float.NaN; } }
-    private void refreshLatencyForCurrentAudioRoute() {}
-    public static boolean hasHapticMotor(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { VibratorManager vm = (VibratorManager) context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE); return vm != null && vm.getDefaultVibrator().hasVibrator(); }
-        Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE); return v != null && v.hasVibrator();
+    private AudioRouteInfo mCurrentAudioRoute = null;
+
+    public void setAudioRoute(com.better.nothing.music.vizualizer.ui.AudioRoute route) {
+        if (route == null) {
+            mCurrentAudioRoute = null;
+        } else {
+            mCurrentAudioRoute = new AudioRouteInfo(route.getStorageKey(), route.getDisplayName());
+        }
+        refreshLatencyForCurrentAudioRoute();
     }
-    public static boolean hasFlashlight(Context context) { return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH); }
+
+    public String getActiveAudioRouteKey() {
+        return mCurrentAudioRoute != null ? mCurrentAudioRoute.storageKey : null;
+    }
+
+    public String getActiveAudioRouteName() {
+        return mCurrentAudioRoute != null ? mCurrentAudioRoute.displayName : "None";
+    }
+
+    private void refreshLatencyForCurrentAudioRoute() {}
+    public static boolean hasHapticMotor(Context c) { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { VibratorManager vm = (VibratorManager) c.getSystemService(Context.VIBRATOR_MANAGER_SERVICE); return vm != null && vm.getDefaultVibrator().hasVibrator(); } Vibrator v = (Vibrator) c.getSystemService(Context.VIBRATOR_SERVICE); return v != null && v.hasVibrator(); }
+    public static boolean hasFlashlight(Context c) { return c.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH); }
     private AudioRouteInfo resolveCurrentAudioRoute() { return null; }
-    private void applyPresetSelection(String presetKey) { mPresetKey = presetKey; reloadConfig(); }
-    public void setPreset(String preset) { mPresetKey = preset; restartCapture(); }
+    private void applyPresetSelection(String pk) { mPresetKey = pk; reloadConfig(); }
+    public void setPreset(String p) { mPresetKey = p; restartCapture(); }
     private int clampGlyphBrightness(int b) { return Math.max(0, Math.min(4500, b)); }
     private void resetVisualizerState() { if (mGlyphRenderer != null) mGlyphRenderer.resetState(mVisualizerConfig); }
 }
