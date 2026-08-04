@@ -368,7 +368,7 @@ fun BrightnessCard(
     androidx.compose.ui.platform.LocalHapticFeedback.current
 
     val MIN_BRIGHTNESS = 50
-    val MAX_BRIGHTNESS = 4500
+    val MAX_BRIGHTNESS = 10000
 
     var isGammaExpanded by remember { mutableStateOf(false) }
 
@@ -393,8 +393,10 @@ fun BrightnessCard(
         CardHeader(
             title = stringResource(R.string.glyph_brightness),
             trailingContent = {
+                val currentVal = if (maxBrightness > 0) maxBrightness else lastNonZero
+                val percent = (currentVal * 150 / 10000)
                 Text(
-                    text = "${if (maxBrightness > 0) maxBrightness else lastNonZero}/${MAX_BRIGHTNESS}" + (if (maxBrightness == 4095) " (default)" else ""),
+                    text = "$percent%",
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.bodyMedium,
                 )

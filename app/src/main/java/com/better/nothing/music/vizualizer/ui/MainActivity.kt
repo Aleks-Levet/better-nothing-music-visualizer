@@ -185,6 +185,13 @@ class MainActivity : ComponentActivity() {
         
         if (isTrampoline) {
             pendingVisualizerStart = true
+            // If we are already running and requested to start, it's a toggle to stop
+            if (AudioCaptureService.isRunning()) {
+                val intentStop = AudioCaptureService.createStopIntent(this)
+                startService(intentStop)
+                finish()
+                return
+            }
         }
 
 
@@ -210,8 +217,9 @@ class MainActivity : ComponentActivity() {
                 if (isRunning) {
                     while (true) {
                         service?.let { s ->
-                            s.currentLightState?.let {
-                                viewModel.setVisualizerState(it)
+                            val lightState = s.currentLightState
+                            if (lightState != null && lightState.isNotEmpty()) {
+                                viewModel.setVisualizerState(lightState.copyOf())
                             }
                             val raw = s.latestRawFFT
                             val decayed = s.latestDecayedFFT
@@ -268,7 +276,18 @@ class MainActivity : ComponentActivity() {
             val intentService = Intent(this, AudioCaptureService::class.java)
             startForegroundService(intentService)
 
-            val source = viewModel.captureSource.value
+            val source = if (isTrampoline) {
+                val prefs = getSharedPreferences("viz_prefs", MODE_PRIVATE)
+                val saved = prefs.getString("capture_source", AudioCaptureService.CaptureSource.INTERNAL.name)
+                try {
+                    AudioCaptureService.CaptureSource.valueOf(saved ?: AudioCaptureService.CaptureSource.INTERNAL.name)
+                } catch (e: Exception) {
+                    AudioCaptureService.CaptureSource.INTERNAL
+                }
+            } else {
+                viewModel.captureSource.value
+            }
+
             when (source) {
                 AudioCaptureService.CaptureSource.INTERNAL -> launchProjection()
 
@@ -317,7 +336,7 @@ class MainActivity : ComponentActivity() {
             it.setLatencyMs(viewModel.latencyMs.value)
             it.setGamma(viewModel.gammaValue.value)
             it.setSpectrumGain(viewModel.spectrumGain.value)
-            it.setMaxBrightness(viewModel.maxBrightness.value)
+            it.setMaxBrightness(if (viewModel.glyphsEnabled.value) viewModel.maxBrightness.value else 0)
             it.setSelectedPreset(viewModel.selectedPreset.value)
             it.setHapticMotorEnabled(viewModel.hapticMotorEnabled.value)
             it.setHapticMode(viewModel.hapticMode.value)

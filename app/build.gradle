@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.plugin.compose'
+     id 'com.google.gms.google-services'
 }
 
 android {
@@ -13,8 +14,8 @@ android {
         applicationId "com.better.nothing.music.vizualizer"
         minSdk 26
         targetSdk 37
-        versionCode 11
-        versionName '4.0'
+        versionCode 12
+        versionName '4.0.1'
     }
 
     buildTypes {
@@ -101,5 +102,7 @@ dependencies {
     // 8. Debugging
     debugImplementation 'androidx.compose.ui:ui-tooling'
 
-
+    // 9. Firebase & Analytics
+    implementation platform('com.google.firebase:firebase-bom:33.1.2')
+    implementation 'com.google.firebase:firebase-analytics'
 }

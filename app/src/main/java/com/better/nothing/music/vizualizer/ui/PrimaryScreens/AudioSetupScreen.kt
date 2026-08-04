@@ -94,6 +94,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.better.nothing.music.vizualizer.R
+import com.better.nothing.music.vizualizer.logic.AudioProcessor
 import com.better.nothing.music.vizualizer.logic.LatencyWizard
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
 import com.better.nothing.music.vizualizer.ui.OptionTile
@@ -245,7 +246,10 @@ fun AudioScreen(
         }
 
         AnimatedVisibility(visible = isRunning) {
-            FFTSpectrumCard(fftData = fftData)
+            val floatFFT = remember(AudioProcessor.mDecayedFFT) {
+                AudioProcessor.mDecayedFFT.map { it.toFloat() }.toFloatArray()
+            }
+            FFTSpectrumCard(fftData = floatFFT)
         }
 
         OutputSelectionCard(
@@ -772,7 +776,7 @@ fun FFTSpectrumCard(fftData: FloatArray) {
                             val fraction = i.divideBy(points)
                             val mag = data[i]
 
-                            val scaledMag = (mag * 1.2f).coerceIn(0f, 1.2f)
+                            val scaledMag = (mag / 4096f).coerceIn(0f, 1f)
                             val y = h - (scaledMag * (h - 40f)) - 20f
                             val x = fraction * w
 
@@ -818,8 +822,8 @@ fun FFTSpectrumCard(fftData: FloatArray) {
 
                     touchX?.let { tx ->
                         val fraction = (tx / constraints.maxWidth.toFloat()).coerceIn(0f, 1f)
-                        val logMin = log10(20f)
-                        val logMax = log10(20000f)
+                        val logMin = log10(30f)
+                        val logMax = log10(16000f)
                         val logFreq = logMin + fraction * (logMax - logMin)
                         val freq = 10f.pow(logFreq)
 
@@ -848,22 +852,6 @@ fun FFTSpectrumCard(fftData: FloatArray) {
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                    }
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    val freqLabels = listOf("30Hz", "100Hz", "1kHz", "10kHz", "20kHz")
-                    freqLabels.forEach { label ->
-                        Text(
-                            text = label,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
                     }
                 }
             }

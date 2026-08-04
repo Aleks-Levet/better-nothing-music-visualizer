@@ -29,12 +29,12 @@ public class AudioProcessor {
     private float[] hann;
     private DoubleFFT_1D fft;
 
-    private final int[] mRawFFT = new int[512];
-    private final int[] mDecayedFFT = new int[512];
-    private final int[][] mLogBinToLinearRange = new int[512][2];
+    public static int[] mRawFFT = new int[512];
+    public static int[] mDecayedFFT = new int[512];
+    int[][] mLogBinToLinearRange = new int[512][2];
 
     // 512 logarithmic bins from 30Hz to 16kHz
-    public static final float[][] FFT_FREQ_RANGES = new float[512][2];
+    static float[][] FFT_FREQ_RANGES = new float[512][2];
     static {
         float fMin = 30f;
         float fMax = 16000f;
@@ -166,11 +166,12 @@ public class AudioProcessor {
             int rawVal = (int) Math.min(4095, logMag * 4095f * gain);
             mRawFFT[i] = rawVal;
             
-            // Derive fftdecayed from fftraw
+            // Derive fftdecayed from fftraw with faster, linear-ish decay (no easing)
             if (rawVal > mDecayedFFT[i]) {
                 mDecayedFFT[i] = rawVal;
             } else {
-                mDecayedFFT[i] = (int) (mDecayedFFT[i] * decayFactor + rawVal * (1f - decayFactor));
+                int drop = Math.max(20, (int)(4095 * (1f - decayFactor)));
+                mDecayedFFT[i] = Math.max(rawVal, mDecayedFFT[i] - drop);
             }
         }
 

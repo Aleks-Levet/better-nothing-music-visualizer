@@ -67,19 +67,20 @@ class VisualizerWidget : AppWidgetProvider() {
         views.setOnClickPendingIntent(R.id.btn_viz_torch, createActionPendingIntent(context, AudioCaptureService.ACTION_TOGGLE_TORCH, 12))
 
         // Start/Stop button
-        val startStopIntent = if (isRunning) {
-            Intent(context, AudioCaptureService::class.java).apply { action = AudioCaptureService.ACTION_STOP }
-        } else {
-            Intent(context, MainActivity::class.java).apply {
-                putExtra(MainActivity.EXTRA_REQUEST_START, true)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            }
-        }
-        
         val startStopPI = if (isRunning) {
-            PendingIntent.getService(context, 20, startStopIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            val stopIntent = Intent(context, AudioCaptureService::class.java).apply { action = AudioCaptureService.ACTION_STOP }
+            PendingIntent.getService(context, 20, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         } else {
-            PendingIntent.getActivity(context, 20, startStopIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            if (currentSource == AudioCaptureService.CaptureSource.INTERNAL.name) {
+                val startIntent = Intent(context, MainActivity::class.java).apply {
+                    putExtra(MainActivity.EXTRA_REQUEST_START, true)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                }
+                PendingIntent.getActivity(context, 20, startIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            } else {
+                val startIntent = Intent(context, AudioCaptureService::class.java).apply { action = AudioCaptureService.ACTION_START }
+                PendingIntent.getForegroundService(context, 20, startIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            }
         }
         
         views.setOnClickPendingIntent(R.id.btn_start_stop, startStopPI)

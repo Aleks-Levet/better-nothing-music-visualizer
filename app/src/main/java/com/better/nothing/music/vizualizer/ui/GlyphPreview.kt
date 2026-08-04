@@ -225,6 +225,8 @@ fun GlyphPreviewContent(
             val viewBoxH = when (device) {
                 DeviceProfile.DEVICE_NP2 -> 390f
                 DeviceProfile.DEVICE_NP1,
+                DeviceProfile.DEVICE_NP2A,
+                DeviceProfile.DEVICE_NP3A,
                 DeviceProfile.DEVICE_NP3,
                 DeviceProfile.DEVICE_NP4A,
                 DeviceProfile.DEVICE_NP4B,

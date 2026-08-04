@@ -18,18 +18,25 @@ public class VisualizerTileService extends TileService {
             refresh(false);
         } else {
             refresh(true); // Immediate UI feedback
-            unlockAndRun(() -> {
-                Intent i = new Intent(this, MainActivity.class);
-                i.putExtra("request_start", true);
-                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                PendingIntent pendingIntent = PendingIntent.getActivity(
-                        this,
-                        3,
-                        i,
-                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-                );
-                startActivityAndCollapse(pendingIntent);
-            });
+            String sourceStr = getSharedPreferences("viz_prefs", MODE_PRIVATE).getString("capture_source", "INTERNAL");
+            if ("INTERNAL".equals(sourceStr)) {
+                unlockAndRun(() -> {
+                    Intent i = new Intent(this, MainActivity.class);
+                    i.putExtra("request_start", true);
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    PendingIntent pendingIntent = PendingIntent.getActivity(
+                            this,
+                            3,
+                            i,
+                            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                    );
+                    startActivityAndCollapse(pendingIntent);
+                });
+            } else {
+                Intent startIntent = new Intent(this, AudioCaptureService.class);
+                startIntent.setAction(AudioCaptureService.ACTION_START);
+                startForegroundService(startIntent);
+            }
         }
     }
     private void refresh() { refresh(AudioCaptureService.isRunning()); }

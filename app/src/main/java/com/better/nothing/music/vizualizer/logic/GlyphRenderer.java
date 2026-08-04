@@ -9,7 +9,7 @@ import java.util.Arrays;
  */
 public class GlyphRenderer {
 
-    private static final int MAX_BRIGHTNESS = 4500;
+    private static final int MAX_BRIGHTNESS = 10000;
     private static final float SILENCE_THRESHOLD = 20f; // in 0-4095 range
     private static final long BREATH_DELAY_MS = 2500L;
 
@@ -64,6 +64,8 @@ public class GlyphRenderer {
         mLastFrameMs = 0;
         mBreathingEnvelope = 0f;
     }
+
+    public float[] getCurrentLightState() { return mCurrentLightState; }
 
     public int[] processFrame(int[] fftraw, AudioProcessor.VisualizerConfig config, long nowMs) {
         if (config == null || fftraw == null) return new int[0];
@@ -187,6 +189,8 @@ public class GlyphRenderer {
         float multiplier = (float) mMaxBrightness;
         for (int i = 0; i < Math.min(normalizedLightState.length, expectedLength); i++) {
             int val = Math.round(normalizedLightState[i] * multiplier);
+            // Hardware/SDK max is typically 4095. 
+            // App multiplier goes up to 10000 (150% of old max) to act as gain.
             frameColors[i] = Math.max(0, Math.min(4095, val));
         }
         return frameColors;

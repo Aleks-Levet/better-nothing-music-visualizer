@@ -50,6 +50,14 @@ data class AudioRoute(
     val displayName: String,
 )
 
+inline fun <reified T : Enum<T>> safeValueOf(value: String?, default: T): T {
+    return try {
+        if (value == null) default else enumValueOf<T>(value)
+    } catch (e: Exception) {
+        default
+    }
+}
+
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     companion object {
         var instance: MainViewModel? = null
@@ -64,11 +72,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val hasHapticMotor: Boolean by lazy {
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vibratorManager = ctx.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            val vibratorManager = ctx.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
             vibratorManager?.defaultVibrator
         } else {
             @Suppress("DEPRECATION")
-            ctx.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            ctx.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
         }
         vibrator?.hasVibrator() == true
     }
@@ -827,79 +835,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _spoofLocale = MutableStateFlow<String?>(null)
     val spoofLocale = _spoofLocale.asStateFlow()
 
-    init {
-        val prefs = ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-        _favoritePresets.value = prefs.getStringSet("favorite_presets", emptySet()) ?: emptySet()
-        
-        val savedSource = prefs.getString("capture_source", AudioCaptureService.CaptureSource.INTERNAL.name)
-        _captureSource.value = AudioCaptureService.CaptureSource.valueOf(savedSource ?: AudioCaptureService.CaptureSource.INTERNAL.name)
-
-        _uiAmplitudeSyncEnabled.value = prefs.getBoolean("ui_amplitude_sync_enabled", true)
-
-        _totalVisualizedTime.value = prefs.getLong("total_visualized_time", 0L)
-        _totalIdleTime.value = prefs.getLong("total_idle_time", 0L)
-        _totalActiveTime.value = prefs.getLong("total_active_time", 0L)
-        _totalGlyphTime.value = prefs.getLong("total_glyph_time", 0L)
-        _totalHapticTime.value = prefs.getLong("total_haptic_time", 0L)
-        _totalFlashlightTime.value = prefs.getLong("total_flashlight_time", 0L)
-        _spoofLocale.value = prefs.getString("spoof_locale", null)
-
-        // Time tracking
-        viewModelScope.launch {
-            var lastUpdate = SystemClock.elapsedRealtime()
-            while (true) {
-                delay(1000)
-                val now = SystemClock.elapsedRealtime()
-                val delta = now - lastUpdate
-                lastUpdate = now
-
-                if (_runningState.value) {
-                    _totalVisualizedTime.value += delta
-                    
-                    val service = MainActivity.serviceStatic
-                    val hasActivity = if (service != null) {
-                        service.latestMagnitudes.any { it > 4 }
-                    } else {
-                        _fftState.value.any { it > 0.001f }
-                    }
-                    
-                    if (hasActivity) {
-                        _totalActiveTime.value += delta
-                        
-                        if (_hapticMotorEnabled.value) {
-                            _totalHapticTime.value += delta
-                        }
-                        if (_flashlightEnabled.value) {
-                            _totalFlashlightTime.value += delta
-                        }
-                        if (_maxBrightness.value > 0) {
-                            _totalGlyphTime.value += delta
-                        }
-                    } else {
-                        _totalIdleTime.value += delta
-                    }
-
-                    // Save periodically (every 5 seconds to reduce IO)
-                    val timestamp = SystemClock.elapsedRealtime()
-                    if (timestamp % 5000 < 1100) {
-                        saveStatsLocally()
-                    }
-                }
-            }
-        }
-
-        viewModelScope.launch {
-            if (!hasFlashlight) return@launch
-            while (true) {
-                MainActivity.serviceStatic?.let { s ->
-                    _flashlightIntensityLevels.value = s.flashlightIntensityLevels
-                    _flashlightLevel.value = s.flashlightCurrentLevel
-                }
-                delay(100)
-            }
-        }
-    }
-
     // ── Tab ───────────────────────────────────────────────────────────────────
     val _selectedTab = MutableStateFlow(Tab.Audio)
     val selectedTab = _selectedTab.asStateFlow()
@@ -1081,7 +1016,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val _maxBrightness = MutableStateFlow(4095)
+    val _maxBrightness = MutableStateFlow(10000)
     val maxBrightness = _maxBrightness.asStateFlow()
 
     val _glyphsEnabled = MutableStateFlow(true)
@@ -1093,10 +1028,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putBoolean("glyphs_enabled", enabled) }
         }
+        MainActivity.serviceStatic?.setMaxBrightness(if (enabled) _maxBrightness.value else 0)
+        AudioCaptureService.requestWidgetRefresh(ctx)
     }
 
     fun setMaxBrightness(value: Int) {
-        val clamped = value.coerceIn(0, 4500)
+        val clamped = value.coerceIn(0, 10000)
         _maxBrightness.value = clamped
         MainActivity.serviceStatic?.setMaxBrightness(clamped)
         viewModelScope.launch(Dispatchers.IO) {
@@ -1390,162 +1327,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _fftRawState.value = floatArrayOf()
     }
 
-    init {
-        viewModelScope.launch(Dispatchers.Default) {
-            fftState.collect { magnitude ->
-                val service = MainActivity.serviceStatic
-                
-                val target = if (magnitude.isEmpty() || service == null) {
-                    _hapticAmplitude.value = 0f
-                    _flashlightAmplitude.value = 0f
-                    _isBeatDetected.value = false
-                    1.0f
-                } else {
-                    val hapticPeak = service.latestHapticPeak
-                    val uiPeak = service.latestUiPeak
-                    val flashlightPeak = service.latestFlashlightPeak
-
-                    val targetHaptic = (hapticPeak * _hapticAudioGain.value * 12f).coerceIn(0f, 1.0f).toDouble().pow(_hapticGamma.value.toDouble()).toFloat()
-
-                    if (targetHaptic > smoothedHapticAmplitude) {
-                        smoothedHapticAmplitude = smoothedHapticAmplitude * 0.15f + targetHaptic * 0.85f
-                    } else {
-                        smoothedHapticAmplitude = smoothedHapticAmplitude * 0.7f + targetHaptic * 0.3f
-                    }
-
-                    val finalValue = (smoothedHapticAmplitude * _hapticMultiplier.value)
-                    _hapticAmplitude.value = finalValue.coerceIn(0f, 1.2f)
-
-                    val fTarget = (flashlightPeak * 16.0f).coerceIn(0f, 1.2f)
-                    val fCur = Math.pow(fTarget.toDouble(), 2.2).toFloat()
-                    val fDelta = (fCur - _flashlightAmplitude.value).coerceAtLeast(0f)
-                    _flashlightAmplitude.value = (fCur + fDelta * 1.5f).coerceIn(0f, 1.2f)
-
-                    uiPeakValue = uiPeakValue * 0.98f + uiPeak * 0.02f
-                    if (uiPeak > uiPeakValue) uiPeakValue = uiPeak
-                    
-                    val targetGain = if (uiPeakValue > 0.01f) 0.15f / uiPeakValue else 12f
-                    uiDynamicGain = uiDynamicGain * 0.9f + targetGain.coerceIn(5f, 25f) * 0.1f
-                    
-                    (1.0f + (uiPeak * uiDynamicGain - 0.2f)).coerceIn(0.8f, 1.2f)
-                }
-
-                if (target > smoothedUiAmplitude) {
-                    smoothedUiAmplitude = smoothedUiAmplitude * 0.1f + target * 0.9f
-                } else {
-                    smoothedUiAmplitude = smoothedUiAmplitude * 0.85f + target * 0.15f
-                }
-                
-                _uiAmplitude.value = if (_uiAmplitudeSyncEnabled.value) {
-                    smoothedUiAmplitude
-                } else {
-                    1.0f
-                }
-
-                if (magnitude.isEmpty()) return@collect
-                
-                val hzPerBin = 44100f / 2048f
-                val binLo = (_hapticFreqMin.value / hzPerBin).toInt().coerceIn(0, magnitude.lastIndex)
-                val binHi = (_hapticFreqMax.value / hzPerBin).toInt().coerceIn(binLo, magnitude.lastIndex)
-
-                if (_hapticMode.value == HapticMode.BEAT_DETECTION) {
-                    hapticBeatDetector.sensitivity = _hapticBeatSensitivity.value
-                    if (hapticBeatDetector.detect(magnitude, binLo, binHi)) {
-                        _isBeatDetected.value = true
-                        viewModelScope.launch {
-                            delay(50)
-                            _isBeatDetected.value = false
-                        }
-                    }
-                } else {
-                    _isBeatDetected.value = false
-                }
-
-                if (_flashlightMode.value == TorchMode.BEAT_DETECTION) {
-                    val fBinLo = (_flashlightFreqMin.value / hzPerBin).toInt().coerceIn(0, magnitude.lastIndex)
-                    val fBinHi = (_flashlightFreqMax.value / hzPerBin).toInt().coerceIn(fBinLo, magnitude.lastIndex)
-                    flashlightBeatDetector.sensitivity = _flashlightBeatSensitivity.value
-                    if (flashlightBeatDetector.detect(magnitude, fBinLo, fBinHi)) {
-                        _isFlashlightBeatDetected.value = true
-                        viewModelScope.launch {
-                            delay(50)
-                            _isFlashlightBeatDetected.value = false
-                        }
-                    }
-                } else {
-                    _isFlashlightBeatDetected.value = false
-                }
-            }
-        }
-
-        val prefs = ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-        _developerModeEnabled.value = prefs.getBoolean("developer_mode_v2", false)
-        _spoofedDevice.value = prefs.getInt("spoofed_device", DeviceProfile.DEVICE_NP1)
-        _autoDeviceMemorize.value = prefs.getBoolean("auto_device_memorize", true)
-        _m3eEnabled.value = prefs.getBoolean("m3e_enabled", true)
-        _gammaValue.value = prefs.getFloat("gamma_value", 2.2f)
-        _spectrumGain.value = prefs.getFloat("spectrum_gain", 1.0f)
-        _maxBrightness.value = prefs.getInt("max_brightness", 4095)
-        _fftReadMethod.value = AudioProcessor.ReadMethod.valueOf(prefs.getString("fft_read_method", AudioProcessor.ReadMethod.MAX.name)!!)
-        _glyphsEnabled.value = prefs.getBoolean("glyphs_enabled", true)
-        _selectedPreset.value = prefs.getString("selected_preset", "Default") ?: "Default"
-        _selectedTheme.value = prefs.getString("selected_theme", "Default") ?: "Default"
-        _selectedFont.value = prefs.getString("selected_font", "Default") ?: "Default"
-        _notificationButtonSet.value = prefs.getString("notification_button_set", "presets") ?: "presets"
-
-        _hapticMotorEnabled.value = prefs.getBoolean("haptic_motor_enabled", false)
-        _hapticMode.value = HapticMode.valueOf(prefs.getString("haptic_mode", HapticMode.BASS_TO_AMPLITUDE.name)!!)
-        _hapticFreqMin.value = prefs.getInt("haptic_freq_min", 20).toFloat()
-        _hapticFreqMax.value = prefs.getInt("haptic_freq_max", 250).toFloat()
-        _hapticMultiplier.value = prefs.getFloat("haptic_multiplier", 1.0f)
-        _hapticAudioGain.value = prefs.getFloat("haptic_audio_gain", 1.0f)
-        _hapticGamma.value = prefs.getFloat("haptic_gamma", 2.0f)
-        _hapticBeatSensitivity.value = prefs.getFloat("haptic_beat_sensitivity", 1.5f)
-        _hapticBeatGamma.value = prefs.getFloat("haptic_beat_gamma", 8.0f)
-
-        _flashlightEnabled.value = prefs.getBoolean("flashlight_enabled", false)
-        _flashlightMode.value = TorchMode.valueOf(prefs.getString("flashlight_mode", TorchMode.AMPLITUDE.name)!!)
-        _flashlightFreqMin.value = prefs.getInt("flashlight_freq_min", 20).toFloat()
-        _flashlightFreqMax.value = prefs.getInt("flashlight_freq_max", 250).toFloat()
-        _flashlightThreshold.value = prefs.getFloat("flashlight_threshold", 0.15f)
-        _flashlightBeatSensitivity.value = prefs.getFloat("flashlight_beat_sensitivity", 1.5f)
-
-        _idleBreathingEnabled.value = prefs.getBoolean("idle_breathing_enabled", false)
-        _idlePattern.value = prefs.getString("idle_pattern", "pulse") ?: "pulse"
-        _disableGlyphsWhenSilent.value = prefs.getBoolean("disable_glyphs_when_silent", false)
-        _overlayEnabled.value = prefs.getBoolean("overlay_enabled", false)
-        _overlayTopEnabled.value = prefs.getBoolean("overlay_top_enabled", true)
-        _overlayBottomEnabled.value = prefs.getBoolean("overlay_bottom_enabled", false)
-        _overlayWidth.value = prefs.getInt("overlay_width", 120)
-        _overlayHeight.value = prefs.getInt("overlay_height", 12)
-        _overlayHeightBottom.value = prefs.getInt("overlay_height_bottom", 12)
-        _overlayYOffset.value = prefs.getInt("overlay_y_offset", 2)
-        _overlaySensitivity.value = prefs.getFloat("overlay_sensitivity", 1.0f)
-        _overlaySensitivityBottom.value = prefs.getFloat("overlay_sensitivity_bottom", 1.0f)
-        _edgeVisualizerEnabled.value = prefs.getBoolean("edge_visualizer_enabled", false)
-        _edgeThickness.value = prefs.getInt("edge_thickness", 12)
-        _edgeSensitivity.value = prefs.getFloat("edge_sensitivity", 1.0f)
-        _edgeBarCountHoriz.value = prefs.getInt("edge_bar_count_horiz", 20)
-        _edgeBarCountVert.value = prefs.getInt("edge_bar_count_vert", 40)
-        _edgeCornerRadius.value = prefs.getFloat("edge_corner_radius", 2f)
-        _edgeTopEnabled.value = prefs.getBoolean("edge_top_enabled", true)
-        _edgeBottomEnabled.value = prefs.getBoolean("edge_bottom_enabled", true)
-
-        _lensVisualizerEnabled.value = prefs.getBoolean("lens_visualizer_enabled", false)
-        _lensVisualizerRadius.value = prefs.getFloat("lens_visualizer_radius", 16f)
-        _lensVisualizerX.value = prefs.getFloat("lens_visualizer_x", 0.50f)
-        _lensVisualizerY.value = prefs.getFloat("lens_visualizer_y", 0.03f)
-        _lensVisualizerBarWidth.value = prefs.getFloat("lens_visualizer_bar_width", 1f)
-        _lensVisualizerMaxHeight.value = prefs.getFloat("lens_visualizer_max_height", 5f)
-        _lensVisualizerBarCount.value = prefs.getInt("lens_visualizer_bar_count", 35)
-        _lensVisualizerSensitivity.value = prefs.getFloat("lens_visualizer_sensitivity", 0.32f)
-
-        reloadFlashlightSpeedForLevels()
-
-        updateSelectedDevice()
-        refreshPresets()
-    }
-
     fun phoneModelForDevice(device: Int): String {
         return when (device) {
             DeviceProfile.DEVICE_NP1 -> "Nothing Phone (1)"
@@ -1656,6 +1437,200 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun activeLatencyRouteKey(): String? {
         return MainActivity.serviceStatic?.getActiveAudioRouteKey()
+    }
+
+    init {
+        val prefs = ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+        
+        // Stats and Basic settings
+        _favoritePresets.value = prefs.getStringSet("favorite_presets", emptySet()) ?: emptySet()
+        val savedSource = prefs.getString("capture_source", AudioCaptureService.CaptureSource.INTERNAL.name)
+        _captureSource.value = safeValueOf(savedSource, AudioCaptureService.CaptureSource.INTERNAL)
+        _uiAmplitudeSyncEnabled.value = prefs.getBoolean("ui_amplitude_sync_enabled", true)
+        _totalVisualizedTime.value = prefs.getLong("total_visualized_time", 0L)
+        _totalIdleTime.value = prefs.getLong("total_idle_time", 0L)
+        _totalActiveTime.value = prefs.getLong("total_active_time", 0L)
+        _totalGlyphTime.value = prefs.getLong("total_glyph_time", 0L)
+        _totalHapticTime.value = prefs.getLong("total_haptic_time", 0L)
+        _totalFlashlightTime.value = prefs.getLong("total_flashlight_time", 0L)
+        _spoofLocale.value = prefs.getString("spoof_locale", null)
+
+        // General settings
+        _developerModeEnabled.value = prefs.getBoolean("developer_mode_v2", false)
+        _spoofedDevice.value = prefs.getInt("spoofed_device", DeviceProfile.DEVICE_NP1)
+        _autoDeviceMemorize.value = prefs.getBoolean("auto_device_memorize", true)
+        _m3eEnabled.value = prefs.getBoolean("m3e_enabled", true)
+        _gammaValue.value = prefs.getFloat("gamma_value", 2.2f)
+        _spectrumGain.value = prefs.getFloat("spectrum_gain", 1.0f)
+        _maxBrightness.value = prefs.getInt("max_brightness", 4095)
+        _fftReadMethod.value = safeValueOf(prefs.getString("fft_read_method", null), AudioProcessor.ReadMethod.MAX)
+        _glyphsEnabled.value = prefs.getBoolean("glyphs_enabled", true)
+        _selectedPreset.value = prefs.getString("selected_preset", "Default") ?: "Default"
+        _selectedTheme.value = prefs.getString("selected_theme", "Default") ?: "Default"
+        _selectedFont.value = prefs.getString("selected_font", "Default") ?: "Default"
+        _notificationButtonSet.value = prefs.getString("notification_button_set", "presets") ?: "presets"
+
+        // Haptics settings
+        _hapticMotorEnabled.value = prefs.getBoolean("haptic_motor_enabled", false)
+        _hapticMode.value = safeValueOf(prefs.getString("haptic_mode", null), HapticMode.BASS_TO_AMPLITUDE)
+        _hapticFreqMin.value = prefs.getInt("haptic_freq_min", 20).toFloat()
+        _hapticFreqMax.value = prefs.getInt("haptic_freq_max", 250).toFloat()
+        _hapticMultiplier.value = prefs.getFloat("haptic_multiplier", 1.0f)
+        _hapticAudioGain.value = prefs.getFloat("haptic_audio_gain", 1.0f)
+        _hapticGamma.value = prefs.getFloat("haptic_gamma", 2.0f)
+        _hapticBeatSensitivity.value = prefs.getFloat("haptic_beat_sensitivity", 1.5f)
+        _hapticBeatGamma.value = prefs.getFloat("haptic_beat_gamma", 8.0f)
+
+        // Flashlight settings
+        _flashlightEnabled.value = prefs.getBoolean("flashlight_enabled", false)
+        _flashlightMode.value = safeValueOf(prefs.getString("flashlight_mode", null), TorchMode.AMPLITUDE)
+        _flashlightFreqMin.value = prefs.getInt("flashlight_freq_min", 20).toFloat()
+        _flashlightFreqMax.value = prefs.getInt("flashlight_freq_max", 250).toFloat()
+        _flashlightThreshold.value = prefs.getFloat("flashlight_threshold", 0.15f)
+        _flashlightBeatSensitivity.value = prefs.getFloat("flashlight_beat_sensitivity", 1.5f)
+
+        // Overlay and other visual settings
+        _idleBreathingEnabled.value = prefs.getBoolean("idle_breathing_enabled", false)
+        _idlePattern.value = prefs.getString("idle_pattern", "pulse") ?: "pulse"
+        _disableGlyphsWhenSilent.value = prefs.getBoolean("disable_glyphs_when_silent", false)
+        _overlayEnabled.value = prefs.getBoolean("overlay_enabled", false)
+        _overlayTopEnabled.value = prefs.getBoolean("overlay_top_enabled", true)
+        _overlayBottomEnabled.value = prefs.getBoolean("overlay_bottom_enabled", false)
+        _overlayWidth.value = prefs.getInt("overlay_width", 120)
+        _overlayHeight.value = prefs.getInt("overlay_height", 12)
+        _overlayHeightBottom.value = prefs.getInt("overlay_height_bottom", 12)
+        _overlayYOffset.value = prefs.getInt("overlay_y_offset", 2)
+        _overlaySensitivity.value = prefs.getFloat("overlay_sensitivity", 1.0f)
+        _overlaySensitivityBottom.value = prefs.getFloat("overlay_sensitivity_bottom", 1.0f)
+        _edgeVisualizerEnabled.value = prefs.getBoolean("edge_visualizer_enabled", false)
+        _edgeThickness.value = prefs.getInt("edge_thickness", 12)
+        _edgeSensitivity.value = prefs.getFloat("edge_sensitivity", 1.0f)
+        _edgeBarCountHoriz.value = prefs.getInt("edge_bar_count_horiz", 20)
+        _edgeBarCountVert.value = prefs.getInt("edge_bar_count_vert", 40)
+        _edgeCornerRadius.value = prefs.getFloat("edge_corner_radius", 2f)
+        _edgeTopEnabled.value = prefs.getBoolean("edge_top_enabled", true)
+        _edgeBottomEnabled.value = prefs.getBoolean("edge_bottom_enabled", true)
+
+        _lensVisualizerEnabled.value = prefs.getBoolean("lens_visualizer_enabled", false)
+        _lensVisualizerRadius.value = prefs.getFloat("lens_visualizer_radius", 16f)
+        _lensVisualizerX.value = prefs.getFloat("lens_visualizer_x", 0.50f)
+        _lensVisualizerY.value = prefs.getFloat("lens_visualizer_y", 0.03f)
+        _lensVisualizerBarWidth.value = prefs.getFloat("lens_visualizer_bar_width", 1f)
+        _lensVisualizerMaxHeight.value = prefs.getFloat("lens_visualizer_max_height", 5f)
+        _lensVisualizerBarCount.value = prefs.getInt("lens_visualizer_bar_count", 35)
+        _lensVisualizerSensitivity.value = prefs.getFloat("lens_visualizer_sensitivity", 0.32f)
+
+        // Launch background tasks
+        viewModelScope.launch {
+            var lastUpdate = SystemClock.elapsedRealtime()
+            while (true) {
+                delay(1000)
+                val now = SystemClock.elapsedRealtime()
+                val delta = now - lastUpdate
+                lastUpdate = now
+
+                if (_runningState.value) {
+                    _totalVisualizedTime.value += delta
+                    val service = MainActivity.serviceStatic
+                    val hasActivity = if (service != null) {
+                        service.latestMagnitudes.any { it > 4 }
+                    } else {
+                        _fftState.value.any { it > 0.001f }
+                    }
+                    if (hasActivity) {
+                        _totalActiveTime.value += delta
+                        if (_hapticMotorEnabled.value) _totalHapticTime.value += delta
+                        if (_flashlightEnabled.value) _totalFlashlightTime.value += delta
+                        if (_maxBrightness.value > 0) _totalGlyphTime.value += delta
+                    } else {
+                        _totalIdleTime.value += delta
+                    }
+                    if (SystemClock.elapsedRealtime() % 5000 < 1100) saveStatsLocally()
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            if (!hasFlashlight) return@launch
+            while (true) {
+                MainActivity.serviceStatic?.let { s ->
+                    _flashlightIntensityLevels.value = s.flashlightIntensityLevels
+                    _flashlightLevel.value = s.flashlightCurrentLevel
+                }
+                delay(100)
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.Default) {
+            fftState.collect { magnitude ->
+                val service = MainActivity.serviceStatic
+                val target = if (magnitude.isEmpty() || service == null) {
+                    _hapticAmplitude.value = 0f
+                    _flashlightAmplitude.value = 0f
+                    _isBeatDetected.value = false
+                    1.0f
+                } else {
+                    val hapticPeak = service.latestHapticPeak
+                    val uiPeak = service.latestUiPeak
+                    val flashlightPeak = service.latestFlashlightPeak
+
+                    val targetHaptic = (hapticPeak * _hapticAudioGain.value * 12f).coerceIn(0f, 1.0f).toDouble().pow(_hapticGamma.value.toDouble()).toFloat()
+                    if (targetHaptic > smoothedHapticAmplitude) {
+                        smoothedHapticAmplitude = smoothedHapticAmplitude * 0.15f + targetHaptic * 0.85f
+                    } else {
+                        smoothedHapticAmplitude = smoothedHapticAmplitude * 0.7f + targetHaptic * 0.3f
+                    }
+                    _hapticAmplitude.value = (smoothedHapticAmplitude * _hapticMultiplier.value).coerceIn(0f, 1.2f)
+
+                    val fTarget = (flashlightPeak * 16.0f).coerceIn(0f, 1.2f)
+                    val fCur = Math.pow(fTarget.toDouble(), 2.2).toFloat()
+                    val fDelta = (fCur - _flashlightAmplitude.value).coerceAtLeast(0f)
+                    _flashlightAmplitude.value = (fCur + fDelta * 1.5f).coerceIn(0f, 1.2f)
+
+                    uiPeakValue = uiPeakValue * 0.95f + uiPeak * 0.05f
+                    if (uiPeak > uiPeakValue) uiPeakValue = uiPeak
+                    val targetGain = if (uiPeakValue > 0.01f) 0.25f / uiPeakValue else 10f
+                    uiDynamicGain = uiDynamicGain * 0.9f + targetGain.coerceIn(2f, 20f) * 0.1f
+                    (1.0f + (uiPeak * uiDynamicGain - 0.15f)).coerceIn(0.9f, 1.25f)
+                }
+
+                if (target > smoothedUiAmplitude) {
+                    smoothedUiAmplitude = smoothedUiAmplitude * 0.05f + target * 0.95f
+                } else {
+                    smoothedUiAmplitude = smoothedUiAmplitude * 0.7f + target * 0.3f
+                }
+                _uiAmplitude.value = if (_uiAmplitudeSyncEnabled.value) smoothedUiAmplitude else 1.0f
+
+                if (magnitude.isNotEmpty()) {
+                    val hzPerBin = 44100f / 2048f
+                    val binLo = (_hapticFreqMin.value / hzPerBin).toInt().coerceIn(0, magnitude.lastIndex)
+                    val binHi = (_hapticFreqMax.value / hzPerBin).toInt().coerceIn(binLo, magnitude.lastIndex)
+
+                    if (_hapticMode.value == HapticMode.BEAT_DETECTION) {
+                        hapticBeatDetector.sensitivity = _hapticBeatSensitivity.value
+                        if (hapticBeatDetector.detect(magnitude, binLo, binHi)) {
+                            _isBeatDetected.value = true
+                            viewModelScope.launch { delay(50); _isBeatDetected.value = false }
+                        }
+                    } else _isBeatDetected.value = false
+
+                    if (_flashlightMode.value == TorchMode.BEAT_DETECTION) {
+                        val fBinLo = (_flashlightFreqMin.value / hzPerBin).toInt().coerceIn(0, magnitude.lastIndex)
+                        val fBinHi = (_flashlightFreqMax.value / hzPerBin).toInt().coerceIn(fBinLo, magnitude.lastIndex)
+                        flashlightBeatDetector.sensitivity = _flashlightBeatSensitivity.value
+                        if (flashlightBeatDetector.detect(magnitude, fBinLo, fBinHi)) {
+                            _isFlashlightBeatDetected.value = true
+                            viewModelScope.launch { delay(50); _isFlashlightBeatDetected.value = false }
+                        }
+                    } else _isFlashlightBeatDetected.value = false
+                }
+            }
+        }
+
+        // Final initialization calls
+        reloadFlashlightSpeedForLevels()
+        updateSelectedDevice()
+        refreshPresets()
     }
 
     override fun onCleared() {
