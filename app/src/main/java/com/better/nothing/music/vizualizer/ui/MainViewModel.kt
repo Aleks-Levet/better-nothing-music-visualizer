@@ -932,28 +932,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // ── Latency ───────────────────────────────────────────────────────────────
-    private val latencyWizard = LatencyWizard()
-    private val _latencyWizardState = MutableStateFlow<LatencyWizard.State>(LatencyWizard.State.Idle)
-    val latencyWizardState = _latencyWizardState.asStateFlow()
-
-    fun runLatencyWizard() {
-        val audioManager = ctx.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
-        
-        viewModelScope.launch {
-            val result = latencyWizard.measureLatency(audioManager) { state ->
-                _latencyWizardState.value = state
-            }
-            _latencyWizardState.value = result
-            if (result is LatencyWizard.State.Success) {
-                setLatencyMs(result.latencyMs)
-            }
-        }
-    }
-
-    fun resetLatencyWizard() {
-        _latencyWizardState.value = LatencyWizard.State.Idle
-    }
-
     val _latencyMs = MutableStateFlow(0)
     val latencyMs = _latencyMs.asStateFlow()
 

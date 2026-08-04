@@ -48,7 +48,6 @@ import androidx.compose.material.icons.filled.Cast
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.FlashlightOn
-import androidx.compose.material.icons.filled.Flare
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Mic
@@ -95,7 +94,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.logic.AudioProcessor
-import com.better.nothing.music.vizualizer.logic.LatencyWizard
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
 import com.better.nothing.music.vizualizer.ui.OptionTile
 import com.better.nothing.music.vizualizer.ui.ScreenTitle
@@ -122,12 +120,10 @@ fun AudioScreen(
     autoDeviceEnabled: Boolean,
     onAutoDeviceToggle: (Boolean) -> Unit,
     connectedDeviceName: String? = null,
-    fftData: FloatArray = floatArrayOf(),
+    fftRaw: FloatArray = floatArrayOf(),
+    fftDecayed: FloatArray = floatArrayOf(),
     captureSource: AudioCaptureService.CaptureSource = AudioCaptureService.CaptureSource.INTERNAL,
     onCaptureSourceChanged: (AudioCaptureService.CaptureSource) -> Unit = {},
-    latencyWizardState: LatencyWizard.State = LatencyWizard.State.Idle,
-    onRunLatencyWizard: () -> Unit = {},
-    onResetLatencyWizard: () -> Unit = {},
     glyphsEnabled: Boolean = true,
     onGlyphsEnabledChanged: (Boolean) -> Unit = {},
     hapticsEnabled: Boolean = false,
@@ -163,14 +159,6 @@ fun AudioScreen(
         }
     }
 
-    val wizardPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            onRunLatencyWizard()
-        }
-    }
-
     val handleAutoToggle: (Boolean) -> Unit = { setEnabled ->
         if (setEnabled) {
             val status = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -197,7 +185,7 @@ fun AudioScreen(
             .padding(padding)
             .padding(horizontal = LocalAppSpacing.current.edge)
             .verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
 
@@ -208,7 +196,7 @@ fun AudioScreen(
         )
 
         val headerSpacerHeight by animateDpAsState(
-            targetValue = if (isRunning) 0.dp else 25.dp,
+            targetValue = if (isRunning) 1.dp else 32.dp,
             animationSpec = tween(durationMillis = 600, easing = EaseOutCubic),
             label = "headerSpacerHeight"
         )
@@ -236,7 +224,7 @@ fun AudioScreen(
         )
 
         val header2SpacerHeight by animateDpAsState(
-            targetValue = if (isRunning) 0.dp else 25.dp,
+            targetValue = if (isRunning) 1.dp else 32.dp,
             animationSpec = tween(durationMillis = 600, easing = EaseOutCubic),
             label = "headerSpacerHeight"
         )
@@ -246,11 +234,12 @@ fun AudioScreen(
         }
 
         AnimatedVisibility(visible = isRunning) {
-            val floatFFT = remember(AudioProcessor.mDecayedFFT) {
-                AudioProcessor.mDecayedFFT.map { it.toFloat() }.toFloatArray()
-            }
-            FFTSpectrumCard(fftData = floatFFT)
+            FFTSpectrumCard(
+                fftRaw = fftRaw,
+                fftDecayed = fftDecayed
+            )
         }
+        Spacer(modifier = Modifier.height(8.dp))
 
         OutputSelectionCard(
             glyphsEnabled = glyphsEnabled,
@@ -263,6 +252,7 @@ fun AudioScreen(
             hasHapticMotor = hasHapticMotor,
             hasFlashlight = hasFlashlight
         )
+        Spacer(modifier = Modifier.height(8.dp))
         if (isRunning) {
             val seconds = (sessionDuration / 1000) % 60
             val minutes = (sessionDuration / (1000 * 60)) % 60
@@ -275,9 +265,7 @@ fun AudioScreen(
             val descriptionText = stringResource(R.string.audio_description_running) + "\n\nActive Time: $timeStr"
 
             ExpressiveCard(
-                containerColor = MaterialTheme.colorScheme.surface.copy(
-                    alpha = 0.5f
-                )
+                containerColor = MaterialTheme.colorScheme.surface
             ) {
                 BodyText(
                     text = descriptionText,
@@ -287,6 +275,7 @@ fun AudioScreen(
         }
 
         AnimatedVisibility(visible = isRunning) {
+            Spacer(modifier = Modifier.height(8.dp))
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
 
                 if (captureSource != AudioCaptureService.CaptureSource.MIC) {
@@ -295,28 +284,9 @@ fun AudioScreen(
                         onLatencyChanged = onLatencyChanged,
                         latencyPresets = latencyPresets,
                         onLatencyPresetsChanged = onLatencyPresetsChanged,
-                        wizardState = latencyWizardState,
-                        onRunWizard = {
-                            val status = ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)
-                            if (status == PackageManager.PERMISSION_GRANTED) {
-                                onRunLatencyWizard()
-                            } else {
-                                wizardPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                            }
-                        },
-                        onResetWizard = onResetLatencyWizard,
                         autoDeviceEnabled = autoDeviceEnabled,
                         onAutoDeviceToggle = handleAutoToggle,
                         connectedDeviceName = connectedDeviceName
-                    )
-                }
-
-                ExpressiveCard(
-                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.3f)
-                ) {
-                    BodyText(
-                        text = stringResource(R.string.latency_compensation_description),
-                        size = 12.sp
                     )
                 }
             }
@@ -447,9 +417,6 @@ fun LatencyCard(
     onLatencyChanged: (Int) -> Unit,
     latencyPresets: List<Int>,
     onLatencyPresetsChanged: (List<Int>) -> Unit,
-    wizardState: LatencyWizard.State,
-    onRunWizard: () -> Unit,
-    onResetWizard: () -> Unit,
     autoDeviceEnabled: Boolean,
     onAutoDeviceToggle: (Boolean) -> Unit,
     connectedDeviceName: String?
@@ -580,7 +547,7 @@ fun LatencyCard(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Latency Wizard Section
+        // Auto-Memorize Device Section
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -589,62 +556,6 @@ fun LatencyCard(
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Latency Wizard",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = when (wizardState) {
-                            is LatencyWizard.State.Idle -> "Sync lights using your microphone"
-                            is LatencyWizard.State.Preparing -> "Preparing..."
-                            is LatencyWizard.State.Recording -> "Recording pulse... Please stay quiet."
-                            is LatencyWizard.State.Analyzing -> "Analyzing..."
-                            is LatencyWizard.State.Success -> "Success! Detected ${wizardState.latencyMs}ms delay."
-                            is LatencyWizard.State.Error -> "Error: ${wizardState.message}"
-                        },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                Surface(
-                    onClick = {
-                        if (wizardState is LatencyWizard.State.Success || wizardState is LatencyWizard.State.Error) {
-                            onResetWizard()
-                        } else if (wizardState is LatencyWizard.State.Idle) {
-                            onRunWizard()
-                        }
-                    },
-                    shape = MaterialTheme.shapes.medium,
-                    color = if (wizardState is LatencyWizard.State.Idle)
-                        MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.surfaceVariant,
-                    enabled = wizardState !is LatencyWizard.State.Preparing && 
-                              wizardState !is LatencyWizard.State.Recording &&
-                              wizardState !is LatencyWizard.State.Analyzing
-                ) {
-                    Text(
-                        text = when (wizardState) {
-                            is LatencyWizard.State.Idle -> "Start"
-                            is LatencyWizard.State.Success, is LatencyWizard.State.Error -> "Reset"
-                            else -> "Wait"
-                        },
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = if (wizardState is LatencyWizard.State.Idle)
-                            MaterialTheme.colorScheme.onPrimary
-                        else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
             CardHeader(title = "Auto-Memorize Device")
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -678,11 +589,16 @@ fun LatencyCard(
 }
 
 @Composable
-fun FFTSpectrumCard(fftData: FloatArray) {
+fun FFTSpectrumCard(
+    fftRaw: FloatArray,
+    fftDecayed: FloatArray
+) {
     val haptics = LocalHapticFeedback.current
     var isExpanded by remember { mutableStateOf(false) }
     var touchX by remember { mutableStateOf<Float?>(null) }
 
+    // Use decayed if it has data, otherwise fallback to raw as requested by user
+    val data = if (fftDecayed.any { it > 0f }) fftDecayed else fftRaw
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -753,7 +669,6 @@ fun FFTSpectrumCard(fftData: FloatArray) {
                     val density = LocalDensity.current
 
                     Canvas(modifier = Modifier.fillMaxSize()) {
-                        val data = fftData
                         if (data.isEmpty()) return@Canvas
 
                         val w = size.width

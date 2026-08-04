@@ -24,13 +24,13 @@ public class AudioProcessor {
     private int ringPosition = 0;
     private int filled = 0;
 
-    private double[] fftData;
+    private double[] mFftBuffer;
     private float[] magnitude;
     private float[] hann;
     private DoubleFFT_1D fft;
 
-    public static int[] mRawFFT = new int[512];
-    public static int[] mDecayedFFT = new int[512];
+    private final int[] mRawFFT = new int[512];
+    private final int[] mDecayedFFT = new int[512];
     int[][] mLogBinToLinearRange = new int[512][2];
 
     // 512 logarithmic bins from 30Hz to 16kHz
@@ -77,7 +77,7 @@ public class AudioProcessor {
         this.hzPerBin = (float) sampleRate / (float) fftSize;
 
         this.fft = new DoubleFFT_1D(fftSize);
-        this.fftData = new double[fftSize * 2];
+        this.mFftBuffer = new double[fftSize * 2];
         this.magnitude = new float[fftSize / 2 + 1];
         this.hann = buildHannWindow(fftSize);
         this.ring = new float[analysisWindow];
@@ -93,25 +93,25 @@ public class AudioProcessor {
     }
 
     public AudioFrameResult processAudioFrame(short[] hopBuffer, boolean isInternalSource, float decayFactor) {
-        if (hopBuffer == null || ring == null || hann == null || fftData == null) return null;
+        if (hopBuffer == null || ring == null || hann == null || mFftBuffer == null) return null;
 
         for (short value : hopBuffer) {
-            if (ringPosition >= 0 && ringPosition < ring.length) {
+            if (ring != null && ringPosition >= 0 && ringPosition < ring.length) {
                 ring[ringPosition] = value / 32768f;
                 ringPosition = (ringPosition + 1) % analysisWindow;
+                filled = Math.min(filled + 1, analysisWindow);
             }
         }
-        filled = Math.min(filled + hopBuffer.length, analysisWindow);
         if (filled < analysisWindow) return null;
 
         for (int i = 0; i < fftSize; i++) {
-            if (i < fftData.length && i < hann.length) {
-                fftData[i] = ring[(ringPosition + i) % analysisWindow] * hann[i];
+            if (i < mFftBuffer.length && i < hann.length) {
+                mFftBuffer[i] = ring[(ringPosition + i) % analysisWindow] * hann[i];
             }
         }
 
         try {
-            fft.realForwardFull(fftData);
+            fft.realForwardFull(mFftBuffer);
         } catch (Exception e) {
             return null;
         }
@@ -120,9 +120,9 @@ public class AudioProcessor {
         float[] bandMax = {0f, 0f, 0f};
 
         for (int i = 0; i <= halfFftSize; i++) {
-            if (2 * i + 1 >= fftData.length) break;
-            double re = fftData[2 * i];
-            double im = fftData[2 * i + 1];
+            if (2 * i + 1 >= mFftBuffer.length) break;
+            double re = mFftBuffer[2 * i];
+            double im = mFftBuffer[2 * i + 1];
             float mag = (float) (Math.hypot(re, im) / (fftSize / 2.0));
             float freq = i * hzPerBin;
             

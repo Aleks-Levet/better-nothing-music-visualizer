@@ -85,6 +85,19 @@ internal fun SettingsScreen(
             }
         )
 
+        LinkCard(
+            title = stringResource(R.string.about_title),
+            icon = Icons.Default.Info,
+            onClick = { viewModel.showAbout() },
+            modifier = Modifier.weight(1f)
+        )
+        LinkCard(
+            title = "Vizualizer Stats",
+            icon = Icons.Default.BarChart,
+            onClick = { viewModel.showStats() },
+            modifier = Modifier.weight(1f)
+        )
+
         // ── App Theme ───────────────────────────────────────────────────────
         var themeExpanded by remember { mutableStateOf(false) }
 
@@ -633,7 +646,7 @@ internal fun SettingsScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     Text(
-                        text = "Visual Interface Toggles",
+                        text = "On screen vizualizers",
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -674,31 +687,16 @@ internal fun SettingsScreen(
         }
 
         // ── Links & Info ────────────────────────────────────────────────────
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            maxItemsInEachRow = 3,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+
+
             LinkCard(
                 title = stringResource(R.string.discord_server),
                 icon = Icons.Default.Public,
                 onClick = { uriHandler.openUri("https://discord.gg/h7DYNttc8K") },
                 modifier = Modifier.weight(1f)
             )
-            LinkCard(
-                title = "Vizualizer Stats",
-                icon = Icons.Default.BarChart,
-                onClick = { viewModel.showStats() },
-                modifier = Modifier.weight(1f)
-            )
-            LinkCard(
-                title = stringResource(R.string.about_title),
-                icon = Icons.Default.Info,
-                onClick = { viewModel.showAbout() },
-                modifier = Modifier.weight(1f)
-            )
-        }
+
+
         Spacer(modifier = Modifier.height(85.dp))
     }
 }
@@ -728,7 +726,7 @@ fun LinkCard(
                 }
                 is PressInteraction.Cancel -> {
                     // Mutes or triggers a light cleanup if the user drags their finger away
-                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY_RELEASE)
+                    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
                 }
             }
         }
@@ -736,23 +734,12 @@ fun LinkCard(
 
     // 2. Purely visual spring-physics layout tracking
     val isPressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.96f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = "m3e_link_card_scale"
-    )
 
     Surface(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            },
+            .height(60.dp),
         shape = RoundedCornerShape(24.dp),
         color = if (isPressed) {
             MaterialTheme.colorScheme.surfaceBright
@@ -779,7 +766,7 @@ fun LinkCard(
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        modifier = Modifier.size(23.dp)
+                        modifier = Modifier.size(25.dp)
                     )
                 }
             }

@@ -793,6 +793,7 @@ public class AudioCaptureService extends Service {
     }
 
     private void runCaptureLoop(AudioRecord record) {
+        mAudioProcessor.updateFFTSize(record.getSampleRate());
         int hopSize = Math.round(record.getSampleRate() / (float) FPS); short[] hop = new short[hopSize];
         while (mCapturing) {
             int read = record.read(hop, 0, hopSize, AudioRecord.READ_BLOCKING); if (read <= 0) continue;

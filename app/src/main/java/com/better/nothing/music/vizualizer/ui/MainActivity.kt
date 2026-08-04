@@ -566,7 +566,7 @@ internal fun BetterVizApp(
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize(),
-            beyondViewportPageCount = 1,
+            beyondViewportPageCount = 6,
             userScrollEnabled = true
         ) { page ->
             if (page >= visibleTabs.size) return@HorizontalPager
@@ -595,9 +595,9 @@ internal fun BetterVizApp(
                         val latencyMs by viewModel.latencyMs.collectAsStateWithLifecycle()
                         val latencyPresets by viewModel.latencyPresets.collectAsStateWithLifecycle()
                         val autoDeviceEnabled by viewModel.autoDeviceMemorize.collectAsStateWithLifecycle()
-                        val fftData by viewModel.fftState.collectAsStateWithLifecycle()
+                        val fftDecayed by viewModel.fftState.collectAsStateWithLifecycle()
+                        val fftRaw by viewModel.fftRawState.collectAsStateWithLifecycle()
                         val captureSource by viewModel.captureSource.collectAsStateWithLifecycle()
-                        val latencyWizardState by viewModel.latencyWizardState.collectAsStateWithLifecycle()
 
                         AudioScreen(
                             isRunning = isRunning,
@@ -610,12 +610,10 @@ internal fun BetterVizApp(
                             onAutoDeviceToggle = { viewModel.setAutoDeviceMemorize(it) },
                             connectedDeviceName = MainActivity.serviceStatic?.getActiveAudioRouteName()
                                 ?: "Unknown",
-                            fftData = fftData,
+                            fftRaw = fftRaw,
+                            fftDecayed = fftDecayed,
                             captureSource = captureSource,
                             onCaptureSourceChanged = { viewModel.setCaptureSource(it) },
-                            latencyWizardState = latencyWizardState,
-                            onRunLatencyWizard = { viewModel.runLatencyWizard() },
-                            onResetLatencyWizard = { viewModel.resetLatencyWizard() },
                             glyphsEnabled = glyphsEnabled,
                             onGlyphsEnabledChanged = { viewModel.setGlyphsEnabled(it) },
                             hapticsEnabled = hapticsEnabled,

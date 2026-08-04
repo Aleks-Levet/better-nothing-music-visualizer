@@ -72,28 +72,6 @@ internal fun GlyphsScreen(
         presets.firstOrNull { it.key == selectedPreset } ?: presets.firstOrNull()
     }
 
-    var showDeleteConfirm by remember { mutableStateOf<String?>(null) }
-
-    if (showDeleteConfirm != null) {
-        AlertDialog(
-            onDismissRequest = { showDeleteConfirm = null },
-            title = { Text("Delete Preset?") },
-            text = { Text("Are you sure you want to delete the local preset '${showDeleteConfirm}'?") },
-            confirmButton = {
-                TextButton(onClick = { 
-                    // viewModel.deleteCustomPreset(it) was removed as part of Community Removal
-                    showDeleteConfirm = null
-                }) {
-                    Text("Delete", color = Color.Red)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = null }) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
 
     Column(
         modifier = Modifier
@@ -101,10 +79,9 @@ internal fun GlyphsScreen(
             .padding(padding)
             .padding(horizontal = LocalAppSpacing.current.edge)
             .verticalScroll(mainScrollState),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
-
         ScreenTitle(
             text = stringResource(
                 R.string.glyph_controls
@@ -184,19 +161,6 @@ internal fun GlyphsScreen(
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
                                 modifier = Modifier.fillMaxWidth(),
                             )
-                        }
-
-                        if (selectedInfo?.description?.startsWith("Custom:") == true) {
-                            IconButton(
-                                onClick = { showDeleteConfirm = selectedInfo.key },
-                                modifier = Modifier.padding(start = 8.dp)
-                            ) {
-                                Icon(
-                                    Icons.Default.Delete,
-                                    contentDescription = "Delete Local Preset",
-                                    tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
-                                )
-                            }
                         }
                     }
                 } else {
