@@ -6,12 +6,24 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.widget.RemoteViews
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
 import com.better.nothing.music.vizualizer.ui.MainActivity
 
 class VisualizerWidget : AppWidgetProvider() {
+
+    companion object {
+        const val ACTION_REFRESH = "com.better.nothing.music.vizualizer.REFRESH_WIDGET"
+        const val ACTION_SET_SOURCE = "com.better.nothing.music.vizualizer.WIDGET_SET_SOURCE"
+        const val ACTION_TOGGLE_HAPTIC = "com.better.nothing.music.vizualizer.WIDGET_TOGGLE_HAPTIC"
+        const val ACTION_TOGGLE_GLYPHS = "com.better.nothing.music.vizualizer.WIDGET_TOGGLE_GLYPHS"
+        const val ACTION_TOGGLE_TORCH = "com.better.nothing.music.vizualizer.WIDGET_TOGGLE_TORCH"
+        
+        private const val PREFS_NAME = "viz_prefs"
+    }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         for (appWidgetId in appWidgetIds) {
@@ -21,25 +33,95 @@ class VisualizerWidget : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        // Refresh all widgets if service state changes
-        if (intent.action == "com.better.nothing.music.vizualizer.REFRESH_WIDGET") {
-            val appWidgetManager = AppWidgetManager.getInstance(context)
-            val appWidgetIds = appWidgetManager.getAppWidgetIds(ComponentName(context, VisualizerWidget::class.java))
-            onUpdate(context, appWidgetManager, appWidgetIds)
+        val action = intent.action ?: return
+        
+        if (action == ACTION_REFRESH) {
+            refreshAllWidgets(context)
+        } else if (action.startsWith("com.better.nothing.music.vizualizer.WIDGET_")) {
+            performHapticFeedback(context)
+            handleWidgetAction(context, intent)
+            refreshAllWidgets(context)
+        }
+    }
+
+    private fun handleWidgetAction(context: Context, intent: Intent) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val action = intent.action
+        
+        when (action) {
+            ACTION_SET_SOURCE -> {
+                val source = intent.getStringExtra(AudioCaptureService.EXTRA_SOURCE) ?: return
+                prefs.edit().putString("capture_source", source).apply()
+                notifyService(context, AudioCaptureService.ACTION_REFRESH_SETTINGS)
+            }
+            ACTION_TOGGLE_HAPTIC -> {
+                val current = prefs.getBoolean("haptic_motor_enabled", false)
+                prefs.edit().putBoolean("haptic_motor_enabled", !current).apply()
+                notifyService(context, AudioCaptureService.ACTION_REFRESH_SETTINGS)
+            }
+            ACTION_TOGGLE_GLYPHS -> {
+                val currentMax = prefs.getInt("max_brightness", 4095)
+                val nextVal = if (currentMax > 0) 0 else prefs.getInt("max_brightness_last", 4095)
+                prefs.edit().apply {
+                    putInt("max_brightness", nextVal)
+                    if (nextVal > 0) putInt("max_brightness_last", nextVal)
+                    apply()
+                }
+                notifyService(context, AudioCaptureService.ACTION_REFRESH_SETTINGS)
+            }
+            ACTION_TOGGLE_TORCH -> {
+                val current = prefs.getBoolean("flashlight_enabled", false)
+                prefs.edit().putBoolean("flashlight_enabled", !current).apply()
+                notifyService(context, AudioCaptureService.ACTION_REFRESH_SETTINGS)
+            }
+        }
+    }
+
+    private fun notifyService(context: Context, serviceAction: String, extraDecorator: (Intent) -> Unit = {}) {
+        val serviceIntent = Intent(context, AudioCaptureService::class.java).apply {
+            action = serviceAction
+        }
+        extraDecorator(serviceIntent)
+        // We use startService here. If the service is running, it will receive the action.
+        // If it's NOT running, it might not start due to background limits, but we've already updated prefs
+        // and refreshed the widget, so the UI is correct for when it DOES start.
+        try {
+            context.startService(serviceIntent)
+        } catch (e: Exception) {
+            // Background start might be denied, which is fine since we updated prefs
+        }
+    }
+
+    private fun performHapticFeedback(context: Context) {
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+        if (vibrator != null && vibrator.hasVibrator()) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK))
+            } else {
+                vibrator.vibrate(10)
+            }
+        }
+    }
+
+    private fun refreshAllWidgets(context: Context) {
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(ComponentName(context, VisualizerWidget::class.java))
+        for (id in appWidgetIds) {
+            updateAppWidget(context, appWidgetManager, id)
         }
     }
 
     private fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
         val views = RemoteViews(context.packageName, R.layout.visualizer_widget)
 
-        val prefs = context.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val isRunning = AudioCaptureService.isRunning()
         
         // Current states
         val currentSource = prefs.getString("capture_source", AudioCaptureService.CaptureSource.INTERNAL.name)
         val hapticEnabled = prefs.getBoolean("haptic_motor_enabled", false)
         val flashlightEnabled = prefs.getBoolean("flashlight_enabled", false)
-        val maxBrightness = prefs.getInt("max_brightness", 4500)
+        val maxBrightness = prefs.getInt("max_brightness", 4095)
         val glyphsEnabled = maxBrightness > 0
 
         // Source buttons
@@ -62,9 +144,9 @@ class VisualizerWidget : AppWidgetProvider() {
         updateButtonState(views, R.id.btn_viz_glyphs, glyphsEnabled)
         updateButtonState(views, R.id.btn_viz_torch, flashlightEnabled)
 
-        views.setOnClickPendingIntent(R.id.btn_viz_haptics, createActionPendingIntent(context, AudioCaptureService.ACTION_TOGGLE_HAPTICS, 10))
-        views.setOnClickPendingIntent(R.id.btn_viz_glyphs, createActionPendingIntent(context, AudioCaptureService.ACTION_TOGGLE_GLYPHS, 11))
-        views.setOnClickPendingIntent(R.id.btn_viz_torch, createActionPendingIntent(context, AudioCaptureService.ACTION_TOGGLE_TORCH, 12))
+        views.setOnClickPendingIntent(R.id.btn_viz_haptics, createActionPendingIntent(context, ACTION_TOGGLE_HAPTIC, 10))
+        views.setOnClickPendingIntent(R.id.btn_viz_glyphs, createActionPendingIntent(context, ACTION_TOGGLE_GLYPHS, 11))
+        views.setOnClickPendingIntent(R.id.btn_viz_torch, createActionPendingIntent(context, ACTION_TOGGLE_TORCH, 12))
 
         // Start/Stop button
         val startStopPI = if (isRunning) {
@@ -73,13 +155,17 @@ class VisualizerWidget : AppWidgetProvider() {
         } else {
             if (currentSource == AudioCaptureService.CaptureSource.INTERNAL.name) {
                 val startIntent = Intent(context, MainActivity::class.java).apply {
-                    putExtra(MainActivity.EXTRA_REQUEST_START, true)
+                    putExtra("request_start", true)
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 }
                 PendingIntent.getActivity(context, 20, startIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             } else {
                 val startIntent = Intent(context, AudioCaptureService::class.java).apply { action = AudioCaptureService.ACTION_START }
-                PendingIntent.getForegroundService(context, 20, startIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    PendingIntent.getForegroundService(context, 20, startIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                } else {
+                    PendingIntent.getService(context, 20, startIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                }
             }
         }
         
@@ -101,17 +187,17 @@ class VisualizerWidget : AppWidgetProvider() {
     }
 
     private fun createSourcePendingIntent(context: Context, source: AudioCaptureService.CaptureSource): PendingIntent {
-        val intent = Intent(context, AudioCaptureService::class.java).apply {
-            action = AudioCaptureService.ACTION_SET_SOURCE
+        val intent = Intent(context, VisualizerWidget::class.java).apply {
+            action = ACTION_SET_SOURCE
             putExtra(AudioCaptureService.EXTRA_SOURCE, source.name)
         }
-        return PendingIntent.getService(context, source.ordinal, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        return PendingIntent.getBroadcast(context, source.ordinal, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
 
     private fun createActionPendingIntent(context: Context, action: String, requestCode: Int): PendingIntent {
-        val intent = Intent(context, AudioCaptureService::class.java).apply {
+        val intent = Intent(context, VisualizerWidget::class.java).apply {
             this.action = action
         }
-        return PendingIntent.getService(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        return PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
 }

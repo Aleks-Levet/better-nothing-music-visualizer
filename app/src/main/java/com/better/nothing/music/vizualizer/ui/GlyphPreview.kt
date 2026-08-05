@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -225,12 +226,7 @@ fun GlyphPreviewContent(
             val viewBoxH = when (device) {
                 DeviceProfile.DEVICE_NP2 -> 390f
                 DeviceProfile.DEVICE_NP1,
-                DeviceProfile.DEVICE_NP2A,
-                DeviceProfile.DEVICE_NP3A,
-                DeviceProfile.DEVICE_NP3,
-                DeviceProfile.DEVICE_NP4A,
-                DeviceProfile.DEVICE_NP4B,
-                DeviceProfile.DEVICE_NP4APRO -> 382f
+                DeviceProfile.DEVICE_NP2A -> 382f
                 else -> 182f
             }
             val scale = min(size.width / viewBoxW, size.height / viewBoxH)
@@ -268,19 +264,29 @@ fun GlyphPreviewContent(
                 val silhouettePath = Path().apply {
                     addRoundRect(androidx.compose.ui.geometry.RoundRect(silhouetteRect, CornerRadius(32f)))
                 }
-                
-                // Bezel
-                drawPath(silhouettePath, Color(0xFF222222), style = Stroke(width = 4f))
-                
-                // Internal Glow for depth
-                drawIntoCanvas { canvas ->
-                    val innerGlowPaint = Paint().apply {
-                        this.color = Color.White
-                        this.alpha = 0.03f
-                        this.isAntiAlias = true
-                        this.nativePaint.maskFilter = android.graphics.BlurMaskFilter(10f, android.graphics.BlurMaskFilter.Blur.INNER)
+
+                val showFrame = when (device) {
+                    DeviceProfile.DEVICE_NP3,
+                    DeviceProfile.DEVICE_NP4A,
+                    DeviceProfile.DEVICE_NP4B,
+                    DeviceProfile.DEVICE_NP4APRO -> false
+                    else -> true
+                }
+
+                if (showFrame) {
+                    // Bezel
+                    drawPath(silhouettePath, Color(0xFF222222), style = Stroke(width = 4f))
+
+                    // Internal Glow for depth
+                    drawIntoCanvas { canvas ->
+                        val innerGlowPaint = Paint().apply {
+                            this.color = Color.White
+                            this.alpha = 0.03f
+                            this.isAntiAlias = true
+                            this.nativePaint.maskFilter = android.graphics.BlurMaskFilter(10f, android.graphics.BlurMaskFilter.Blur.INNER)
+                        }
+                        canvas.drawPath(silhouettePath, innerGlowPaint)
                     }
-                    canvas.drawPath(silhouettePath, innerGlowPaint)
                 }
 
                 when (device) {
@@ -355,8 +361,9 @@ fun GlyphPreviewContent(
 
                     DeviceProfile.DEVICE_NP3A -> {
                         withTransform({
-                            translate(-2f, 7f)
-                            scale(1.03f, 1.03f, pivot = Offset.Zero)
+                            val s = 1.6f
+                            translate((viewBoxW - viewBoxW * s) / 2f, (viewBoxH - viewBoxH * s) / 2f)
+                            scale(s, s, pivot = Offset.Zero)
                         }) {
                             // Camera plate (the "gray card")
                             val camAlpha = 0.1f
@@ -374,121 +381,111 @@ fun GlyphPreviewContent(
                         }
                     }
 
-                    DeviceProfile.DEVICE_NP4A -> {
-                        paths["p4a_bar"]?.let {
-                            drawPathAddressable(this, it, color, (0..5).toList(), vizState, baseOpacity, scale, glowPaint, vertical = false)
-                        }
-                        paths["p4a_dot"]?.let {
-                            drawSmoothPath(it, getA(6))
-                        }
-                    }
+                    DeviceProfile.DEVICE_NP4A, DeviceProfile.DEVICE_NP4B -> {
+                        val count = if (device == DeviceProfile.DEVICE_NP4A) 7 else 5
+                        val padding = 12f
+                        val availableH = viewBoxH - 2 * padding
+                        val squareSize = availableH / count
+                        val squareGap = 4f
+                        val actualSquareSize = squareSize - squareGap
 
-                    DeviceProfile.DEVICE_NP4B -> {
-                        paths["p4b_island"]?.let {
-                            drawPath(it, Color.White.copy(alpha = 0.05f))
-                            drawPath(it, Color.White.copy(alpha = 0.15f), style = Stroke(width = 1f))
-                        }
-                        paths["p4b_bar"]?.let {
-                            drawPathAddressable(this, it, color, (0..4).toList(), vizState, baseOpacity, scale, glowPaint, vertical = true, specialColors = mapOf(4 to Color.Red))
+                        for (i in 0 until count) {
+                            val alpha = getA(i)
+                            val isLast = i == count - 1
+                            val squareColor = if (isLast) Color.Red else color
+                            
+                            val px = (viewBoxW - actualSquareSize) / 2f
+                            val py = padding + i * squareSize + squareGap / 2f
+
+                            if (alpha > baseOpacity) {
+                                drawIntoCanvas { canvas ->
+                                    glowPaint.color = squareColor
+                                    glowPaint.alpha = alpha * 0.4f
+                                    glowPaint.nativePaint.maskFilter = android.graphics.BlurMaskFilter(8f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL)
+                                    canvas.drawRect(px, py, px + actualSquareSize, py + actualSquareSize, glowPaint)
+                                }
+                            }
+
+                            drawRect(
+                                color = squareColor,
+                                topLeft = Offset(px, py),
+                                size = Size(actualSquareSize, actualSquareSize),
+                                alpha = alpha
+                            )
+                            
+                            // Draw zone number
+                            drawIntoCanvas { canvas ->
+                                val textPaint = android.graphics.Paint().apply {
+                                    this.color = android.graphics.Color.WHITE
+                                    this.textSize = actualSquareSize * 0.5f * scale
+                                    this.textAlign = android.graphics.Paint.Align.CENTER
+                                    this.isFakeBoldText = true
+                                }
+                                val x = (px + actualSquareSize / 2f) * scale
+                                val y = (py + actualSquareSize / 2f) * scale - (textPaint.descent() + textPaint.ascent()) / 2f
+                                
+                                canvas.nativeCanvas.drawText((i + 1).toString(), x / scale, y / scale, textPaint)
+                            }
                         }
                     }
 
                     DeviceProfile.DEVICE_NP4APRO, DeviceProfile.DEVICE_NP3 -> {
                         val isPro = device == DeviceProfile.DEVICE_NP4APRO
                         
-                        // --- Matrix Position Settings ---
-                        val matrixCenterX = if (isPro) 135f else 135f // X-center for Phone (4a) Pro vs Phone (3)
-                        val matrixCenterY = if (isPro) 47f else 62f   // Y-center for Phone (4a) Pro vs Phone (3)
-                        
                         val matrixW = if (isPro) 13 else 25
                         val matrixH = if (isPro) 13 else 25
-                        val pixelSize = if (isPro) 4f else 2.25f
-                        val pixelGap = if (isPro) 0.75f else 0.5f
+                        
+                        val pixelGap = 1f
+                        val pixelSize = (viewBoxW - (matrixW + 1) * pixelGap) / matrixW
 
                         val gridWidth = matrixW * pixelSize + (matrixW - 1) * pixelGap
                         val gridHeight = matrixH * pixelSize + (matrixH - 1) * pixelGap
 
-                        val startX = matrixCenterX - gridWidth / 2f
-                        val startY = matrixCenterY - gridHeight / 2f
+                        val startX = (viewBoxW - gridWidth) / 2f
+                        val startY = (viewBoxH - gridHeight) / 2f
 
-                        if (isPro) {
-                            // Island
-                            paths["p4ap_island"]?.let { 
-                                drawPath(it, Color.White.copy(alpha = 0.05f))
-                                drawPath(it, Color.White.copy(alpha = 0.15f), style = Stroke(width = 1f)) 
-                            }
-                        }
+                        for (idx in 0 until (matrixW * matrixH)) {
+                            val a = getA(idx)
+                            val row = idx / matrixW
+                            val col = idx % matrixW
+                            val px = startX + col * (pixelSize + pixelGap)
+                            val py = startY + row * (pixelSize + pixelGap)
 
-                        val centerX = startX + gridWidth / 2f
-                        val centerY = startY + gridHeight / 2f
-                        val radius = gridWidth / 2f
-
-                        // Deep Matrix Core
-                        drawCircle(
-                            color = Color(0xFF0A0A0A),
-                            radius = radius + 2f,
-                            center = Offset(centerX, centerY)
-                        )
-
-                        // Circular Overlay Background
-                        drawCircle(
-                            color = Color.White.copy(alpha = 0.04f),
-                            radius = radius + 6f,
-                            center = Offset(centerX, centerY)
-                        )
-                        drawCircle(
-                            color = Color.White.copy(alpha = 0.12f),
-                            radius = radius + 6f,
-                            center = Offset(centerX, centerY),
-                            style = Stroke(width = 1.5f)
-                        )
-
-                        withTransform({
-                            clipPath(Path().apply {
-                                addOval(Rect(centerX - radius, centerY - radius, centerX + radius, centerY + radius))
-                            })
-                        }) {
-                            for (idx in 0 until (matrixW * matrixH)) {
-                                val a = getA(idx)
-                                val row = idx / matrixW
-                                val col = idx % matrixW
-                                val px = startX + col * (pixelSize + pixelGap)
-                                val py = startY + row * (pixelSize + pixelGap)
-
-                                if (a > baseOpacity) {
-                                    drawIntoCanvas { canvas ->
-                                        glowPaint.color = color
-                                        glowPaint.alpha = a * 0.4f
-                                        glowPaint.nativePaint.maskFilter = android.graphics.BlurMaskFilter(
-                                            6f * scale,
-                                            android.graphics.BlurMaskFilter.Blur.NORMAL
-                                        )
-                                        canvas.drawRect(px, py, px + pixelSize, py + pixelSize, glowPaint)
-                                    }
+                            if (a > baseOpacity) {
+                                drawIntoCanvas { canvas ->
+                                    glowPaint.color = color
+                                    glowPaint.alpha = a * 0.4f
+                                    glowPaint.nativePaint.maskFilter = android.graphics.BlurMaskFilter(
+                                        6f * scale,
+                                        android.graphics.BlurMaskFilter.Blur.NORMAL
+                                    )
+                                    canvas.drawRect(px, py, px + pixelSize, py + pixelSize, glowPaint)
                                 }
-
-                                drawRect(
-                                    color = color,
-                                    topLeft = Offset(px, py),
-                                    size = Size(pixelSize, pixelSize),
-                                    alpha = a
-                                )
                             }
+
+                            drawRect(
+                                color = color,
+                                topLeft = Offset(px, py),
+                                size = Size(pixelSize, pixelSize),
+                                alpha = a
+                            )
                         }
                     }
                 }
                 
-                // Glass Reflection Overlay
-                val reflectionBrush = Brush.linearGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = 0.05f),
-                        Color.Transparent,
-                        Color.White.copy(alpha = 0.02f)
-                    ),
-                    start = Offset(0f, 0f),
-                    end = Offset(viewBoxW, viewBoxH)
-                )
-                drawPath(silhouettePath, brush = reflectionBrush)
+                if (showFrame) {
+                    // Glass Reflection Overlay
+                    val reflectionBrush = Brush.linearGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = 0.05f),
+                            Color.Transparent,
+                            Color.White.copy(alpha = 0.02f)
+                        ),
+                        start = Offset(0f, 0f),
+                        end = Offset(viewBoxW, viewBoxH)
+                    )
+                    drawPath(silhouettePath, brush = reflectionBrush)
+                }
             }
         }
     }

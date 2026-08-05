@@ -9,12 +9,12 @@ import java.util.Arrays;
  */
 public class GlyphRenderer {
 
-    private static final int MAX_BRIGHTNESS = 4095;
+    private static final int MAX_BRIGHTNESS_LIMIT = 5000;
     private static final float SILENCE_THRESHOLD = 20f; // in 0-4095 range
     private static final long BREATH_DELAY_MS = 2500L;
 
     private float mGamma;
-    private int mMaxBrightness = MAX_BRIGHTNESS;
+    private int mMaxBrightness = 4095;
     private boolean mIdleBreathingEnabled;
     private int mDeviceType;
     private String mIdlePattern = "pulse";
@@ -44,7 +44,11 @@ public class GlyphRenderer {
     }
 
     public void setMaxBrightness(int brightness) {
-        mMaxBrightness = Math.max(0, Math.min(MAX_BRIGHTNESS, brightness));
+        if (brightness > 0) {
+            mMaxBrightness = Math.max(50, Math.min(MAX_BRIGHTNESS_LIMIT, brightness));
+        } else {
+            mMaxBrightness = 0;
+        }
         mLastHash = Integer.MIN_VALUE;
     }
 
@@ -96,7 +100,9 @@ public class GlyphRenderer {
                 int start = Math.max(0, Math.min(range.logBinLo, 511));
                 int end = Math.max(start, Math.min(range.logBinHi, 511));
                 for (int b = start; b <= end; b++) {
-                    if (fftraw[b]*1.8 > maxVal) maxVal = fftraw[b]*1.8;
+                    if (fftraw[b] * 1.8 > maxVal) {
+                        maxVal = (int) (fftraw[b] * 1.8);
+                    }
                 }
 
                 float normalized = maxVal / 4095f;
@@ -200,7 +206,14 @@ public class GlyphRenderer {
         int[] frameColors = new int[expectedLength];
         float multiplier = (float) mMaxBrightness;
         for (int i = 0; i < Math.min(normalizedLightState.length, expectedLength); i++) {
-            int val = Math.round(normalizedLightState[i] * multiplier);
+            float n = normalizedLightState[i];
+            int val;
+            if (n > 0 && multiplier >= 50) {
+                // Map n [0..1] to [50..multiplier]
+                val = Math.round(50f + n * (multiplier - 50f));
+            } else {
+                val = Math.round(n * multiplier);
+            }
             // Hardware/SDK max is typically 4095. 
             // App multiplier goes up to 10000 (150% of old max) to act as gain.
             frameColors[i] = Math.max(0, Math.min(4095, val));

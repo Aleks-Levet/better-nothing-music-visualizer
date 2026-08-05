@@ -104,6 +104,7 @@ public class AudioCaptureService extends Service {
     public static final String ACTION_TOGGLE_TORCH = "com.better.nothing.music.vizualizer.action.TOGGLE_TORCH";
     public static final String ACTION_TOGGLE_GLYPHS = "com.better.nothing.music.vizualizer.action.TOGGLE_GLYPHS";
     public static final String ACTION_SET_SOURCE = "com.better.nothing.music.vizualizer.action.SET_SOURCE";
+    public static final String ACTION_REFRESH_SETTINGS = "com.better.nothing.music.vizualizer.action.REFRESH_SETTINGS";
     public static final String ACTION_PREV_PRESET = "com.better.nothing.music.vizualizer.action.PREV_PRESET";
     public static final String ACTION_NEXT_PRESET = "com.better.nothing.music.vizualizer.action.NEXT_PRESET";
 
@@ -404,6 +405,11 @@ public class AudioCaptureService extends Service {
         mGamma = loadGamma(this);
         SharedPreferences appPrefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE);
         mMaxBrightness = clampGlyphBrightness(appPrefs.getInt("max_brightness", MAX_GLYPH_BRIGHTNESS));
+        try {
+            mCaptureSource = CaptureSource.valueOf(appPrefs.getString("capture_source", CaptureSource.INTERNAL.name()));
+        } catch (Exception e) {
+            mCaptureSource = CaptureSource.INTERNAL;
+        }
         mIdleBreathingEnabled = appPrefs.getBoolean("idle_breathing_enabled", false);
         mDisableGlyphsWhenSilent = appPrefs.getBoolean("disable_glyphs_when_silent", false);
         mOverlayEnabled = appPrefs.getBoolean("overlay_enabled", false);
@@ -433,8 +439,36 @@ public class AudioCaptureService extends Service {
             }
         } catch (Exception ignored) {}
         resetVisualizerState();
+        refreshSettingsFromPrefs();
         if (mSelectedDevice != DeviceProfile.DEVICE_UNKNOWN && Build.VERSION.SDK_INT >= 31) ensureGlyphManagerInitialized();
         mMainHandler.post(mIdlePulseRunnable);
+    }
+
+    private void refreshSettingsFromPrefs() {
+        SharedPreferences appPrefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE);
+        
+        String sourceName = appPrefs.getString("capture_source", CaptureSource.INTERNAL.name());
+        try {
+            CaptureSource source = CaptureSource.valueOf(sourceName);
+            if (mCaptureSource != source) {
+                mCaptureSource = source;
+                if (sIsRunning) restartCapture();
+            }
+        } catch (Exception ignored) {}
+
+        setMaxBrightness(appPrefs.getInt("max_brightness", MAX_GLYPH_BRIGHTNESS));
+        setHapticMotorEnabled(appPrefs.getBoolean("haptic_motor_enabled", false));
+        setFlashlightEnabled(appPrefs.getBoolean("flashlight_enabled", false));
+        
+        mIdleBreathingEnabled = appPrefs.getBoolean("idle_breathing_enabled", false);
+        if (mGlyphRenderer != null) mGlyphRenderer.setIdleBreathingEnabled(mIdleBreathingEnabled);
+        
+        mDisableGlyphsWhenSilent = appPrefs.getBoolean("disable_glyphs_when_silent", false);
+        
+        mOverlayEnabled = appPrefs.getBoolean("overlay_enabled", false);
+        mEdgeVisualizerEnabled = appPrefs.getBoolean("edge_visualizer_enabled", false);
+        mLensVisualizerEnabled = appPrefs.getBoolean("lens_visualizer_enabled", false);
+        updateOverlayVisibility();
     }
 
     @Override public IBinder onBind(Intent intent) { return mBinder; }
@@ -445,6 +479,7 @@ public class AudioCaptureService extends Service {
             String action = intent.getAction();
             if (ACTION_STOP.equals(action)) { stopCapture(); stopSelf(); return START_NOT_STICKY; }
             else if (ACTION_START.equals(action)) startVisualizer();
+            else if (ACTION_REFRESH_SETTINGS.equals(action)) refreshSettingsFromPrefs();
             else if (ACTION_SET_SOURCE.equals(action)) {
                 String sourceName = intent.getStringExtra(EXTRA_SOURCE);
                 if (sourceName != null) {
@@ -453,6 +488,7 @@ public class AudioCaptureService extends Service {
                         mCaptureSource = source;
                         getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putString("capture_source", source.name()).apply();
                         if (sIsRunning) restartCapture();
+                        else requestWidgetRefresh();
                     } catch (Exception ignored) {}
                 }
             }

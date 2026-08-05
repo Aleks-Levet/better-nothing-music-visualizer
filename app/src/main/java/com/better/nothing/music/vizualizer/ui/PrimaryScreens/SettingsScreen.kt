@@ -85,18 +85,23 @@ internal fun SettingsScreen(
             }
         )
 
-        LinkCard(
-            title = stringResource(R.string.about_title),
-            icon = Icons.Default.Info,
-            onClick = { viewModel.showAbout() },
-            modifier = Modifier.weight(1f)
-        )
-        LinkCard(
-            title = "Vizualizer Stats",
-            icon = Icons.Default.BarChart,
-            onClick = { viewModel.showStats() },
-            modifier = Modifier.weight(1f)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            LinkCard(
+                title = stringResource(R.string.about_title),
+                icon = Icons.Default.Info,
+                onClick = { viewModel.showAbout() },
+                modifier = Modifier.weight(1f)
+            )
+            LinkCard(
+                title = "Vizualizer Stats",
+                icon = Icons.Default.BarChart,
+                onClick = { viewModel.showStats() },
+                modifier = Modifier.weight(1f)
+            )
+        }
 
         // ── App Theme ───────────────────────────────────────────────────────
         var themeExpanded by remember { mutableStateOf(false) }
@@ -689,12 +694,11 @@ internal fun SettingsScreen(
         // ── Links & Info ────────────────────────────────────────────────────
 
 
-            LinkCard(
-                title = stringResource(R.string.discord_server),
-                icon = Icons.Default.Public,
-                onClick = { uriHandler.openUri("https://discord.gg/h7DYNttc8K") },
-                modifier = Modifier.weight(1f)
-            )
+        LinkCard(
+            title = stringResource(R.string.discord_server),
+            icon = Icons.Default.Public,
+            onClick = { uriHandler.openUri("https://discord.gg/h7DYNttc8K") }
+        )
 
 
         Spacer(modifier = Modifier.height(85.dp))
@@ -739,7 +743,7 @@ fun LinkCard(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(60.dp),
+            .heightIn(min = 72.dp),
         shape = RoundedCornerShape(24.dp),
         color = if (isPressed) {
             MaterialTheme.colorScheme.surfaceBright
@@ -749,7 +753,7 @@ fun LinkCard(
         interactionSource = interactionSource
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp),
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {

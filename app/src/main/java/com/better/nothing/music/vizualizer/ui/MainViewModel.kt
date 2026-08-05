@@ -1011,7 +1011,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setMaxBrightness(value: Int) {
-        val clamped = value.coerceIn(0, 4095)
+        val clamped = value.coerceIn(50, 5000)
         _maxBrightness.value = clamped
         MainActivity.serviceStatic?.setMaxBrightness(clamped)
         viewModelScope.launch(Dispatchers.IO) {
@@ -1440,6 +1440,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _totalHapticTime.value = prefs.getLong("total_haptic_time", 0L)
         _totalFlashlightTime.value = prefs.getLong("total_flashlight_time", 0L)
         _spoofLocale.value = prefs.getString("spoof_locale", null)
+        val initialLocales = if (_spoofLocale.value == null) {
+            androidx.core.os.LocaleListCompat.getEmptyLocaleList()
+        } else {
+            androidx.core.os.LocaleListCompat.forLanguageTags(_spoofLocale.value)
+        }
+        androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(initialLocales)
 
         // General settings
         _developerModeEnabled.value = prefs.getBoolean("developer_mode_v2", false)
@@ -1448,7 +1454,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _m3eEnabled.value = prefs.getBoolean("m3e_enabled", true)
         _gammaValue.value = prefs.getFloat("gamma_value", 2.2f)
         _spectrumGain.value = prefs.getFloat("spectrum_gain", 1.0f)
-        _maxBrightness.value = prefs.getInt("max_brightness", 4095)
+        _maxBrightness.value = prefs.getInt("max_brightness", 4095).coerceIn(50, 5000)
         _fftReadMethod.value = safeValueOf(prefs.getString("fft_read_method", null), AudioProcessor.ReadMethod.MAX)
         _glyphsEnabled.value = prefs.getBoolean("glyphs_enabled", true)
         _selectedPreset.value = prefs.getString("selected_preset", "Default") ?: "Default"
