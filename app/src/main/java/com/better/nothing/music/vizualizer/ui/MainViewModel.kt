@@ -148,7 +148,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _licenseStatus.value = LicenseStatus.Loading
             var connection: HttpURLConnection? = null
             try {
-                val url = URL("https://raw.githubusercontent.com/aleks-levet/better-nothing-music-visualizer/main/LICENSE")
+                val url = URL("https://raw.githubusercontent.com/aleks-levet/better-nothing-music-visualizer/main/LICENSE.md")
                 connection = url.openConnection() as HttpURLConnection
                 connection.connectTimeout = 10000
                 connection.readTimeout = 10000
@@ -1020,18 +1020,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val _glyphDecayEnabled = MutableStateFlow(true)
-    val glyphDecayEnabled = _glyphDecayEnabled.asStateFlow()
-
-    fun setGlyphDecayEnabled(enabled: Boolean) {
-        _glyphDecayEnabled.value = enabled
-        MainActivity.serviceStatic?.setGlyphDecayEnabled(enabled)
-        viewModelScope.launch(Dispatchers.IO) {
-            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putBoolean("glyph_decay_enabled", enabled) }
-        }
-    }
-
     val _runningState = MutableStateFlow(false)
     val runningState = _runningState.asStateFlow()
 
@@ -1307,12 +1295,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _fftRawState = MutableStateFlow(floatArrayOf())
     val fftRawState = _fftRawState.asStateFlow()
 
-    fun setFftState(decayed: FloatArray, raw: FloatArray) {
-        _fftState.value = decayed
+    private val manualDecayFft = FloatArray(512)
+
+    fun setFftState(raw: FloatArray) {
+        if (raw.size == 512) {
+            for (i in 0 until 512) {
+                if (raw[i] > manualDecayFft[i]) {
+                    manualDecayFft[i] = raw[i]
+                } else {
+                    // Manual linear decay for UI
+                    manualDecayFft[i] = (manualDecayFft[i] - 0.015f).coerceAtLeast(raw[i])
+                }
+            }
+            _fftState.value = manualDecayFft.copyOf()
+        }
         _fftRawState.value = raw
     }
 
     fun setFftStateEmpty() {
+        manualDecayFft.fill(0f)
         _fftState.value = floatArrayOf()
         _fftRawState.value = floatArrayOf()
     }
@@ -1453,7 +1454,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _gammaValue.value = prefs.getFloat("gamma_value", 2.2f)
         _spectrumGain.value = prefs.getFloat("spectrum_gain", 1.0f)
         _maxBrightness.value = prefs.getInt("max_brightness", 4095)
-        _glyphDecayEnabled.value = prefs.getBoolean("glyph_decay_enabled", true)
         _fftReadMethod.value = safeValueOf(prefs.getString("fft_read_method", null), AudioProcessor.ReadMethod.MAX)
         _glyphsEnabled.value = prefs.getBoolean("glyphs_enabled", true)
         _selectedPreset.value = prefs.getString("selected_preset", "Default") ?: "Default"

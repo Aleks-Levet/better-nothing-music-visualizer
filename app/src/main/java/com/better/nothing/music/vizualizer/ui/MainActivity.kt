@@ -222,18 +222,15 @@ class MainActivity : ComponentActivity() {
                                 viewModel.setVisualizerState(lightState.copyOf())
                             }
                             val raw = s.latestRawFFT
-                            val decayed = s.latestDecayedFFT
-                            if (raw != null && decayed != null) {
+                            if (raw != null) {
                                 val rawFloat = FloatArray(512)
-                                val decayedFloat = FloatArray(512)
                                 for (i in 0 until 512) {
                                     rawFloat[i] = raw[i] / 4095f
-                                    decayedFloat[i] = decayed[i] / 4095f
                                 }
-                                viewModel.setFftState(decayedFloat, rawFloat)
+                                viewModel.setFftState(rawFloat)
                             }
                         }
-                        delay(33.milliseconds)
+                        delay(16.milliseconds)
                     }
                 } else {
                     viewModel.setFftStateEmpty()
@@ -630,7 +627,6 @@ internal fun BetterVizApp(
                     Tab.Glyphs -> {
                         val gammaValue by viewModel.gammaValue.collectAsStateWithLifecycle()
                         val maxBrightness by viewModel.maxBrightness.collectAsStateWithLifecycle()
-                        val glyphDecayEnabled by viewModel.glyphDecayEnabled.collectAsStateWithLifecycle()
                         val presets by viewModel.presetInfos.collectAsStateWithLifecycle()
                         val selectedPreset by viewModel.selectedPreset.collectAsStateWithLifecycle()
                         val selectedDevice by viewModel.selectedDevice.collectAsStateWithLifecycle()
@@ -644,8 +640,6 @@ internal fun BetterVizApp(
                             },
                             maxBrightness = maxBrightness,
                             onMaxBrightnessChanged = { viewModel.setMaxBrightness(it) },
-                            glyphDecayEnabled = glyphDecayEnabled,
-                            onGlyphDecayChanged = { viewModel.setGlyphDecayEnabled(it) },
                             presets = presets,
                             selectedPreset = selectedPreset,
                             onPresetSelected = { viewModel.setSelectedPreset(it) },

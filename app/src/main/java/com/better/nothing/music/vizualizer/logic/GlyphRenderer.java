@@ -71,6 +71,9 @@ public class GlyphRenderer {
         if (config == null || fftraw == null) return new int[0];
 
         try {
+            long deltaMs = (mLastFrameMs > 0) ? (nowMs - mLastFrameMs) : 16;
+            // update mLastFrameMs later in applyIdleBreathing or here
+            
             int hardwareCount = DeviceProfile.getLedCount(mDeviceType);
             int zoneCount = Math.max(config.zones.length, hardwareCount);
 
@@ -78,11 +81,22 @@ public class GlyphRenderer {
                 mCurrentLightState = new float[zoneCount];
             }
 
-            float[] nextLightState = new float[zoneCount];
+            // Manually decay the glyph zones according to the preset used
+            float decayFactor = config.decay;
+            // The user wants manual decay. Usually decay is something like value *= decayFactor^delta
+            // Or linear decay. AudioProcessor used: 
+            // int drop = Math.max(20, (int)(4095 * (1f - decayFactor)));
+            // mDecayedFFT[i] = Math.max(rawVal, mDecayedFFT[i] - drop);
+            // Let's use a similar approach for normalized values (0-1).
+            float drop = Math.max(0.005f, (1f - decayFactor) * (deltaMs / 16f) * 0.5f);
+
+            for (int i = 0; i < zoneCount; i++) {
+                mCurrentLightState[i] = Math.max(0f, mCurrentLightState[i] - drop);
+            }
+
             for (int i = 0; i < Math.min(config.zones.length, zoneCount); i++) {
                 int maxVal = 0;
-                AudioProcessor.FrequencyRange range = config.uniqueRanges[config.zoneToRangeIndices[i][0]]; // Simplification
-                // Better mapping: find max in the specified range of bins
+                AudioProcessor.FrequencyRange range = config.uniqueRanges[config.zoneToRangeIndices[i][0]];
                 int start = Math.max(0, Math.min(range.logBinLo, 511));
                 int end = Math.max(start, Math.min(range.logBinHi, 511));
                 for (int b = start; b <= end; b++) {
@@ -91,14 +105,16 @@ public class GlyphRenderer {
 
                 float normalized = maxVal / 4095f;
                 float mapped = applyPercentSlice(normalized, config.zones[i]);
-                nextLightState[i] = applyGamma(mapped);
+                float gammaMapped = applyGamma(mapped);
+                
+                if (gammaMapped > mCurrentLightState[i]) {
+                    mCurrentLightState[i] = gammaMapped;
+                }
             }
 
-            applyIdleBreathing(nextLightState, fftraw, nowMs);
+            applyIdleBreathing(mCurrentLightState, fftraw, nowMs);
 
-            System.arraycopy(nextLightState, 0, mCurrentLightState, 0, Math.min(nextLightState.length, mCurrentLightState.length));
-
-            int[] frameColors = buildFrameColors(nextLightState, zoneCount);
+            int[] frameColors = buildFrameColors(mCurrentLightState, zoneCount);
             int frameHash = Arrays.hashCode(frameColors);
             if (frameHash == mLastHash) return null;
 
@@ -110,7 +126,7 @@ public class GlyphRenderer {
         }
     }
 
-    private void applyIdleBreathing(float[] nextState, int[] fftraw, long nowMs) {
+    private void applyIdleBreathing(float[] state, int[] fftraw, long nowMs) {
         long deltaMs = (mLastFrameMs > 0) ? (nowMs - mLastFrameMs) : 16;
         mLastFrameMs = nowMs;
 
@@ -141,11 +157,11 @@ public class GlyphRenderer {
         }
 
         if (mBreathingEnvelope > 0.01f) {
-            int zoneCount = nextState.length;
+            int zoneCount = state.length;
             for (int i = 0; i < zoneCount; i++) {
                 float intensity = getIdleIntensity(i, zoneCount, nowMs);
                 float breathVal = (0.02f + intensity * 0.48f) * mBreathingEnvelope;
-                if (nextState[i] < breathVal) nextState[i] = breathVal;
+                if (state[i] < breathVal) state[i] = breathVal;
             }
         }
     }

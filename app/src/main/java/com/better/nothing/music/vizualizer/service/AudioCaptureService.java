@@ -202,7 +202,6 @@ public class AudioCaptureService extends Service {
 
     private boolean mIdleBreathingEnabled = false;
     private boolean mDisableGlyphsWhenSilent = false;
-    private boolean mGlyphDecayEnabled = true;
     private boolean mOverlayEnabled = false;
     private boolean mEdgeVisualizerEnabled = false;
     private boolean mLensVisualizerEnabled = false;
@@ -273,12 +272,10 @@ public class AudioCaptureService extends Service {
     private long mLastSendMs = 0L;
     private long mCaptureStartTimeMs = 0L;
     private volatile int[] mLatestRawFFT = new int[512];
-    private volatile int[] mLatestDecayedFFT = new int[512];
     private final Object mFftLock = new Object();
 
     public int[] getLatestRawFFT() { synchronized (mFftLock) { return mLatestRawFFT; } }
-    public int[] getLatestDecayedFFT() { synchronized (mFftLock) { return mLatestDecayedFFT; } }
-    public int[] getLatestMagnitudes() { return getLatestDecayedFFT(); }
+    public int[] getLatestMagnitudes() { return getLatestRawFFT(); }
 
     public float[] getCurrentLightState() {
         if (mGlyphRenderer != null) return mGlyphRenderer.getCurrentLightState();
@@ -295,7 +292,7 @@ public class AudioCaptureService extends Service {
     }
 
     public float getLatestUiPeak() {
-        int[] fft = getLatestDecayedFFT();
+        int[] fft = getLatestRawFFT();
         int max = 0;
         int binLo = AudioProcessor.findLogBinIndex(80f);
         int binHi = AudioProcessor.findLogBinIndex(120f);
@@ -320,12 +317,19 @@ public class AudioCaptureService extends Service {
             if (sIsRunning) {
                 long now = SystemClock.elapsedRealtime();
                 if (now - mLastNotifUpdateMs >= 1000) { refreshNotification(); mLastNotifUpdateMs = now; }
-                if (mCaptureSource == CaptureSource.VIZUALIZER) {
-                    synchronized (mVisualizerPendingFrames) { dispatchDueFrames(mVisualizerPendingFrames); }
-                    if (now - mLastSendMs >= 16 && mVisualizerConfig != null) processFrame(EMPTY_FFT, EMPTY_FFT, mVisualizerConfig, mPresetConfigVersion.get());
-                } else if (mIdleBreathingEnabled && mSessionOpen && mVisualizerConfig != null) {
-                    if (now - mLastAudioActivityMs > 100) processFrame(EMPTY_FFT, EMPTY_FFT, mVisualizerConfig, mPresetConfigVersion.get());
+
+                synchronized (mVisualizerPendingFrames) {
+                    dispatchDueFrames(mVisualizerPendingFrames);
                 }
+
+                if (now - mLastSendMs >= 16 && mVisualizerConfig != null) {
+                    if (mOverlayView != null) mOverlayView.updateMagnitudes(mLatestRawFFT);
+                    if (mEdgeVisualizerView != null) mEdgeVisualizerView.updateMagnitudes(mLatestRawFFT);
+                    if (mLensVisualizerView != null) mLensVisualizerView.updateMagnitudes(mLatestRawFFT);
+
+                    processFrame(mLatestRawFFT, mLatestRawFFT, mVisualizerConfig, mPresetConfigVersion.get());
+                }
+
                 mMainHandler.postDelayed(this, 16);
             }
         }
@@ -340,14 +344,12 @@ public class AudioCaptureService extends Service {
 
     private static final class PendingFrame {
         final int[] fftraw;
-        final int[] fftdecayed;
         final AudioProcessor.VisualizerConfig config;
         final int configVersion;
         final long dueAtMs;
 
-        PendingFrame(int[] fftraw, int[] fftdecayed, AudioProcessor.VisualizerConfig config, int configVersion, long dueAtMs) {
+        PendingFrame(int[] fftraw, AudioProcessor.VisualizerConfig config, int configVersion, long dueAtMs) {
             this.fftraw = fftraw;
-            this.fftdecayed = fftdecayed;
             this.config = config;
             this.configVersion = configVersion;
             this.dueAtMs = dueAtMs;
@@ -586,10 +588,6 @@ public class AudioCaptureService extends Service {
         if (!enabled && !mSessionOpen && mGM != null) mWorkerHandler.post(this::ensureGlyphSession);
     }
 
-    public void setGlyphDecayEnabled(boolean enabled) {
-        mGlyphDecayEnabled = enabled;
-    }
-
     public void setOverlayEnabled(boolean enabled) { mOverlayEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); requestWidgetRefresh(); }
     public void setOverlayTopEnabled(boolean enabled) { mOverlayTopEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); requestWidgetRefresh(); }
     public void setOverlayBottomEnabled(boolean enabled) { mOverlayBottomEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); requestWidgetRefresh(); }
@@ -709,7 +707,7 @@ public class AudioCaptureService extends Service {
     private void ensureCaptureExecutor() { if (mCaptureExecutor == null || mCaptureExecutor.isShutdown()) mCaptureExecutor = Executors.newSingleThreadExecutor(); }
     private void shutdownCaptureExecutor() { if (mCaptureExecutor != null) { mCaptureExecutor.shutdownNow(); mCaptureExecutor = null; } }
 
-    private void processFrame(int[] fftraw, int[] fftdecayed, AudioProcessor.VisualizerConfig config, int configVersion) {
+    private void processFrame(int[] fftraw, int[] dummy, AudioProcessor.VisualizerConfig config, int configVersion) {
         if (config == null || configVersion != mPresetConfigVersion.get()) return;
         try {
             long now = SystemClock.elapsedRealtime(); 
@@ -726,8 +724,7 @@ public class AudioCaptureService extends Service {
                 }
 
                 if (mSessionOpen && (now - mLastSendMs >= MIN_SEND_INTERVAL_MS)) {
-                    int[] fftToUse = mGlyphDecayEnabled ? fftdecayed : fftraw;
-                    int[] frameColors = mGlyphRenderer.processFrame(fftToUse, config, now);
+                    int[] frameColors = mGlyphRenderer.processFrame(fftraw, config, now);
                     if (frameColors != null) {
                         try {
                             if (DeviceProfile.getMatrixWidth(mSelectedDevice) > 0) {
@@ -752,12 +749,11 @@ public class AudioCaptureService extends Service {
             try {
                 synchronized (mFftLock) {
                     mLatestRawFFT = latestDueFrame.fftraw;
-                    mLatestDecayedFFT = latestDueFrame.fftdecayed;
                 }
 
-                if (mOverlayView != null) mOverlayView.updateMagnitudes(mLatestDecayedFFT);
-                if (mEdgeVisualizerView != null) mEdgeVisualizerView.updateMagnitudes(mLatestDecayedFFT);
-                if (mLensVisualizerView != null) mLensVisualizerView.updateMagnitudes(mLatestDecayedFFT);
+                if (mOverlayView != null) mOverlayView.updateMagnitudes(mLatestRawFFT);
+                if (mEdgeVisualizerView != null) mEdgeVisualizerView.updateMagnitudes(mLatestRawFFT);
+                if (mLensVisualizerView != null) mLensVisualizerView.updateMagnitudes(mLatestRawFFT);
                 
                 if (mHapticEnabled) {
                     if (mHapticMode == HapticMode.BASS_TO_AMPLITUDE) {
@@ -769,7 +765,7 @@ public class AudioCaptureService extends Service {
                 if (mFlashlightEnabled && mFlashlightEngine != null) {
                     mFlashlightEngine.performFlashlightFeedback(getLatestFlashlightPeak(), latestDueFrame.config, mLatestRawFFT, mFlashlightRange != null ? mFlashlightRange.logBinLo : 0, mFlashlightRange != null ? mFlashlightRange.logBinHi : 0);
                 }
-                processFrame(latestDueFrame.fftraw, latestDueFrame.fftdecayed, latestDueFrame.config, latestDueFrame.configVersion);
+                processFrame(latestDueFrame.fftraw, latestDueFrame.fftraw, latestDueFrame.config, latestDueFrame.configVersion);
             } catch (Exception e) { Log.e(TAG, "Error dispatching frame", e); }
         }
     }
@@ -794,7 +790,7 @@ public class AudioCaptureService extends Service {
         short[] hop = new short[waveform.length]; for (int i = 0; i < waveform.length; i++) hop[i] = (short) (((waveform[i] & 0xFF) - 128) << 8);
         AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, false, mVisualizerConfig.decay);
         if (result == null) return;
-        PendingFrame frame = new PendingFrame(result.fftraw, result.fftdecayed, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
+        PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
         synchronized (mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
     }
 
@@ -805,7 +801,7 @@ public class AudioCaptureService extends Service {
             int read = record.read(hop, 0, hopSize, AudioRecord.READ_BLOCKING); if (read <= 0) continue;
             AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, true, mVisualizerConfig != null ? mVisualizerConfig.decay : 0.85f);
             if (result == null) continue;
-            PendingFrame frame = new PendingFrame(result.fftraw, result.fftdecayed, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
+            PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
             synchronized(mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
         }
     }
