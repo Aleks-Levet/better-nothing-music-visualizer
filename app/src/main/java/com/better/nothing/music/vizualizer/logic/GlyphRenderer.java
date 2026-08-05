@@ -9,7 +9,7 @@ import java.util.Arrays;
  */
 public class GlyphRenderer {
 
-    private static final int MAX_BRIGHTNESS = 10000;
+    private static final int MAX_BRIGHTNESS = 4095;
     private static final float SILENCE_THRESHOLD = 20f; // in 0-4095 range
     private static final long BREATH_DELAY_MS = 2500L;
 
@@ -83,11 +83,7 @@ public class GlyphRenderer {
 
             // Manually decay the glyph zones according to the preset used
             float decayFactor = config.decay;
-            // The user wants manual decay. Usually decay is something like value *= decayFactor^delta
-            // Or linear decay. AudioProcessor used: 
-            // int drop = Math.max(20, (int)(4095 * (1f - decayFactor)));
-            // mDecayedFFT[i] = Math.max(rawVal, mDecayedFFT[i] - drop);
-            // Let's use a similar approach for normalized values (0-1).
+            // Apply linear decay to normalized values (0-1).
             float drop = Math.max(0.005f, (1f - decayFactor) * (deltaMs / 16f) * 0.5f);
 
             for (int i = 0; i < zoneCount; i++) {
@@ -100,7 +96,7 @@ public class GlyphRenderer {
                 int start = Math.max(0, Math.min(range.logBinLo, 511));
                 int end = Math.max(start, Math.min(range.logBinHi, 511));
                 for (int b = start; b <= end; b++) {
-                    if (fftraw[b] > maxVal) maxVal = fftraw[b];
+                    if (fftraw[b]*1.8 > maxVal) maxVal = fftraw[b]*1.8;
                 }
 
                 float normalized = maxVal / 4095f;

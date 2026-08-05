@@ -115,7 +115,7 @@ public class AudioCaptureService extends Service {
 
     private static final String PREFS_NAME = "glyph_visualizer_prefs";
     private static final String APP_PREFS_NAME = "viz_prefs";
-    private static final int MAX_GLYPH_BRIGHTNESS = 10000;
+    private static final int MAX_GLYPH_BRIGHTNESS = 4095;
 
     private static final String DEFAULT_PRESET_KEY = "np1";
     private static final int SAMPLE_RATE = 44100;
@@ -198,7 +198,7 @@ public class AudioCaptureService extends Service {
     private volatile int mLatencyCompensationMs = 0;
     private final AtomicInteger mPresetConfigVersion = new AtomicInteger(0);
     private volatile float mGamma = DEFAULT_GAMMA;
-    private volatile int mMaxBrightness = 10000;
+    private volatile int mMaxBrightness = 4095;
 
     private boolean mIdleBreathingEnabled = false;
     private boolean mDisableGlyphsWhenSilent = false;
@@ -951,6 +951,6 @@ public class AudioCaptureService extends Service {
     private AudioRouteInfo resolveCurrentAudioRoute() { return null; }
     private void applyPresetSelection(String pk) { mPresetKey = pk; reloadConfig(); }
     public void setPreset(String p) { mPresetKey = p; restartCapture(); }
-    private int clampGlyphBrightness(int b) { return Math.max(0, Math.min(10000, b)); }
+    private int clampGlyphBrightness(int b) { return Math.max(0, Math.min(4095, b)); }
     private void resetVisualizerState() { if (mGlyphRenderer != null) mGlyphRenderer.resetState(mVisualizerConfig); }
 }

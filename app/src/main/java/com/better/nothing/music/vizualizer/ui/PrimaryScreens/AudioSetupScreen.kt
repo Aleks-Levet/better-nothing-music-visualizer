@@ -121,7 +121,6 @@ fun AudioScreen(
     onAutoDeviceToggle: (Boolean) -> Unit,
     connectedDeviceName: String? = null,
     fftRaw: FloatArray = floatArrayOf(),
-    fftDecayed: FloatArray = floatArrayOf(),
     captureSource: AudioCaptureService.CaptureSource = AudioCaptureService.CaptureSource.INTERNAL,
     onCaptureSourceChanged: (AudioCaptureService.CaptureSource) -> Unit = {},
     glyphsEnabled: Boolean = true,
@@ -235,8 +234,7 @@ fun AudioScreen(
 
         AnimatedVisibility(visible = isRunning) {
             FFTSpectrumCard(
-                fftRaw = fftRaw,
-                fftDecayed = fftDecayed
+                fftRaw = fftRaw
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -590,15 +588,13 @@ fun LatencyCard(
 
 @Composable
 fun FFTSpectrumCard(
-    fftRaw: FloatArray,
-    fftDecayed: FloatArray
+    fftRaw: FloatArray
 ) {
     val haptics = LocalHapticFeedback.current
     var isExpanded by remember { mutableStateOf(false) }
     var touchX by remember { mutableStateOf<Float?>(null) }
 
-    // Use decayed if it has data, otherwise fallback to raw as requested by user
-    val data = if (fftDecayed.any { it > 0f }) fftDecayed else fftRaw
+    val data = fftRaw
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -691,8 +687,8 @@ fun FFTSpectrumCard(
                             val fraction = i.divideBy(points)
                             val mag = data[i]
 
-                            val scaledMag = (mag / 4096f).coerceIn(0f, 1f)
-                            val y = h - (scaledMag * (h - 40f)) - 20f
+                            // data is already normalized 0..1 from MainActivity/MainViewModel
+                            val y = h - (mag * (h - 40f)) - 20f
                             val x = fraction * w
 
                             if (first) {

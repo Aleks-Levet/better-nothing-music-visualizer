@@ -568,50 +568,59 @@ fun StartStopButton(
         label         = "contentColor"
     )
 
+    val outerPadding = (8.dp / uiAmp).coerceAtLeast(1.dp)
+
     Box(
         modifier = modifier
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
             }
-            .padding(8.dp),
+            .padding(outerPadding),
         contentAlignment = Alignment.Center
     ) {
         FloatingActionButton(
-            onClick           = {
+            onClick = {
                 haptics.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
                 onClick()
             },
             interactionSource = interactionSource,
-            shape             = RoundedCornerShape((18 + (uiAmp - 1) * 50).dp),
-            modifier          = Modifier
-                .height((60+ (uiAmp - 1) * 50).dp)
-                .widthIn(min = (130+ (uiAmp - 1) * 50).dp),
+            shape = RoundedCornerShape((18 + (uiAmp - 1) * 50).dp),
+            modifier = Modifier
+                .height((60 + (uiAmp - 1) * 50).dp)
+                .widthIn(min = (130 + (uiAmp - 1) * 50).dp),
             containerColor = containerColor,
-            contentColor   = contentColor,
+            contentColor = contentColor,
             elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp)
         ) {
             Row(
-                modifier             = Modifier.padding(horizontal = 15.dp),
-                verticalAlignment    = Alignment.CenterVertically,
+                modifier = Modifier.padding(horizontal = 15.dp),
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
                 AnimatedContent(
-                    targetState  = running,
-                    transitionSpec = { (scaleIn() + fadeIn()).togetherWith(scaleOut() + fadeOut()) },
-                    label        = "iconTransition"
+                    targetState = running,
+                    transitionSpec = {
+                        (scaleIn() + fadeIn()).togetherWith(scaleOut() + fadeOut())
+                    },
+                    label = "iconTransition"
                 ) { isRunning ->
                     Icon(
-                        imageVector     = if (isRunning) Icons.Filled.Stop else Icons.Filled.PlayArrow,
+                        imageVector = if (isRunning) Icons.Filled.Stop else Icons.Filled.PlayArrow,
                         contentDescription = null,
-                        modifier        = Modifier.size(24.dp)
+                        modifier = Modifier.size(24.dp)
                     )
                 }
+
                 Spacer(Modifier.width(20.dp))
+
                 Text(
-                    text  = stringResource(if (running) R.string.stop_visualizer else R.string.start_visualizer).uppercase(),
+                    text = stringResource(
+                        if (running) R.string.stop_visualizer
+                        else R.string.start_visualizer
+                    ).uppercase(),
                     style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight    = FontWeight.Bold,
+                        fontWeight = FontWeight.Bold,
                         letterSpacing = 1.sp
                     )
                 )

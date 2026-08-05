@@ -592,8 +592,7 @@ internal fun BetterVizApp(
                         val latencyMs by viewModel.latencyMs.collectAsStateWithLifecycle()
                         val latencyPresets by viewModel.latencyPresets.collectAsStateWithLifecycle()
                         val autoDeviceEnabled by viewModel.autoDeviceMemorize.collectAsStateWithLifecycle()
-                        val fftDecayed by viewModel.fftState.collectAsStateWithLifecycle()
-                        val fftRaw by viewModel.fftRawState.collectAsStateWithLifecycle()
+                        val fftRaw by viewModel.fftState.collectAsStateWithLifecycle()
                         val captureSource by viewModel.captureSource.collectAsStateWithLifecycle()
 
                         AudioScreen(
@@ -608,7 +607,6 @@ internal fun BetterVizApp(
                             connectedDeviceName = MainActivity.serviceStatic?.getActiveAudioRouteName()
                                 ?: "Unknown",
                             fftRaw = fftRaw,
-                            fftDecayed = fftDecayed,
                             captureSource = captureSource,
                             onCaptureSourceChanged = { viewModel.setCaptureSource(it) },
                             glyphsEnabled = glyphsEnabled,

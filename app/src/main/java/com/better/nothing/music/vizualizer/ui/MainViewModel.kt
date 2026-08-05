@@ -1011,7 +1011,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setMaxBrightness(value: Int) {
-        val clamped = value.coerceIn(0, 10000)
+        val clamped = value.coerceIn(0, 4095)
         _maxBrightness.value = clamped
         MainActivity.serviceStatic?.setMaxBrightness(clamped)
         viewModelScope.launch(Dispatchers.IO) {
@@ -1292,9 +1292,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _fftState = MutableStateFlow(floatArrayOf())
     val fftState = _fftState.asStateFlow()
 
-    val _fftRawState = MutableStateFlow(floatArrayOf())
-    val fftRawState = _fftRawState.asStateFlow()
-
     private val manualDecayFft = FloatArray(512)
 
     fun setFftState(raw: FloatArray) {
@@ -1303,19 +1300,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 if (raw[i] > manualDecayFft[i]) {
                     manualDecayFft[i] = raw[i]
                 } else {
-                    // Manual linear decay for UI
-                    manualDecayFft[i] = (manualDecayFft[i] - 0.015f).coerceAtLeast(raw[i])
+                    // Faster manual decay for UI (0.04f per frame)
+                    manualDecayFft[i] = (manualDecayFft[i] - 0.04f).coerceAtLeast(raw[i])
                 }
             }
             _fftState.value = manualDecayFft.copyOf()
         }
-        _fftRawState.value = raw
     }
 
     fun setFftStateEmpty() {
         manualDecayFft.fill(0f)
         _fftState.value = floatArrayOf()
-        _fftRawState.value = floatArrayOf()
     }
 
     fun phoneModelForDevice(device: Int): String {
