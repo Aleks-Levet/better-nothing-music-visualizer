@@ -54,6 +54,8 @@ internal fun GlyphsScreen(
     onGammaChanged: (Float) -> Unit,
     maxBrightness: Int,
     onMaxBrightnessChanged: (Int) -> Unit,
+    glyphDecayEnabled: Boolean,
+    onGlyphDecayChanged: (Boolean) -> Unit,
     presets: List<AudioCaptureService.PresetInfo>,
     selectedPreset: String,
     onPresetSelected: (String) -> Unit,
@@ -101,7 +103,9 @@ internal fun GlyphsScreen(
             onLastNonZeroChanged = { v -> lastNonZero.intValue = v },
             onMaxBrightnessChanged = onMaxBrightnessChanged,
             gammaValue = gammaValue,
-            onGammaChanged = onGammaChanged
+            onGammaChanged = onGammaChanged,
+            glyphDecayEnabled = glyphDecayEnabled,
+            onGlyphDecayChanged = onGlyphDecayChanged
         )
 
         ExpressiveCard(
@@ -328,6 +332,8 @@ fun BrightnessCard(
     onMaxBrightnessChanged: (Int) -> Unit,
     gammaValue: Float,
     onGammaChanged: (Float) -> Unit,
+    glyphDecayEnabled: Boolean,
+    onGlyphDecayChanged: (Boolean) -> Unit,
 ) {
     androidx.compose.ui.platform.LocalHapticFeedback.current
 
@@ -376,6 +382,22 @@ fun BrightnessCard(
             valueRange = 0f..1f,
             modifier = Modifier.fillMaxWidth(),
         )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            BodyText(text = "Visualizer Decay", size = 15.sp)
+            Switch(
+                checked = glyphDecayEnabled,
+                onCheckedChange = onGlyphDecayChanged,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                )
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 

@@ -202,6 +202,7 @@ public class AudioCaptureService extends Service {
 
     private boolean mIdleBreathingEnabled = false;
     private boolean mDisableGlyphsWhenSilent = false;
+    private boolean mGlyphDecayEnabled = true;
     private boolean mOverlayEnabled = false;
     private boolean mEdgeVisualizerEnabled = false;
     private boolean mLensVisualizerEnabled = false;
@@ -585,6 +586,10 @@ public class AudioCaptureService extends Service {
         if (!enabled && !mSessionOpen && mGM != null) mWorkerHandler.post(this::ensureGlyphSession);
     }
 
+    public void setGlyphDecayEnabled(boolean enabled) {
+        mGlyphDecayEnabled = enabled;
+    }
+
     public void setOverlayEnabled(boolean enabled) { mOverlayEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); requestWidgetRefresh(); }
     public void setOverlayTopEnabled(boolean enabled) { mOverlayTopEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); requestWidgetRefresh(); }
     public void setOverlayBottomEnabled(boolean enabled) { mOverlayBottomEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); requestWidgetRefresh(); }
@@ -721,7 +726,8 @@ public class AudioCaptureService extends Service {
                 }
 
                 if (mSessionOpen && (now - mLastSendMs >= MIN_SEND_INTERVAL_MS)) {
-                    int[] frameColors = mGlyphRenderer.processFrame(fftdecayed, config, now);
+                    int[] fftToUse = mGlyphDecayEnabled ? fftdecayed : fftraw;
+                    int[] frameColors = mGlyphRenderer.processFrame(fftToUse, config, now);
                     if (frameColors != null) {
                         try {
                             if (DeviceProfile.getMatrixWidth(mSelectedDevice) > 0) {

@@ -15,20 +15,19 @@ class BetterVizApplication : Application() {
         super.onCreate()
         
         try {
-            // Attempt to initialize Firebase
-            // This will only work if google-services.json is present and the plugin is enabled
-            if (FirebaseApp.getApps(this).isNotEmpty()) {
-                firebaseAnalytics = Firebase.analytics
-                
-                // Set user properties for basic tracking
-                firebaseAnalytics?.setUserProperty("app_version", BuildConfig.VERSION_NAME)
-                firebaseAnalytics?.setUserProperty("device_model", Build.MODEL)
-                
-                // Log an app open event
-                firebaseAnalytics?.logEvent(FirebaseAnalytics.Event.APP_OPEN, null)
-            } else {
-                Log.w("BetterVizApp", "Firebase not initialized: missing config or plugin disabled")
+            // Force initialize Firebase if not automatically done
+            if (FirebaseApp.getApps(this).isEmpty()) {
+                FirebaseApp.initializeApp(this)
             }
+            
+            firebaseAnalytics = Firebase.analytics
+            
+            // Set user properties for basic tracking
+            firebaseAnalytics?.setUserProperty("app_version", BuildConfig.VERSION_NAME)
+            firebaseAnalytics?.setUserProperty("device_model", Build.MODEL)
+            
+            // Log an app open event
+            firebaseAnalytics?.logEvent(FirebaseAnalytics.Event.APP_OPEN, null)
         } catch (e: Exception) {
             Log.e("BetterVizApp", "Failed to initialize Firebase Analytics", e)
         }

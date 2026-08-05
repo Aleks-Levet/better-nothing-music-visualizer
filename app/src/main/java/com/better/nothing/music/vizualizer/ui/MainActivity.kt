@@ -630,6 +630,7 @@ internal fun BetterVizApp(
                     Tab.Glyphs -> {
                         val gammaValue by viewModel.gammaValue.collectAsStateWithLifecycle()
                         val maxBrightness by viewModel.maxBrightness.collectAsStateWithLifecycle()
+                        val glyphDecayEnabled by viewModel.glyphDecayEnabled.collectAsStateWithLifecycle()
                         val presets by viewModel.presetInfos.collectAsStateWithLifecycle()
                         val selectedPreset by viewModel.selectedPreset.collectAsStateWithLifecycle()
                         val selectedDevice by viewModel.selectedDevice.collectAsStateWithLifecycle()
@@ -643,6 +644,8 @@ internal fun BetterVizApp(
                             },
                             maxBrightness = maxBrightness,
                             onMaxBrightnessChanged = { viewModel.setMaxBrightness(it) },
+                            glyphDecayEnabled = glyphDecayEnabled,
+                            onGlyphDecayChanged = { viewModel.setGlyphDecayEnabled(it) },
                             presets = presets,
                             selectedPreset = selectedPreset,
                             onPresetSelected = { viewModel.setSelectedPreset(it) },

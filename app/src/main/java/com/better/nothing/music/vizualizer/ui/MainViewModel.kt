@@ -1020,6 +1020,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    val _glyphDecayEnabled = MutableStateFlow(true)
+    val glyphDecayEnabled = _glyphDecayEnabled.asStateFlow()
+
+    fun setGlyphDecayEnabled(enabled: Boolean) {
+        _glyphDecayEnabled.value = enabled
+        MainActivity.serviceStatic?.setGlyphDecayEnabled(enabled)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("glyph_decay_enabled", enabled) }
+        }
+    }
+
     val _runningState = MutableStateFlow(false)
     val runningState = _runningState.asStateFlow()
 
@@ -1441,6 +1453,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _gammaValue.value = prefs.getFloat("gamma_value", 2.2f)
         _spectrumGain.value = prefs.getFloat("spectrum_gain", 1.0f)
         _maxBrightness.value = prefs.getInt("max_brightness", 4095)
+        _glyphDecayEnabled.value = prefs.getBoolean("glyph_decay_enabled", true)
         _fftReadMethod.value = safeValueOf(prefs.getString("fft_read_method", null), AudioProcessor.ReadMethod.MAX)
         _glyphsEnabled.value = prefs.getBoolean("glyphs_enabled", true)
         _selectedPreset.value = prefs.getString("selected_preset", "Default") ?: "Default"
