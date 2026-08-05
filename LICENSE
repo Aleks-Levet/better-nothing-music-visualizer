@@ -1,77 +1,48 @@
-# BETTER-NOTHING-MUSIC-VISUALIZER  LICENSE AGREEMENT
+# BNMV Source-Available License Agreement v1.3
 
-Version: 1.2
+Copyright (c) 2026 Aleks Levet
 
-Date: May 16, 2026
+All rights reserved. The permissions granted below are limited exceptions to these reserved rights.
 
-Licensors: Oliver Lebaigue
+## Permission to View and Contribute
 
-Project Founder and Owner: Aleks Levet
+The source code of Better Nothing Music Visualizer (BNMV) is made available for viewing, learning, translations, and contribution purposes.
 
-Organization: Luminus Labs
+You are permitted to:
 
-# 1. PREAMBLE
+* View the source code.
+* Modify the source code for personal use.
+* Create and submit contributions, translations, patches, or improvements to this project.
+* Create branches or changes on hosting platforms solely for the purpose of submitting contributions to this project.
 
-This License Agreement ("Agreement") is a legal agreement between you ("Licensee") and Oliver Lebaigue ("Licensor") for the use, review, and modification of the music visualizer software application known as "better-nothing-music-visualizer" (the "Software"), a project founded by Aleks Levet under the organization Luminus Labs.
+## Restrictions
 
-The Software's source code is hosted publicly at https://github.com/aleks-levet/better-nothing-music-visualizer. By accessing, downloading, copying, or otherwise using the Software or its Source Code, Licensee agrees to be bound by the terms of this Agreement.
+Without prior written permission from the copyright holder, you may NOT:
 
-# 2. DEFINITIONS
+* Redistribute the source code or modified versions of it.
+* Publicly maintain, distribute, or promote a fork or derivative project except as reasonably necessary to submit contributions back to this project.
+* Use this code, in whole or in part, in another application, library, or project without prior written permission from **the copyright holder**.
+* Sell, sublicense, or commercially exploit this code or derivatives of it.
+* Claim ownership or authorship of this project, its code, or its official assets.
 
-### 2.1 "Software" shall mean the better-nothing-music-visualizer software application, including but not limited to the source code, audio processing modules, rendering engines, visual assets, graphics libraries, configuration scripts, documentation, object files, binary executables, and any associated media or assets.
+## Contributions
 
-### 2.2 "Source Code" shall mean the publicly disclosed files of the Software, including all script files, shader code, assets, and build configurations.
+By submitting code, patches, documentation, or other contributions to this project, you grant the project owner a perpetual, worldwide, non-exclusive, royalty-free license to use, reproduce, modify, distribute, and incorporate your contributions into BNMV and future versions of the project.
 
-# 3. GRANT OF LICENSE & ACCESSIBILITY
+You retain ownership of your contributions unless otherwise agreed in writing.
 
-## 3.1 Public Availability.
+## Branding
 
-Licensor acknowledges that the Source Code is public. Licensee is granted a non-exclusive, non-transferable, revocable license to download, view, and modify the Source Code for personal, educational, and non-commercial evaluation purposes only.
+The name "Better Nothing Music Visualizer", "BNMV", associated logos, graphics, icons, and other branding assets are not licensed for reuse.
 
-## 3.2 Restrictions.
+Permission to use the project's name or branding must be obtained separately.
 
-Licensee may NOT:
+## Disclaimer
 
-* (a) Redistribute the Software or modified versions of it to third parties, except via standard repository forks on GitHub, provided those forks remain bound by this exact License.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
 
-* (b) Use the Software or any derivative works for commercial purposes, public performances, commercial streaming, or any revenue-generating activities without separate written authorization.
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE COPYRIGHT HOLDER SHALL NOT BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM THE USE OF THIS SOFTWARE.
 
-* (c) Remove, alter, or obscure any copyright, trademark, patent, or proprietary rights notices placed on or within the Software, including references to Aleks Levet, Luminus Labs, or Licensor.
+## Reserved Rights
 
-* (d) Use the Software to develop any competing commercial music visualization software or platform.
-
-# 4. INTELLECTUAL PROPERTY RIGHTS
-
-## 4.1 Ownership.
-
-Licensor, Aleks Levet, and Luminus Labs retain all respective right, title, and interest in and to the Software, including all intellectual property rights therein. Public disclosure of the Source Code does not constitute a waiver of copyright or ownership.
-
-# 5. NO WARRANTY
-
-## 5.1 Disclaimer.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND "WITH ALL FAULTS." TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, LICENSOR DISCLAIMS ALL OTHER WARRANTIES AND CONDITIONS, EITHER EXPRESS, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
-
-## 5.2 No Technical Support.
-
-Licensor, Aleks Levet, and Luminus Labs are under no obligation to provide technical support, updates, upgrades, or modifications to the Software.
-
-# 6. LIMITATION OF LIABILITY
-
-## 6.1 Cap on Liability.
-
-TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL LICENSOR, ALEKS LEVET, OR LUMINUS LABS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES WHATSOEVER (INCLUDING, BUT NOT LIMITED TO, LOSS OF PROFITS, BUSINESS INTERRUPTION, OR ANY OTHER PECUNIARY LOSS) ARISING OUT OF THE USE OF OR INABILITY TO USE THE SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
-
-# 7. TERMINATION
-
-## 7.1 Automatic Termination.
-
-Licensee's rights under this Agreement will terminate automatically without notice from Licensor if Licensee fails to comply with any term(s) of this Agreement. Upon termination, Licensee shall cease all use and destroy all local copies of the Software.
-
-# 8. MISCELLANEOUS
-
-## 8.1 Governing Law.
-
-This Agreement shall be governed by and construed in accordance with the laws of the jurisdiction in which Oliver Lebaigue resides, without regard to its conflict of law principles.
-
-END OF LICENSE AGREEMENT
+This license grants only the permissions explicitly stated above. All rights not expressly granted remain reserved by the copyright holder.
