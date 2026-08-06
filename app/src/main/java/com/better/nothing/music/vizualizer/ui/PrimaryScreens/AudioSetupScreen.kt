@@ -55,14 +55,21 @@ import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -94,6 +101,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.logic.AudioProcessor
+import com.better.nothing.music.vizualizer.logic.UdpNetworkSync
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
 import com.better.nothing.music.vizualizer.ui.OptionTile
 import com.better.nothing.music.vizualizer.ui.ScreenTitle
@@ -102,6 +110,7 @@ import com.better.nothing.music.vizualizer.ui.BodyText
 import com.better.nothing.music.vizualizer.ui.CardHeader
 import com.better.nothing.music.vizualizer.ui.ExpressiveSlider
 import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
+import com.better.nothing.music.vizualizer.ui.MainViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import java.util.Locale
@@ -109,8 +118,10 @@ import kotlin.math.log10
 import kotlin.math.pow
 import kotlin.time.Duration.Companion.milliseconds
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AudioScreen(
+    viewModel: MainViewModel,
     isRunning: Boolean,
     sessionDuration: Long = 0L,
     latencyMs: Int,
@@ -129,6 +140,8 @@ fun AudioScreen(
     onHapticsEnabledChanged: (Boolean) -> Unit = {},
     flashlightEnabled: Boolean = false,
     onFlashlightEnabledChanged: (Boolean) -> Unit = {},
+    broadcastEnabled: Boolean = false,
+    onBroadcastEnabledChanged: (Boolean) -> Unit = {},
     developerModeEnabled: Boolean = false,
     isGlyphAvailable: Boolean = true,
     hasHapticMotor: Boolean = true,
@@ -137,6 +150,7 @@ fun AudioScreen(
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    var showHostPicker by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -215,6 +229,9 @@ fun AudioScreen(
                         pendingCaptureSource = source
                         recordAudioLauncher.launch(Manifest.permission.RECORD_AUDIO)
                     }
+                } else if (source == AudioCaptureService.CaptureSource.NETWORK) {
+                    viewModel.startDiscovery()
+                    showHostPicker = true
                 } else {
                     onCaptureSourceChanged(source)
                 }
@@ -246,6 +263,8 @@ fun AudioScreen(
             onHapticsToggle = onHapticsEnabledChanged,
             flashlightEnabled = flashlightEnabled,
             onFlashlightToggle = onFlashlightEnabledChanged,
+            broadcastEnabled = broadcastEnabled,
+            onBroadcastToggle = onBroadcastEnabledChanged,
             isGlyphAvailable = isGlyphAvailable,
             hasHapticMotor = hasHapticMotor,
             hasFlashlight = hasFlashlight
@@ -291,6 +310,91 @@ fun AudioScreen(
         }
         Spacer(modifier = Modifier.height(86.dp))
     }
+
+    if (showHostPicker) {
+        HostSelectionSheet(
+            viewModel = viewModel,
+            onDismiss = { showHostPicker = false },
+            onHostSelected = { host ->
+                viewModel.connectToHost(host)
+                showHostPicker = false
+            }
+        )
+    }
+}
+
+@Composable
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+fun HostSelectionSheet(
+    viewModel: MainViewModel,
+    onDismiss: () -> Unit,
+    onHostSelected: (UdpNetworkSync.HostInfo) -> Unit
+) {
+    val hosts by viewModel.discoveredHosts.collectAsState()
+    val isDiscovering by viewModel.isDiscovering.collectAsState()
+    val sheetState = rememberModalBottomSheetState()
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        dragHandle = { BottomSheetDefaults.DragHandle() }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = "Connect to Device",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+
+            if (isDiscovering && hosts.isEmpty()) {
+                Box(modifier = Modifier.fillMaxWidth().height(100.dp), contentAlignment = Alignment.Center) {
+                    androidx.compose.material3.CircularProgressIndicator()
+                }
+            } else if (hosts.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text("No devices found on your Wi-Fi.")
+                    Button(onClick = { viewModel.startDiscovery() }) {
+                        Text("Search Again")
+                    }
+                }
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    hosts.forEach { host ->
+                        ExpressiveCard(
+                            modifier = Modifier.fillMaxWidth().clickable { onHostSelected(host) },
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Icon(Icons.Default.PhoneAndroid, null, tint = MaterialTheme.colorScheme.primary)
+                                Column {
+                                    Text(host.name, fontWeight = FontWeight.Bold)
+                                    Text("${host.model} • ${host.ip}", style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                        }
+                    }
+                }
+                if (isDiscovering) {
+                    androidx.compose.material3.LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                }
+            }
+            Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
 }
 
 @Composable
@@ -302,6 +406,8 @@ fun OutputSelectionCard(
     onHapticsToggle: (Boolean) -> Unit,
     flashlightEnabled: Boolean,
     onFlashlightToggle: (Boolean) -> Unit,
+    broadcastEnabled: Boolean,
+    onBroadcastToggle: (Boolean) -> Unit,
     isGlyphAvailable: Boolean = true,
     hasHapticMotor: Boolean = true,
     hasFlashlight: Boolean = true
@@ -311,7 +417,8 @@ fun OutputSelectionCard(
         val outputs = listOf(
             Triple("Glyphs", ImageVector.vectorResource(R.drawable.ic_nav_glyphs), Triple(glyphsEnabled, onGlyphsToggle, isGlyphAvailable)),
             Triple("Haptics", Icons.Default.Vibration, Triple(hapticsEnabled, onHapticsToggle, hasHapticMotor)),
-            Triple("Flashlight", Icons.Default.FlashlightOn, Triple(flashlightEnabled, onFlashlightToggle, hasFlashlight))
+            Triple("Flashlight", Icons.Default.FlashlightOn, Triple(flashlightEnabled, onFlashlightToggle, hasFlashlight)),
+            Triple("Broadcast", Icons.Default.Wifi, Triple(broadcastEnabled, onBroadcastToggle, true))
         )
 
         FlowRow(
@@ -372,7 +479,7 @@ fun CaptureSourceCard(
             mainSources.forEach { (source, label, icon) ->
                 val isSelected = selectedSource == source
                 val isInternal = source == AudioCaptureService.CaptureSource.INTERNAL
-                val isEnabled = !isInternal || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                val isEnabled = (source != AudioCaptureService.CaptureSource.INTERNAL || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
 
                 OptionTile(
                     label = if (isInternal && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) "$label (API 29+)"
@@ -385,13 +492,13 @@ fun CaptureSourceCard(
                     maxLines = 2
                 )
             }
-            
+
             OptionTile(
-                label = "Coming Soon...",
-                icon = Icons.Default.Add,
-                isSelected = false,
-                enabled = false,
-                onClick = { },
+                label = "Another device or app...",
+                icon = Icons.Default.Wifi,
+                isSelected = selectedSource == AudioCaptureService.CaptureSource.NETWORK,
+                enabled = true,
+                onClick = { onSourceSelected(AudioCaptureService.CaptureSource.NETWORK) },
                 modifier = Modifier.height(64.dp),
                 maxLines = 2
             )

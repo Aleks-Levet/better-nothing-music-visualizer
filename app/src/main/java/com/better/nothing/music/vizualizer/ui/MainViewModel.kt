@@ -201,6 +201,49 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val _broadcastEnabled = MutableStateFlow(false)
+    val broadcastEnabled = _broadcastEnabled.asStateFlow()
+
+    fun setBroadcastEnabled(enabled: Boolean) {
+        _broadcastEnabled.value = enabled
+        MainActivity.serviceStatic?.setBroadcastEnabled(enabled)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("broadcast_enabled", enabled) }
+        }
+    }
+
+    private val _discoveredHosts = MutableStateFlow<List<UdpNetworkSync.HostInfo>>(emptyList())
+    val discoveredHosts = _discoveredHosts.asStateFlow()
+
+    private val _isDiscovering = MutableStateFlow(false)
+    val isDiscovering = _isDiscovering.asStateFlow()
+
+    fun startDiscovery() {
+        _isDiscovering.value = true
+        _discoveredHosts.value = emptyList()
+        MainActivity.serviceStatic?.discoverHosts { host ->
+            val current = _discoveredHosts.value.toMutableList()
+            if (!current.any { it.ip == host.ip }) {
+                current.add(host)
+                _discoveredHosts.value = current
+            }
+            return@discoverHosts kotlin.Unit
+        }
+        viewModelScope.launch {
+            delay(3000)
+            _isDiscovering.value = false
+        }
+    }
+
+    private val _selectedHost = MutableStateFlow<UdpNetworkSync.HostInfo?>(null)
+    val selectedHost = _selectedHost.asStateFlow()
+
+    fun connectToHost(host: UdpNetworkSync.HostInfo) {
+        _selectedHost.value = host
+        setCaptureSource(AudioCaptureService.CaptureSource.NETWORK)
+    }
+
     private val _overlayWidth = MutableStateFlow(120)
     val overlayWidth = _overlayWidth.asStateFlow()
     fun setOverlayWidth(width: Int) {
@@ -1461,6 +1504,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _selectedTheme.value = prefs.getString("selected_theme", "Default") ?: "Default"
         _selectedFont.value = prefs.getString("selected_font", "Default") ?: "Default"
         _notificationButtonSet.value = prefs.getString("notification_button_set", "presets") ?: "presets"
+        _broadcastEnabled.value = prefs.getBoolean("broadcast_enabled", false)
 
         // Haptics settings
         _hapticMotorEnabled.value = prefs.getBoolean("haptic_motor_enabled", false)

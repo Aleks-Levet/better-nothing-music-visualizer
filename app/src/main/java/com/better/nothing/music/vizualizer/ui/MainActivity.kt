@@ -270,9 +270,6 @@ class MainActivity : AppCompatActivity() {
             s.stopVisualizer()
             if (isTrampoline) finish()
         } else {
-            val intentService = Intent(this, AudioCaptureService::class.java)
-            startForegroundService(intentService)
-
             val source = if (isTrampoline) {
                 val prefs = getSharedPreferences("viz_prefs", MODE_PRIVATE)
                 val saved = prefs.getString("capture_source", AudioCaptureService.CaptureSource.INTERNAL.name)
@@ -286,10 +283,14 @@ class MainActivity : AppCompatActivity() {
             }
 
             when (source) {
-                AudioCaptureService.CaptureSource.INTERNAL -> launchProjection()
+                AudioCaptureService.CaptureSource.INTERNAL -> {
+                    startForegroundService(Intent(this, AudioCaptureService::class.java))
+                    launchProjection()
+                }
 
                 AudioCaptureService.CaptureSource.MIC -> {
                     if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                        startForegroundService(Intent(this, AudioCaptureService::class.java))
                         s.startVisualizer()
                         if (isTrampoline) finish()
                     } else {
@@ -297,6 +298,17 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 AudioCaptureService.CaptureSource.VIZUALIZER -> {
+                    if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                        startForegroundService(Intent(this, AudioCaptureService::class.java))
+                        s.startVisualizer()
+                        if (isTrampoline) finish()
+                    } else {
+                        audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                    }
+                }
+
+                AudioCaptureService.CaptureSource.NETWORK -> {
+                    startForegroundService(Intent(this, AudioCaptureService::class.java))
                     s.startVisualizer()
                     if (isTrampoline) finish()
                 }
@@ -606,6 +618,7 @@ internal fun BetterVizApp(
                             onAutoDeviceToggle = { viewModel.setAutoDeviceMemorize(it) },
                             connectedDeviceName = MainActivity.serviceStatic?.getActiveAudioRouteName()
                                 ?: "Unknown",
+                            viewModel = viewModel,
                             fftRaw = fftRaw,
                             captureSource = captureSource,
                             onCaptureSourceChanged = { viewModel.setCaptureSource(it) },
@@ -615,6 +628,8 @@ internal fun BetterVizApp(
                             onHapticsEnabledChanged = { viewModel.setHapticMotorEnabled(it) },
                             flashlightEnabled = flashlightEnabled,
                             onFlashlightEnabledChanged = { viewModel.setFlashlightEnabled(it) },
+                            broadcastEnabled = viewModel.broadcastEnabled.collectAsStateWithLifecycle().value,
+                            onBroadcastEnabledChanged = { viewModel.setBroadcastEnabled(it) },
                             developerModeEnabled = developerModeEnabled,
                             isGlyphAvailable = selectedDevice != com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_UNKNOWN,
                             hasHapticMotor = viewModel.hasHapticMotor,

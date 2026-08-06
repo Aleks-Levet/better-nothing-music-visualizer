@@ -4,9 +4,12 @@ import com.better.nothing.music.vizualizer.R;
 import com.better.nothing.music.vizualizer.ui.MainActivity;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Icon;
+import android.os.Build;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
+import android.Manifest;
 
 public class VisualizerTileService extends TileService {
     @Override public void onStartListening() { super.onStartListening(); refresh(); }
@@ -19,7 +22,10 @@ public class VisualizerTileService extends TileService {
         } else {
             refresh(true); // Immediate UI feedback
             String sourceStr = getSharedPreferences("viz_prefs", MODE_PRIVATE).getString("capture_source", "INTERNAL");
-            if ("INTERNAL".equals(sourceStr)) {
+            boolean needsMic = "MIC".equals(sourceStr) || "VIZUALIZER".equals(sourceStr);
+            boolean hasMicPerm = checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
+
+            if ("INTERNAL".equals(sourceStr) || (needsMic && !hasMicPerm)) {
                 unlockAndRun(() -> {
                     Intent i = new Intent(this, MainActivity.class);
                     i.putExtra("request_start", true);
@@ -28,14 +34,22 @@ public class VisualizerTileService extends TileService {
                             this,
                             3,
                             i,
-                            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                            PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
                     );
-                    startActivityAndCollapse(pendingIntent);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        startActivityAndCollapse(pendingIntent);
+                    } else {
+                        startActivityAndCollapse(i);
+                    }
                 });
             } else {
                 Intent startIntent = new Intent(this, AudioCaptureService.class);
                 startIntent.setAction(AudioCaptureService.ACTION_START);
-                startForegroundService(startIntent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(startIntent);
+                } else {
+                    startService(startIntent);
+                }
             }
         }
     }
@@ -44,7 +58,9 @@ public class VisualizerTileService extends TileService {
         Tile t=getQsTile(); if(t==null) return;
         t.setState(on?Tile.STATE_ACTIVE:Tile.STATE_INACTIVE);
         t.setLabel("BNMV");
-        t.setSubtitle(on?"Running":"Better Nothing Music Vizualiser");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            t.setSubtitle(on ? "Running" : "Better Nothing Music Vizualiser");
+        }
         t.setIcon(Icon.createWithResource(this, R.drawable.ic_launcher_monochrome));
         t.updateTile();
     }

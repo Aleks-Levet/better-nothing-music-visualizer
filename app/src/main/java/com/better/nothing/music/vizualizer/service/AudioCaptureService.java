@@ -10,6 +10,7 @@ import com.better.nothing.music.vizualizer.logic.AudioDeviceManager;
 import com.better.nothing.music.vizualizer.logic.ContinuousHapticEngine;
 import com.better.nothing.music.vizualizer.logic.BeatDetectionHapticEngine;
 import com.better.nothing.music.vizualizer.logic.FlashlightEngine;
+import com.better.nothing.music.vizualizer.logic.UdpNetworkSync;
 import com.better.nothing.music.vizualizer.ui.MainActivity;
 
 import android.Manifest;
@@ -95,7 +96,7 @@ public class AudioCaptureService extends Service {
     private static final String TAG = "GlyphViz:Service";
     private static final String CHANNEL_ID = "glyph_viz_channel";
     private static final int NOTIF_ID = 1;
-    public enum CaptureSource { INTERNAL, MIC, VIZUALIZER }
+    public enum CaptureSource { INTERNAL, MIC, VIZUALIZER, NETWORK }
     private volatile CaptureSource mCaptureSource = CaptureSource.INTERNAL;
 
     public static final String ACTION_STOP = "com.better.nothing.music.vizualizer.action.STOP";
@@ -103,6 +104,7 @@ public class AudioCaptureService extends Service {
     public static final String ACTION_TOGGLE_HAPTICS = "com.better.nothing.music.vizualizer.action.TOGGLE_HAPTICS";
     public static final String ACTION_TOGGLE_TORCH = "com.better.nothing.music.vizualizer.action.TOGGLE_TORCH";
     public static final String ACTION_TOGGLE_GLYPHS = "com.better.nothing.music.vizualizer.action.TOGGLE_GLYPHS";
+    public static final String ACTION_TOGGLE_BROADCAST = "com.better.nothing.music.vizualizer.action.TOGGLE_BROADCAST";
     public static final String ACTION_SET_SOURCE = "com.better.nothing.music.vizualizer.action.SET_SOURCE";
     public static final String ACTION_REFRESH_SETTINGS = "com.better.nothing.music.vizualizer.action.REFRESH_SETTINGS";
     public static final String ACTION_PREV_PRESET = "com.better.nothing.music.vizualizer.action.PREV_PRESET";
@@ -270,6 +272,8 @@ public class AudioCaptureService extends Service {
     private FlashlightEngine mFlashlightEngine;
     private AudioProcessor mAudioProcessor;
     private GlyphRenderer mGlyphRenderer;
+    private UdpNetworkSync mUdpSync;
+    private boolean mBroadcastEnabled = false;
     private long mLastSendMs = 0L;
     private long mCaptureStartTimeMs = 0L;
     private volatile int[] mLatestRawFFT = new int[512];
@@ -398,6 +402,7 @@ public class AudioCaptureService extends Service {
         mBeatDetectionEngine = new BeatDetectionHapticEngine(this);
         mFlashlightEngine = new FlashlightEngine(this);
         mAudioProcessor = new AudioProcessor();
+        mUdpSync = new UdpNetworkSync(this);
         mAudioDeviceManager = new AudioDeviceManager(this, this::refreshLatencyForCurrentAudioRoute);
         mSelectedDevice = DeviceProfile.detectDevice();
         if (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) mSelectedDevice = DeviceProfile.DEVICE_NP2;
@@ -412,6 +417,7 @@ public class AudioCaptureService extends Service {
         }
         mIdleBreathingEnabled = appPrefs.getBoolean("idle_breathing_enabled", false);
         mDisableGlyphsWhenSilent = appPrefs.getBoolean("disable_glyphs_when_silent", false);
+        mBroadcastEnabled = appPrefs.getBoolean("broadcast_enabled", false);
         mOverlayEnabled = appPrefs.getBoolean("overlay_enabled", false);
         mOverlayWidth = appPrefs.getInt("overlay_width", 120);
         mOverlayHeight = appPrefs.getInt("overlay_height", 12);
@@ -464,6 +470,7 @@ public class AudioCaptureService extends Service {
         if (mGlyphRenderer != null) mGlyphRenderer.setIdleBreathingEnabled(mIdleBreathingEnabled);
         
         mDisableGlyphsWhenSilent = appPrefs.getBoolean("disable_glyphs_when_silent", false);
+        setBroadcastEnabled(appPrefs.getBoolean("broadcast_enabled", false));
         
         mOverlayEnabled = appPrefs.getBoolean("overlay_enabled", false);
         mEdgeVisualizerEnabled = appPrefs.getBoolean("edge_visualizer_enabled", false);
@@ -475,6 +482,9 @@ public class AudioCaptureService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            startForegroundWithTypes(mCaptureSource);
+        }
         if (intent != null) {
             String action = intent.getAction();
             if (ACTION_STOP.equals(action)) { stopCapture(); stopSelf(); return START_NOT_STICKY; }
@@ -501,6 +511,11 @@ public class AudioCaptureService extends Service {
                 boolean nextEnabled = !mFlashlightEnabled;
                 setFlashlightEnabled(nextEnabled);
                 getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putBoolean("flashlight_enabled", nextEnabled).apply();
+            }
+            else if (ACTION_TOGGLE_BROADCAST.equals(action)) {
+                boolean nextEnabled = !mBroadcastEnabled;
+                setBroadcastEnabled(nextEnabled);
+                getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putBoolean("broadcast_enabled", nextEnabled).apply();
             }
             else if (ACTION_TOGGLE_GLYPHS.equals(action)) {
                 int nextVal;
@@ -547,6 +562,7 @@ public class AudioCaptureService extends Service {
     public void startVisualizer() {
         if (mCaptureSource == CaptureSource.MIC) startMicCapture();
         else if (mCaptureSource == CaptureSource.VIZUALIZER) startVizualizerCapture();
+        else if (mCaptureSource == CaptureSource.NETWORK) startNetworkCapture();
     }
     public void stopVisualizer() { stopCapture(); }
 
@@ -624,6 +640,38 @@ public class AudioCaptureService extends Service {
         if (!enabled && !mSessionOpen && mGM != null) mWorkerHandler.post(this::ensureGlyphSession);
     }
 
+    public void setBroadcastEnabled(boolean enabled) {
+        mBroadcastEnabled = enabled;
+        if (enabled) {
+            mUdpSync.startBroadcasting(Build.MODEL); // Or any device name
+        } else {
+            mUdpSync.stopBroadcasting();
+        }
+        requestWidgetRefresh();
+    }
+
+    public void startNetworkCapture() {
+        synchronized (mCaptureLock) {
+            stopCaptureLocked();
+            startForegroundWithTypes(CaptureSource.NETWORK);
+            mCapturing = true; setRunning(true); updateOverlayVisibility(); mCaptureStartTimeMs = SystemClock.elapsedRealtime();
+            mUdpSync.startListening(fft -> {
+                if (mCapturing && mCaptureSource == CaptureSource.NETWORK) {
+                    PendingFrame frame = new PendingFrame(fft, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
+                    synchronized (mVisualizerPendingFrames) {
+                        mVisualizerPendingFrames.addLast(frame);
+                        dispatchDueFrames(mVisualizerPendingFrames);
+                    }
+                }
+                return null;
+            });
+        }
+    }
+    
+    public void discoverHosts(kotlin.jvm.functions.Function1<? super UdpNetworkSync.HostInfo, kotlin.Unit> callback) {
+        mUdpSync.discoverHosts(callback);
+    }
+
     public void setOverlayEnabled(boolean enabled) { mOverlayEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); requestWidgetRefresh(); }
     public void setOverlayTopEnabled(boolean enabled) { mOverlayTopEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); requestWidgetRefresh(); }
     public void setOverlayBottomEnabled(boolean enabled) { mOverlayBottomEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); requestWidgetRefresh(); }
@@ -694,11 +742,12 @@ public class AudioCaptureService extends Service {
             stopCaptureLocked();
             if (source == CaptureSource.INTERNAL) {
                 if (pm == null) return;
-                if (Build.VERSION.SDK_INT >= 29) startForeground(NOTIF_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION); else startForeground(NOTIF_ID, buildNotification());
+                startForegroundWithTypes(CaptureSource.INTERNAL);
                 mProjection = pm.getMediaProjection(resultCode, data);
                 if (mProjection == null) { stopForeground(STOP_FOREGROUND_REMOVE); setRunning(false); return; }
+                startForegroundWithTypes(CaptureSource.INTERNAL); // Re-call to include MEDIA_PROJECTION type now that mProjection is set
                 mProjection.registerCallback(mProjectionCallback, mWorkerHandler);
-            } else if (Build.VERSION.SDK_INT >= 29) startForeground(NOTIF_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE); else startForeground(NOTIF_ID, buildNotification());
+            } else startForegroundWithTypes(source);
             mCapturing = true; setRunning(true); updateOverlayVisibility(); mCaptureStartTimeMs = SystemClock.elapsedRealtime();
             ensureCaptureExecutor();
             mCaptureExecutor.execute(() -> {
@@ -731,6 +780,29 @@ public class AudioCaptureService extends Service {
         refreshNotification();
     }
 
+    private void startForegroundWithTypes(CaptureSource source) {
+        Notification notification = buildNotification();
+        if (Build.VERSION.SDK_INT >= 34) {
+            int type = ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
+            if (source == CaptureSource.INTERNAL) {
+                type |= ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION;
+            } else if (source == CaptureSource.MIC || source == CaptureSource.VIZUALIZER) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                    type |= ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
+                }
+            }
+            startForeground(NOTIF_ID, notification, type);
+        } else if (Build.VERSION.SDK_INT >= 29) {
+            int type = 0;
+            if (source == CaptureSource.INTERNAL) type = ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION;
+            else if (source == CaptureSource.MIC || source == CaptureSource.VIZUALIZER) type = ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
+            if (type != 0) startForeground(NOTIF_ID, notification, type);
+            else startForeground(NOTIF_ID, notification);
+        } else {
+            startForeground(NOTIF_ID, notification);
+        }
+    }
+
     public void stopCapture() { synchronized (mCaptureLock) { stopCaptureLocked(); } }
     private void stopCaptureLocked() {
         mCapturing = false; setRunning(false); updateOverlayVisibility();
@@ -760,6 +832,9 @@ public class AudioCaptureService extends Service {
                 }
 
                 if (mSessionOpen && (now - mLastSendMs >= MIN_SEND_INTERVAL_MS)) {
+                    if (mBroadcastEnabled) {
+                        mUdpSync.sendFft(fftraw);
+                    }
                     int[] frameColors = mGlyphRenderer.processFrame(fftraw, config, now);
                     if (frameColors != null) {
                         try {

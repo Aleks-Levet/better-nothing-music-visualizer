@@ -85,9 +85,9 @@ internal fun SettingsScreen(
             }
         )
 
-        Row(
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             LinkCard(
                 title = stringResource(R.string.about_title),
@@ -612,14 +612,6 @@ internal fun SettingsScreen(
                                 onClick = { onDisableGlyphsWhenSilentChanged(!disableGlyphsWhenSilent) }
                             )
                         }
-                        if (viewModel.hasFlashlight) {
-                            OptionTile(
-                                label = stringResource(R.string.flashlight_multi_intensity_forced_title),
-                                icon = Icons.Default.FlashlightOn,
-                                isSelected = flashlightMultiIntensityForced,
-                                onClick = { viewModel.setFlashlightMultiIntensityForced(!flashlightMultiIntensityForced) }
-                            )
-                        }
                     }
 
                     // Notification Button Set
@@ -686,6 +678,15 @@ internal fun SettingsScreen(
                             isSelected = lensVisualizerEnabled,
                             onClick = { viewModel.setLensVisualizerEnabled(!lensVisualizerEnabled) }
                         )
+                        
+                        if (viewModel.hasFlashlight) {
+                            OptionTile(
+                                label = stringResource(R.string.flashlight_multi_intensity_forced_title),
+                                icon = Icons.Default.FlashlightOn,
+                                isSelected = flashlightMultiIntensityForced,
+                                onClick = { viewModel.setFlashlightMultiIntensityForced(!flashlightMultiIntensityForced) }
+                            )
+                        }
                     }
                 }
             }
