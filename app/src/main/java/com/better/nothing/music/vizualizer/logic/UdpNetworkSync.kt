@@ -79,6 +79,7 @@ class UdpNetworkSync(private val context: Context) {
                     val packet = DatagramPacket(buffer, buffer.size)
                     discoverySocket?.receive(packet)
                     val msg = String(packet.data, 0, packet.length)
+                    Log.d(TAG, "Received discovery message: $msg from ${packet.address}")
                     if (msg == DISCOVERY_MSG) {
                         val response = "$HOST_MSG_PREFIX;$deviceName;${Build.MODEL};${getIpAddress()};$STREAMING_PORT;$PROTOCOL_VERSION"
                         val responseData = response.toByteArray()
@@ -89,6 +90,7 @@ class UdpNetworkSync(private val context: Context) {
                             packet.port
                         )
                         discoverySocket?.send(responsePacket)
+                        Log.d(TAG, "Sent host info to ${packet.address}")
                         
                         // Add to streaming list if not already there
                         synchronized(clientIps) {
@@ -176,8 +178,10 @@ class UdpNetworkSync(private val context: Context) {
             try {
                 if (streamingSocket == null) {
                     streamingSocket = DatagramSocket()
+                    Log.d(TAG, "Created streaming socket")
                 }
                 synchronized(clientIps) {
+                    if (clientIps.isEmpty()) return@execute
                     val it = clientIps.iterator()
                     while (it.hasNext()) {
                         val ip = it.next()
@@ -196,6 +200,7 @@ class UdpNetworkSync(private val context: Context) {
     fun startListening(onFftReceived: (IntArray) -> Unit) {
         if (isListening) return
         isListening = true
+        Log.d(TAG, "Starting to listen for FFT on port $STREAMING_PORT")
         executor.execute {
             try {
                 listeningSocket = DatagramSocket(STREAMING_PORT)
@@ -206,6 +211,8 @@ class UdpNetworkSync(private val context: Context) {
                     if (packet.length == 768) {
                         val fft = unpackUint12(packet.data)
                         onFftReceived(fft)
+                    } else {
+                        Log.w(TAG, "Received packet with unexpected length: ${packet.length}")
                     }
                 }
             } catch (e: Exception) {
@@ -216,6 +223,7 @@ class UdpNetworkSync(private val context: Context) {
                 listeningSocket?.close()
                 listeningSocket = null
                 isListening = false
+                Log.d(TAG, "Stopped listening")
             }
         }
     }
@@ -256,7 +264,7 @@ class UdpNetworkSync(private val context: Context) {
             val b2 = packed[i * 3 + 2].toInt() and 0xFF
             
             val v1 = b0 or ((b1 and 0x0F) shl 8)
-            val v2 = (b1 shr 4) or (b2 shl 4)
+            val v2 = ((b1 and 0xF0) shr 4) or (b2 shl 4)
             
             data[i * 2] = v1
             data[i * 2 + 1] = v2

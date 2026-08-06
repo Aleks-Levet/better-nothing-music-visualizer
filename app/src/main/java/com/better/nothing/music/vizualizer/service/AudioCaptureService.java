@@ -575,6 +575,7 @@ public class AudioCaptureService extends Service {
             stopCapture();
             if (mCaptureSource == CaptureSource.MIC) startMicCapture();
             else if (mCaptureSource == CaptureSource.VIZUALIZER) startVizualizerCapture();
+            else if (mCaptureSource == CaptureSource.NETWORK) startNetworkCapture();
         });
     }
 
@@ -651,6 +652,7 @@ public class AudioCaptureService extends Service {
     }
 
     public void startNetworkCapture() {
+        Log.d(TAG, "startNetworkCapture: starting client mode");
         synchronized (mCaptureLock) {
             stopCaptureLocked();
             startForegroundWithTypes(CaptureSource.NETWORK);
