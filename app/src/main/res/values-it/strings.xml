@@ -2,9 +2,7 @@
 <resources>
 
     <!-- Audio Screen -->
-    <string name="audio_screen_title">Visualizzatore Musicale\nBetter Nothing</string>
     <string name="audio_description_running">Il visualizzatore audio in tempo reale è attivo. Il tuo telefono ora balla al ritmo! Nessun contenuto viene salvato e la privacy è rispettata.</string>
-    <string name="audio_description_idle">Questa app è stata creata da Aleks Levet, rKyzen e Oliver Lebaigue.\n\nPer sincronizzare l\'interfaccia Glyph con la tua musica, questa app cattura l\'audio del dispositivo. Utilizziamo Media Projection per una visualizzazione ad alta fedeltà.\n\nNota sulla privacy: utilizziamo solo il flusso audio. Nessun contenuto dello schermo viene registrato.</string>
     <string name="audio_warning_vizualizer">Attenzione: questa sorgente utilizza il flusso audio standard dello stile visualizzatore Android. È a bassa fedeltà e potrebbe non essere ottimale.</string>
     <string name="auto_memorize_device">Memorizza dispositivo automaticamente</string>
     <string name="saving_latency_for">Salvataggio latenza per: %s</string>
@@ -76,11 +74,6 @@
     <string name="start_visualizer">Avvia</string>
     <string name="stop_visualizer">Ferma</string>
     <string name="glyph_no_config">Nessuna configurazione caricata. Verifica gli aggiornamenti nelle Impostazioni per scaricare i predefiniti più recenti.</string>
-    <string name="glyph_debug_title">Nothing Phone (1) su Android 15</string>
-    <string name="glyph_debug_desc_adb_enabled">Le funzioni Glyph richiedono l\'abilitazione dell\'interfaccia di debug Glyph di Nothing tramite ADB su questo dispositivo.</string>
-    <string name="glyph_debug_desc_dev_options">Le funzioni Glyph richiedono prima l\'abilitazione delle opzioni Sviluppatore su Nothing Phone (1) con Android 15. Successivamente, esegui questo comando ADB:</string>
-    <string name="glyph_debug_command">adb shell settings put global nt_glyph_interface_debug_enable 1</string>
-    <string name="glyph_debug_instruction">Esegui il comando una volta da un computer con ADB, quindi riapri l\'app se i Glyph continuano a non rispondere.</string>
 
     <!-- About Screen -->
     <string name="about_title">Info app e aggiornamenti</string>
@@ -107,7 +100,6 @@
     <string name="capture_media_projection">Media Projection\n(predefinito, migliore)</string>
     <string name="capture_microphone">Microfono</string>
     <string name="capture_vizualizer">Visualizzatore integrato Android</string>
-    <string name="capture_shizuku">Shizuku</string>
     <string name="update_available">Aggiornamento disponibile: %s</string>
     <string name="update_now">Aggiorna ora</string>
     <string name="credit_alekslevet_role">Fondatore, coordinatore, idea principale, proprietario</string>
@@ -119,7 +111,6 @@
     <string name="credit_ake_role">Sviluppatore che lavora su un\'app musicale con integrazione</string>
     <string name="credit_interlastic_role">Bot Discord per testare lo script (deprecato)</string>
 
-    <string name="app_news">Novità dell\'app</string>
     <string name="music_theme_notification_access">Il tema musicale richiede l\'accesso alle notifiche. Abilitalo per questa app.</string>
     <string name="idle_pattern">Modello a riposo</string>
     <string name="idle_pattern_pulse">Pulsazione</string>
@@ -129,20 +120,8 @@
     <string name="idle_pattern_heartbeat">Battito cardiaco</string>
     <string name="idle_pattern_orbit">Orbita</string>
     <string name="idle_pattern_rain">Pioggia</string>
-    <string name="strobe_mode">Modalità strobo</string>
-    <string name="strobe_mode_desc">Modello di lampeggio alternato per i Glyph</string>
-    <string name="developer_access">Accesso sviluppatore</string>
-    <string name="developer_access_desc">Inserisci la password dello sviluppatore per abilitare le funzioni avanzate e la simulazione del dispositivo.</string>
-    <string name="password">Password</string>
-    <string name="unlock">Sblocca</string>
-    <string name="incorrect_password">Password errata</string>
     <string name="cancel">Annulla</string>
-    <string name="global_announcements">Annunci globali</string>
     <string name="global_announcements_desc">Notifica tutti gli utenti su aggiornamenti o novità</string>
-    <string name="create">Crea</string>
-    <string name="unlock_shizuku_source">Sblocca sorgente Shizuku</string>
-    <string name="unlock_shizuku_source_desc">Cattura sperimentale ad alta fedeltà</string>
-    <string name="expressive_ui">UI espressiva</string>
     <string name="nav_overlay">Sovrapposizione navigazione</string>
     <string name="overlay_width">Larghezza sovrapposizione</string>
     <string name="overlay_height">Altezza sovrapposizione</string>
@@ -181,12 +160,6 @@
     <string name="overlay_permission_denied">Autorizzazione alla sovrapposizione negata</string>
     <string name="notification_access_required">Abilita l\'accesso alle notifiche per questa funzione</string>
 
-    <string name="thanks_downloading">grazie per il download</string>
-    <string name="thanks_installing">grazie per l\'installazione</string>
-    <string name="thanks_using">grazie per aver usato l\'app</string>
-    <string name="thanks_nothing">grazie di niente (Nothing)</string>
-    <string name="thanks_participating">grazie per la partecipazione alla community</string>
-
     <string name="config_update_success">zones.config aggiornato con successo</string>
     <string name="config_import_success">zones.config importato con successo</string>
     <string name="config_import_error">Impossibile leggere il file selezionato</string>
@@ -198,64 +171,8 @@
     <string name="license_title">Licenza</string>
     <string name="license_agreement">Contratto di licenza</string>
     <string name="read_license">Leggi la licenza del software</string>
-    <string name="license_agreement_title">ACCORDO DI LICENZA BETTER-NOTHING-MUSIC-VISUALIZER</string>
-    <string name="license_version">Versione: 1.1</string>
-    <string name="license_date">Data: 29 giugno 2026</string>
-    <string name="license_licensor">Licenziante</string>
-    <string name="license_licensor_name">Oliver Lebaigue</string>
-    <string name="license_founder">Fondatore</string>
-    <string name="license_founder_name">Aleks Levet</string>
-    <string name="license_organization">Organizzazione</string>
-    <string name="license_organization_name">Luminus Labs</string>
-    <string name="license_section_1">1. PREAMBOLO</string>
-    <string name="license_preamble_1">Il presente Accordo di licenza (\"Accordo\") è un accordo legale tra l\'utente (\"Licenziatario\") e Oliver Lebaigue (\"Licenziante\") per l\'uso, la revisione e la modifica dell\'applicazione software del visualizzatore musicale nota come \"better-nothing-music-visualizer\" (il \"Software\"), un progetto fondato da Aleks Levet sotto l\'organizzazione Luminus Labs.</string>
-    <string name="license_preamble_2">Il codice sorgente del Software è ospitato pubblicamente all\'indirizzo https://github.com/aleks-levet/better-nothing-music-visualizer. Accedendo, scaricando, copiando o utilizzando in altro modo il Software o il suo Codice sorgente, il Licenziatario accetta di essere vincolato dai termini del presente Accordo.</string>
-    <string name="license_section_2">2. DEFINIZIONI</string>
-    <string name="license_def_1">2.1 Per \"Software\" si intende l\'applicazione software better-nothing-music-visualizer, inclusi, a titolo esemplificativo ma non esaustivo, il codice sorgente, i moduli di elaborazione audio, i motori di rendering, le risorse visive, le librerie grafiche, gli script di configurazione, la documentazione, i file oggetto, gli eseguibili binari e qualsiasi supporto o risorsa associata.</string>
-    <string name="license_def_2">2.2 Per \"Codice sorgente\" si intendono i file del Software divulgati pubblicamente, inclusi tutti i file di script, il codice shader, le risorse e le configurazioni di build.</string>
-    <string name="license_section_3">3. CONCESSIONE DI LICENZA E ACCESSIBILITÀ</string>
-    <string name="license_section_3_1">3.1 Disponibilità pubblica</string>
-    <string name="license_grant_3_1">Il Licenziante riconosce che il Codice sorgente è pubblico. Al Licenziatario viene concessa una licenza non esclusiva, non trasferibile e revocabile per scaricare, visualizzare e modificare il Codice sorgente esclusivamente per scopi di valutazione personale, didattica e non commerciale.</string>
-    <string name="license_section_3_2">3.2 Restrizioni</string>
-    <string name="license_grant_3_2">Il Licenziatario NON può:</string>
-    <string name="license_restriction_a">* (a) Ridistribuire il Software o le versioni modificate dello stesso a terzi, se non tramite fork di repository standard su GitHub, a condizione che tali fork rimangano vincolati da questa esatta Licenza.</string>
-    <string name="license_restriction_b">* (b) Utilizzare il Software o qualsiasi opera derivata per scopi commerciali, esecuzioni pubbliche, streaming commerciale o qualsiasi attività che generi ricavi senza previa autorizzazione scritta.</string>
-    <string name="license_restriction_c">* (c) Rimuovere, alterare o oscurare qualsiasi avviso di copyright, marchio, brevetto o diritto di proprietà posto su o all\'interno del Software, inclusi i riferimenti ad Aleks Levet, Luminus Labs o al Licenziante.</string>
-    <string name="license_restriction_d">* (d) Utilizzare il Software per sviluppare qualsiasi software o piattaforma di visualizzazione musicale commerciale concorrente.</string>
-    <string name="license_section_4">4. DIRITTI DI PROPRIETÀ INTELLETTUALE</string>
-    <string name="license_section_4_1">4.1 Proprietà</string>
-    <string name="license_ownership">Il Licenziante, Aleks Levet e Luminus Labs conservano tutti i rispettivi diritti, titoli e interessi nel e sul Software, inclusi tutti i diritti di proprietà intellettuale in esso contenuti. La divulgazione pubblica del Codice sorgente non costituisce una rinuncia al copyright o alla proprietà.</string>
-    <string name="license_section_5">5. NESSUNA GARANZIA</string>
-    <string name="license_section_5_1">5.1 Esclusione di responsabilità</string>
-    <string name="license_warranty_disclaimer">IL SOFTWARE VIENE FORNITO \"COSÌ COM\'È\" E \"CON TUTTI I DIFETTI\". NELLA MISURA MASSIMA CONSENTITA DALLA LEGGE APPLICABILE, IL LICENZIANTE DECLINA OGNI ALTRA GARANZIA E CONDIZIONE, SIA ESSA ESPRESSA, IMPLICITA O LEGALE, INCLUSE, A TITOLO ESEMPLIFICATIVO MA NON ESAUSTIVO, EVENTUALI GARANZIE IMPLICITE DI COMMERCIABILITÀ, IDONEITÀ PER UNO SCOPO PARTICOLARE, TITOLO E NON VIOLAZIONE.</string>
-    <string name="license_section_5_2">5.2 Nessun supporto tecnico</string>
-    <string name="license_technical_support">Il Licenziante, Aleks Levet e Luminus Labs non hanno alcun obbligo di fornire supporto tecnico, aggiornamenti, upgrade o modifiche al Software.</string>
-    <string name="license_section_6">6. LIMITAZIONE DI RESPONSABILITÀ</string>
-    <string name="license_section_6_1">6.1 Limite di responsabilità</string>
-    <string name="license_liability_cap">NELLA MISURA MASSIMA CONSENTITA DALLA LEGGE APPLICABILE, IN NESSUN CASO IL LICENZIANTE, ALEKS LEVET O LUMINUS LABS SARANNO RESPONSABILI PER DANNI INDIRETTI, INCIDENTALI, SPECIALI, CONSEQUENZIALI O PUNITIVI DI ALCUN TIPO (INCLUSI, A TITOLO ESEMPLIFICATIVO MA NON ESAUSTIVO, PERDITA DI PROFITTI, INTERRUZIONE DELL\'ATTIVITÀ O QUALSIASI ALTRA PERDITA PECUNIARIA) DERIVANTI DALL\'USO O DALL\'IMPOSSIBILITÀ DI UTILIZZARE IL SOFTWARE, ANCHE SE AVVISATI DELLA POSSIBILITÀ DI TALI DANNI.</string>
-    <string name="license_section_7">7. RISOLUZIONE</string>
-    <string name="license_section_7_1">7.1 Risoluzione automatica</string>
-    <string name="license_termination">I diritti del Licenziatario ai sensi del presente Accordo cesseranno automaticamente senza preavviso da parte del Licenziante se il Licenziatario non rispetta qualsiasi termine del presente Accordo. Al momento della risoluzione, il Licenziatario dovrà cessare ogni utilizzo e distruggere tutte le copie locali del Software.</string>
-    <string name="license_section_8">8. VARIE</string>
-    <string name="license_section_8_1">8.1 Legge applicabile</string>
-    <string name="license_governing_law">Il presente Accordo sarà disciplinato e interpretato in conformità con le leggi della giurisdizione in cui risiede Oliver Lebaigue, senza riguardo ai suoi principi di conflitto di leggi.</string>
-    <string name="end_of_license">FINE DELL\'ACCORDO DI LICENZA</string>
 
     <string name="back">Indietro</string>
-    <string name="visual_preset_editor">Editor predefiniti visivi</string>
-    <string name="share">Condividi</string>
-    <string name="save">Salva</string>
-    <string name="community_presets">Predefiniti della community</string>
-    <string name="share_to_community">Condividi nella community</string>
-    <string name="share_preset_desc">Condividi il tuo predefinito con altri utenti.</string>
-    <string name="author_name">Nome autore</string>
-    <string name="preset_name">Nome predefinito</string>
-    <string name="segments_selected">Segmenti (%d selezionati)</string>
-    <string name="multi_select">Selezione multipla</string>
-    <string name="bulk_actions">Azioni di massa</string>
-    <string name="bulk_actions_desc">Applica impostazioni a tutti i segmenti selezionati</string>
-    <string name="auto_distribute">Distribuzione automatica</string>
-    <string name="editing_segment">Modifica segmento #%d</string>
     <string name="editing_segments_count">Modifica %d segmenti</string>
     <string name="frequency_range_label">Intervallo di frequenza: %1$dHz - %2$dHz</string>
     <string name="no_presets_found">Nessun predefinito trovato. Sii il primo a condividerne uno!</string>

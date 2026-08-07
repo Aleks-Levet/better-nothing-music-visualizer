@@ -2,9 +2,7 @@
 <resources>
 
     <!-- Audio Screen -->
-    <string name="audio_screen_title">Better Nothing\nMusic Visualizer</string>
     <string name="audio_description_running">Gerçek zamanlı ses görselleştirici aktif. Telefonunuz şimdi ritme göre dans ediyor! Hiçbir içerik kaydedilmez ve gizliliğe saygı duyulur.</string>
-    <string name="audio_description_idle">Bu uygulama Aleks Levet, rKyzen ve Oliver Lebaigue tarafından yapılmıştır.\n\nGlyph Arayüzünü müziğinizle senkronize etmek için bu uygulama cihaz sesini yakalar. Yüksek kaliteli görselleştirme için Media Projection kullanıyoruz.\n\nGizlilik Notu: Yalnızca ses akışını kullanıyoruz. Ekran içeriği kaydedilmez.</string>
     <string name="audio_warning_vizualizer">Uyarı: Bu kaynak standart Android görselleştirici tarzı ses akışını kullanır. Düşük sadakatlidir ve kötü olabilir.</string>
     <string name="auto_memorize_device">Cihazı Otomatik Hatırla</string>
     <string name="saving_latency_for">Şunun için gecikme kaydediliyor: %s</string>
@@ -76,11 +74,6 @@
     <string name="start_visualizer">Başlat</string>
     <string name="stop_visualizer">Durdur</string>
     <string name="glyph_no_config">Henüz bir önayar yüklenmedi. En son görselleştirici önayarlarını indirmek için lütfen Ayarlar\'dan güncellemeleri kontrol edin.</string>
-    <string name="glyph_debug_title">Android 15 yüklü Nothing Phone (1)</string>
-    <string name="glyph_debug_desc_adb_enabled">Glyph özelliklerinin bu cihazda ADB üzerinden Nothing Glyph hata ayıklama arayüzünün etkinleştirilmesine ihtiyacı var.</string>
-    <string name="glyph_debug_desc_dev_options">Android 15 yüklü Nothing Phone (1) cihazında öncelikle Geliştirici seçeneklerinin etkinleştirilmesi gerekir. Ardından bu ADB komutunu çalıştırın:</string>
-    <string name="glyph_debug_command">adb shell settings put global nt_glyph_interface_debug_enable 1</string>
-    <string name="glyph_debug_instruction">Komutu ADB yüklü bir bilgisayardan bir kez çalıştırın, eğer Glyphler hala yanıt vermiyorsa uygulamayı kapatıp açın.</string>
 
     <!-- About Screen -->
     <string name="about_title">Uygulama Hakkında ve Güncellemeler</string>
@@ -107,7 +100,6 @@
     <string name="capture_media_projection">Media Projection(varsayılan, en iyisi)</string>
     <string name="capture_microphone">Mikrofon</string>
     <string name="capture_vizualizer">Android\'in Yerleşik Görselleştiricisi</string>
-    <string name="capture_shizuku">Shizuku</string>
     <string name="update_available">Güncelleme mevcut: %s</string>
     <string name="update_now">Şimdi Güncelle</string>
     <string name="credit_alekslevet_role">Kurucu, koordinatör, ana fikir, sahip</string>
@@ -119,7 +111,6 @@
     <string name="credit_ake_role">Entegrasyonlu bir müzik uygulaması üzerinde çalışan geliştirici</string>
     <string name="credit_interlastic_role">Script testleri için Discord botu (Tarih oldu)</string>
 
-    <string name="app_news">Uygulama Haberleri</string>
     <string name="music_theme_notification_access">Müzik teması Bildirim Erişimi gerektirir. Lütfen bu uygulama için gerekli izinleri verin.</string>
     <string name="idle_pattern">Boşta Deseni</string>
     <string name="idle_pattern_pulse">Nabız</string>
@@ -129,20 +120,8 @@
     <string name="idle_pattern_heartbeat">Kalp Atışı</string>
     <string name="idle_pattern_orbit">Yörünge</string>
     <string name="idle_pattern_rain">Yağmur</string>
-    <string name="strobe_mode">Disko! Modu</string>
-    <string name="strobe_mode_desc">Glifler için alternatif flaş deseni</string>
-    <string name="developer_access">Geliştirici Erişimi</string>
-    <string name="developer_access_desc">Gelişmiş özellikleri ve cihaz taklidini etkinleştirmek için lütfen geliştirici şifresini girin.</string>
-    <string name="password">Şifre</string>
-    <string name="unlock">Kilidi Aç</string>
-    <string name="incorrect_password">Yanlış Şifre</string>
     <string name="cancel">İptal</string>
-    <string name="global_announcements">Global Duyurular</string>
     <string name="global_announcements_desc">Tüm kullanıcıları güncellemeler veya haberler hakkında bilgilendirin</string>
-    <string name="create">Oluştur</string>
-    <string name="unlock_shizuku_source">Shizuku Kaynağının Kilidini Aç</string>
-    <string name="unlock_shizuku_source_desc">Deneysel yüksek isabetli yakalama</string>
-    <string name="expressive_ui">MD3E Arayüz</string>
     <string name="nav_overlay">NavBar Spektrum</string>
     <string name="overlay_width">Spektrum Genişliği</string>
     <string name="overlay_height">Spektrum Yüksekliği</string>
@@ -181,12 +160,6 @@
     <string name="overlay_permission_denied">Bindirme izni reddedildi</string>
     <string name="notification_access_required">Lütfen bu özellik için bildirim erişimini etkinleştirin</string>
 
-    <string name="thanks_downloading">indirdiğiniz için teşekkürler</string>
-    <string name="thanks_installing">yüklediğiniz için teşekkürler</string>
-    <string name="thanks_using">uygulamayı kullandığınız için teşekkürler</string>
-    <string name="thanks_nothing">NOTHING®\'e Teşekkürler</string>
-    <string name="thanks_participating">topluluğa katıldığınız için teşekkürler</string>
-
     <string name="config_update_success">zones.config başarıyla güncellendi</string>
     <string name="config_import_success">zones.config başarıyla içe aktarıldı</string>
     <string name="config_import_error">Seçilen dosya okunamadı</string>
@@ -198,64 +171,8 @@
     <string name="license_title">Lisans</string>
     <string name="license_agreement">Lisans Sözleşmesi</string>
     <string name="read_license">Yazılım lisansını oku</string>
-    <string name="license_agreement_title">BETTER-NOTHING-MUSIC-VISUALIZER LİSANS SÖZLEŞMESİ</string>
-    <string name="license_version">Sürüm: 1.1</string>
-    <string name="license_date">Tarih: 29 Haziran 2026</string>
-    <string name="license_licensor">Lisans Veren</string>
-    <string name="license_licensor_name">Oliver Lebaigue</string>
-    <string name="license_founder">Kurucu</string>
-    <string name="license_founder_name">Aleks Levet</string>
-    <string name="license_organization">Organizasyon</string>
-    <string name="license_organization_name">Luminus Labs</string>
-    <string name="license_section_1">1. BAŞLANGIÇ</string>
-    <string name="license_preamble_1">İşbu Lisans Sözleşmesi (\"Sözleşme\"), Oliver Lebaigue (\"Lisans Veren\") ile siz (\"Lisans Alan\") arasında, Aleks Levet tarafından Luminus Labs organizasyonu altında kurulan \"better-nothing-music-visualizer\" (\"Yazılım\") adlı müzik görselleştirici yazılım uygulamasının kullanımı, incelenmesi ve değiştirilmesi için yapılan yasal bir sözleşmedir.</string>
-    <string name="license_preamble_2">Yazılımın kaynak kodu https://github.com/aleks-levet/better-nothing-music-visualizer adresinde herkese açık olarak barındırılmaktadır. Yazılıma veya Kaynak Koduna erişerek, indirerek, kopyalayarak veya başka bir şekilde kullanarak, Lisans Alan işbu Sözleşmenin şartlarına bağlı kalmayı kabul eder.</string>
-    <string name="license_section_2">2. TANIMLAR</string>
-    <string name="license_def_1">2.1 \"Yazılım\", kaynak kodu, ses işleme modülleri, oluşturma motorları, görsel varlıklar, grafik kitaplıkları, yapılandırma betikleri, dokümantasyon, nesne dosyaları, ikili yürütülebilir dosyalar ve ilgili her türlü medya veya varlığı içeren ancak bunlarla sınırlı olmayan better-nothing-music-visualizer yazılım uygulamasını ifade eder.</string>
-    <string name="license_def_2">2.2 \"Kaynak Kodu\", tüm betik dosyaları, gölgelendirici kodları, varlıklar ve derleme yapılandırmaları dahil olmak üzere Yazılımın herkese açık olarak ifşa edilen dosyalarını ifade eder.</string>
-    <string name="license_section_3">3. LİSANS VERME VE ERİŞİLEBİLİRLİK</string>
-    <string name="license_section_3_1">3.1 Kamuoyuna Açıklık</string>
-    <string name="license_grant_3_1">Lisans Veren, Kaynak Kodunun herkese açık olduğunu kabul eder. Lisans Alan\'a, Kaynak Kodunu yalnızca kişisel, eğitimsel ve ticari olmayan değerlendirme amaçlarıyla indirmesi, görüntülemesi ve değiştirmesi için münhasır olmayan, devredilemez ve iptal edilebilir bir lisans verilir.</string>
-    <string name="license_section_3_2">3.2 Kısıtlamalar</string>
-    <string name="license_grant_3_2">Lisans Alan ŞUNLARI YAPAMAZ:</string>
-    <string name="license_restriction_a">* (a) Yazılımı veya değiştirilmiş versiyonlarını, GitHub üzerindeki standart depo çatalları (fork) hariç olmak üzere, üçüncü taraflara yeniden dağıtamaz; bu çatalların da tam olarak bu Lisansa bağlı kalması şarttır.</string>
-    <string name="license_restriction_b">* (b) Yazılımı veya herhangi bir türev çalışmasını ticari amaçlarla, halka açık performanslarda, ticari yayınlarda veya herhangi bir gelir getirici faaliyette ayrı bir yazılı izin olmaksızın kullanamaz.</string>
-    <string name="license_restriction_c">* (c) Yazılımın üzerine veya içine yerleştirilmiş olan Aleks Levet, Luminus Labs veya Lisans Veren\'e yapılan atıflar da dahil olmak üzere hiçbir telif hakkı, ticari marka, patent veya mülkiyet hakkı bildirimini kaldıramaz, değiştiremez veya gizleyemez.</string>
-    <string name="license_restriction_d">* (d) Yazılımı, rakip bir ticari müzik görselleştirme yazılımı veya platformu geliştirmek için kullanamaz.</string>
-    <string name="license_section_4">4. FİKRİ MÜLKİYET HAKLARI</string>
-    <string name="license_section_4_1">4.1 Mülkiyet</string>
-    <string name="license_ownership">Lisans Veren, Aleks Levet ve Luminus Labs, Yazılım üzerindeki ve Yazılıma ilişkin tüm fikri mülkiyet hakları dahil olmak üzere ilgili tüm hak, unvan ve menfaatleri saklı tutar. Kaynak Kodunun kamuya açıklanması, telif hakkından veya mülkiyetten feragat edildiği anlamına gelmez.</string>
-    <string name="license_section_5">5. GARANTİ YOKTUR</string>
-    <string name="license_section_5_1">5.1 Sorumluluk Reddi</string>
-    <string name="license_warranty_disclaimer">YAZILIM \"OLDUĞU GİBİ\" VE \"TÜM HATALARIYLA\" SUNULMAKTADIR. YÜRÜRLÜKTEKİ YASALARIN İZİN VERDİĞİ AZAMİ ÖLÇÜDE, LİSANS VEREN, TİCARİ ELVERİŞLİLİK, BELİRLİ BİR AMACA UYGUNLUK, MÜLKİYET VE İHLAL ETMEME DAHİL ANCAK BUNLARLA SINIRLI OLMAMAK ÜZERE, AÇIK, ZIMNİ VEYA YASAL DİĞER TÜM GARANTİ VE KOŞULLARI REDDEDER.</string>
-    <string name="license_section_5_2">5.2 Teknik Destek Yoktur</string>
-    <string name="license_technical_support">Lisans Veren, Aleks Levet ve Luminus Labs, Yazılım için teknik destek, güncelleme, yükseltme veya değişiklik sağlama yükümlülüğü altında değildir.</string>
-    <string name="license_section_6">6. SORUMLULUĞUN SINIRLANDIRILMASI</string>
-    <string name="license_section_6_1">6.1 Sorumluluk Üst Sınırı</string>
-    <string name="license_liability_cap">YÜRÜRLÜKTEKİ YASALARIN İZİN VERDİĞİ AZAMİ ÖLÇÜDE, LİSANS VEREN, ALEKS LEVET VEYA LUMINUS LABS, YAZILIMIN KULLANIMINDAN VEYA KULLANILAMAMASINDAN KAYNAKLANAN HİÇBİR DOLAYLI, ARIZİ, ÖZEL, SONUÇSAL VEYA CEZAİ ZARARDAN (KAR KAYBI, İŞİN KESİNTİYE UĞRAMASI VEYA DİĞER MADDİ KAYIPLAR DAHİL ANCAK BUNLARLA SINIRLI OLMAMAK ÜZERE), BU TÜR ZARARLARIN OLASILIĞI KONUSUNDA BİLGİLENDİRİLMİŞ OLSALAR DAHİ, HİÇBİR DURUMDA SORUMLU TUTULAMAZ.</string>
-    <string name="license_section_7">7. FESİH</string>
-    <string name="license_section_7_1">7.1 Otomatik Fesih</string>
-    <string name="license_termination">Lisans Alan\'ın işbu Sözleşme kapsamındaki hakları, Lisans Alan\'ın işbu Sözleşmenin herhangi bir şartına uymaması durumunda, Lisans Veren\'den herhangi bir bildirim gelmeksizin otomatik olarak sona erecektir. Fesih üzerine, Lisans Alan tüm kullanımı durdurmalı ve Yazılımın tüm yerel kopyalarını imha etmelidir.</string>
-    <string name="license_section_8">8. ÇEŞİTLİ HÜKÜMLER</string>
-    <string name="license_section_8_1">8.1 Uygulanacak Hukuk</string>
-    <string name="license_governing_law">İşbu Sözleşme, kanunlar ihtilafı ilkelerine bakılmaksızın, Oliver Lebaigue\'in ikamet ettiği yargı bölgesinin kanunlarına tabi olacak ve bu kanunlara göre yorumlanacaktır.</string>
-    <string name="end_of_license">LİSANS SÖZLEŞMESİNİN SONU</string>
 
     <string name="back">Geri</string>
-    <string name="visual_preset_editor">Görsel Önayar Editörü</string>
-    <string name="share">Paylaş</string>
-    <string name="save">Kaydet</string>
-    <string name="community_presets">Topluluk Önayarları</string>
-    <string name="share_to_community">Toplulukla Paylaş</string>
-    <string name="share_preset_desc">Önayar(lar)ınızi diğer kullanıcılarla paylaşın!</string>
-    <string name="author_name">Hazırlayan</string>
-    <string name="preset_name">Önayar Adı</string>
-    <string name="segments_selected">Segmentler (%d seçildi)</string>
-    <string name="multi_select">Çoklu seçim</string>
-    <string name="bulk_actions">Toplu İşlemler</string>
-    <string name="bulk_actions_desc">Ayarları tüm seçili segmentlere uygula</string>
-    <string name="auto_distribute">Otomatik Dağıt</string>
-    <string name="editing_segment">Segment #%d Düzenleniyor</string>
     <string name="editing_segments_count">%d Segment Düzenleniyor</string>
     <string name="frequency_range_label">Frekans Aralığı: %1$dHz - %2$dHz</string>
     <string name="no_presets_found">Hazır ayar bulunamadı. İlk paylaşan siz olun!</string>

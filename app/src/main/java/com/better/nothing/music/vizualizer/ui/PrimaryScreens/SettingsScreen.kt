@@ -64,8 +64,12 @@ internal fun SettingsScreen(
     val selectedFont by viewModel.selectedFont.collectAsStateWithLifecycle()
     val selectedDevice by viewModel.selectedDevice.collectAsStateWithLifecycle()
     val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
+    val restrictedLocales = listOf("hi", "ar", "ja", "ru", "zh")
+    val currentLocale = context.resources.configuration.locales[0].language
+    val isRestrictedLocale = restrictedLocales.contains(currentLocale)
     val haptics = LocalHapticFeedback.current
-    var showDevModePanel by remember { mutableStateOf(false) }
+    val devModeEnabled by viewModel.developerModeEnabled.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -81,7 +85,7 @@ internal fun SettingsScreen(
             text = stringResource(R.string.settings_title),
             onLongPress = {
                 haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                showDevModePanel = !showDevModePanel
+                viewModel.setDeveloperModeEnabled(!devModeEnabled)
             }
         )
 
@@ -145,30 +149,35 @@ internal fun SettingsScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     // Typography
-                    Text(
-                        text = stringResource(R.string.typography),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    if (!isRestrictedLocale) {
+                        Text(
+                            text = stringResource(R.string.typography),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
 
-                    ExpressiveSplitButton(
-                        items = listOf("NDot", "NType"),
-                        selectedItem = selectedFont,
-                        onItemSelection = { viewModel.setSelectedFont(it) },
-                        labelProvider = {
-                            if (it == "NDot") stringResource(R.string.font_ndot) else stringResource(
-                                R.string.font_ntype
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                        ExpressiveSplitButton(
+                            items = listOf("NDot", "NType", "Google Sans"),
+                            selectedItem = selectedFont,
+                            onItemSelection = { viewModel.setSelectedFont(it) },
+                            labelProvider = {
+                                when (it) {
+                                    "NDot" -> stringResource(R.string.font_ndot)
+                                    "NType" -> stringResource(R.string.font_ntype)
+                                    "Google Sans" -> stringResource(R.string.font_google_sans)
+                                    else -> it
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
 
-                    BodyText(
-                        text = stringResource(R.string.typography_help_text),
-                        size = 12.sp
-                    )
+                        BodyText(
+                            text = stringResource(R.string.typography_help_text),
+                            size = 12.sp
+                        )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
 
                     // Theme Options
                     val themeOptions = listOf(
@@ -298,135 +307,105 @@ internal fun SettingsScreen(
         }
 
         // ── Developer Mode ──────────────────────────────────────────────────
-        if (showDevModePanel) {
-            val devModeEnabled by viewModel.developerModeEnabled.collectAsStateWithLifecycle()
-
+        if (devModeEnabled) {
             ExpressiveCard {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(end = 8.dp),
+                        .padding(bottom = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Icon(
-                            Icons.Default.Code,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
+                    Icon(
+                        Icons.Default.Code,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.developer_mode),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
                         )
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(R.string.developer_mode),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
+                        Text(
+                            text = stringResource(R.string.developer_mode_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                    }
+                }
+
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // 3. Device Spoofing
+                    Column {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Dns,
+                                    null,
+                                    modifier = Modifier.size(18.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    stringResource(R.string.spoof_device),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+
+                        Column(
+                            modifier = Modifier.padding(top = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            val spoofedDevice by viewModel.spoofedDevice.collectAsStateWithLifecycle()
+                            val devices = listOf(
+                                DeviceProfile.DEVICE_NP1,
+                                DeviceProfile.DEVICE_NP2,
+                                DeviceProfile.DEVICE_NP2A,
+                                DeviceProfile.DEVICE_NP3A,
+                                DeviceProfile.DEVICE_NP4A,
+                                DeviceProfile.DEVICE_NP4B,
+                                DeviceProfile.DEVICE_NP4APRO,
+                                DeviceProfile.DEVICE_NP3
                             )
-                            Text(
-                                text = stringResource(R.string.developer_mode_description),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+
+                            FlowRow(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                ExpressiveSplitButton(
+                                    items = devices,
+                                    selectedItem = spoofedDevice,
+                                    onItemSelection = { dev -> viewModel.setSpoofedDevice(dev) },
+                                    labelProvider = { dev ->
+                                        DeviceProfile.deviceName(dev).replace("Nothing Phone ", "")
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                            BodyText(
+                                text = stringResource(R.string.spoof_device_description),
+                                size = 11.sp
                             )
                         }
                     }
-                    Switch(
-                        checked = devModeEnabled,
-                        onCheckedChange = { enabled ->
-                            viewModel.setDeveloperModeEnabled(enabled)
-                        },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.White,
-                            checkedTrackColor = MaterialTheme.colorScheme.primary
-                        ),
-                        modifier = Modifier.size(height = 24.dp, width = 48.dp)
-                    )
-                }
 
-                AnimatedVisibility(visible = devModeEnabled) {
-                    Column(
-                        modifier = Modifier.padding(top = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        // 3. Device Spoofing Toggle
-                        val showSpoofing by viewModel.showSpoofingSettings.collectAsStateWithLifecycle()
-                        Column {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { viewModel.setShowSpoofingSettings(!showSpoofing) }
-                                    .padding(vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    Icon(
-                                        Icons.Default.Dns,
-                                        null,
-                                        modifier = Modifier.size(18.dp),
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                    Text(
-                                        stringResource(R.string.spoof_device),
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                                Icon(
-                                    if (showSpoofing) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                    null,
-                                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-                                )
-                            }
-
-                            AnimatedVisibility(visible = showSpoofing) {
-                                Column(
-                                    modifier = Modifier.padding(top = 8.dp),
-                                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    val spoofedDevice by viewModel.spoofedDevice.collectAsStateWithLifecycle()
-                                    val devices = listOf(
-                                        DeviceProfile.DEVICE_NP1,
-                                        DeviceProfile.DEVICE_NP2,
-                                        DeviceProfile.DEVICE_NP2A,
-                                        DeviceProfile.DEVICE_NP3A,
-                                        DeviceProfile.DEVICE_NP4A,
-                                        DeviceProfile.DEVICE_NP4B,
-                                        DeviceProfile.DEVICE_NP4APRO,
-                                        DeviceProfile.DEVICE_NP3
-                                    )
-
-                                    FlowRow(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        ExpressiveSplitButton(
-                                            items = devices,
-                                            selectedItem = spoofedDevice,
-                                            onItemSelection = { dev -> viewModel.setSpoofedDevice(dev) },
-                                            labelProvider = { dev ->
-                                                DeviceProfile.deviceName(dev).replace("Nothing Phone ", "")
-                                            },
-                                            modifier = Modifier.fillMaxWidth()
-                                        )
-                                    }
-                                    BodyText(
-                                        text = stringResource(R.string.spoof_device_description),
-                                        size = 11.sp
-                                    )
-                                }
-                            }
-                        }
-
-                        // 4. Locale Spoofing
-                        val currentSpoofLocale by viewModel.spoofLocale.collectAsStateWithLifecycle()
-                        Column {
+                    // 4. Locale Spoofing
+                    val currentSpoofLocale by viewModel.spoofLocale.collectAsStateWithLifecycle()
+                    Column {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -485,7 +464,6 @@ internal fun SettingsScreen(
                     }
                 }
             }
-        }
 
         // ── Audio Processing ────────────────────────────────────────────────
         var processingExpanded by remember { mutableStateOf(false) }

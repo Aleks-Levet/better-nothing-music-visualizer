@@ -2,9 +2,7 @@
 <resources>
 
     <!-- Audio Screen -->
-    <string name="audio_screen_title">مصور موسيقى\nNothing المحسن</string>
     <string name="audio_description_running">المصور المرئي للصوت نشط الآن. هاتفك يرقص الآن على الإيقاع! لا يتم حفظ أي محتوى صوتي.</string>
-    <string name="audio_description_idle">تم تطوير هذا التطبيق بواسطة Aleks Levet وrKyzen وOliver lebaigue.\n\nملاحظة الخصوصية: نحن نستخدم فقط بث الصوت. لا يتم تسجيل أي محتوى للشاشة.</string>
     <string name="audio_warning_vizualizer">تنويه: يستخدم هذا المصدر بث الصوت المرئي القياسي الخاص بنظام Android. جودته منخفضة وقد يؤدي إلى نتائج غير مرضية.</string>
     <string name="auto_memorize_device">حفظ الجهاز تلقائيًا</string>
     <string name="saving_latency_for">جارٍ حفظ زمن التأخير لـ: %s</string>
@@ -34,6 +32,7 @@
     <string name="typography">الخط</string>
     <string name="font_ndot">NDot</string>
     <string name="font_ntype">NType</string>
+    <string name="font_google_sans">Google Sans</string>
     <string name="typography_help_text">التبديل بين خطي NDot وNType على مستوى التطبيق بأكمله.</string>
     <string name="more_settings_coming">المزيد من الإعدادات قريبًا…</string>
 
@@ -88,11 +87,6 @@
     <string name="start_visualizer">بدء</string>
     <string name="stop_visualizer">إيقاف</string>
     <string name="glyph_no_config">لم يتم تحميل أي إعداد. يُرجى التحقق من التحديثات في الإعدادات لتنزيل أحدث الإعدادات المسبقة للمصور المرئي.</string>
-    <string name="glyph_debug_title">هاتف Nothing Phone (1) على Android 15</string>
-    <string name="glyph_debug_desc_adb_enabled">تحتاج ميزات Glyph إلى تفعيل واجهة تصحيح أخطاء Glyph الخاصة بـNothing عبر ADB على هذا الجهاز.</string>
-    <string name="glyph_debug_desc_dev_options">تحتاج ميزات Glyph إلى تفعيل خيارات المطوّر أولًا على هاتف Nothing Phone (1) الذي يعمل بنظام Android 15. بعد ذلك، نفّذ أمر ADB التالي:</string>
-    <string name="glyph_debug_command">adb shell settings put global nt_glyph_interface_debug_enable 1</string>
-    <string name="glyph_debug_instruction">نفّذ الأمر مرة واحدة من جهاز كمبيوتر مزوّد بـADB، ثم أعد فتح التطبيق إذا لم تستجب Glyph.</string>
 
     <!-- About Screen -->
     <string name="about_title">معلومات التطبيق والتحديثات</string>
@@ -121,7 +115,6 @@
     <string name="capture_media_projection">MediaProjection\n(الافتراضي، الأفضل)</string>
     <string name="capture_microphone">الميكروفون</string>
     <string name="capture_vizualizer">المصور المرئي المدمج في Android</string>
-    <string name="capture_shizuku">Shizuku</string>
     <string name="update_available">تحديث متاح: %s</string>
     <string name="update_now">التحديث الآن</string>
     <string name="credit_alekslevet_role">المؤسس والمنسّق وصاحب الفكرة الرئيسية والمالك</string>
@@ -133,7 +126,6 @@
     <string name="credit_ake_role">مطوّر يعمل على تطبيق موسيقى متوافق</string>
     <string name="credit_interlastic_role">روبوت Discord لاختبار نص الأوامر (لا يعمل حاليًا)</string>
 
-    <string name="app_news">أخبار التطبيق</string>
     <string name="music_theme_notification_access">يتطلب مظهر الموسيقى الوصول إلى الإشعارات. يُرجى تفعيله لهذا التطبيق.</string>
     <string name="idle_pattern">نمط الخمول</string>
     <string name="idle_pattern_pulse">نبض</string>
@@ -143,41 +135,15 @@
     <string name="idle_pattern_heartbeat">نبضة قلب</string>
     <string name="idle_pattern_orbit">مدار</string>
     <string name="idle_pattern_rain">مطر</string>
-    <string name="strobe_mode">وضع الوميض السريع</string>
-    <string name="strobe_mode_desc">نمط وميض متناوب للرموز الضوئية</string>
-    <string name="developer_access">وصول المطوّر</string>
-    <string name="developer_access_desc">يُرجى إدخال كلمة مرور المطوّر للوصول إلى أدوات الإدارة.</string>
-    <string name="password">كلمة المرور</string>
-    <string name="unlock">إلغاء القفل</string>
-    <string name="incorrect_password">كلمة المرور غير صحيحة</string>
     <string name="cancel">إلغاء</string>
     <string name="back">رجوع</string>
-    <string name="visual_preset_editor">محرّر الإعدادات المسبقة المرئية</string>
-    <string name="share">مشاركة</string>
-    <string name="save">حفظ</string>
-    <string name="community_presets">إعدادات مسبقة من المجتمع</string>
-    <string name="share_to_community">المشاركة مع المجتمع</string>
-    <string name="share_preset_desc">شارك إعدادك المسبق مع مستخدمين آخرين.</string>
-    <string name="author_name">اسم المؤلف</string>
-    <string name="preset_name">اسم الإعداد المسبق</string>
-    <string name="segments_selected">المقاطع (%d محددة)</string>
-    <string name="multi_select">تحديد متعدد</string>
-    <string name="bulk_actions">إجراءات جماعية</string>
-    <string name="bulk_actions_desc">تطبيق الإعدادات على جميع المقاطع المحددة</string>
-    <string name="auto_distribute">توزيع تلقائي</string>
-    <string name="editing_segment">تعديل المقطع رقم %d</string>
     <string name="editing_segments_count">تعديل %d مقاطع</string>
     <string name="frequency_range_label">نطاق التردد: %1$d هرتز - %2$d Hz</string>
     <string name="no_presets_found">لم يُعثر على أي إعدادات مسبقة. كن أول من يشارك واحدًا!</string>
     <string name="preset_by_author">بواسطة %1$s • %2$s</string>
     <string name="downloads_count">%1$s • %2$d تنزيل</string>
     <string name="clear">مسح</string>
-    <string name="global_announcements">إعلانات عامة</string>
     <string name="global_announcements_desc">إخطار جميع المستخدمين بالتحديثات أو الأخبار</string>
-    <string name="create">إنشاء</string>
-    <string name="unlock_shizuku_source">فتح مصدر Shizuku</string>
-    <string name="unlock_shizuku_source_desc">التقاط عالي الدقة تجريبي</string>
-    <string name="expressive_ui">واجهة تعبيرية</string>
     <string name="sync_ui_to_beat">مزامنة الواجهة مع الإيقاع</string>
     <string name="nav_overlay">تراكب شريط التنقل</string>
     <string name="lens_visualizer">مصور العدسة المرئي</string>
@@ -201,26 +167,7 @@
     <string name="notification_button_set_presets">الإعدادات المسبقة</string>
     <string name="notification_button_set_quick_controls">عناصر التحكم السريع</string>
 
-    <string name="profile">الملف الشخصي</string>
-    <string name="leaderboard_nickname">الاسم المستعار في لوحة المتصدرين</string>
-    <string name="profile_picture">صورة الملف الشخصي</string>
-    <string name="profile_help_text">ستكون صورة ملفك الشخصي واسمك المستعار مرئيين للآخرين على لوحة المتصدرين.</string>
-    <string name="failed_to_upload_image">فشل تحميل الصورة: %s</string>
-
     <!-- Auth -->
-    <string name="sign_in">تسجيل الدخول</string>
-    <string name="sign_up">إنشاء حساب</string>
-    <string name="email">البريد الإلكتروني</string>
-    <string name="sign_in_with_google">تسجيل الدخول عبر Google</string>
-    <string name="already_have_account">لديك حساب بالفعل؟ سجّل الدخول</string>
-    <string name="dont_have_account">ليس لديك حساب؟ أنشئ واحدًا</string>
-    <string name="sign_out">تسجيل الخروج</string>
-    <string name="sync_account_desc">سجّل الدخول عبر Google للحفاظ على مزامنة إعداداتك المسبقة وإحصاءاتك عبر الأجهزة.</string>
-    <string name="account_linked">تمت مزامنة الحساب بنجاح!</string>
-    <string name="default_web_client_id">252304807982-ubtpig2ddtukmjfa7cp21lj1mjgnr968.apps.googleusercontent.com</string>
-    <string name="auth_failed">فشلت المصادقة: %s</string>
-    <string name="anonymous_user">مستخدم زائر</string>
-    <string name="authenticated_user">حساب موثّق</string>
 
     <string name="tab_audio">الصوت</string>
     <string name="tab_glyphs">Glyph</string>
@@ -255,12 +202,6 @@
     <string name="overlay_permission_denied">تم رفض إذن التراكب</string>
     <string name="notification_access_required">يُرجى تفعيل الوصول إلى الإشعارات لاستخدام هذه الميزة</string>
 
-    <string name="thanks_downloading">شكرًا لتنزيلك التطبيق</string>
-    <string name="thanks_installing">شكرًا لتثبيتك التطبيق</string>
-    <string name="thanks_using">شكرًا لاستخدامك التطبيق</string>
-    <string name="thanks_nothing">شكرًا على لا شيء</string>
-    <string name="thanks_participating">شكرًا لمشاركتك في المجتمع</string>
-
     <string name="config_update_success">تم تحديث zones.config بنجاح</string>
     <string name="config_import_success">تم استيراد zones.config بنجاح</string>
     <string name="config_import_error">فشلت قراءة الملف المحدد</string>
@@ -272,46 +213,4 @@
     <string name="license_title">الترخيص</string>
     <string name="license_agreement">اتفاقية الترخيص</string>
     <string name="read_license">قراءة ترخيص البرنامج</string>
-    <string name="license_agreement_title">اتفاقية ترخيص BETTER-NOTHING-MUSIC-VISUALIZER</string>
-    <string name="license_version">الإصدار: 1.1</string>
-    <string name="license_date">التاريخ: 29 يونيو 2026</string>
-    <string name="license_licensor">المرخِّص</string>
-    <string name="license_licensor_name">Oliver Lebaigue</string>
-    <string name="license_founder">المؤسس</string>
-    <string name="license_founder_name">Aleks Levet</string>
-    <string name="license_organization">المؤسسة</string>
-    <string name="license_organization_name">Luminus Labs</string>
-    <string name="license_section_1">1. تمهيد</string>
-    <string name="license_preamble_1">تُعدّ اتفاقية الترخيص هذه (\"الاتفاقية\") اتفاقًا قانونيًا بينك (\"المرخَّص له\") وبين Oliver Lebaigue (\"المرخِّص\") بشأن استخدام ومراجعة وتعديل تطبيق المصور الموسيقي المرئي المعروف باسم \"better-nothing-music-visualizer\" (\"البرنامج\")، وهو مشروع أسّسه Aleks Levet تحت مظلة مؤسسة Luminus Labs.</string>
-    <string name="license_preamble_2">المصدر للبرنامج مستضاف علنًا على الرابط https://github.com/aleks-levet/better-nothing-music-visualizer. وبمجرد الوصول إلى البرنامج أو مصدره أو تنزيله أو نسخه أو استخدامه بأي شكل آخر، يوافق المرخَّص له على الالتزام بأحكام هذه الاتفاقية.</string>
-    <string name="license_section_2">2. التعريفات</string>
-    <string name="license_def_1">2.1 يُقصد بـ\"البرنامج\" تطبيق better-nothing-music-visualizer، بما يشمل على سبيل المثال لا الحصر المصدر، ووحدات معالجة الصوت، ومحركات العرض، والأصول المرئية، ومكتبات الرسوميات، ونصوص الإعداد، والوثائق، وملفات الكائنات، والملفات القابلة للتشغيل، وأي وسائط أو أصول ذات صلة.</string>
-    <string name="license_def_2">2.2 يُقصد بـ\"المصدر\" الملفات المُفصَح عنها علنًا للبرنامج، بما يشمل جميع ملفات نصوص الأوامر، ونصوص أوامر الرسوميات، والأصول، وإعدادات البناء.</string>
-    <string name="license_section_3">3. منح الترخيص وإمكانية الوصول</string>
-    <string name="license_section_3_1">3.1 التوفر العام</string>
-    <string name="license_grant_3_1">يُقرّ المرخِّص بأن المصدر متاح للعموم. يُمنح المرخَّص له ترخيصًا غير حصري وغير قابل للتحويل وقابلًا للإلغاء لتنزيل المصدر والاطلاع عليه وتعديله لأغراض شخصية وتعليمية وتقييمية غير تجارية فقط.</string>
-    <string name="license_section_3_2">3.2 القيود</string>
-    <string name="license_grant_3_2">لا يجوز للمرخَّص له:</string>
-    <string name="license_restriction_a">* (أ) إعادة توزيع البرنامج أو نسخ معدّلة منه على أطراف ثالثة، إلا عبر النسخ الفرعية (forks) المعتادة على GitHub، شريطة أن تظل تلك النسخ الفرعية ملتزمة بأحكام هذا الترخيص ذاته.</string>
-    <string name="license_restriction_b">* (ب) استخدام البرنامج أو أي أعمال مشتقة منه لأغراض تجارية، أو عروض علنية، أو بث تجاري، أو أي أنشطة مُدرّة للدخل دون إذن كتابي منفصل.</string>
-    <string name="license_restriction_c">* (ج) إزالة أو تعديل أو إخفاء أي إشعارات حقوق نشر أو علامات تجارية أو براءات اختراع أو حقوق ملكية موضوعة على البرنامج أو داخله، بما في ذلك أي إشارة إلى Aleks Levet أو Luminus Labs أو المرخِّص.</string>
-    <string name="license_restriction_d">* (د) استخدام البرنامج لتطوير أي برنامج أو منصة تجارية منافسة للمصورات الموسيقية المرئية.</string>
-    <string name="license_section_4">4. حقوق الملكية الفكرية</string>
-    <string name="license_section_4_1">4.1 الملكية</string>
-    <string name="license_ownership">يحتفظ المرخِّص وAleks Levet وLuminus Labs بجميع الحقوق والملكية والمصالح الخاصة بكل منهم في البرنامج، بما في ذلك جميع حقوق الملكية الفكرية المتعلقة به. ولا يُشكّل الإفصاح العلني عن المصدر تنازلًا عن حقوق النشر أو الملكية.</string>
-    <string name="license_section_5">5. إخلاء المسؤولية عن الضمان</string>
-    <string name="license_section_5_1">5.1 إخلاء المسؤولية</string>
-    <string name="license_warranty_disclaimer">يُقدَّم البرنامج \"كما هو\" و\"بجميع عيوبه.\" وإلى أقصى حد يسمح به القانون المعمول به، يُخلي المرخِّص مسؤوليته عن جميع الضمانات والشروط الأخرى، سواء كانت صريحة أو ضمنية أو قانونية، بما في ذلك على سبيل المثال لا الحصر أي ضمانات ضمنية للتسويق، أو الملاءمة لغرض معين، أو الملكية، أو عدم التعدي على حقوق الغير.</string>
-    <string name="license_section_5_2">5.2 عدم توفر الدعم الفني</string>
-    <string name="license_technical_support">لا يقع على عاتق المرخِّص أو Aleks Levet أو Luminus Labs أي التزام بتقديم دعم فني أو تحديثات أو ترقيات أو تعديلات للبرنامج.</string>
-    <string name="license_section_6">6. تحديد المسؤولية</string>
-    <string name="license_section_6_1">6.1 سقف المسؤولية</string>
-    <string name="license_liability_cap">إلى أقصى حد يسمح به القانون المعمول به، لا يتحمّل المرخِّص ولا Aleks Levet ولا Luminus Labs بأي حال من الأحوال المسؤولية عن أي أضرار غير مباشرة أو عرضية أو خاصة أو تبعية أو تأديبية أيًّا كان نوعها (بما في ذلك على سبيل المثال لا الحصر خسارة الأرباح، أو انقطاع الأعمال، أو أي خسارة مالية أخرى) ناتجة عن استخدام البرنامج أو عدم القدرة على استخدامه، حتى في حال إخطارهم باحتمال حدوث مثل هذه الأضرار.</string>
-    <string name="license_section_7">7. الإنهاء</string>
-    <string name="license_section_7_1">7.1 الإنهاء التلقائي</string>
-    <string name="license_termination">تنتهي حقوق المرخَّص له بموجب هذه الاتفاقية تلقائيًا ودون إشعار من المرخِّص إذا أخفق المرخَّص له في الالتزام بأي بند من بنود هذه الاتفاقية. وعند الإنهاء، يجب على المرخَّص له التوقف عن أي استخدام للبرنامج وإتلاف جميع النسخ المحلية منه.</string>
-    <string name="license_section_8">8. أحكام متفرقة</string>
-    <string name="license_section_8_1">8.1 القانون الحاكم</string>
-    <string name="license_governing_law">تخضع هذه الاتفاقية لأحكام القانون المعمول به في الولاية القضائية التي يقيم فيها Oliver Lebaigue، وتُفسَّر وفقًا له، بصرف النظر عن مبادئ تنازع القوانين فيه.</string>
-    <string name="end_of_license">نهاية اتفاقية الترخيص</string>
 </resources>

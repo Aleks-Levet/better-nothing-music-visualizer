@@ -2,9 +2,7 @@
 <resources>
 
     <!-- Audio Screen -->
-    <string name="audio_screen_title">Better Nothing\nMusik Visualisierer</string>
     <string name="audio_description_running">Echtzeit-Audio-Visualisierer ist aktiv. Dein Handy tanzt jetzt zum Beat! Es werden keine Inhalte gespeichert und die Privatsphäre wird respektiert.</string>
-    <string name="audio_description_idle">Diese App wurde von Aleks Levet, rKyzen und Oliver Lebaigue erstellt.\n\nUm das Glyph Interface mit deiner Musik zu synchronisieren, erfasst diese App den Ton des Geräts. Wir verwenden Media Projection für eine hochpräzise Visualisierung.\n\nDatenschutzhinweis: Wir nutzen nur den Audiostream. Es werden keine Bildschirminhalte aufgezeichnet.</string>
     <string name="audio_warning_vizualizer">Warnung: Diese Quelle nutzt den Standard-Android-Visualisierungs-Audiostream. Er ist von geringer Qualität und könnte unzureichend sein.</string>
     <string name="auto_memorize_device">Gerät automatisch merken</string>
     <string name="saving_latency_for">Latenz speichern für: %s</string>
@@ -76,11 +74,6 @@
     <string name="start_visualizer">Start</string>
     <string name="stop_visualizer">Stopp</string>
     <string name="glyph_no_config">Keine Konfiguration geladen. Bitte suche in den Einstellungen nach Updates, um die neuesten Visualisierer-Voreinstellungen herunterzuladen.</string>
-    <string name="glyph_debug_title">Nothing Phone (1) auf Android 15</string>
-    <string name="glyph_debug_desc_adb_enabled">Glyph-Funktionen benötigen das Nothing-Glyph-Debug-Interface, das über ADB auf diesem Gerät aktiviert wurde.</string>
-    <string name="glyph_debug_desc_dev_options">Glyph-Funktionen benötigen zuerst aktivierte Entwickleroptionen auf dem Nothing Phone (1) mit Android 15. Führe danach diesen ADB-Befehl aus:</string>
-    <string name="glyph_debug_command">adb shell settings put global nt_glyph_interface_debug_enable 1</string>
-    <string name="glyph_debug_instruction">Führe den Befehl einmal von einem Computer mit ADB aus und öffne die App dann erneut, falls die Glyphen immer noch nicht reagieren.</string>
 
     <!-- About Screen -->
     <string name="about_title">App-Info und Updates</string>
@@ -107,7 +100,6 @@
     <string name="capture_media_projection">Media Projection\n(Standard, am besten)</string>
     <string name="capture_microphone">Mikrofon</string>
     <string name="capture_vizualizer">Integrierter Android-Visualisierer</string>
-    <string name="capture_shizuku">Shizuku</string>
     <string name="update_available">Update verfügbar: %s</string>
     <string name="update_now">Jetzt aktualisieren</string>
     <string name="credit_alekslevet_role">Gründer, Koordinator, Hauptidee, Inhaber</string>
@@ -119,7 +111,6 @@
     <string name="credit_ake_role">Entwickler, der an einer Musik-App mit Integration arbeitet</string>
     <string name="credit_interlastic_role">Discord-Bot zum Testen des Skripts (veraltet)</string>
 
-    <string name="app_news">App-Neuigkeiten</string>
     <string name="music_theme_notification_access">Musik-Design erfordert Benachrichtigungszugriff. Bitte aktiviere ihn für diese App.</string>
     <string name="idle_pattern">Ruhemuster</string>
     <string name="idle_pattern_pulse">Puls</string>
@@ -129,41 +120,15 @@
     <string name="idle_pattern_heartbeat">Herzschlag</string>
     <string name="idle_pattern_orbit">Orbit</string>
     <string name="idle_pattern_rain">Regen</string>
-    <string name="strobe_mode">Stroboskop-Modus</string>
-    <string name="strobe_mode_desc">Abwechselndes Blitzmuster für Glyphen</string>
-    <string name="developer_access">Entwicklerzugang</string>
-    <string name="developer_access_desc">Bitte gib das Entwicklerpasswort ein, um erweiterte Funktionen und das Spoofing von Geräten zu aktivieren.</string>
-    <string name="password">Passwort</string>
-    <string name="unlock">Entsperren</string>
-    <string name="incorrect_password">Falsches Passwort</string>
     <string name="cancel">Abbrechen</string>
     <string name="back">Zurück</string>
-    <string name="visual_preset_editor">Visueller Preset-Editor</string>
-    <string name="share">Teilen</string>
-    <string name="save">Speichern</string>
-    <string name="community_presets">Community-Presets</string>
-    <string name="share_to_community">In der Community teilen</string>
-    <string name="share_preset_desc">Teile dein Preset mit anderen Nutzern.</string>
-    <string name="author_name">Name des Autors</string>
-    <string name="preset_name">Preset-Name</string>
-    <string name="segments_selected">Segmente (%d ausgewählt)</string>
-    <string name="multi_select">Mehrfachauswahl</string>
-    <string name="bulk_actions">Sammelaktionen</string>
-    <string name="bulk_actions_desc">Einstellungen auf alle ausgewählten Segmente anwenden</string>
-    <string name="auto_distribute">Auto-Verteilung</string>
-    <string name="editing_segment">Segment #%d bearbeiten</string>
     <string name="editing_segments_count">%d Segmente bearbeiten</string>
     <string name="frequency_range_label">Frequenzbereich: %1$dHz - %2$dHz</string>
     <string name="no_presets_found">Keine Presets gefunden. Sei der Erste, der eines teilt!</string>
     <string name="preset_by_author">von %1$s • %2$s</string>
     <string name="downloads_count">%1$s • %2$d Downloads</string>
     <string name="clear">Löschen</string>
-    <string name="global_announcements">Globale Ankündigungen</string>
     <string name="global_announcements_desc">Alle Nutzer über Updates oder Neuigkeiten informieren</string>
-    <string name="create">Erstellen</string>
-    <string name="unlock_shizuku_source">Shizuku-Quelle freischalten</string>
-    <string name="unlock_shizuku_source_desc">Experimentelle High-Fidelity-Erfassung</string>
-    <string name="expressive_ui">Expressive UI</string>
     <string name="nav_overlay">Nav-Overlay</string>
     <string name="overlay_width">Overlay-Breite</string>
     <string name="overlay_height">Overlay-Höhe</string>
@@ -202,12 +167,6 @@
     <string name="overlay_permission_denied">Overlay-Berechtigung verweigert</string>
     <string name="notification_access_required">Bitte aktiviere den Benachrichtigungszugriff für diese Funktion</string>
 
-    <string name="thanks_downloading">Danke für den Download</string>
-    <string name="thanks_installing">Danke für die Installation</string>
-    <string name="thanks_using">Danke, dass du die App benutzt</string>
-    <string name="thanks_nothing">Danke für Nothing</string>
-    <string name="thanks_participating">Danke für die Teilnahme an der Community</string>
-
     <string name="config_update_success">zones.config erfolgreich aktualisiert</string>
     <string name="config_import_success">zones.config erfolgreich importiert</string>
     <string name="config_import_error">Die ausgewählte Datei konnte nicht gelesen werden</string>
@@ -219,46 +178,4 @@
     <string name="license_title">Lizenz</string>
     <string name="license_agreement">Lizenzvereinbarung</string>
     <string name="read_license">Softwarelizenz lesen</string>
-    <string name="license_agreement_title">BETTER-NOTHING-MUSIC-VISUALIZER LIZENZVEREINBARUNG</string>
-    <string name="license_version">Version: 1.1</string>
-    <string name="license_date">Datum: 29. Juni 2026</string>
-    <string name="license_licensor">Lizenzgeber</string>
-    <string name="license_licensor_name">Oliver Lebaigue</string>
-    <string name="license_founder">Gründer</string>
-    <string name="license_founder_name">Aleks Levet</string>
-    <string name="license_organization">Organisation</string>
-    <string name="license_organization_name">Luminus Labs</string>
-    <string name="license_section_1">1. PRÄAMBEL</string>
-    <string name="license_preamble_1">Diese Lizenzvereinbarung („Vereinbarung“) ist eine rechtliche Vereinbarung zwischen Ihnen („Lizenznehmer“) und Oliver Lebaigue („Lizenzgeber“) für die Nutzung, Überprüfung und Änderung der Musik-Visualisierungssoftware „better-nothing-music-visualizer“ (die „Software“), ein von Aleks Levet unter der Organisation Luminus Labs gegründetes Projekt.</string>
-    <string name="license_preamble_2">Der Quellcode der Software wird öffentlich unter https://github.com/aleks-levet/better-nothing-music-visualizer gehostet. Durch den Zugriff, das Herunterladen, Kopieren oder die anderweitige Nutzung der Software oder ihres Quellcodes erklärt sich der Lizenznehmer mit den Bedingungen dieser Vereinbarung einverstanden.</string>
-    <string name="license_section_2">2. DEFINITIONEN</string>
-    <string name="license_def_1">2.1 „Software“ bezeichnet die better-nothing-music-visualizer-Softwareanwendung, einschließlich, aber nicht beschränkt auf den Quellcode, Audioverarbeitungsmodule, Rendering-Engines, visuelle Assets, Grafikbibliotheken, Konfigurationsskripte, Dokumentation, Objektdateien, binäre ausführbare Dateien und alle zugehörigen Medien oder Assets.</string>
-    <string name="license_def_2">2.2 „Quellcode“ bezeichnet die öffentlich zugänglichen Dateien der Software, einschließlich aller Skriptdateien, Shader-Code, Assets und Build-Konfigurationen.</string>
-    <string name="license_section_3">3. LIZENZERTEILUNG &amp; ZUGÄNGLICHKEIT</string>
-    <string name="license_section_3_1">3.1 Öffentliche Verfügbarkeit</string>
-    <string name="license_grant_3_1">Der Lizenzgeber erkennt an, dass der Quellcode öffentlich ist. Dem Lizenznehmer wird eine nicht-exklusive, nicht-übertragbare, widerrufbare Lizenz zum Herunterladen, Anzeigen und Ändern des Quellcodes nur für persönliche, pädagogische und nicht-kommerzielle Evaluierungszwecke gewährt.</string>
-    <string name="license_section_3_2">3.2 Beschränkungen</string>
-    <string name="license_grant_3_2">Der Lizenznehmer darf NICHT:</string>
-    <string name="license_restriction_a">* (a) Die Software oder modifizierte Versionen davon an Dritte weitergeben, außer über Standard-Repository-Forks auf GitHub, vorausgesetzt, diese Forks bleiben an diese exakte Lizenz gebunden.</string>
-    <string name="license_restriction_b">* (b) Die Software oder abgeleitete Werke für kommerzielle Zwecke, öffentliche Aufführungen, kommerzielles Streaming oder andere umsatzgenerierende Aktivitäten ohne gesonderte schriftliche Genehmigung verwenden.</string>
-    <string name="license_restriction_c">* (c) Urheberrechts-, Marken-, Patent- oder Eigentumshinweise, die auf oder in der Software angebracht sind, entfernen, ändern oder verdecken, einschließlich Hinweisen auf Aleks Levet, Luminus Labs oder den Lizenzgeber.</string>
-    <string name="license_restriction_d">* (d) Die Software verwenden, um eine konkurrierende kommerzielle Musikvisualisierungssoftware oder -plattform zu entwickeln.</string>
-    <string name="license_section_4">4. INTELLEKTUELLE EIGENTUMSRECHTE</string>
-    <string name="license_section_4_1">4.1 Eigentum</string>
-    <string name="license_ownership">Der Lizenzgeber, Aleks Levet und Luminus Labs behalten alle jeweiligen Rechte, Titel und Interessen an der Software, einschließlich aller darin enthaltenen geistigen Eigentumsrechte. Die öffentliche Offenlegung des Quellcodes stellt keinen Verzicht auf das Urheberrecht oder das Eigentum dar.</string>
-    <string name="license_section_5">5. KEINE GEWÄHRLEISTUNG</string>
-    <string name="license_section_5_1">5.1 Haftungsausschluss</string>
-    <string name="license_warranty_disclaimer">DIE SOFTWARE WIRD „WIE BESEHEN“ UND „MIT ALLEN FEHLERN“ ZUR VERFÜGUNG GESTELLT. IM MAXIMALEN GESETZLICH ZULÄSSIGEN UMFANG LEHNT DER LIZENZGEBER ALLE ANDEREN GARANTIEN UND BEDINGUNGEN AB, OB AUSDRÜCKLICH, STILLSCHWEIGEND ODER GESETZLICH, EINSCHLIESSLICH, ABER NICHT BESCHRÄNKT AUF STILLSCHWEIGENDE GARANTIEN DER MARKTGÄNGIGKEIT, DER EIGNUNG FÜR EINEN BESTIMMTEN ZWECK, DES TITELS UND DER NICHTVERLETZUNG VON RECHTEN DRITTER.</string>
-    <string name="license_section_5_2">5.2 Kein technischer Support</string>
-    <string name="license_technical_support">Der Lizenzgeber, Aleks Levet und Luminus Labs sind nicht verpflichtet, technischen Support, Updates, Upgrades oder Modifikationen für die Software bereitzustellen.</string>
-    <string name="license_section_6">6. HAFTUNGSBESCHRÄNKUNG</string>
-    <string name="license_section_6_1">6.1 Haftungsobergrenze</string>
-    <string name="license_liability_cap">SOWEIT GESETZLICH ZULÄSSIG, HAFTEN DER LIZENZGEBER, ALEKS LEVET ODER LUMINUS LABS IN KEINEM FALL FÜR INDIREKTE, ZUFÄLLIGE, BESONDERE, FOLGESCHÄDEN ODER STAFSCHADENERSATZ JEGLICHER ART (EINSCHLIESSLICH, ABER NICHT BESCHRÄNKT AUF ENTGANGENEN GEWINN, BETRIEBSUNTERBRECHUNG ODER ANDERE VERMÖGENSSCHÄDEN), DIE AUS DER NUTZUNG ODER DER UNMÖGLICHKEIT DER NUTZUNG DER SOFTWARE ENTSTEHEN, SELBST WENN SIE AUF DIE MÖGLICHKEIT SOLCHER SCHÄDEN HINGEWIESEN WURDEN.</string>
-    <string name="license_section_7">7. KÜNDIGUNG</string>
-    <string name="license_section_7_1">7.1 Automatische Kündigung</string>
-    <string name="license_termination">Die Rechte des Lizenznehmers aus dieser Vereinbarung enden automatisch ohne Vorankündigung durch den Lizenzgeber, wenn der Lizenznehmer gegen eine oder mehrere Bedingungen dieser Vereinbarung verstößt. Bei Beendigung muss der Lizenznehmer jede Nutzung einstellen und alle lokalen Kopien der Software vernichten.</string>
-    <string name="license_section_8">8. SONSTIGES</string>
-    <string name="license_section_8_1">8.1 Anwendbares Recht</string>
-    <string name="license_governing_law">Diese Vereinbarung unterliegt den Gesetzen der Gerichtsbarkeit, in der Oliver Lebaigue seinen Wohnsitz hat, und wird in Übereinstimmung mit diesen ausgelegt, ohne Rücksicht auf die Grundsätze des Kollisionsrechts.</string>
-    <string name="end_of_license">ENDE DER LIZENZVEREINBARUNG</string>
 </resources>

@@ -2,9 +2,7 @@
 <resources>
 
     <!-- Audio Screen -->
-    <string name="audio_screen_title">Better Nothing\n音乐可视化工具</string>
     <string name="audio_description_running">实时音频可视化工具已激活。您的手机正随节奏舞动！不保存任何内容，尊重隐私。</string>
-    <string name="audio_description_idle">此应用由 Aleks Levet、rKyzen 和 Oliver Lebaigue 开发。\n\n为了使 Glyph 界面与您的音乐同步，此应用会捕捉设备音频。我们使用媒体投影进行高保真可视化。\n\n隐私提示：我们仅利用音频流。不记录任何屏幕内容。</string>
     <string name="audio_warning_vizualizer">警告：此来源使用标准的 Android 可视化器样式音频流。它是低保真的，效果可能不佳。</string>
     <string name="auto_memorize_device">自动记忆设备</string>
     <string name="saving_latency_for">正在保存延迟： %s</string>
@@ -34,6 +32,7 @@
     <string name="typography">字体排版</string>
     <string name="font_ndot">NDot</string>
     <string name="font_ntype">NType</string>
+    <string name="font_google_sans">Google Sans</string>
     <string name="typography_help_text">在应用范围内切换 NDot 和 NType 字体。</string>
     <string name="more_settings_coming">更多设置即将推出…</string>
 
@@ -76,11 +75,6 @@
     <string name="start_visualizer">开始</string>
     <string name="stop_visualizer">停止</string>
     <string name="glyph_no_config">未加载配置。请检查设置中的更新以下载最新的可视化器预设。</string>
-    <string name="glyph_debug_title">Android 15 上的 Nothing Phone (1)</string>
-    <string name="glyph_debug_desc_adb_enabled">Glyph 功能需要在此设备上通过 ADB 启用 Nothing Glyph 调试接口。</string>
-    <string name="glyph_debug_desc_dev_options">运行 Android 15 的 Nothing Phone (1) 需要先启用开发者选项。之后，运行此 ADB 命令：</string>
-    <string name="glyph_debug_command">adb shell settings put global nt_glyph_interface_debug_enable 1</string>
-    <string name="glyph_debug_instruction">从带有 ADB 的计算机运行该命令一次，如果 Glyph 仍然没有响应，请重新打开应用。</string>
 
     <!-- About Screen -->
     <string name="about_title">应用信息和更新</string>
@@ -107,7 +101,6 @@
     <string name="capture_media_projection">媒体投影\n（默认，最佳）</string>
     <string name="capture_microphone">麦克风</string>
     <string name="capture_vizualizer">Android 内置可视化器</string>
-    <string name="capture_shizuku">Shizuku</string>
     <string name="update_available">有可用更新： %s</string>
     <string name="update_now">立即更新</string>
     <string name="credit_alekslevet_role">创始人、协调人、主创、所有者</string>
@@ -119,7 +112,6 @@
     <string name="credit_ake_role">致力于集成音乐应用的开发者</string>
     <string name="credit_interlastic_role">用于测试脚本的 Discord 机器人（已弃用）</string>
 
-    <string name="app_news">应用动态</string>
     <string name="music_theme_notification_access">音乐主题需要通知访问权限。请为该应用启用它。</string>
     <string name="idle_pattern">空闲模式</string>
     <string name="idle_pattern_pulse">脉冲</string>
@@ -129,20 +121,8 @@
     <string name="idle_pattern_heartbeat">心跳</string>
     <string name="idle_pattern_orbit">轨道</string>
     <string name="idle_pattern_rain">雨</string>
-    <string name="strobe_mode">频闪模式</string>
-    <string name="strobe_mode_desc">Glyph 的交替闪烁模式</string>
-    <string name="developer_access">开发者权限</string>
-    <string name="developer_access_desc">请输入开发者密码以启用高级功能和设备伪装。</string>
-    <string name="password">密码</string>
-    <string name="unlock">解锁</string>
-    <string name="incorrect_password">密码错误</string>
     <string name="cancel">取消</string>
-    <string name="global_announcements">全局公告</string>
     <string name="global_announcements_desc">通知所有用户关于更新或新闻</string>
-    <string name="create">创建</string>
-    <string name="unlock_shizuku_source">解锁 Shizuku 来源</string>
-    <string name="unlock_shizuku_source_desc">实验性高保真采集</string>
-    <string name="expressive_ui">表现力 UI</string>
     <string name="nav_overlay">导航栏覆盖层</string>
     <string name="overlay_width">覆盖层宽度</string>
     <string name="overlay_height">覆盖层高度</string>
@@ -181,12 +161,6 @@
     <string name="overlay_permission_denied">覆盖层权限被拒绝</string>
     <string name="notification_access_required">请为此功能启用通知访问权限</string>
 
-    <string name="thanks_downloading">感谢下载</string>
-    <string name="thanks_installing">感谢安装</string>
-    <string name="thanks_using">感谢使用应用</string>
-    <string name="thanks_nothing">感谢 Nothing</string>
-    <string name="thanks_participating">感谢参与社区</string>
-
     <string name="config_update_success">zones.config 更新成功</string>
     <string name="config_import_success">zones.config 导入成功</string>
     <string name="config_import_error">无法读取所选文件</string>
@@ -198,64 +172,8 @@
     <string name="license_title">许可证</string>
     <string name="license_agreement">许可协议</string>
     <string name="read_license">阅读软件许可证</string>
-    <string name="license_agreement_title">BETTER-NOTHING-MUSIC-VISUALIZER 许可协议</string>
-    <string name="license_version">版本：1.1</string>
-    <string name="license_date">日期：2026年6月29日</string>
-    <string name="license_licensor">许可人</string>
-    <string name="license_licensor_name">Oliver Lebaigue</string>
-    <string name="license_founder">创始人</string>
-    <string name="license_founder_name">Aleks Levet</string>
-    <string name="license_organization">组织</string>
-    <string name="license_organization_name">Luminus Labs</string>
-    <string name="license_section_1">1. 前言</string>
-    <string name="license_preamble_1">本许可协议（“协议”）是您（“被许可人”）与 Oliver Lebaigue（“许可人”）之间就名为“better-nothing-music-visualizer”（“软件”）的音乐可视化软件应用的使用的法律协议。该项目由 Aleks Levet 在 Luminus Labs 组织下创立。</string>
-    <string name="license_preamble_2">软件的源代码公开托管在 https://github.com/aleks-levet/better-nothing-music-visualizer。通过访问、下载、复制或以其他方式使用软件或其源代码，被许可人即同意受本协议条款的约束。</string>
-    <string name="license_section_2">2. 定义</string>
-    <string name="license_def_1">2.1 “软件”是指 better-nothing-music-visualizer 软件应用，包括但不限于源代码、音频处理模块、渲染引擎、视觉资产、图形库、配置脚本、文档、目标文件、二进制可执行文件以及任何相关的媒体或资产。</string>
-    <string name="license_def_2">2.2 “源代码”是指软件公开披露的文件，包括所有脚本文件、着色器代码、资产和构建配置。</string>
-    <string name="license_section_3">3. 许可授予与可访问性</string>
-    <string name="license_section_3_1">3.1 公开可用性</string>
-    <string name="license_grant_3_1">许可人承认源代码是公开的。被许可人被授予非排他性、不可转让、可撤销的许可，仅出于个人、教育和非商业评估目的下载、查看和修改源代码。</string>
-    <string name="license_section_3_2">3.2 限制</string>
-    <string name="license_grant_3_2">被许可人不得：</string>
-    <string name="license_restriction_a">* (a) 向第三方重新分发软件或其修改版本，除非通过 GitHub 上的标准仓库分叉（fork），前提是这些分叉仍受本许可协议的约束。</string>
-    <string name="license_restriction_b">* (b) 将软件或任何衍生作品用于商业目的、公开表演、商业流媒体或任何产生收入的活动，除非获得单独的书面授权。</string>
-    <string name="license_restriction_c">* (c) 删除、更改或遮盖软件上或软件内放置的任何版权、商标、专利或专有权利声明，包括对 Aleks Levet、Luminus Labs 或许可人的引用。</string>
-    <string name="license_restriction_d">* (d) 使用软件开发任何竞争性的商业音乐可视化软件或平台。</string>
-    <string name="license_section_4">4. 知识产权</string>
-    <string name="license_section_4_1">4.1 所有权</string>
-    <string name="license_ownership">许可人、Aleks Levet 和 Luminus Labs 保留软件及其包含的所有知识产权的所有相应权利、所有权和利益。源代码的公开披露并不构成对版权或所有权的放弃。</string>
-    <string name="license_section_5">5. 无担保</string>
-    <string name="license_section_5_1">5.1 免责声明</string>
-    <string name="license_warranty_disclaimer">软件按“原样”提供，且“包含所有缺陷”。在适用法律允许的最大范围内，许可人拒绝承担所有其他明示、暗示或法定的担保和条件，包括但不限于任何关于适销性、特定用途适用性、所有权和不侵权的暗示担保。</string>
-    <string name="license_section_5_2">5.2 无技术支持</string>
-    <string name="license_technical_support">许可人、Aleks Levet 和 Luminus Labs 没有义务为软件提供技术支持、更新、升级或修改。</string>
-    <string name="license_section_6">6. 责任限制</string>
-    <string name="license_section_6_1">6.1 责任上限</string>
-    <string name="license_liability_cap">在适用法律允许的最大范围内，在任何情况下，许可人、Aleks Levet 或 Luminus Labs 均不对因使用或无法使用软件而引起的任何间接、偶然、特殊、后果性或惩罚性损害（包括但不限于利润损失、业务中断或任何其他金钱损失）承担责任，即使已被告知此类损害的可能性。</string>
-    <string name="license_section_7">7. 终止</string>
-    <string name="license_section_7_1">7.1 自动终止</string>
-    <string name="license_termination">如果被许可人未能遵守本协议的任何条款，被许可人在本协议下的权利将自动终止，而无需许可人另行通知。终止后，被许可人应停止所有使用并销毁软件的所有本地副本。</string>
-    <string name="license_section_8">8. 其他</string>
-    <string name="license_section_8_1">8.1 适用法律</string>
-    <string name="license_governing_law">本协议应受 Oliver Lebaigue 居住地管辖区的法律管辖并据其解释，不考虑其法律冲突原则。</string>
-    <string name="end_of_license">许可协议终止</string>
 
     <string name="back">返回</string>
-    <string name="visual_preset_editor">视觉预设编辑器</string>
-    <string name="share">分享</string>
-    <string name="save">保存</string>
-    <string name="community_presets">社区预设</string>
-    <string name="share_to_community">分享到社区</string>
-    <string name="share_preset_desc">与其他用户分享您的预设。</string>
-    <string name="author_name">作者名称</string>
-    <string name="preset_name">预设名称</string>
-    <string name="segments_selected">分段（已选 %d 个）</string>
-    <string name="multi_select">多选</string>
-    <string name="bulk_actions">批量操作</string>
-    <string name="bulk_actions_desc">将设置应用到所有选定的分段</string>
-    <string name="auto_distribute">自动分配</string>
-    <string name="editing_segment">正在编辑分段 #%d</string>
     <string name="editing_segments_count">正在编辑 %d 个分段</string>
     <string name="frequency_range_label">频率范围：%1$dHz - %2$dHz</string>
     <string name="no_presets_found">未找到预设。成为第一个分享的人吧！</string>

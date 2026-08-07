@@ -2,9 +2,7 @@
 <resources>
 
     <!-- Audio Screen -->
-    <string name="audio_screen_title">Better Nothing\n音楽ビジュアライザー</string>
     <string name="audio_description_running">リアルタイム・オーディオ・ビジュアライザーが有効です。あなたのスマートフォンがリズムに合わせて踊っています！コンテンツは保存されず、プライバシーは尊重されます。</string>
-    <string name="audio_description_idle">このアプリは、Aleks Levet、rKyzen、Oliver Lebaigueによって作成されました。\n\nGlyphインターフェースを音楽と同期させるために、このアプリはデバイスのオーディオをキャプチャします。高精度の視覚化のためにメディアプロジェクションを使用しています。\n\nプライバシーに関する注意：オーディオストリームのみを利用します。画面のコンテンツは録画されません。</string>
     <string name="audio_warning_vizualizer">警告：このソースは標準的なAndroidビジュアライザースタイルのオーディオストリームを使用しています。低忠実度であり、品質が劣る可能性があります。</string>
     <string name="auto_memorize_device">デバイスを自動記憶</string>
     <string name="saving_latency_for">レイテンシを保存中： %s</string>
@@ -34,6 +32,7 @@
     <string name="typography">タイポグラフィ</string>
     <string name="font_ndot">NDot</string>
     <string name="font_ntype">NType</string>
+    <string name="font_google_sans">Google Sans</string>
     <string name="typography_help_text">アプリ全体でNDotフォントとNTypeフォントを切り替えます。</string>
     <string name="more_settings_coming">さらなる設定を近日追加予定…</string>
 
@@ -76,11 +75,6 @@
     <string name="start_visualizer">開始</string>
     <string name="stop_visualizer">停止</string>
     <string name="glyph_no_config">設定が読み込まれていません。設定からアップデートを確認し、最新のビジュアライザー・プリセットをダウンロードしてください。</string>
-    <string name="glyph_debug_title">Android 15上のNothing Phone (1)</string>
-    <string name="glyph_debug_desc_adb_enabled">Glyph機能を使用するには、このデバイスでADBを介してNothing Glyphデバッグ・インターフェースを有効にする必要があります。</string>
-    <string name="glyph_debug_desc_dev_options">Android 15を実行しているNothing Phone (1)では、まず開発者オプションを有効にする必要があります。その後、このADBコマンドを実行してください：</string>
-    <string name="glyph_debug_command">adb shell settings put global nt_glyph_interface_debug_enable 1</string>
-    <string name="glyph_debug_instruction">ADBを備えたコンピューターからコマンドを1回実行し、Glyphが反応しない場合はアプリを再起動してください。</string>
 
     <!-- About Screen -->
     <string name="about_title">アプリ情報とアップデート</string>
@@ -107,7 +101,6 @@
     <string name="capture_media_projection">メディアプロジェクション\n（デフォルト、最適）</string>
     <string name="capture_microphone">マイク</string>
     <string name="capture_vizualizer">Android内蔵ビジュアライザー</string>
-    <string name="capture_shizuku">Shizuku</string>
     <string name="update_available">アップデートがあります： %s</string>
     <string name="update_now">今すぐアップデート</string>
     <string name="credit_alekslevet_role">創設者、コーディネーター、メインアイデア、オーナー</string>
@@ -119,7 +112,6 @@
     <string name="credit_ake_role">統合機能を持つ音楽アプリの開発者</string>
     <string name="credit_interlastic_role">スクリプトテスト用Discordボット（非推奨）</string>
 
-    <string name="app_news">アプリニュース</string>
     <string name="music_theme_notification_access">ミュージックテーマには通知へのアクセスが必要です。このアプリに対して有効にしてください。</string>
     <string name="idle_pattern">待機時パターン</string>
     <string name="idle_pattern_pulse">パルス</string>
@@ -129,20 +121,8 @@
     <string name="idle_pattern_heartbeat">ハートビート</string>
     <string name="idle_pattern_orbit">軌道</string>
     <string name="idle_pattern_rain">雨</string>
-    <string name="strobe_mode">ストロボモード</string>
-    <string name="strobe_mode_desc">Glyphの交互点滅パターン</string>
-    <string name="developer_access">開発者アクセス</string>
-    <string name="developer_access_desc">高度な機能やデバイスのなりすましを有効にするには、開発者パスワードを入力してください。</string>
-    <string name="password">パスワード</string>
-    <string name="unlock">ロック解除</string>
-    <string name="incorrect_password">パスワードが違います</string>
     <string name="cancel">キャンセル</string>
-    <string name="global_announcements">グローバル・アナウンスメント</string>
     <string name="global_announcements_desc">アップデートやニュースをすべてのユーザーに通知します</string>
-    <string name="create">作成</string>
-    <string name="unlock_shizuku_source">Shizukuソースをロック解除</string>
-    <string name="unlock_shizuku_source_desc">実験的な高忠実度キャプチャ</string>
-    <string name="expressive_ui">表現力豊かなUI</string>
     <string name="nav_overlay">ナビゲーション・オーバーレイ</string>
     <string name="overlay_width">オーバーレイの幅</string>
     <string name="overlay_height">オーバーレイの高さ</string>
@@ -181,12 +161,6 @@
     <string name="overlay_permission_denied">オーバーレイの権限が拒否されました</string>
     <string name="notification_access_required">この機能のために通知へのアクセスを有効にしてください</string>
 
-    <string name="thanks_downloading">ダウンロードありがとうございます</string>
-    <string name="thanks_installing">インストールありがとうございます</string>
-    <string name="thanks_using">アプリをご利用いただきありがとうございます</string>
-    <string name="thanks_nothing">Nothingをありがとうございます</string>
-    <string name="thanks_participating">コミュニティへのご参加ありがとうございます</string>
-
     <string name="config_update_success">zones.configを正常にアップデートしました</string>
     <string name="config_import_success">zones.configを正常にインポートしました</string>
     <string name="config_import_error">選択したファイルの読み込みに失敗しました</string>
@@ -198,64 +172,8 @@
     <string name="license_title">ライセンス</string>
     <string name="license_agreement">ライセンス契約</string>
     <string name="read_license">ソフトウェアライセンスを読む</string>
-    <string name="license_agreement_title">BETTER-NOTHING-MUSIC-VISUALIZER ライセンス契約</string>
-    <string name="license_version">バージョン: 1.1</string>
-    <string name="license_date">日付: 2026年6月29日</string>
-    <string name="license_licensor">ライセンサー</string>
-    <string name="license_licensor_name">Oliver Lebaigue</string>
-    <string name="license_founder">創設者</string>
-    <string name="license_founder_name">Aleks Levet</string>
-    <string name="license_organization">組織</string>
-    <string name="license_organization_name">Luminus Labs</string>
-    <string name="license_section_1">1. はじめに</string>
-    <string name="license_preamble_1">本ライセンス契約（以下「本契約」といいます）は、お客様（以下「ライセンシー」といいます）と Oliver Lebaigue（以下「ライセンサー」といいます）との間で行われる、「better-nothing-music-visualizer」（以下「本ソフトウェア」といいます）として知られる音楽ビジュアライザー・ソフトウェア・アプリケーションの使用、レビュー、および変更に関する法的契約です。本プロジェクトは、Luminus Labs 組織の下、Aleks Levet によって創設されました。</string>
-    <string name="license_preamble_2">本ソフトウェアのソースコードは、https://github.com/aleks-levet/better-nothing-music-visualizer で公開されています。本ソフトウェアまたはそのソースコードにアクセス、ダウンロード、コピー、またはその他の方法で使用することにより、ライセンシーは本契約の条項に拘束されることに同意したものとみなされます。</string>
-    <string name="license_section_2">2. 定義</string>
-    <string name="license_def_1">2.1 「本ソフトウェア」とは、better-nothing-music-visualizer ソフトウェアアプリケーションを指し、ソースコード、オーディオ処理モジュール、レンダリングエンジン、ビジュアルアセット、グラフィックスライブラリ、設定スクリプト、ドキュメント、オブジェクトファイル、バイナリ実行ファイル、および関連するメディアまたはアセットを含みますが、これらに限定されません。</string>
-    <string name="license_def_2">2.2 「ソースコード」とは、公開されている本ソフトウェアのファイルを指し、すべてのスクリプトファイル、シェーダーコード、アセット、およびビルド設定を含みます。</string>
-    <string name="license_section_3">3. ライセンスの許諾およびアクセス可能性</string>
-    <string name="license_section_3_1">3.1 公開可能性</string>
-    <string name="license_grant_3_1">ライセンサーは、ソースコードが公開されていることを認めます。ライセンシーには、個人的、教育的、および非商業的な評価目的に限り、ソースコードをダウンロード、閲覧、および変更するための、非独占的、譲渡不能、かつ取消可能なライセンスが許諾されます。</string>
-    <string name="license_section_3_2">3.2 制限事項</string>
-    <string name="license_grant_3_2">ライセンシーは、以下の行為を行うことはできません。</string>
-    <string name="license_restriction_a">* (a) GitHub 上の標準的なリポジトリフォーク経由を除き、本ソフトウェアまたはその変更されたバージョンを第三者に再配布すること。ただし、それらのフォークが本ライセンスと全く同じ条項に拘束され続けることを条件とします。</string>
-    <string name="license_restriction_b">* (b) ライセンサーからの別途書面による許可なく、商業目的、公開パフォーマンス、商業ストリーミング、または収益を生み出す活動のために本ソフトウェアまたはその派生物を使用すること。</string>
-    <string name="license_restriction_c">* (c) 本ソフトウェア上または本ソフトウェア内に配置された著作権、商標、特許、または所有権に関する通知（Aleks Levet、Luminus Labs、またはライセンサーへの言及を含む）を削除、改変、または隠蔽すること。</string>
-    <string name="license_restriction_d">* (d) 競合する商用音楽ビジュアライザー・ソフトウェアまたはプラットフォームの開発のために本ソフトウェアを使用すること。</string>
-    <string name="license_section_4">4. 知的財産権</string>
-    <string name="license_section_4_1">4.1 所有権</string>
-    <string name="license_ownership">ライセンサー、Aleks Levet、および Luminus Labs は、本ソフトウェアに関するすべての権利、権限、および利益（そこに含まれるすべての知的財産権を含む）を保持します。ソースコードの公開は、著作権または所有権の放棄を構成するものではありません。</string>
-    <string name="license_section_5">5. 無保証</string>
-    <string name="license_section_5_1">5.1 免責事項</string>
-    <string name="license_warranty_disclaimer">本ソフトウェアは「現状有姿」で、かつ「すべての瑕疵を問わず」提供されます。適用法で認められる最大限の範囲において、ライセンサーは、商品性、特定の目的への適合性、権限、および非侵害の黙示の保証を含むがこれらに限定されない、明示的、黙示的、または法定の他のすべての保証および条件を否認します。</string>
-    <string name="license_section_5_2">5.2 テクニカルサポートの不在</string>
-    <string name="license_technical_support">ライセンサー、Aleks Levet、および Luminus Labs は、本ソフトウェアに対するテクニカルサポート、アップデート、アップグレード、または変更を提供する義務を負いません。</string>
-    <string name="license_section_6">6. 責任の制限</string>
-    <string name="license_section_6_1">6.1 責任の上限</string>
-    <string name="license_liability_cap">適用法で認められる最大限の範囲において、いかなる場合も、ライセンサー、Aleks Levet、または Luminus Labs は、本ソフトウェアの使用または使用不能から生じるいかなる間接的、付随的、特別、結果的、または懲罰的損害（逸失利益、事業の中断、またはその他の金銭的損失を含むがこれらに限定されない）についても、たとえそのような損害の可能性について知らされていたとしても、一切の責任を負わないものとします。</string>
-    <string name="license_section_7">7. 終了</string>
-    <string name="license_section_7_1">7.1 自動終了</string>
-    <string name="license_termination">ライセンシーが本契約のいずれかの条項に違反した場合、本契約に基づくライセンシーの権利は、ライセンサーからの通知なく自動的に終了します。終了に伴い、ライセンシーはすべての使用を中止し、本ソフトウェアのすべてのローカルコピーを破棄するものとします。</string>
-    <string name="license_section_8">8. その他</string>
-    <string name="license_section_8_1">8.1 準拠法</string>
-    <string name="license_governing_law">本契約は、法の抵触の原則にかかわらず、Oliver Lebaigue が居住する管轄区域の法律に準拠し、同法に従って解釈されるものとします。</string>
-    <string name="end_of_license">ライセンス契約終了</string>
 
     <string name="back">戻る</string>
-    <string name="visual_preset_editor">ビジュアル・プリセット・エディター</string>
-    <string name="share">共有</string>
-    <string name="save">保存</string>
-    <string name="community_presets">コミュニティ・プリセット</string>
-    <string name="share_to_community">コミュニティに共有</string>
-    <string name="share_preset_desc">プリセットを他のユーザーと共有します。</string>
-    <string name="author_name">作成者名</string>
-    <string name="preset_name">プリセット名</string>
-    <string name="segments_selected">セグメント（%d個選択中）</string>
-    <string name="multi_select">複数選択</string>
-    <string name="bulk_actions">一括操作</string>
-    <string name="bulk_actions_desc">選択したすべてのセグメントに設定を適用</string>
-    <string name="auto_distribute">自動配信</string>
-    <string name="editing_segment">セグメント #%d を編集中</string>
     <string name="editing_segments_count">%d個のセグメントを編集中</string>
     <string name="frequency_range_label">周波数範囲：%1$dHz - %2$dHz</string>
     <string name="no_presets_found">プリセットが見つかりません。最初の共有者になりましょう！</string>

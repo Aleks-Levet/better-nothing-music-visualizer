@@ -54,8 +54,15 @@ fun BetterVizTheme(
     musicPrimaryColor: Color? = null,
     content: @Composable () -> Unit
 ) {
-    val useNType = fontName == "NType"
     val context = LocalContext.current
+    val restrictedLocales = listOf("hi", "ar", "ja", "ru", "zh")
+    val currentLocale = context.resources.configuration.locales[0].language
+    val isRestrictedLocale = restrictedLocales.contains(currentLocale)
+
+    val finalFontName = if (isRestrictedLocale) "Google Sans" else fontName
+    val useNType = finalFontName == "NType"
+    val useGoogleSans = finalFontName == "Google Sans"
+
     val isDark = isSystemInDarkTheme()
 
     val targetColorScheme = remember(themeName, isDark, musicPrimaryColor) {
@@ -217,17 +224,19 @@ fun BetterVizTheme(
         outline = animateColorAsState(targetColorScheme.outline, tween(500), label = "outline").value,
     )
 
-    val typography = remember(useNType) {
+    val typography = remember(useNType, useGoogleSans) {
+        val baseFontFamily = if (useGoogleSans) GoogleSansFontFamily else null
+        
         Typography(
             // HEADERS
             displayLarge = TextStyle(
-                fontFamily = if (useNType) NTypeFontFamily else NDot55FontFamily,
+                fontFamily = baseFontFamily ?: if (useNType) NTypeFontFamily else NDot55FontFamily,
                 fontSize = 45.sp,
                 lineHeight = 55.sp,
                 fontWeight = FontWeight.Normal
             ),
             headlineMedium = TextStyle(
-                fontFamily = if (useNType) NTypeFontFamily else NDotFontFamily,
+                fontFamily = baseFontFamily ?: if (useNType) NTypeFontFamily else NDotFontFamily,
                 fontSize = 30.sp,
                 lineHeight = 40.sp,
                 fontWeight = FontWeight.Normal
@@ -235,24 +244,33 @@ fun BetterVizTheme(
 
             // SUB-HEADERS
             titleLarge = TextStyle(
+                fontFamily = baseFontFamily,
                 fontSize = 21.sp,
                 lineHeight = 28.sp,
                 fontWeight = FontWeight.Normal
             ),
             titleMedium = TextStyle(
+                fontFamily = baseFontFamily,
                 fontSize = 17.sp,
                 lineHeight = 24.sp,
                 fontWeight = FontWeight.Normal
             ),
 
             // BODY & LABELS (Keep system font for high legibility at small sizes)
-            bodyLarge = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, fontWeight = FontWeight.Normal),
+            bodyLarge = TextStyle(
+                fontFamily = baseFontFamily,
+                fontSize = 16.sp,
+                lineHeight = 24.sp,
+                fontWeight = FontWeight.Normal
+            ),
             labelLarge = TextStyle(
+                fontFamily = baseFontFamily,
                 fontSize = 13.sp,
                 lineHeight = 18.sp,
                 fontWeight = FontWeight.Medium
             ),
             labelMedium = TextStyle(
+                fontFamily = baseFontFamily,
                 fontSize = 12.sp,
                 lineHeight = 16.sp,
                 fontWeight = FontWeight.Medium
@@ -309,6 +327,8 @@ fun BetterVizTheme(
 
 
 
+
+val GoogleSansFontFamily = FontFamily.SansSerif
 
 val NTypeFontFamily = FontFamily(
     Font(R.font.ntype82)

@@ -2,9 +2,7 @@
 <resources>
 
     <!-- Audio Screen -->
-    <string name="audio_screen_title">Delweddydd Cerddoriaeth\nBetter Nothing</string>
     <string name="audio_description_running">Mae\'r delweddydd sain amser real yn weithredol. Mae eich ffôn nawr yn dawnsio i\'r curiad! Ni fydd unrhyw gynnwys yn cael ei gadw, ac mae preifatrwydd yn cael ei barchu.</string>
-    <string name="audio_description_idle">Crëwyd yr ap hwn gan Aleks Levet, rKyzen, ac Oliver lebaigue.\n\nI gydweddu\'r Rhyngwyneb Glyph â\'ch cerddoriaeth, mae\'r ap hwn yn dal sain y ddyfais. Rydym yn defnyddio Media Projection ar gyfer delweddu manylder uchel.\n\nNodyn Preifatrwydd: Dim ond y ffrwd sain rydym yn ei defnyddio. Ni fydd unrhyw gynnwys sgrin yn cael ei recordio.</string>
     <string name="audio_warning_vizualizer">Rhybudd: mae\'r ffynhonnell hon yn defnyddio ffrwd sain arddull delweddydd safonol Android. Mae o fanylder isel ac fe allai fod yn wael.</string>
     <string name="auto_memorize_device">Cofio Dyfais yn Awtomatig</string>
     <string name="saving_latency_for">Cadw hwyrni ar gyfer: %s</string>
@@ -72,11 +70,6 @@
     <string name="start_visualizer">Dechrau</string>
     <string name="stop_visualizer">Stopio</string>
     <string name="glyph_no_config">Dim ffurfweddiad wedi\'i lwytho. Gwiriwch am ddiweddariadau yn y Gosodiadau i lawrlwytho\'r rhagosodiadau delweddydd diweddaraf.</string>
-    <string name="glyph_debug_title">Nothing Phone (1) ar Android 15</string>
-    <string name="glyph_debug_desc_adb_enabled">Mae angen galluogi rhyngwyneb dadfygio glyph Nothing trwy ADB ar y ddyfais hon ar gyfer nodweddion Glyph.</string>
-    <string name="glyph_debug_desc_dev_options">Mae angen galluogi opsiynau Datblygwr yn gyntaf ar Nothing Phone (1) sy\'n rhedeg Android 15. Ar ôl hynny, rhedwch y gorchymyn ADB hwn:</string>
-    <string name="glyph_debug_command">adb shell settings put global nt_glyph_interface_debug_enable 1</string>
-    <string name="glyph_debug_instruction">Rhedwch y gorchymyn unwaith o gyfrifiadur gydag ADB, yna ailagorwch yr ap os nad yw\'r Glyphs yn ymateb o hyd.</string>
 
     <!-- About Screen -->
     <string name="about_title">Gwybodaeth ap a diweddariadau</string>
@@ -103,7 +96,6 @@
     <string name="capture_media_projection">Media Projection\n(diofyn, gorau)</string>
     <string name="capture_microphone">Meicroffon</string>
     <string name="capture_vizualizer">Delweddydd adeiledig Android</string>
-    <string name="capture_shizuku">Shizuku</string>
     <string name="update_available">Diweddariad ar gael: %s</string>
     <string name="update_now">Diweddaru Nawr</string>
     <string name="credit_alekslevet_role">Sylfaenydd, cydlynydd, prif syniad, perchennog</string>
@@ -115,7 +107,6 @@
     <string name="credit_ake_role">Datblygwr sy\'n gweithio ar ap cerddoriaeth gydag integreiddiad</string>
     <string name="credit_interlastic_role">Bot Discord ar gyfer profi\'r sgript (wedi darfod)</string>
 
-    <string name="app_news">Newyddion yr Ap</string>
     <string name="music_theme_notification_access">Mae thema cerddoriaeth angen Mynediad i Hysbysiadau. Galluogwch ef ar gyfer yr ap hwn.</string>
     <string name="idle_pattern">Patrwm Segur</string>
     <string name="idle_pattern_pulse">Pwls</string>
@@ -125,20 +116,8 @@
     <string name="idle_pattern_heartbeat">Curiad calon</string>
     <string name="idle_pattern_orbit">Orbit</string>
     <string name="idle_pattern_rain">Glaw</string>
-    <string name="strobe_mode">Modd Strobo</string>
-    <string name="strobe_mode_desc">Patrwm fflach bob yn ail ar gyfer Glyphs</string>
-    <string name="developer_access">Mynediad Datblygwr</string>
-    <string name="developer_access_desc">Rhowch gyfrinair y datblygwr i alluogi nodweddion uwch a ffugio dyfais.</string>
-    <string name="password">Cyfrinair</string>
-    <string name="unlock">Datgloi</string>
-    <string name="incorrect_password">Cyfrinair Anghywir</string>
     <string name="cancel">Canslo</string>
-    <string name="global_announcements">Cyhoeddiadau Byd-eang</string>
     <string name="global_announcements_desc">Hysbysu pob defnyddiwr am ddiweddariadau neu newyddion</string>
-    <string name="create">Creu</string>
-    <string name="unlock_shizuku_source">Datgloi Ffynhonnell Shizuku</string>
-    <string name="unlock_shizuku_source_desc">Dal manylder uchel arbrofol</string>
-    <string name="expressive_ui">UI Mynegiannol</string>
     <string name="nav_overlay">Troslun Llywio</string>
     <string name="overlay_width">Lled y Troslun</string>
     <string name="overlay_height">Uchder y Troslun</string>
@@ -177,12 +156,6 @@
     <string name="overlay_permission_denied">Gwrthodwyd caniatâd troslun</string>
     <string name="notification_access_required">Galluogwch fynediad i hysbysiadau ar gyfer y nodwedd hon</string>
 
-    <string name="thanks_downloading">diolch am lawrlwytho</string>
-    <string name="thanks_installing">diolch am osod</string>
-    <string name="thanks_using">diolch am ddefnyddio\'r ap</string>
-    <string name="thanks_nothing">diolch am ddim (nothing)</string>
-    <string name="thanks_participating">diolch am gymryd rhan yn y gymuned</string>
-
     <string name="config_update_success">Wedi diweddaru zones.config yn llwyddiannus</string>
     <string name="config_import_success">Wedi mewnforio zones.config yn llwyddiannus</string>
     <string name="config_import_error">Wedi methu darllen y ffeil a ddewiswyd</string>
@@ -194,64 +167,8 @@
     <string name="license_title">Trwydded</string>
     <string name="license_agreement">Cytundeb Trwydded</string>
     <string name="read_license">Darllen trwydded y feddalwedd</string>
-    <string name="license_agreement_title">CYTUNDEB TRWYDDED BETTER-NOTHING-MUSIC-VISUALIZER</string>
-    <string name="license_version">Fersiwn: 1.1</string>
-    <string name="license_date">Dyddiad: Mehefin 29, 2026</string>
-    <string name="license_licensor">Trwyddedwr</string>
-    <string name="license_licensor_name">Oliver Lebaigue</string>
-    <string name="license_founder">Sylfaenydd</string>
-    <string name="license_founder_name">Aleks Levet</string>
-    <string name="license_organization">Sefydliad</string>
-    <string name="license_organization_name">Luminus Labs</string>
-    <string name="license_section_1">1. RAGYMADRODD</string>
-    <string name="license_preamble_1">Mae\'r Cytundeb Trwydded hwn (\"Cytundeb\") yn gytundeb cyfreithiol rhyngoch chi (\"Trwyddedai\") ac Oliver Lebaigue (\"Trwyddedwr\") ar gyfer defnyddio, adolygu ac addasu\'r rhaglen feddalwedd delweddydd cerddoriaeth o\'r enw \"better-nothing-music-visualizer\" (y \"Feddalwedd\"), prosiect a sefydlwyd gan Aleks Levet o dan y sefydliad Luminus Labs.</string>
-    <string name="license_preamble_2">Mae cod ffynhonnell y Feddalwedd yn cael ei gynnal yn gyhoeddus yn https://github.com/aleks-levet/better-nothing-music-visualizer. Drwy gael mynediad, lawrlwytho, copïo, neu ddefnyddio\'r Feddalwedd neu ei Chod Ffynhonnell fel arall, mae\'r Trwyddedai yn cytuno i gael ei rwymo gan delerau\'r Cytundeb hwn.</string>
-    <string name="license_section_2">2. DIFFINIADAU</string>
-    <string name="license_def_1">2.1 Bydd \"Meddalwedd\" yn golygu rhaglen feddalwedd better-nothing-music-visualizer, gan gynnwys ond heb fod yn gyfyngedig i\'r cod ffynhonnell, modiwlau prosesu sain, peiriannau rendro, asedau gweledol, llyfrgelloedd graffeg, sgriptiau ffurfweddu, dogfennaeth, ffeiliau gwrthrych, ffeiliau gweithredadwy deuaidd, ac unrhyw gyfryngau neu asedau cysylltiedig.</string>
-    <string name="license_def_2">2.2 Bydd \"Cod Ffynhonnell\" yn golygu ffeiliau\'r Feddalwedd sydd wedi\'u datgelu\'n gyhoeddus, gan gynnwys pob ffeil sgript, cod cysgodol, asedau, a ffurfweddiadau adeiladu.</string>
-    <string name="license_section_3">3. GRANT O DRWYDDED AC HYGYRCHEDD</string>
-    <string name="license_section_3_1">3.1 Argaeledd Cyhoeddus</string>
-    <string name="license_grant_3_1">Mae\'r Trwyddedwr yn cydnabod bod y Cod Ffynhonnell yn gyhoeddus. Rhoddir trwydded anghyfyngedig, anhrosglwyddadwy, y gellir ei dirymu i\'r Trwyddedai i lawrlwytho, gweld ac addasu\'r Cod Ffynhonnell at ddibenion gwerthuso personol, addysgol ac anfasnachol yn unig.</string>
-    <string name="license_section_3_2">3.2 Cyfyngiadau</string>
-    <string name="license_grant_3_2">Ni chaiff y Trwyddedai:</string>
-    <string name="license_restriction_a">* (a) Ailddosbarthu\'r Feddalwedd neu fersiynau wedi\'u haddasu ohoni i drydydd partïon, ac eithrio trwy ffyrch ystorfa safonol ar GitHub, ar yr amod bod y ffyrch hynny yn parhau i gael eu rhwymo gan yr union Drwydded hon.</string>
-    <string name="license_restriction_b">* (b) Defnyddio\'r Feddalwedd neu unrhyw weithiau deilliadol at ddibenion masnachol, perfformiadau cyhoeddus, ffrydio masnachol, neu unrhyw weithgareddau sy\'n cynhyrchu incwm heb awdurdodiad ysgrifenedig ar wahân.</string>
-    <string name="license_restriction_c">* (c) Tynnu, newid, neu guddio unrhyw hysbysiadau hawlfraint, nod masnach, patent, neu hawliau perchnogol a roddir ar neu o fewn y Feddalwedd, gan gynnwys cyfeiriadau at Aleks Levet, Luminus Labs, neu\'r Trwyddedwr.</string>
-    <string name="license_restriction_d">* (d) Defnyddio\'r Feddalwedd i ddatblygu unrhyw feddalwedd neu blatfform delweddu cerddoriaeth masnachol sy\'n cystadlu.</string>
-    <string name="license_section_4">4. HAWLIAU EIDDO DEALLUSOL</string>
-    <string name="license_section_4_1">4.1 Perchnogaeth</string>
-    <string name="license_ownership">Mae\'r Trwyddedwr, Aleks Levet, a Luminus Labs yn cadw pob hawl, teitl a buddiant priodol yn y Feddalwedd ac iddi, gan gynnwys yr holl hawliau eiddo deallusol ynddi. Nid yw datgelu\'r Cod Ffynhonnell yn gyhoeddus yn gyfystyr ag ildio hawlfraint neu berchnogaeth.</string>
-    <string name="license_section_5">5. DIM WARANT</string>
-    <string name="license_section_5_1">5.1 Ymwadiad</string>
-    <string name="license_warranty_disclaimer">DARPERIR Y FEDDALWEDD \"FEL Y MAE\" AC \"GYDA PHOBL BEIAU.\" I\'R GRADDAU EITHAF A GANIATEIR GAN GYFRAITH BERTHNASOL, MAE\'R TRWYDDEDWR YN YMWADU POB WARANT AC AMOD ARALL, P\'UN AI YN FYNEGIEDIG, YN OBLYGEDIG, NEU YN STATUDOL, GAN GYNNWYS, OND HEB FOD YN GYFYNGEDIG I, UNRHYW WARANTAU GOBLYGEDIG O FASNACHEDD, FFITRWYDD AT DIBEN ARBENNIG, TEITL, A HEB FOD YN TORRI HAWLIAU.</string>
-    <string name="license_section_5_2">5.2 Dim Cefnogaeth Dechnegol</string>
-    <string name="license_technical_support">Nid yw\'r Trwyddedwr, Aleks Levet, na Luminus Labs o dan unrhyw rwymedigaeth i ddarparu cefnogaeth dechnegol, diweddariadau, uwchraddiadau, neu addasiadau i\'r Feddalwedd.</string>
-    <string name="license_section_6">6. CYFYNGU AR ATEBOLRWYDD</string>
-    <string name="license_section_6_1">6.1 Cap ar Atebolrwydd</string>
-    <string name="license_liability_cap">I\'R GRADDAU EITHAF A GANIATEIR GAN GYFRAITH BERTHNASOL, NI FYDD Y TRWYDDEDWR, ALEKS LEVET, NA LUMINUS LABS YN ATEBOL AM UNRHYW DDAMWEINIAU ANUNIONGYRCHOL, DIGWYDDIADOL, ARBENNIG, CANLYNIADOL, NEU GOSBOL O UNRHYW FATH (GAN GYNNWYS, OND HEB FOD YN GYFYNGEDIG I, COLLI ELWON, TORRI AR DRAWS BUSNES, NEU UNRHYW GOLL ARIANNOL ARALL) SY\'N DEILLIO O DDEFNYDDIO NEU ANALLU I DDEFNYDDIO\'R FEDDALWEDD, HYD YN OED OS OEDDENT WEDI CAEL EU HYBYSYSU AM BOSIBILRWYDD DAMWEINIAU O\'R FATH.</string>
-    <string name="license_section_7">7. TERFYNU</string>
-    <string name="license_section_7_1">7.1 Terfynu Awtomatig</string>
-    <string name="license_termination">Bydd hawliau\'r Trwyddedai o dan y Cytundeb hwn yn terfynu\'n awtomatig heb rybudd gan y Trwyddedwr os bydd y Trwyddedai yn methu â chydymffurfio ag unrhyw deler(au) o\'r Cytundeb hwn. Ar ôl terfynu, rhaid i\'r Trwyddedai roi\'r gorau i bob defnydd a dinistrio pob copi lleol o\'r Feddalwedd.</string>
-    <string name="license_section_8">8. AMRYWIOL</string>
-    <string name="license_section_8_1">8.1 Cyfraith Lywodraethol</string>
-    <string name="license_governing_law">Bydd y Cytundeb hwn yn cael ei lywodraethu gan gyfreithiau\'r awdurdodaeth lle mae Oliver Lebaigue yn preswylio, a bydd yn cael ei ddehongli yn unol â nhw, heb ystyried ei egwyddorion gwrthdaro cyfreithiau.</string>
-    <string name="end_of_license">DIWEDD Y CYTUNDEB TRWYDDED</string>
 
     <string name="back">Yn ôl</string>
-    <string name="visual_preset_editor">Golygydd Rhagosodiadau Gweledol</string>
-    <string name="share">Rhannu</string>
-    <string name="save">Cadw</string>
-    <string name="community_presets">Rhagosodiadau Cymunedol</string>
-    <string name="share_to_community">Rhannu i\'r Gymuned</string>
-    <string name="share_preset_desc">Rhannwch eich rhagosodiad gyda defnyddwyr eraill.</string>
-    <string name="author_name">Enw\'r Awdur</string>
-    <string name="preset_name">Enw\'r Rhagosodiad</string>
-    <string name="segments_selected">Segmentau (%d wedi\'u dewis)</string>
-    <string name="multi_select">Aml-ddewis</string>
-    <string name="bulk_actions">Camau Gweithredu Swmp</string>
-    <string name="bulk_actions_desc">Gweithredu gosodiadau ar gyfer pob segment a ddewiswyd</string>
-    <string name="auto_distribute">Auto-Ddosbarthu</string>
-    <string name="editing_segment">Golygu Segment #%d</string>
     <string name="editing_segments_count">Golygu %d Segment</string>
     <string name="frequency_range_label">Ystod Amlder: %1$dHz - %2$dHz</string>
     <string name="no_presets_found">Heb ganfod unrhyw ragosodiadau. Byddwch y cyntaf i rannu un!</string>

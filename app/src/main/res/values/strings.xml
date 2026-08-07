@@ -3,9 +3,8 @@
     <string name="app_name" translatable="false">BNMV</string>
 
     <!-- Audio Screen -->
-    <string name="audio_screen_title">Better Nothing\nMusic Visualizer</string>
+    <string name="audio_screen_title" translatable="false">Better Nothing\nMusic Visualizer</string>
     <string name="audio_description_running">Real time audio visualizer is active. Your phone is now dancing to the beat! No audio content is saved.</string>
-    <string name="audio_description_idle">This app was made by Aleks Levet, rKyzen, and Oliver lebaigue.\n\nPrivacy Note: We only utilize the audio stream. No screen content is recorded.</string>
     <string name="audio_warning_vizualizer">Warning: this source uses the standard Android visualizer-style audio stream. It is low fidelity and may suck.</string>
     <string name="auto_memorize_device">Auto-Memorize Device</string>
     <string name="saving_latency_for">Saving latency for: %s</string>
@@ -36,7 +35,8 @@
     <string name="typography">Typography</string>
     <string name="font_ndot">NDot</string>
     <string name="font_ntype">NType</string>
-    <string name="typography_help_text">Toggle between NDot and NType fonts app-wide.</string>
+    <string name="font_google_sans">Google Sans</string>
+    <string name="typography_help_text">Choose your preferred font app-wide.</string>
     <string name="more_settings_coming">More settings coming soon…</string>
 
     <!-- Haptics Screen -->
@@ -96,11 +96,6 @@
     <string name="start_visualizer">Start</string>
     <string name="stop_visualizer">Stop</string>
     <string name="glyph_no_config">No configuration loaded. Please check for updates in Settings to download the latest visualizer presets.</string>
-    <string name="glyph_debug_title">Nothing Phone (1) on Android 15</string>
-    <string name="glyph_debug_desc_adb_enabled">Glyph features need the Nothing glyph debug interface enabled through ADB on this device.</string>
-    <string name="glyph_debug_desc_dev_options">Glyph features need Developer options enabled first on Nothing Phone (1) running Android 15. After that, run this ADB command:</string>
-    <string name="glyph_debug_command">adb shell settings put global nt_glyph_interface_debug_enable 1</string>
-    <string name="glyph_debug_instruction">Run the command once from a computer with ADB, then reopen the app if the Glyphs still do not respond.</string>
 
     <!-- About Screen -->
     <string name="about_title">App info and updates</string>
@@ -113,7 +108,7 @@
     <string name="about_why_3">• Precise FFT sync vs semi-random response</string>
     <string name="about_why_4">• Independent sub-zone control</string>
     <string name="github_repository">GitHub Repository</string>
-    <string name="view_source">View Source</string>
+    <string name="view_source">View Github</string>
     <string name="version_info">Version %s</string>
     <string name="zones_config_version">Config Version: %s</string>
     <string name="media_projection_info">MediaProjection is used only to power the real-time visualizer. No unnecessary recording or data storage is performed.</string>
@@ -129,7 +124,6 @@
     <string name="capture_media_projection">Media Projection\n(default, best)</string>
     <string name="capture_microphone">Microphone</string>
     <string name="capture_vizualizer">Android built-in vizualizer</string>
-    <string name="capture_shizuku">Shizuku</string>
     <string name="update_available">Update available: %s</string>
     <string name="update_now">Update Now</string>
     <string name="credit_alekslevet_role">Founder, coordinator, main idea, owner</string>
@@ -141,7 +135,6 @@
     <string name="credit_ake_role">Developer working on a music app with integration</string>
     <string name="credit_interlastic_role">Discord bot for testing the script (deprecated)</string>
 
-    <string name="app_news">App News</string>
     <string name="music_theme_notification_access">Music theme requires Notification Access. Please enable it for this app.</string>
     <string name="idle_pattern">Idle Pattern</string>
     <string name="idle_pattern_pulse">Pulse</string>
@@ -151,41 +144,15 @@
     <string name="idle_pattern_heartbeat">Heartbeat</string>
     <string name="idle_pattern_orbit">Orbit</string>
     <string name="idle_pattern_rain">Rain</string>
-    <string name="strobe_mode">Strobe Mode</string>
-    <string name="strobe_mode_desc">Alternating flash pattern for Glyphs</string>
-    <string name="developer_access">Developer Access</string>
-    <string name="developer_access_desc">Please enter the developer password to access administrative tools.</string>
-    <string name="password">Password</string>
-    <string name="unlock">Unlock</string>
-    <string name="incorrect_password">Incorrect Password</string>
     <string name="cancel">Cancel</string>
     <string name="back">Back</string>
-    <string name="visual_preset_editor">Visual Preset Editor</string>
-    <string name="share">Share</string>
-    <string name="save">Save</string>
-    <string name="community_presets">Community Presets</string>
-    <string name="share_to_community">Share to Community</string>
-    <string name="share_preset_desc">Share your preset with other users.</string>
-    <string name="author_name">Author Name</string>
-    <string name="preset_name">Preset Name</string>
-    <string name="segments_selected">Segments (%d selected)</string>
-    <string name="multi_select">Multi-select</string>
-    <string name="bulk_actions">Bulk Actions</string>
-    <string name="bulk_actions_desc">Apply settings to all selected segments</string>
-    <string name="auto_distribute">Auto-Distribute</string>
-    <string name="editing_segment">Editing Segment #%d</string>
     <string name="editing_segments_count">Editing %d Segments</string>
     <string name="frequency_range_label">Frequency Range: %1$dHz - %2$dHz</string>
     <string name="no_presets_found">No presets found. Be the first to share one!</string>
     <string name="preset_by_author">by %1$s • %2$s</string>
     <string name="downloads_count">%1$s • %2$d downloads</string>
     <string name="clear">Clear</string>
-    <string name="global_announcements">Global Announcements</string>
     <string name="global_announcements_desc">Notify all users about updates or news</string>
-    <string name="create">Create</string>
-    <string name="unlock_shizuku_source">Unlock Shizuku Source</string>
-    <string name="unlock_shizuku_source_desc">Experimental high-fidelity capture</string>
-    <string name="expressive_ui">Expressive UI</string>
     <string name="sync_ui_to_beat">Sync UI to the beat</string>
     <string name="nav_overlay">Nav Overlay</string>
     <string name="lens_visualizer">Lens Visualizer</string>
@@ -213,26 +180,8 @@
     <string name="notification_button_set_presets">Presets</string>
     <string name="notification_button_set_quick_controls">Quick Controls</string>
 
-    <string name="profile">Profile</string>
-    <string name="leaderboard_nickname">Leaderboard Nickname</string>
-    <string name="profile_picture">Profile Picture</string>
-    <string name="profile_help_text">Your profile picture and nickname will be visible to others on the leaderboard.</string>
-    <string name="failed_to_upload_image">Failed to upload image: %s</string>
-
     <!-- Auth -->
-    <string name="sign_in">Sign In</string>
-    <string name="sign_up">Sign Up</string>
-    <string name="email">Email</string>
-    <string name="sign_in_with_google">Sign In with Google</string>
-    <string name="already_have_account">Already have an account? Sign In</string>
-    <string name="dont_have_account">Don\'t have an account? Sign Up</string>
-    <string name="sign_out">Sign Out</string>
-    <string name="sync_account_desc">Sign in with Google to keep your presets and stats synced across devices.</string>
-    <string name="account_linked">Account synced successfully!</string>
-    <string name="default_web_client_id">252304807982-ubtpig2ddtukmjfa7cp21lj1mjgnr968.apps.googleusercontent.com</string>
-    <string name="auth_failed">Authentication failed: %s</string>
-    <string name="anonymous_user">Guest User</string>
-    <string name="authenticated_user">Verified Account</string>
+    <string name="default_web_client_id" translatable="false">252304807982-ubtpig2ddtukmjfa7cp21lj1mjgnr968.apps.googleusercontent.com</string>
 
     <string name="tab_audio">BNMV</string>
     <string name="tab_glyphs">Glyphs</string>
@@ -272,12 +221,6 @@
     <string name="overlay_permission_denied">Overlay permission denied</string>
     <string name="notification_access_required">Please enable notification access for this feature</string>
 
-    <string name="thanks_downloading">thanks for downloading</string>
-    <string name="thanks_installing">thanks for installing</string>
-    <string name="thanks_using">thanks for using the app</string>
-    <string name="thanks_nothing">thanks for nothing</string>
-    <string name="thanks_participating">thanks for participating to the community</string>
-
     <string name="config_update_success">Successfully updated zones.config</string>
     <string name="config_import_success">Successfully imported zones.config</string>
     <string name="config_import_error">Failed to read selected file</string>
@@ -289,46 +232,4 @@
     <string name="license_title">License</string>
     <string name="license_agreement">License Agreement</string>
     <string name="read_license">Read the software license</string>
-    <string name="license_agreement_title">BETTER-NOTHING-MUSIC-VISUALIZER LICENSE AGREEMENT</string>
-    <string name="license_version">Version: 1.1</string>
-    <string name="license_date">Date: June 29, 2026</string>
-    <string name="license_licensor">Licensor</string>
-    <string name="license_licensor_name">Oliver Lebaigue</string>
-    <string name="license_founder">Founder</string>
-    <string name="license_founder_name">Aleks Levet</string>
-    <string name="license_organization">Organization</string>
-    <string name="license_organization_name">Luminus Labs</string>
-    <string name="license_section_1">1. PREAMBLE</string>
-    <string name="license_preamble_1">This License Agreement (\"Agreement\") is a legal agreement between you (\"Licensee\") and Oliver Lebaigue (\"Licensor\") for the use, review, and modification of the music visualizer software application known as \"better-nothing-music-visualizer\" (the \"Software\"), a project founded by Aleks Levet under the organization Luminus Labs.</string>
-    <string name="license_preamble_2">The Software\'s source code is hosted publicly at https://github.com/aleks-levet/better-nothing-music-visualizer. By accessing, downloading, copying, or otherwise using the Software or its Source Code, Licensee agrees to be bound by the terms of this Agreement.</string>
-    <string name="license_section_2">2. DEFINITIONS</string>
-    <string name="license_def_1">2.1 \"Software\" shall mean the better-nothing-music-visualizer software application, including but not limited to the source code, audio processing modules, rendering engines, visual assets, graphics libraries, configuration scripts, documentation, object files, binary executables, and any associated media or assets.</string>
-    <string name="license_def_2">2.2 \"Source Code\" shall mean the publicly disclosed files of the Software, including all script files, shader code, assets, and build configurations.</string>
-    <string name="license_section_3">3. GRANT OF LICENSE &amp; ACCESSIBILITY</string>
-    <string name="license_section_3_1">3.1 Public Availability</string>
-    <string name="license_grant_3_1">Licensor acknowledges that the Source Code is public. Licensee is granted a non-exclusive, non-transferable, revocable license to download, view, and modify the Source Code for personal, educational, and non-commercial evaluation purposes only.</string>
-    <string name="license_section_3_2">3.2 Restrictions</string>
-    <string name="license_grant_3_2">Licensee may NOT:</string>
-    <string name="license_restriction_a">* (a) Redistribute the Software or modified versions of it to third parties, except via standard repository forks on GitHub, provided those forks remain bound by this exact License.</string>
-    <string name="license_restriction_b">* (b) Use the Software or any derivative works for commercial purposes, public performances, commercial streaming, or any revenue-generating activities without separate written authorization.</string>
-    <string name="license_restriction_c">* (c) Remove, alter, or obscure any copyright, trademark, patent, or proprietary rights notices placed on or within the Software, including references to Aleks Levet, Luminus Labs, or Licensor.</string>
-    <string name="license_restriction_d">* (d) Use the Software to develop any competing commercial music visualization software or platform.</string>
-    <string name="license_section_4">4. INTELLECTUAL PROPERTY RIGHTS</string>
-    <string name="license_section_4_1">4.1 Ownership</string>
-    <string name="license_ownership">Licensor, Aleks Levet, and Luminus Labs retain all respective right, title, and interest in and to the Software, including all intellectual property rights therein. Public disclosure of the Source Code does not constitute a waiver of copyright or ownership.</string>
-    <string name="license_section_5">5. NO WARRANTY</string>
-    <string name="license_section_5_1">5.1 Disclaimer</string>
-    <string name="license_warranty_disclaimer">THE SOFTWARE IS PROVIDED \"AS IS\" AND \"WITH ALL FAULTS.\" TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, LICENSOR DISCLAIMS ALL OTHER WARRANTIES AND CONDITIONS, EITHER EXPRESS, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.</string>
-    <string name="license_section_5_2">5.2 No Technical Support</string>
-    <string name="license_technical_support">Licensor, Aleks Levet, and Luminus Labs are under no obligation to provide technical support, updates, upgrades, or modifications to the Software.</string>
-    <string name="license_section_6">6. LIMITATION OF LIABILITY</string>
-    <string name="license_section_6_1">6.1 Cap on Liability</string>
-    <string name="license_liability_cap">TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL LICENSOR, ALEKS LEVET, OR LUMINUS LABS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES WHATSOEVER (INCLUDING, BUT NOT LIMITED TO, LOSS OF PROFITS, BUSINESS INTERRUPTION, OR ANY OTHER PECUNIARY LOSS) ARISING OUT OF THE USE OF OR INABILITY TO USE THE SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.</string>
-    <string name="license_section_7">7. TERMINATION</string>
-    <string name="license_section_7_1">7.1 Automatic Termination</string>
-    <string name="license_termination">Licensee\'s rights under this Agreement will terminate automatically without notice from Licensor if Licensee fails to comply with any term(s) of this Agreement. Upon termination, Licensee shall cease all use and destroy all local copies of the Software.</string>
-    <string name="license_section_8">8. MISCELLANEOUS</string>
-    <string name="license_section_8_1">8.1 Governing Law</string>
-    <string name="license_governing_law">This Agreement shall be governed by and construed in accordance with the laws of the jurisdiction in which Oliver Lebaigue resides, without regard to its conflict of law principles.</string>
-    <string name="end_of_license">END OF LICENSE AGREEMENT</string>
 </resources>
