@@ -100,6 +100,8 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -1088,6 +1090,53 @@ private fun ExpressiveThumb(factor: Float) {
                 shape = RoundedCornerShape(2.dp)
             )
     )
+}
+
+@Composable
+fun DisabledFeaturePlaceholder(
+    tab: Tab,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        val icon = when (tab) {
+            Tab.Glyphs -> painterResource(R.drawable.ic_nav_glyphs)
+            Tab.Haptics -> rememberVectorPainter(Icons.Filled.Vibration)
+            Tab.Flashlight -> rememberVectorPainter(Icons.Filled.FlashlightOn)
+            Tab.Visuals -> rememberVectorPainter(Icons.Filled.Layers)
+            else -> rememberVectorPainter(Icons.Default.Settings)
+        }
+
+        val text = when (tab) {
+            Tab.Glyphs -> stringResource(R.string.glyphs_disabled)
+            Tab.Haptics -> stringResource(R.string.haptics_disabled)
+            Tab.Flashlight -> stringResource(R.string.flashlight_disabled)
+            else -> stringResource(R.string.feature_disabled)
+        }
+
+        Icon(
+            painter = icon,
+            contentDescription = null,
+            modifier = Modifier
+                .size(120.dp)
+                .alpha(0.2f),
+            tint = MaterialTheme.colorScheme.onBackground
+        )
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        Text(
+            text = text,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+        )
+    }
 }
 
 

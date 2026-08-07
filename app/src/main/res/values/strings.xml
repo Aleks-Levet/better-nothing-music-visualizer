@@ -241,6 +241,11 @@
     <string name="tab_flashlight">Flashlight</string>
     <string name="tab_settings">Settings</string>
 
+    <string name="glyphs_disabled">Glyphs are disabled</string>
+    <string name="haptics_disabled">Haptics are disabled</string>
+    <string name="flashlight_disabled">Flashlight is disabled</string>
+    <string name="feature_disabled">This feature is disabled</string>
+
     <string name="update_available_title">Update Available: %s</string>
     <string name="update_available_msg">A new version is available. What\'s new:</string>
     <string name="no_changelog">No changelog available.</string>

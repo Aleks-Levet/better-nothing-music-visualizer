@@ -73,7 +73,11 @@ class UdpNetworkSync(private val context: Context) {
         acquireMulticastLock()
         executor.execute {
             try {
-                discoverySocket = DatagramSocket(DISCOVERY_PORT).apply { broadcast = true }
+                discoverySocket = DatagramSocket(null).apply {
+                    reuseAddress = true
+                    broadcast = true
+                    bind(java.net.InetSocketAddress(DISCOVERY_PORT))
+                }
                 val buffer = ByteArray(1024)
                 while (isBroadcasting) {
                     val packet = DatagramPacket(buffer, buffer.size)
@@ -103,6 +107,7 @@ class UdpNetworkSync(private val context: Context) {
                     Log.e(TAG, "Broadcasting error", e)
                 }
             } finally {
+                isBroadcasting = false
                 discoverySocket?.close()
                 discoverySocket = null
                 releaseMulticastLock()
@@ -125,12 +130,23 @@ class UdpNetworkSync(private val context: Context) {
     fun discoverHosts(onHostFound: (HostInfo) -> Unit) {
         if (isDiscovering) return
         isDiscovering = true
+        Log.d(TAG, "Starting discovery...")
         acquireMulticastLock()
         executor.execute {
             var clientSocket: DatagramSocket? = null
             try {
-                clientSocket = DatagramSocket().apply { broadcast = true; soTimeout = 3000 }
-                val broadcastAddr = getBroadcastAddress() ?: return@execute
+                clientSocket = DatagramSocket(null).apply {
+                    reuseAddress = true
+                    broadcast = true
+                    soTimeout = 3000
+                }
+                clientSocket.bind(null)
+                
+                val broadcastAddr = getBroadcastAddress() ?: run {
+                    Log.e(TAG, "Could not get broadcast address")
+                    return@execute
+                }
+                Log.d(TAG, "Sending discovery broadcast to $broadcastAddr:$DISCOVERY_PORT from port ${clientSocket.localPort}")
                 val msg = DISCOVERY_MSG.toByteArray()
                 val packet = DatagramPacket(msg, msg.size, broadcastAddr, DISCOVERY_PORT)
                 clientSocket.send(packet)
@@ -142,6 +158,7 @@ class UdpNetworkSync(private val context: Context) {
                         val responsePacket = DatagramPacket(buffer, buffer.size)
                         clientSocket.receive(responsePacket)
                         val response = String(responsePacket.data, 0, responsePacket.length)
+                        Log.d(TAG, "Received response: $response from ${responsePacket.address}")
                         if (response.startsWith(HOST_MSG_PREFIX)) {
                             val parts = response.split(";")
                             if (parts.size >= 6) {
@@ -200,10 +217,14 @@ class UdpNetworkSync(private val context: Context) {
     fun startListening(onFftReceived: (IntArray) -> Unit) {
         if (isListening) return
         isListening = true
+        acquireMulticastLock()
         Log.d(TAG, "Starting to listen for FFT on port $STREAMING_PORT")
         executor.execute {
             try {
-                listeningSocket = DatagramSocket(STREAMING_PORT)
+                listeningSocket = DatagramSocket(null).apply {
+                    reuseAddress = true
+                    bind(java.net.InetSocketAddress(STREAMING_PORT))
+                }
                 val buffer = ByteArray(768)
                 while (isListening) {
                     val packet = DatagramPacket(buffer, buffer.size)
@@ -223,6 +244,7 @@ class UdpNetworkSync(private val context: Context) {
                 listeningSocket?.close()
                 listeningSocket = null
                 isListening = false
+                releaseMulticastLock()
                 Log.d(TAG, "Stopped listening")
             }
         }

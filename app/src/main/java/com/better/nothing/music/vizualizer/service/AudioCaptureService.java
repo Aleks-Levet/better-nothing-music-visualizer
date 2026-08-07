@@ -827,6 +827,12 @@ public class AudioCaptureService extends Service {
         if (config == null || configVersion != mPresetConfigVersion.get()) return;
         try {
             long now = SystemClock.elapsedRealtime(); 
+
+            // Independent broadcast logic
+            if (mBroadcastEnabled && (now - mLastSendMs >= MIN_SEND_INTERVAL_MS)) {
+                mUdpSync.sendFft(fftraw);
+            }
+
             boolean hasActivity = false;
             if (fftraw != null && fftraw.length > 0) { for (int val : fftraw) if (val > 20) { hasActivity = true; break; } }
             
@@ -840,9 +846,6 @@ public class AudioCaptureService extends Service {
                 }
 
                 if (mSessionOpen && (now - mLastSendMs >= MIN_SEND_INTERVAL_MS)) {
-                    if (mBroadcastEnabled) {
-                        mUdpSync.sendFft(fftraw);
-                    }
                     int[] frameColors = mGlyphRenderer.processFrame(fftraw, config, now);
                     if (frameColors != null) {
                         try {
@@ -855,8 +858,12 @@ public class AudioCaptureService extends Service {
                         } catch (Exception ignored) {}
                     }
                 }
-            } else if (mSessionOpen) {
-                clearGlyphSession();
+            } else {
+                if (mSessionOpen) clearGlyphSession();
+                // If glyphs are off, we still need to update mLastSendMs for broadcast
+                if (mBroadcastEnabled && (now - mLastSendMs >= MIN_SEND_INTERVAL_MS)) {
+                    mLastSendMs = now;
+                }
             }
         } catch (Exception e) { Log.e(TAG, "processFrame error", e); }
     }
