@@ -299,9 +299,7 @@ public class AudioCaptureService extends Service {
     public float getLatestUiPeak() {
         int[] fft = getLatestRawFFT();
         int max = 0;
-        int binLo = AudioProcessor.findLogBinIndex(80f);
-        int binHi = AudioProcessor.findLogBinIndex(120f);
-        for (int i = binLo; i <= binHi; i++) if (fft[i] > max) max = fft[i];
+        for (int i = 0; i < 512; i++) if (fft[i] > max) max = fft[i];
         return max / 4095f;
     }
 
@@ -483,7 +481,8 @@ public class AudioCaptureService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (Build.VERSION.SDK_INT >= 34) {
-            startForegroundWithTypes(mCaptureSource);
+            boolean isStartingProjection = intent != null && intent.hasExtra(EXTRA_RESULT_CODE) && intent.hasExtra(EXTRA_DATA);
+            startForegroundWithTypes(mCaptureSource, isStartingProjection);
         }
         if (intent != null) {
             String action = intent.getAction();
@@ -655,7 +654,7 @@ public class AudioCaptureService extends Service {
         Log.d(TAG, "startNetworkCapture: starting client mode");
         synchronized (mCaptureLock) {
             stopCaptureLocked();
-            startForegroundWithTypes(CaptureSource.NETWORK);
+            startForegroundWithTypes(CaptureSource.NETWORK, false);
             mCapturing = true; setRunning(true); updateOverlayVisibility(); mCaptureStartTimeMs = SystemClock.elapsedRealtime();
             mUdpSync.startListening(fft -> {
                 if (mCapturing && mCaptureSource == CaptureSource.NETWORK) {
@@ -744,12 +743,12 @@ public class AudioCaptureService extends Service {
             stopCaptureLocked();
             if (source == CaptureSource.INTERNAL) {
                 if (pm == null) return;
-                startForegroundWithTypes(CaptureSource.INTERNAL);
+                startForegroundWithTypes(CaptureSource.INTERNAL, true);
                 mProjection = pm.getMediaProjection(resultCode, data);
                 if (mProjection == null) { stopForeground(STOP_FOREGROUND_REMOVE); setRunning(false); return; }
-                startForegroundWithTypes(CaptureSource.INTERNAL); // Re-call to include MEDIA_PROJECTION type now that mProjection is set
+                startForegroundWithTypes(CaptureSource.INTERNAL, true); // Re-call to include MEDIA_PROJECTION type now that mProjection is set
                 mProjection.registerCallback(mProjectionCallback, mWorkerHandler);
-            } else startForegroundWithTypes(source);
+            } else startForegroundWithTypes(source, false);
             mCapturing = true; setRunning(true); updateOverlayVisibility(); mCaptureStartTimeMs = SystemClock.elapsedRealtime();
             ensureCaptureExecutor();
             mCaptureExecutor.execute(() -> {
@@ -782,12 +781,14 @@ public class AudioCaptureService extends Service {
         refreshNotification();
     }
 
-    private void startForegroundWithTypes(CaptureSource source) {
+    private void startForegroundWithTypes(CaptureSource source, boolean forceMediaProjection) {
         Notification notification = buildNotification();
         if (Build.VERSION.SDK_INT >= 34) {
             int type = ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
             if (source == CaptureSource.INTERNAL) {
-                type |= ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION;
+                if (forceMediaProjection || mProjection != null) {
+                    type |= ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION;
+                }
             } else if (source == CaptureSource.MIC || source == CaptureSource.VIZUALIZER) {
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
                     type |= ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
@@ -796,8 +797,13 @@ public class AudioCaptureService extends Service {
             startForeground(NOTIF_ID, notification, type);
         } else if (Build.VERSION.SDK_INT >= 29) {
             int type = 0;
-            if (source == CaptureSource.INTERNAL) type = ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION;
-            else if (source == CaptureSource.MIC || source == CaptureSource.VIZUALIZER) type = ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
+            if (source == CaptureSource.INTERNAL) {
+                if (forceMediaProjection || mProjection != null) {
+                    type = ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION;
+                }
+            } else if (source == CaptureSource.MIC || source == CaptureSource.VIZUALIZER) {
+                type = ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
+            }
             if (type != 0) startForeground(NOTIF_ID, notification, type);
             else startForeground(NOTIF_ID, notification);
         } else {

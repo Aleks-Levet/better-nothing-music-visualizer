@@ -18,7 +18,7 @@ class UdpNetworkSync(private val context: Context) {
         private const val STREAMING_PORT = 8889
         private const val DISCOVERY_MSG = "BNMV_DISCOVER"
         private const val HOST_MSG_PREFIX = "BNMV_HOST"
-        private const val PROTOCOL_VERSION = "4.0.made.by.aleks.levet"
+        private const val PROTOCOL_VERSION = "6.0.made.by.aleks.levet"
     }
 
     data class HostInfo(

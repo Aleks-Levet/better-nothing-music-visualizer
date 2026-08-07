@@ -104,98 +104,117 @@ internal fun GlyphsScreen(
             onGammaChanged = onGammaChanged
         )
 
-        ExpressiveCard(
-            modifier = Modifier
-                .fillMaxWidth()
+        val isSlimDevice = selectedDevice == com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4A ||
+                selectedDevice == com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4B
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.Top
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            ExpressiveCard(
+                modifier = Modifier.weight(if (isSlimDevice) 0.85f else 1f)
             ) {
-                CardHeader(
-                    title = stringResource(
-                        R.string.visualizer_presets
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CardHeader(
+                        title = stringResource(
+                            R.string.visualizer_presets
+                        )
                     )
-                )
-            }
+                }
 
-            val favorites by viewModel.favoritePresets.collectAsStateWithLifecycle()
-            val sortedPresets = remember(presets, favorites) {
-                presets.sortedByDescending { favorites.contains(it.key) }
-            }
+                val favorites by viewModel.favoritePresets.collectAsStateWithLifecycle()
+                val sortedPresets = remember(presets, favorites) {
+                    presets.sortedByDescending { favorites.contains(it.key) }
+                }
 
-            FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 20.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                if (sortedPresets.isNotEmpty()) {
-                    ExpressiveSplitButton(
-                        items = sortedPresets,
-                        selectedItem = sortedPresets.firstOrNull { it.key == selectedPreset }
-                            ?: sortedPresets.first(),
-                        onItemSelection = { preset -> onPresetSelected(preset.key) },
-                        labelProvider = { preset -> preset.key },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    if (sortedPresets.isNotEmpty()) {
+                        ExpressiveSplitButton(
+                            items = sortedPresets,
+                            selectedItem = sortedPresets.firstOrNull { it.key == selectedPreset }
+                                ?: sortedPresets.first(),
+                            onItemSelection = { preset -> onPresetSelected(preset.key) },
+                            labelProvider = { preset -> preset.key },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Crossfade(
-                            targetState = selectedInfo?.description,
-                            label = "desc_fade",
-                            animationSpec = spring(stiffness = Spring.StiffnessMedium),
-                            modifier = Modifier.weight(1f)
-                        ) { description ->
-                            Text(
-                                text = description ?: stringResource(R.string.glyph_no_config),
-                                style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 22.sp),
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                        }
-                    }
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (configVersion.contains(".simple")) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Crossfade(
+                                targetState = selectedInfo?.description,
+                                label = "desc_fade",
+                                animationSpec = spring(stiffness = Spring.StiffnessMedium),
+                                modifier = Modifier.weight(1f)
+                            ) { description ->
                                 Text(
-                                    "Update Required",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                                Text(
-                                    "Download full config to see presets",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    text = description ?: stringResource(R.string.glyph_no_config),
+                                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 22.sp),
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+                                    modifier = Modifier.fillMaxWidth(),
                                 )
                             }
-                        } else {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(20.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (configVersion.contains(".simple")) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(
+                                        "Update Required",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                    Text(
+                                        "Download full config to see presets",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            } else {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    strokeWidth = 2.dp,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
                     }
                 }
             }
+
+            if (isSlimDevice && isRunning) {
+                val vizStateState = viewModel.visualizerState.collectAsStateWithLifecycle()
+                GlyphPreview(
+                    vizStateProvider = { vizStateState.value },
+                    device = selectedDevice,
+                    modifier = Modifier
+                        .width(60.dp)
+                        .height(320.dp)
+                )
+            }
         }
 
-        if (isRunning) {
+        if (!isSlimDevice && isRunning) {
             val vizStateState = viewModel.visualizerState.collectAsStateWithLifecycle()
             val previewHeight = when (selectedDevice) {
                 com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP2 -> 530.dp
