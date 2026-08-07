@@ -96,14 +96,12 @@ internal fun SettingsScreen(
             LinkCard(
                 title = stringResource(R.string.about_title),
                 icon = Icons.Default.Info,
-                onClick = { viewModel.showAbout() },
-                modifier = Modifier.weight(1f)
+                onClick = { viewModel.showAbout() }
             )
             LinkCard(
                 title = "Vizualizer Stats",
                 icon = Icons.Default.BarChart,
-                onClick = { viewModel.showStats() },
-                modifier = Modifier.weight(1f)
+                onClick = { viewModel.showStats() }
             )
         }
 

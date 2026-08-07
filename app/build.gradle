@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.plugin.compose'
-     id 'com.google.gms.google-services'
 }
 
 android {
@@ -104,5 +103,7 @@ dependencies {
 
     // 9. Firebase & Analytics
     implementation platform('com.google.firebase:firebase-bom:33.1.2')
-    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 }
+
+apply plugin: 'com.google.gms.google-services'

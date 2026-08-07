@@ -37,6 +37,8 @@
         android:theme="@style/Theme.BetterGlyph"
         tools:ignore="UnusedAttribute">
 
+        <meta-data android:name="NothingKey" android:value="4fce0591-cbd9-4b1d-9cd0-646a2d2aecea" />
+
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
