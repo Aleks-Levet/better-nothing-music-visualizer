@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.better.nothing.music.vizualizer.R
+import com.better.nothing.music.vizualizer.model.BeatEngineMode
 import com.better.nothing.music.vizualizer.model.TorchMode
 import kotlinx.coroutines.flow.StateFlow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -59,6 +60,10 @@ fun FlashlightScreen(
     onFlashlightEnabledChanged: (Boolean) -> Unit,
     flashlightMode: TorchMode,
     onFlashlightModeChanged: (TorchMode) -> Unit,
+    flashlightBeatEngineMode: BeatEngineMode,
+    onFlashlightBeatEngineModeChanged: (BeatEngineMode) -> Unit,
+    flashlightPulseDurationMs: Int,
+    onFlashlightPulseDurationMsChanged: (Int) -> Unit,
     flashlightFreqMin: Float,
     flashlightFreqMax: Float,
     onFlashlightFreqRangeChanged: (Float, Float) -> Unit,
@@ -164,6 +169,26 @@ fun FlashlightScreen(
             }
 
             if (flashlightMode == TorchMode.BEAT_DETECTION) {
+                if (flashlightIntensityLevels > 1) {
+                    ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
+                        CardHeader(title = stringResource(R.string.beat_engine_mode_label))
+                        ExpressiveSplitButton(
+                            items = BeatEngineMode.entries,
+                            selectedItem = flashlightBeatEngineMode,
+                            onItemSelection = onFlashlightBeatEngineModeChanged,
+                            labelProvider = { mode ->
+                                stringResource(
+                                    when (mode) {
+                                        BeatEngineMode.SMOOTH -> R.string.beat_engine_smooth
+                                        BeatEngineMode.SHORT_PULSE -> R.string.beat_engine_short
+                                    }
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+
                 ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
                     CardHeader(
                         title = stringResource(
@@ -184,23 +209,46 @@ fun FlashlightScreen(
                 }
             }
 
-            ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                CardHeader(
-                    title = stringResource(
-                        R.string.flashlight_speed_label,
-                        flashlightSpeedMs
-                    )
-                )
-                ExpressiveSlider(
-                    value = flashlightSpeedMs,
-                    onValueChange = onFlashlightSpeedMsChanged,
-                    valueRange = 40f..150f,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                BodyText(
-                    text = stringResource(R.string.flashlight_speed_desc),
-                    size = 12.sp
-                )
+            if (flashlightMode == TorchMode.BEAT_DETECTION) {
+                if (flashlightBeatEngineMode == BeatEngineMode.SHORT_PULSE || flashlightIntensityLevels <= 1) {
+                    ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
+                        CardHeader(
+                            title = stringResource(
+                                R.string.flashlight_duration_label,
+                                flashlightPulseDurationMs
+                            )
+                        )
+                        ExpressiveSlider(
+                            value = flashlightPulseDurationMs.toFloat(),
+                            onValueChange = { onFlashlightPulseDurationMsChanged(it.toInt()) },
+                            valueRange = 5f..200f,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        BodyText(
+                            text = stringResource(R.string.flashlight_duration_desc),
+                            size = 12.sp
+                        )
+                    }
+                } else {
+                    ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
+                        CardHeader(
+                            title = stringResource(
+                                R.string.flashlight_speed_label,
+                                flashlightSpeedMs
+                            )
+                        )
+                        ExpressiveSlider(
+                            value = flashlightSpeedMs,
+                            onValueChange = onFlashlightSpeedMsChanged,
+                            valueRange = 40f..150f,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        BodyText(
+                            text = stringResource(R.string.flashlight_speed_desc),
+                            size = 12.sp
+                        )
+                    }
+                }
             }
 
             ExpressiveCard(

@@ -2,6 +2,7 @@ package com.better.nothing.music.vizualizer.service;
 
 import com.better.nothing.music.vizualizer.model.DeviceProfile;
 import com.better.nothing.music.vizualizer.model.HapticMode;
+import com.better.nothing.music.vizualizer.model.BeatEngineMode;
 import com.better.nothing.music.vizualizer.model.TorchMode;
 import com.better.nothing.music.vizualizer.model.AudioRouteInfo;
 import com.better.nothing.music.vizualizer.logic.AudioProcessor;
@@ -250,6 +251,8 @@ public class AudioCaptureService extends Service {
 
     private volatile boolean mHapticEnabled = false;
     private volatile HapticMode mHapticMode = HapticMode.BASS_TO_AMPLITUDE;
+    private volatile BeatEngineMode mHapticBeatEngineMode = BeatEngineMode.SMOOTH;
+    private volatile int mHapticPulseDurationMs = 40;
     private volatile float mHapticMinHz = 60;
     private volatile float mHapticMaxHz = 250;
     private volatile AudioProcessor.FrequencyRange mHapticRange;
@@ -259,6 +262,8 @@ public class AudioCaptureService extends Service {
 
     private volatile boolean mFlashlightEnabled = false;
     private volatile TorchMode mFlashlightMode = TorchMode.AMPLITUDE;
+    private volatile BeatEngineMode mFlashlightBeatEngineMode = BeatEngineMode.SMOOTH;
+    private volatile int mFlashlightPulseDurationMs = 40;
     private volatile float mFlashlightMinHz = 60;
     private volatile float mFlashlightMaxHz = 250;
     private volatile AudioProcessor.FrequencyRange mFlashlightRange;
@@ -330,7 +335,7 @@ public class AudioCaptureService extends Service {
                     if (mEdgeVisualizerView != null) mEdgeVisualizerView.updateMagnitudes(mLatestRawFFT);
                     if (mLensVisualizerView != null) mLensVisualizerView.updateMagnitudes(mLatestRawFFT);
 
-                    processFrame(mLatestRawFFT, mLatestRawFFT, mVisualizerConfig, mPresetConfigVersion.get());
+                    processFrame(mLatestRawFFT, mVisualizerConfig, mPresetConfigVersion.get());
                 }
 
                 mMainHandler.postDelayed(this, 16);
@@ -614,6 +619,8 @@ public class AudioCaptureService extends Service {
     public void setSelectedPreset(String presetKey) { applyPresetSelection(presetKey); }
     public void setHapticMotorEnabled(boolean enabled) { mHapticEnabled = hasHapticMotor(this) && enabled; requestWidgetRefresh(); }
     public void setHapticMode(HapticMode mode) { mHapticMode = mode; requestWidgetRefresh(); }
+    public void setHapticBeatEngineMode(BeatEngineMode mode) { mHapticBeatEngineMode = mode; if (mBeatDetectionEngine != null) mBeatDetectionEngine.setBeatEngineMode(mode); requestWidgetRefresh(); }
+    public void setHapticPulseDurationMs(int ms) { mHapticPulseDurationMs = ms; if (mBeatDetectionEngine != null) mBeatDetectionEngine.setPulseDurationMs(ms); }
 
     public void setMaxBrightness(int brightness) {
         int clamped = clampGlyphBrightness(brightness);
@@ -724,6 +731,8 @@ public class AudioCaptureService extends Service {
     public void setFlashlightFreqRange(float min, float max) { mFlashlightMinHz = min; mFlashlightMaxHz = max; }
     public void setFlashlightThreshold(float t) { mFlashlightThreshold = t; if (mFlashlightEngine != null) mFlashlightEngine.setFlashlightThreshold(t); }
     public void setFlashlightMode(TorchMode m) { mFlashlightMode = m; if (mFlashlightEngine != null) mFlashlightEngine.setTorchMode(m); }
+    public void setFlashlightBeatEngineMode(BeatEngineMode m) { mFlashlightBeatEngineMode = m; if (mFlashlightEngine != null) mFlashlightEngine.setBeatEngineMode(m); requestWidgetRefresh(); }
+    public void setFlashlightPulseDurationMs(int ms) { mFlashlightPulseDurationMs = ms; if (mFlashlightEngine != null) mFlashlightEngine.setPulseDurationMs(ms); }
     public void setFlashlightBeatSensitivity(float s) { mFlashlightBeatSensitivity = s; if (mFlashlightEngine != null) mFlashlightEngine.setFlashlightBeatSensitivity(s); }
     public void setFlashlightSpeedMs(float s) { mFlashlightSpeedMs = s; if (mFlashlightEngine != null) mFlashlightEngine.setFlashlightSpeedMs(s); }
 
@@ -823,7 +832,7 @@ public class AudioCaptureService extends Service {
     private void ensureCaptureExecutor() { if (mCaptureExecutor == null || mCaptureExecutor.isShutdown()) mCaptureExecutor = Executors.newSingleThreadExecutor(); }
     private void shutdownCaptureExecutor() { if (mCaptureExecutor != null) { mCaptureExecutor.shutdownNow(); mCaptureExecutor = null; } }
 
-    private void processFrame(int[] fftraw, int[] dummy, AudioProcessor.VisualizerConfig config, int configVersion) {
+    private void processFrame(int[] fftraw, AudioProcessor.VisualizerConfig config, int configVersion) {
         if (config == null || configVersion != mPresetConfigVersion.get()) return;
         try {
             long now = SystemClock.elapsedRealtime(); 
@@ -891,7 +900,7 @@ public class AudioCaptureService extends Service {
                 if (mFlashlightEnabled && mFlashlightEngine != null) {
                     mFlashlightEngine.performFlashlightFeedback(getLatestFlashlightPeak(), latestDueFrame.config, mLatestRawFFT, mFlashlightRange != null ? mFlashlightRange.logBinLo : 0, mFlashlightRange != null ? mFlashlightRange.logBinHi : 0);
                 }
-                processFrame(latestDueFrame.fftraw, latestDueFrame.fftraw, latestDueFrame.config, latestDueFrame.configVersion);
+                processFrame(latestDueFrame.fftraw, latestDueFrame.config, latestDueFrame.configVersion);
             } catch (Exception e) { Log.e(TAG, "Error dispatching frame", e); }
         }
     }

@@ -3,6 +3,7 @@ package com.better.nothing.music.vizualizer.logic
 import android.content.Context
 import android.os.*
 import android.util.Log
+import com.better.nothing.music.vizualizer.model.BeatEngineMode
 import kotlin.math.pow
 
 class BeatDetectionHapticEngine(context: Context) {
@@ -13,8 +14,12 @@ class BeatDetectionHapticEngine(context: Context) {
     private val vibratorManager: VibratorManager?
 
     private var waveform: VibrationEffect? = null
+    private var pulseEffect: VibrationEffect? = null
+    
     private var hapticMultiplier = 1.0f
     private var hapticGamma = 8.0f // Default "speed"
+    private var engineMode = BeatEngineMode.SMOOTH
+    private var pulseDurationMs = 40
     
     private val beatDetector = BeatDetector()
 
@@ -30,8 +35,16 @@ class BeatDetectionHapticEngine(context: Context) {
             vibrator = appContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         }
 
+        // Default mode if no amplitude control is Short Pulse
+        if (vibrator != null && !vibrator.hasAmplitudeControl()) {
+            engineMode = BeatEngineMode.SHORT_PULSE
+        }
+
         waveform = buildWaveform()
+        pulseEffect = buildPulseEffect()
     }
+
+    fun hasAmplitudeControl(): Boolean = vibrator?.hasAmplitudeControl() == true
 
     fun performHapticFeedback(
         fftraw: IntArray,
@@ -40,28 +53,32 @@ class BeatDetectionHapticEngine(context: Context) {
         if (
             vibrator == null ||
             !vibrator.hasVibrator() ||
-            waveform == null ||
             range == null ||
             fftraw.isEmpty()
         ) {
             return
         }
 
-        // Convert to 0-1 range for the beat detector
-        val magnitude = FloatArray(fftraw.size)
-        for (i in fftraw.indices) magnitude[i] = fftraw[i] / 4095f
-
-        if (beatDetector.detect(magnitude, range.logBinLo, range.logBinHi)) {
-            triggerWaveform()
+        if (beatDetector.detect(fftraw, range.logBinLo, range.logBinHi)) {
+            triggerHaptic()
         }
     }
 
-    private fun triggerWaveform() {
+    private fun triggerHaptic() {
         try {
-            vibrate(waveform!!)
+            val effect = if (engineMode == BeatEngineMode.SHORT_PULSE || !hasAmplitudeControl()) {
+                pulseEffect ?: buildPulseEffect()
+            } else {
+                waveform ?: buildWaveform()
+            }
+            vibrate(effect)
         } catch (e: Exception) {
             Log.w(TAG, "Failed vibration", e)
         }
+    }
+
+    private fun buildPulseEffect(): VibrationEffect {
+        return VibrationEffect.createOneShot(pulseDurationMs.toLong(), (255 * hapticMultiplier).toInt().coerceIn(1, 255))
     }
 
     private fun buildWaveform(): VibrationEffect {
@@ -124,6 +141,7 @@ class BeatDetectionHapticEngine(context: Context) {
         if (hapticMultiplier != multiplier) {
             hapticMultiplier = multiplier
             waveform = buildWaveform()
+            pulseEffect = buildPulseEffect()
         }
     }
 
@@ -131,6 +149,17 @@ class BeatDetectionHapticEngine(context: Context) {
         if (hapticGamma != gamma) {
             hapticGamma = gamma.coerceIn(4f, 15f)
             waveform = buildWaveform()
+        }
+    }
+
+    fun setBeatEngineMode(mode: BeatEngineMode) {
+        this.engineMode = mode
+    }
+
+    fun setPulseDurationMs(duration: Int) {
+        if (pulseDurationMs != duration) {
+            pulseDurationMs = duration.coerceIn(5, 200)
+            pulseEffect = buildPulseEffect()
         }
     }
 

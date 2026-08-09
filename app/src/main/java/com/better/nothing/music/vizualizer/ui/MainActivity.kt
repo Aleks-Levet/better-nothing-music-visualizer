@@ -59,6 +59,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.better.nothing.music.vizualizer.R
+import com.better.nothing.music.vizualizer.model.BeatEngineMode
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -233,11 +234,7 @@ class MainActivity : AppCompatActivity() {
                             }
                             val raw = s.latestRawFFT
                             if (raw != null) {
-                                val rawFloat = FloatArray(512)
-                                for (i in 0 until 512) {
-                                    rawFloat[i] = raw[i] / 4095f
-                                }
-                                viewModel.setFftState(rawFloat)
+                                viewModel.setFftData(raw)
                             }
                         }
                         delay(16.milliseconds)
@@ -359,7 +356,12 @@ class MainActivity : AppCompatActivity() {
             it.setSelectedPreset(viewModel.selectedPreset.value)
             it.setHapticMotorEnabled(viewModel.hapticMotorEnabled.value)
             it.setHapticMode(viewModel.hapticMode.value)
+            it.setHapticBeatEngineMode(viewModel.hapticBeatEngineMode.value)
+            it.setHapticPulseDurationMs(viewModel.hapticPulseDurationMs.value)
             it.setFlashlightEnabled(viewModel.flashlightEnabled.value)
+            it.setFlashlightMode(viewModel.flashlightMode.value)
+            it.setFlashlightBeatEngineMode(viewModel.flashlightBeatEngineMode.value)
+            it.setFlashlightPulseDurationMs(viewModel.flashlightPulseDurationMs.value)
             viewModel.setFlashlightIntensityLevels(it.flashlightIntensityLevels)
             it.setIdleBreathingEnabled(viewModel.idleBreathingEnabled.value)
             it.setIdlePattern(viewModel.idlePattern.value)
@@ -780,6 +782,11 @@ private fun TabContent(
                 },
                 hapticMode = hapticMode,
                 onHapticModeChanged = { viewModel.setHapticMode(it) },
+                hapticBeatEngineMode = viewModel.hapticBeatEngineMode.collectAsStateWithLifecycle().value,
+                onHapticBeatEngineModeChanged = { viewModel.setHapticBeatEngineMode(it) },
+                hapticPulseDurationMs = viewModel.hapticPulseDurationMs.collectAsStateWithLifecycle().value,
+                onHapticPulseDurationMsChanged = { viewModel.setHapticPulseDurationMs(it) },
+                hasAmplitudeControl = viewModel.hasAmplitudeControl,
                 hapticFreqMin = hapticFreqMin,
                 hapticFreqMax = hapticFreqMax,
                 onHapticFreqRangeChanged = { min, max ->
@@ -825,6 +832,10 @@ private fun TabContent(
                 onFlashlightEnabledChanged = { viewModel.setFlashlightEnabled(it) },
                 flashlightMode = flashlightMode,
                 onFlashlightModeChanged = { viewModel.setFlashlightMode(it) },
+                flashlightBeatEngineMode = viewModel.flashlightBeatEngineMode.collectAsStateWithLifecycle().value,
+                onFlashlightBeatEngineModeChanged = { viewModel.setFlashlightBeatEngineMode(it) },
+                flashlightPulseDurationMs = viewModel.flashlightPulseDurationMs.collectAsStateWithLifecycle().value,
+                onFlashlightPulseDurationMsChanged = { viewModel.setFlashlightPulseDurationMs(it) },
                 flashlightFreqMin = flashlightFreqMin,
                 flashlightFreqMax = flashlightFreqMax,
                 onFlashlightFreqRangeChanged = { min, max ->

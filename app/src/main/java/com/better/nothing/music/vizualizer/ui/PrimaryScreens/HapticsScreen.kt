@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.better.nothing.music.vizualizer.R
+import com.better.nothing.music.vizualizer.model.BeatEngineMode
 import com.better.nothing.music.vizualizer.model.HapticMode
 import kotlinx.coroutines.flow.StateFlow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -40,6 +41,11 @@ fun HapticsScreen(
     onHapticMotorEnabledChanged: (Boolean) -> Unit,
     hapticMode: HapticMode,
     onHapticModeChanged: (HapticMode) -> Unit,
+    hapticBeatEngineMode: BeatEngineMode,
+    onHapticBeatEngineModeChanged: (BeatEngineMode) -> Unit,
+    hapticPulseDurationMs: Int,
+    onHapticPulseDurationMsChanged: (Int) -> Unit,
+    hasAmplitudeControl: Boolean,
     hapticFreqMin: Float,
     hapticFreqMax: Float,
     onHapticFreqRangeChanged: (Float, Float) -> Unit,
@@ -178,6 +184,26 @@ fun HapticsScreen(
             }
 
             if (hapticMode == HapticMode.BEAT_DETECTION) {
+                if (hasAmplitudeControl) {
+                    ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
+                        CardHeader(title = stringResource(R.string.beat_engine_mode_label))
+                        ExpressiveSplitButton(
+                            items = BeatEngineMode.entries,
+                            selectedItem = hapticBeatEngineMode,
+                            onItemSelection = onHapticBeatEngineModeChanged,
+                            labelProvider = { mode ->
+                                stringResource(
+                                    when (mode) {
+                                        BeatEngineMode.SMOOTH -> R.string.beat_engine_smooth
+                                        BeatEngineMode.SHORT_PULSE -> R.string.beat_engine_short
+                                    }
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+
                 ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
                     CardHeader(
                         title = stringResource(
@@ -193,19 +219,36 @@ fun HapticsScreen(
                     )
                 }
 
-                ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                    CardHeader(
-                        title = stringResource(
-                            R.string.haptics_speed_label,
-                            hapticBeatGamma
+                if (hapticBeatEngineMode == BeatEngineMode.SMOOTH && hasAmplitudeControl) {
+                    ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
+                        CardHeader(
+                            title = stringResource(
+                                R.string.haptics_speed_label,
+                                hapticBeatGamma
+                            )
                         )
-                    )
-                    ExpressiveSlider(
-                        value = hapticBeatGamma,
-                        onValueChange = onHapticBeatGammaChanged,
-                        valueRange = 4.0f..15.0f,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                        ExpressiveSlider(
+                            value = hapticBeatGamma,
+                            onValueChange = onHapticBeatGammaChanged,
+                            valueRange = 4.0f..15.0f,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                } else {
+                    ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
+                        CardHeader(
+                            title = stringResource(
+                                R.string.haptics_duration_label,
+                                hapticPulseDurationMs
+                            )
+                        )
+                        ExpressiveSlider(
+                            value = hapticPulseDurationMs.toFloat(),
+                            onValueChange = { onHapticPulseDurationMsChanged(it.toInt()) },
+                            valueRange = 5f..200f,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
 
                 BodyText(

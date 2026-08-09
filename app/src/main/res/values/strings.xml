@@ -58,6 +58,10 @@
     <string name="haptics_motor_multiplier_desc">Global motor output strength multiplier.</string>
     <string name="haptics_decay_instant">No smoothing (Instant)</string>
     <string name="haptics_decay_smooth">Smoothing active</string>
+    <string name="haptics_duration_label" translatable="false">Duration: %d ms</string>
+    <string name="beat_engine_mode_label" translatable="false">Engine Response</string>
+    <string name="beat_engine_smooth" translatable="false">Smooth Falloff</string>
+    <string name="beat_engine_short" translatable="false">Short Pulse</string>
 
     <!-- Audio Processing -->
     <string name="audio_pipeline_title">Audio Pipeline</string>
@@ -81,6 +85,8 @@
     <string name="flashlight_speed_label">Speed: %.0f ms</string>
     <string name="flashlight_speed_desc">Lower values flash faster. 40 ms is the fastest supported limit.</string>
     <string name="flashlight_monitor_label">Flashlight Monitor</string>
+    <string name="flashlight_duration_label" translatable="false">Duration: %d ms</string>
+    <string name="flashlight_duration_desc" translatable="false">Duration of the pulse in milliseconds.</string>
 
     <string name="experimental_features">Experimental Features</string>
     <string name="developer_mode">Developer Mode</string>

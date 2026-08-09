@@ -10,6 +10,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.better.nothing.music.vizualizer.model.BeatEngineMode;
 import com.better.nothing.music.vizualizer.model.TorchMode;
 
 import java.util.Arrays;
@@ -32,6 +33,9 @@ public final class FlashlightEngine {
     private boolean forceMultiIntensity = false;
 
     private TorchMode torchMode = TorchMode.AMPLITUDE;
+    private BeatEngineMode beatEngineMode = BeatEngineMode.SMOOTH;
+    private int pulseDurationMs = 40;
+
     private float amplitudeThresholdOrMultiplier = 0.15f;
     private float flashlightBeatSpeedMs = 90f;
 
@@ -153,6 +157,14 @@ public final class FlashlightEngine {
         beatDetector.setSensitivity(Math.max(0.3f, Math.min(6.0f, sensitivity)));
     }
 
+    public synchronized void setBeatEngineMode(BeatEngineMode mode) {
+        this.beatEngineMode = mode;
+    }
+
+    public synchronized void setPulseDurationMs(int duration) {
+        this.pulseDurationMs = duration;
+    }
+
     public synchronized void setFlashlightSpeedMs(float speedMs) {
         float min = hasVariableTorchStrength() ? 150f : 20f;
         float max = hasVariableTorchStrength() ? 700f : 150f;
@@ -200,16 +212,14 @@ public final class FlashlightEngine {
     }
 
     private synchronized void performBeatDetection(int[] fftraw, int logBinLo, int logBinHi) {
-        float[] magnitude = new float[fftraw.length];
-        for (int i = 0; i < fftraw.length; i++) magnitude[i] = fftraw[i] / 4095f;
-        if (beatDetector.detect(magnitude, logBinLo, logBinHi)) triggerBeat();
+        if (beatDetector.detect(fftraw, logBinLo, logBinHi)) triggerBeat();
         if (beatFlashStartMs != 0L) updateBeatFlashState();
         else stopFlashlightInternal();
     }
 
     public synchronized void triggerBeat() {
         beatFlashStartMs = SystemClock.elapsedRealtime();
-        beatFlashDurationMs = (long) flashlightBeatSpeedMs;
+        beatFlashDurationMs = (beatEngineMode == BeatEngineMode.SHORT_PULSE) ? pulseDurationMs : (long) flashlightBeatSpeedMs;
         updateBeatFlashState();
     }
 
@@ -217,6 +227,16 @@ public final class FlashlightEngine {
         long now = SystemClock.elapsedRealtime();
         long elapsed = now - beatFlashStartMs;
         if (elapsed >= beatFlashDurationMs) { stopFlashlightInternal(); return; }
+
+        if (beatEngineMode == BeatEngineMode.SHORT_PULSE || !hasVariableTorchStrength()) {
+            if (hasVariableTorchStrength()) {
+                submitTorchLevel(maxTorchStrength);
+            } else {
+                submitTorchLevel(1);
+            }
+            return;
+        }
+
         float progress = clamp(elapsed / (float) Math.max(1L, beatFlashDurationMs), 0f, 1f);
         float intensity = sampleBeatPattern(progress);
         if (hasVariableTorchStrength()) {

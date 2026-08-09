@@ -28,7 +28,9 @@ class BeatDetector(
     private var lastTriggerMs = 0L
     private var thresholdMask = 0f
 
-    // 2. Signature accepts IntArray
+    /**
+     * Detects a beat from an IntArray magnitude buffer (0-4095 range).
+     */
     fun detect(magnitude: IntArray, binLo: Int, binHi: Int): Boolean {
         if (magnitude.isEmpty()) return false
 
