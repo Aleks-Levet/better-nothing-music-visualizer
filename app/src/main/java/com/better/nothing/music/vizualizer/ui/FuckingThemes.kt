@@ -224,21 +224,21 @@ fun BetterVizTheme(
         outline = animateColorAsState(targetColorScheme.outline, tween(500), label = "outline").value,
     )
 
-    val typography = remember(useNType, useGoogleSans) {
+    val typography = remember(useNType, useGoogleSans, isRestrictedLocale) {
         val baseFontFamily = if (useGoogleSans) GoogleSansFontFamily else null
         
         Typography(
             // HEADERS
             displayLarge = TextStyle(
                 fontFamily = baseFontFamily ?: if (useNType) NTypeFontFamily else NDot55FontFamily,
-                fontSize = 45.sp,
-                lineHeight = 55.sp,
+                fontSize = if (isRestrictedLocale) 34.sp else 45.sp,
+                lineHeight = if (isRestrictedLocale) 42.sp else 55.sp,
                 fontWeight = FontWeight.Normal
             ),
             headlineMedium = TextStyle(
                 fontFamily = baseFontFamily ?: if (useNType) NTypeFontFamily else NDotFontFamily,
-                fontSize = 30.sp,
-                lineHeight = 40.sp,
+                fontSize = if (isRestrictedLocale) 24.sp else 30.sp,
+                lineHeight = if (isRestrictedLocale) 32.sp else 40.sp,
                 fontWeight = FontWeight.Normal
             ),
 

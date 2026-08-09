@@ -56,9 +56,11 @@ import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -114,6 +116,7 @@ import com.better.nothing.music.vizualizer.ui.MainViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import java.util.Locale
+import java.net.InetAddress
 import kotlin.math.log10
 import kotlin.math.pow
 import kotlin.time.Duration.Companion.milliseconds
@@ -142,6 +145,7 @@ fun AudioScreen(
     onFlashlightEnabledChanged: (Boolean) -> Unit = {},
     broadcastEnabled: Boolean = false,
     onBroadcastEnabledChanged: (Boolean) -> Unit = {},
+    connectedClients: Set<InetAddress> = emptySet(),
     developerModeEnabled: Boolean = false,
     isGlyphAvailable: Boolean = true,
     hasHapticMotor: Boolean = true,
@@ -265,7 +269,9 @@ fun AudioScreen(
             onBroadcastToggle = onBroadcastEnabledChanged,
             isGlyphAvailable = isGlyphAvailable,
             hasHapticMotor = hasHapticMotor,
-            hasFlashlight = hasFlashlight
+            hasFlashlight = hasFlashlight,
+            connectedClients = connectedClients,
+            isRunning = isRunning
         )
         Spacer(modifier = Modifier.height(8.dp))
         if (isRunning) {
@@ -397,7 +403,9 @@ fun OutputSelectionCard(
     onBroadcastToggle: (Boolean) -> Unit,
     isGlyphAvailable: Boolean = true,
     hasHapticMotor: Boolean = true,
-    hasFlashlight: Boolean = true
+    hasFlashlight: Boolean = true,
+    connectedClients: Set<InetAddress> = emptySet(),
+    isRunning: Boolean = false
 ) {
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
         CardHeader(title = stringResource(R.string.output_selection))
@@ -425,6 +433,61 @@ fun OutputSelectionCard(
                     modifier = Modifier.height(64.dp),
                     maxLines = 1
                 )
+            }
+        }
+
+        AnimatedVisibility(visible = broadcastEnabled && isRunning) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
+            ) {
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Broadcast Clients",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Surface(
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = "${connectedClients.size} Connected",
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+                
+                if (connectedClients.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        connectedClients.forEach { client ->
+                            Text(
+                                text = "• ${client.hostAddress}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                } else {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Waiting for devices...",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    )
+                }
             }
         }
     }

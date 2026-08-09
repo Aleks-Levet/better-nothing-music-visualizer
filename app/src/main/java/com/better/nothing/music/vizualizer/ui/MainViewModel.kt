@@ -33,6 +33,7 @@ import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
+import java.net.InetAddress
 import java.net.URL
 import kotlin.math.pow
 
@@ -214,6 +215,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _broadcastEnabled = MutableStateFlow(false)
     val broadcastEnabled = _broadcastEnabled.asStateFlow()
+
+    private val _connectedClients = MutableStateFlow<Set<InetAddress>>(emptySet())
+    val connectedClients = _connectedClients.asStateFlow()
 
     fun setBroadcastEnabled(enabled: Boolean) {
         _broadcastEnabled.value = enabled
@@ -1088,7 +1092,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setRunning(running: Boolean) {
         _runningState.value = running
-        if (!running) {
+        if (running) {
+            viewModelScope.launch {
+                MainActivity.serviceStatic?.getConnectedClientsFlow()?.collect {
+                    _connectedClients.value = it
+                }
+            }
+        } else {
+            _connectedClients.value = emptySet()
             saveStatsLocally()
         }
     }

@@ -35,7 +35,7 @@
     <string name="typography">Typography</string>
     <string name="font_ndot">NDot</string>
     <string name="font_ntype">NType</string>
-    <string name="font_google_sans">Google Sans</string>
+    <string name="font_google_sans">Google Sans Flex</string>
     <string name="typography_help_text">Choose your preferred font app-wide.</string>
     <string name="more_settings_coming">More settings coming soon…</string>
 

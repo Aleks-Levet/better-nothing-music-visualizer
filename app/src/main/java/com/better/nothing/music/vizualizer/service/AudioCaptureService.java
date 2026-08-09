@@ -76,10 +76,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.net.InetAddress;
+import java.util.Set;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -135,11 +138,11 @@ public class AudioCaptureService extends Service {
     public StateFlow<Boolean> isRunningFlow() { return sIsRunningFlow; }
     public static boolean isRunning() { return sIsRunning; }
 
-    public StateFlow<java.util.Set<java.net.InetAddress>> getConnectedClientsFlow() {
+    public StateFlow<Set<InetAddress>> getConnectedClientsFlow() {
         if (mUdpSync != null) {
             return mUdpSync.getClientIps();
         }
-        return StateFlowKt.MutableStateFlow(new java.util.HashSet<>());
+        return StateFlowKt.MutableStateFlow(new HashSet<>());
     }
 
     private void setRunning(boolean running) {
@@ -570,7 +573,6 @@ public class AudioCaptureService extends Service {
         super.onDestroy();
     }
 
-    public static boolean isRunning() { return sIsRunning; }
     public void startVisualizer() {
         if (mCaptureSource == CaptureSource.MIC) startMicCapture();
         else if (mCaptureSource == CaptureSource.VIZUALIZER) startVizualizerCapture();

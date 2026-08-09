@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -422,6 +423,12 @@ fun FlowRowScope.OptionTile(
 
 @Composable
 fun ScreenTitle(text: String, modifier: Modifier = Modifier, onLongPress: (() -> Unit)? = null) {
+    val configuration = LocalConfiguration.current
+    val isRestrictedLocale = remember(configuration) {
+        val currentLocale = configuration.locales.get(0).language
+        listOf("hi", "ar", "ja", "ru", "zh").contains(currentLocale)
+    }
+
     Column(
         modifier = modifier
             .padding(bottom = 8.dp)
@@ -437,15 +444,17 @@ fun ScreenTitle(text: String, modifier: Modifier = Modifier, onLongPress: (() ->
             )
     ) {
         Text(
-            text  = text,
+            text  = if (isRestrictedLocale) text.replace("\n", " ") else text,
             style = MaterialTheme.typography.displayLarge,
             color = MaterialTheme.colorScheme.onBackground,
-            letterSpacing = (-1).sp,
-            fontWeight = FontWeight.Bold
+            letterSpacing = if (isRestrictedLocale) 0.sp else (-1).sp,
+            fontWeight = FontWeight.Bold,
+            maxLines = if (isRestrictedLocale) 1 else Int.MAX_VALUE,
+            softWrap = !isRestrictedLocale,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
-
 @Composable
 fun ExpressiveCard(
     modifier: Modifier = Modifier,

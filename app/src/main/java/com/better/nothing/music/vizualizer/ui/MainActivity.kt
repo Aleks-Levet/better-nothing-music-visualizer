@@ -16,69 +16,56 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.EaseOutCubic
-import androidx.compose.animation.core.tween
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import androidx.compose.material3.VerticalDivider
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.better.nothing.music.vizualizer.R
-import com.better.nothing.music.vizualizer.model.BeatEngineMode
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.math.absoluteValue
 import com.better.nothing.music.vizualizer.ui.PrimaryScreens.AudioScreen
 import com.better.nothing.music.vizualizer.ui.PrimaryScreens.FlashlightScreen
 import com.better.nothing.music.vizualizer.ui.PrimaryScreens.GlyphsScreen
 import com.better.nothing.music.vizualizer.ui.PrimaryScreens.HapticsScreen
-import com.better.nothing.music.vizualizer.ui.PrimaryScreens.VisualsScreen
-import com.better.nothing.music.vizualizer.ui.PrimaryScreens.SettingsScreen
 import com.better.nothing.music.vizualizer.ui.PrimaryScreens.HostSelectionSheet
-import androidx.compose.animation.*
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.ui.input.pointer.pointerInput
 import com.better.nothing.music.vizualizer.ui.PrimaryScreens.SettingsScreen
 import com.better.nothing.music.vizualizer.ui.PrimaryScreens.VisualsScreen
-import androidx.compose.runtime.collectAsState
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
-import androidx.core.net.toUri
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
@@ -716,6 +703,8 @@ private fun TabContent(
             val fftRaw by viewModel.fftState.collectAsStateWithLifecycle()
             val captureSource by viewModel.captureSource.collectAsStateWithLifecycle()
 
+            val connectedClients by viewModel.connectedClients.collectAsStateWithLifecycle()
+
             AudioScreen(
                 isRunning = isRunning,
                 sessionDuration = totalVisualizedTime,
@@ -739,6 +728,7 @@ private fun TabContent(
                 onFlashlightEnabledChanged = { viewModel.setFlashlightEnabled(it) },
                 broadcastEnabled = viewModel.broadcastEnabled.collectAsStateWithLifecycle().value,
                 onBroadcastEnabledChanged = { viewModel.setBroadcastEnabled(it) },
+                connectedClients = connectedClients,
                 developerModeEnabled = developerModeEnabled,
                 isGlyphAvailable = selectedDevice != com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_UNKNOWN,
                 hasHapticMotor = viewModel.hasHapticMotor,
