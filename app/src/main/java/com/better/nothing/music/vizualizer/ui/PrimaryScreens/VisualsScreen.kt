@@ -475,7 +475,7 @@ fun VisualsScreen(
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "Lens Visualizer",
+                    text = stringResource(R.string.lens_visualizer),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -492,7 +492,7 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Lens Radius",
+                            text = stringResource(R.string.lens_radius),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -561,7 +561,7 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Bar Width",
+                            text = stringResource(R.string.lens_bar_width),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -584,7 +584,7 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Max Height",
+                            text = stringResource(R.string.lens_max_height),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -607,7 +607,7 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Bar Count",
+                            text = stringResource(R.string.lens_bar_count),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )

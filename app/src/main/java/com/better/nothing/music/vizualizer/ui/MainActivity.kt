@@ -479,7 +479,7 @@ fun AudioDeviceInfo.isWiredOutput(): Boolean {
 }
 
 fun AudioDeviceInfo.toAudioRoute(): AudioRoute {
-    val name = if (type == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER) "Internal Speaker" else productName.toString()
+    val name = if (type == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER) MainViewModel.instance?.ctx?.getString(R.string.internal_speaker) ?: "Internal Speaker" else productName.toString()
     return AudioRoute(type.toString() + "_" + name, name)
 }
 

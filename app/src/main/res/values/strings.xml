@@ -272,8 +272,8 @@
     <string name="horizontal_bar_count">Horizontal Bar Count</string>
     <string name="vertical_bar_count">Vertical Bar Count</string>
     <string name="edge_sensitivity">Edge Sensitivity</string>
-    <string name="x_position_label">X Position</string>
-    <string name="y_position_label">Y Position</string>
+    <string name="x_position">X Position</string>
+    <string name="y_position">Y Position</string>
     <string name="bar_height">Bar Height</string>
     <string name="sensitivity">Sensitivity</string>
 
@@ -335,4 +335,8 @@
 
     <!-- Audio Service -->
     <string name="audio_route_none">None</string>
+    <string name="output_selection">Output Selection</string>
+    <string name="select_capture_source">Select Capture Source</string>
+    <string name="broadcast">Broadcast</string>
+    <string name="system_language">System Language</string>
 </resources>

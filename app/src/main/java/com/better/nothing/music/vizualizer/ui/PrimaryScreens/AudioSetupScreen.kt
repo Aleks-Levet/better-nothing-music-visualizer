@@ -413,12 +413,12 @@ fun OutputSelectionCard(
     hasFlashlight: Boolean = true
 ) {
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-        CardHeader(title = "Output Selection")
+        CardHeader(title = stringResource(R.string.output_selection))
         val outputs = listOf(
-            Triple("Glyphs", ImageVector.vectorResource(R.drawable.ic_nav_glyphs), Triple(glyphsEnabled, onGlyphsToggle, isGlyphAvailable)),
-            Triple("Haptics", Icons.Default.Vibration, Triple(hapticsEnabled, onHapticsToggle, hasHapticMotor)),
-            Triple("Flashlight", Icons.Default.FlashlightOn, Triple(flashlightEnabled, onFlashlightToggle, hasFlashlight)),
-            Triple("Broadcast", Icons.Default.Wifi, Triple(broadcastEnabled, onBroadcastToggle, true))
+            Triple(stringResource(R.string.tab_glyphs), ImageVector.vectorResource(R.drawable.ic_nav_glyphs), Triple(glyphsEnabled, onGlyphsToggle, isGlyphAvailable)),
+            Triple(stringResource(R.string.tab_haptics), Icons.Default.Vibration, Triple(hapticsEnabled, onHapticsToggle, hasHapticMotor)),
+            Triple(stringResource(R.string.tab_flashlight), Icons.Default.FlashlightOn, Triple(flashlightEnabled, onFlashlightToggle, hasFlashlight)),
+            Triple(stringResource(R.string.broadcast), Icons.Default.Wifi, Triple(broadcastEnabled, onBroadcastToggle, true))
         )
 
         FlowRow(
@@ -451,7 +451,7 @@ fun CaptureSourceCard(
     developerModeEnabled: Boolean
 ) {
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-        CardHeader(title = "Select Capture Source")
+        CardHeader(title = stringResource(R.string.select_capture_source))
         val mainSources = listOf(
             Triple(
                 AudioCaptureService.CaptureSource.INTERNAL,
@@ -661,7 +661,7 @@ fun LatencyCard(
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            CardHeader(title = "Auto-Memorize Device")
+            CardHeader(title = stringResource(R.string.auto_memorize_device))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,

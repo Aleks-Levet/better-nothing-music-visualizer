@@ -445,7 +445,7 @@ internal fun SettingsScreen(
                                 "ja" to "JA",
                                 "hi" to "HI",
                                 "cy" to "CY",
-                                null to "System Language"
+                                null to stringResource(R.string.system_language)
                             )
 
                             ExpressiveSplitButton(
