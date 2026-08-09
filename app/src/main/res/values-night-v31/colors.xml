@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Material You Dynamic Colors (Dark Mode) -->
+    <color name="widget_m3_surface_low">@android:color/system_neutral1_10</color>
+    <color name="widget_m3_button_bg">@android:color/system_neutral1_20</color>
+    <color name="widget_m3_on_surface">@android:color/system_neutral1_90</color>
+    <color name="widget_m3_text_secondary">@android:color/system_neutral1_70</color>
+</resources>
