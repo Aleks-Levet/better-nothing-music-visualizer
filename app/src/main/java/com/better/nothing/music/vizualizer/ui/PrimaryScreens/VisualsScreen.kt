@@ -106,7 +106,7 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Overlay Width",
+                            text = stringResource(R.string.overlay_width),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -130,7 +130,7 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Vertical Position",
+                            text = stringResource(R.string.vertical_position),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -160,7 +160,7 @@ fun VisualsScreen(
                             onCheckedChange = { viewModel.setOverlayTopEnabled(it) }
                         )
                         Text(
-                            text = "Top Edge Overlay",
+                            text = stringResource(R.string.top_edge_overlay),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
@@ -174,7 +174,7 @@ fun VisualsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Bar Height",
+                                text = stringResource(R.string.bar_height),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -198,7 +198,7 @@ fun VisualsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Sensitivity",
+                                text = stringResource(R.string.sensitivity),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -229,7 +229,7 @@ fun VisualsScreen(
                             onCheckedChange = { viewModel.setOverlayBottomEnabled(it) }
                         )
                         Text(
-                            text = "Bottom Edge Overlay",
+                            text = stringResource(R.string.bottom_edge_overlay),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
@@ -243,7 +243,7 @@ fun VisualsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Bar Height",
+                                text = stringResource(R.string.bar_height),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -267,7 +267,7 @@ fun VisualsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Sensitivity",
+                                text = stringResource(R.string.sensitivity),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -301,7 +301,7 @@ fun VisualsScreen(
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "Edge Visualizer",
+                    text = stringResource(R.string.edge_visualizer),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -318,7 +318,7 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Edge Bar Height",
+                            text = stringResource(R.string.edge_bar_height),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -345,7 +345,7 @@ fun VisualsScreen(
                             onCheckedChange = { viewModel.setEdgeTopEnabled(it) }
                         )
                         Text(
-                            text = "Top Edge Segment",
+                            text = stringResource(R.string.top_edge_segment),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
@@ -361,7 +361,7 @@ fun VisualsScreen(
                             onCheckedChange = { viewModel.setEdgeBottomEnabled(it) }
                         )
                         Text(
-                            text = "Bottom Edge Segment",
+                            text = stringResource(R.string.bottom_edge_segment),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
@@ -373,7 +373,7 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Screen Corner Radius",
+                            text = stringResource(R.string.screen_corner_radius),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -396,7 +396,7 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Horizontal Bar Count",
+                            text = stringResource(R.string.horizontal_bar_count),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -419,7 +419,7 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Vertical Bar Count",
+                            text = stringResource(R.string.vertical_bar_count),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -442,7 +442,7 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Edge Sensitivity",
+                            text = stringResource(R.string.edge_sensitivity),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -515,7 +515,7 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "X Position",
+                            text = stringResource(R.string.x_position),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -538,7 +538,7 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Y Position",
+                            text = stringResource(R.string.y_position),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )

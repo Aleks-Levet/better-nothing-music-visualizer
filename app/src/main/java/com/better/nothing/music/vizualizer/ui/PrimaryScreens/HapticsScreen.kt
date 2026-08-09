@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.model.HapticMode
+import kotlinx.coroutines.flow.StateFlow
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.better.nothing.music.vizualizer.ui.BodyText
 import com.better.nothing.music.vizualizer.ui.CardHeader
 import com.better.nothing.music.vizualizer.ui.ExpressiveCard
@@ -51,8 +53,8 @@ fun HapticsScreen(
     onHapticBeatSensitivityChanged: (Float) -> Unit,
     hapticBeatGamma: Float,
     onHapticBeatGammaChanged: (Float) -> Unit,
-    hapticAmplitudeProvider: () -> Float,
-    isBeatDetectedProvider: () -> Boolean,
+    hapticAmplitudeFlow: StateFlow<Float>,
+    isBeatDetectedFlow: StateFlow<Boolean>,
     padding: androidx.compose.foundation.layout.PaddingValues = androidx.compose.foundation.layout.PaddingValues(),
 ) {
     val scrollState = rememberScrollState()
@@ -216,10 +218,10 @@ fun HapticsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
             ) {
-                CardHeader(title = "Haptic Monitor")
+                CardHeader(title = stringResource(R.string.haptic_monitor))
 
-                val isBeatDetected = isBeatDetectedProvider()
-                val hapticAmplitude = hapticAmplitudeProvider()
+                val isBeatDetected by isBeatDetectedFlow.collectAsStateWithLifecycle()
+                val hapticAmplitude by hapticAmplitudeFlow.collectAsStateWithLifecycle()
 
                 val flashColor by animateColorAsState(
                     targetValue = if (isBeatDetected) Color.White else MaterialTheme.colorScheme.primary.copy(
@@ -229,7 +231,7 @@ fun HapticsScreen(
                     label = "flashColor"
                 )
 
-                Box(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(220.dp)
@@ -242,18 +244,78 @@ fun HapticsScreen(
                                 radius = 300f
                             )
                         ),
-                    contentAlignment = Alignment.Center
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    MorphingPolygon(
-                        isBeatDetected = isBeatDetected,
-                        amplitude = hapticAmplitude,
-                        color = flashColor,
-                        modifier = Modifier.size(110.dp)
-                    )
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        MorphingPolygon(
+                            isBeatDetected = isBeatDetected,
+                            amplitude = hapticAmplitude,
+                            color = flashColor,
+                            modifier = Modifier.size(110.dp)
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .width(60.dp)
+                            .fillMaxHeight()
+                            .padding(vertical = 20.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        HapticSquigglyLine(
+                            amplitude = hapticAmplitude,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(85.dp))
+    }
+}
+
+@Composable
+fun HapticSquigglyLine(
+    amplitude: Float,
+    color: Color
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "squiggly")
+    val phase by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 2f * Math.PI.toFloat(),
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "phase"
+    )
+
+    androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
+        val width = size.width
+        val height = size.height
+        val points = 50
+        val path = androidx.compose.ui.graphics.Path()
+
+        val maxSquiggleWidth = width * 0.8f
+        val currentSquiggleWidth = maxSquiggleWidth * amplitude
+
+        for (i in 0..points) {
+            val progress = i.toFloat() / points
+            val y = progress * height
+            val x = width / 2 + Math.sin(progress * 4 * Math.PI + phase).toFloat() * currentSquiggleWidth / 2
+
+            if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+        }
+
+        drawPath(
+            path = path,
+            color = color,
+            style = androidx.compose.ui.graphics.drawscope.Stroke(
+                width = 6.dp.toPx(),
+                cap = androidx.compose.ui.graphics.StrokeCap.Round,
+                join = androidx.compose.ui.graphics.StrokeJoin.Round
+            )
+        )
     }
 }

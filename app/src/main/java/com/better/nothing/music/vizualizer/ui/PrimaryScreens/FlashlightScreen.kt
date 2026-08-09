@@ -2,7 +2,9 @@ package com.better.nothing.music.vizualizer.ui.PrimaryScreens
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.snap
+import androidx.compose.foundation.layout.width
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.model.TorchMode
+import kotlinx.coroutines.flow.StateFlow
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.better.nothing.music.vizualizer.ui.BodyText
 import com.better.nothing.music.vizualizer.ui.CardHeader
 import com.better.nothing.music.vizualizer.ui.ExpressiveCard
@@ -65,8 +70,8 @@ fun FlashlightScreen(
     onFlashlightBeatSensitivityChanged: (Float) -> Unit,
     flashlightIntensityLevels: Int,
     flashlightCurrentLevel: Int,
-    flashlightAmplitudeProvider: () -> Float,
-    isBeatDetectedProvider: () -> Boolean,
+    flashlightAmplitudeFlow: StateFlow<Float>,
+    isBeatDetectedFlow: StateFlow<Boolean>,
     padding: androidx.compose.foundation.layout.PaddingValues = androidx.compose.foundation.layout.PaddingValues(),
 ) {
     val scrollState = rememberScrollState()
@@ -204,52 +209,88 @@ fun FlashlightScreen(
             ) {
                 CardHeader(title = stringResource(R.string.flashlight_monitor_label))
 
-                val isBeatDetected = isBeatDetectedProvider()
-                val flashlightAmplitude = flashlightAmplitudeProvider()
+                val isBeatDetected by isBeatDetectedFlow.collectAsStateWithLifecycle()
+                val flashlightAmplitude by flashlightAmplitudeFlow.collectAsStateWithLifecycle()
 
                 val flashColor by animateColorAsState(
                     targetValue = if (flashlightCurrentLevel > 0) Color.White else MaterialTheme.colorScheme.primary.copy(
                         alpha = 0.8f
                     ),
-                    animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                    animationSpec = if (isBeatDetected) androidx.compose.animation.core.snap() else androidx.compose.animation.core.spring(stiffness = Spring.StiffnessMediumLow),
                     label = "flashColor"
                 )
 
-                Box(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp)
                         .background(
                             brush = Brush.radialGradient(
                                 colors = listOf(
-                                    flashColor.copy(alpha = 0.1f * flashlightAmplitude),
+                                    flashColor.copy(alpha = 0.15f * flashlightAmplitude),
                                     Color.Transparent
                                 ),
-                                radius = 300f
+                                radius = 350f
                             )
                         ),
-                    contentAlignment = Alignment.Center
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    MorphingPolygon(
-                        isBeatDetected = isBeatDetected,
-                        amplitude = flashlightAmplitude,
-                        color = flashColor,
-                        modifier = Modifier.size(110.dp)
-                    )
-
-                    // Stats Overlay
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(12.dp)
-                    ) {
-                        Text(
-                            text = "LEVEL: $flashlightCurrentLevel / $flashlightIntensityLevels",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        MorphingPolygon(
+                            isBeatDetected = isBeatDetected,
+                            amplitude = flashlightAmplitude,
+                            color = flashColor,
+                            modifier = Modifier.size(110.dp)
                         )
                     }
+
+                    Box(
+                        modifier = Modifier
+                            .width(80.dp)
+                            .fillMaxHeight(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        // Glowing white dot
+                        val dotScale by animateFloatAsState(
+                            targetValue = 0.3f + (flashlightAmplitude * 0.7f),
+                            animationSpec = androidx.compose.animation.core.spring(stiffness = Spring.StiffnessMedium),
+                            label = "dotScale"
+                        )
+                        val dotAlpha by animateFloatAsState(
+                            targetValue = 0.2f + (flashlightAmplitude * 0.8f),
+                            animationSpec = androidx.compose.animation.core.spring(stiffness = Spring.StiffnessMedium),
+                            label = "dotAlpha"
+                        )
+
+                        androidx.compose.foundation.Canvas(modifier = Modifier.size(60.dp)) {
+                            drawCircle(
+                                color = Color.White,
+                                radius = (size.minDimension / 2) * dotScale,
+                                alpha = dotAlpha
+                            )
+                            // Glow effect
+                            drawCircle(
+                                brush = Brush.radialGradient(
+                                    0f to Color.White.copy(alpha = 0.4f * dotAlpha),
+                                    1f to Color.Transparent
+                                ),
+                                radius = (size.minDimension / 1.2f) * dotScale
+                            )
+                        }
+                    }
+                }
+
+                // Stats Overlay
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.flashlight_level_stats, flashlightCurrentLevel, flashlightIntensityLevels),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
         }

@@ -225,7 +225,8 @@ class MainActivity : AppCompatActivity() {
             LaunchedEffect(isRunning) {
                 if (isRunning) {
                     while (true) {
-                        service?.let { s ->
+                        val s = service ?: serviceStatic
+                        if (s != null) {
                             val lightState = s.currentLightState
                             if (lightState != null && lightState.isNotEmpty()) {
                                 viewModel.setVisualizerState(lightState.copyOf())
@@ -768,6 +769,7 @@ private fun TabContent(
             val hapticBeatSensitivity by viewModel.hapticBeatSensitivity.collectAsStateWithLifecycle()
             val hapticBeatGamma by viewModel.hapticBeatGamma.collectAsStateWithLifecycle()
             val isBeatDetected by viewModel.isBeatDetected.collectAsStateWithLifecycle()
+            val hapticAmplitude by viewModel.hapticAmplitude.collectAsStateWithLifecycle()
 
             HapticsScreen(
                 hapticMotorEnabled = hapticMotorEnabled,
@@ -800,8 +802,8 @@ private fun TabContent(
                 },
                 hapticBeatGamma = hapticBeatGamma,
                 onHapticBeatGammaChanged = { viewModel.setHapticBeatGamma(it) },
-                hapticAmplitudeProvider = { viewModel.hapticAmplitude.value },
-                isBeatDetectedProvider = { isBeatDetected },
+                hapticAmplitudeFlow = viewModel.hapticAmplitude,
+                isBeatDetectedFlow = viewModel.isBeatDetected,
                 padding = padding
             )
         }
@@ -816,6 +818,7 @@ private fun TabContent(
             val flashlightIntensityLevels by viewModel.flashlightIntensityLevels.collectAsStateWithLifecycle()
             val flashlightLevel by viewModel.flashlightLevel.collectAsStateWithLifecycle()
             val isFlashlightBeatDetected by viewModel.isFlashlightBeatDetected.collectAsStateWithLifecycle()
+            val flashlightAmplitude by viewModel.flashlightAmplitude.collectAsStateWithLifecycle()
 
             FlashlightScreen(
                 flashlightEnabled = flashlightEnabledInternal,
@@ -846,8 +849,8 @@ private fun TabContent(
                 },
                 flashlightIntensityLevels = flashlightIntensityLevels,
                 flashlightCurrentLevel = flashlightLevel,
-                flashlightAmplitudeProvider = { viewModel.flashlightAmplitude.value },
-                isBeatDetectedProvider = { isFlashlightBeatDetected },
+                flashlightAmplitudeFlow = viewModel.flashlightAmplitude,
+                isBeatDetectedFlow = viewModel.isFlashlightBeatDetected,
                 padding = padding
             )
         }

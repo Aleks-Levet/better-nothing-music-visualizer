@@ -20,6 +20,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -65,8 +67,9 @@ internal fun SettingsScreen(
     val selectedDevice by viewModel.selectedDevice.collectAsStateWithLifecycle()
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
+    val configuration = LocalConfiguration.current
     val restrictedLocales = listOf("hi", "ar", "ja", "ru", "zh")
-    val currentLocale = context.resources.configuration.locales[0].language
+    val currentLocale = configuration.locales[0].language
     val isRestrictedLocale = restrictedLocales.contains(currentLocale)
     val haptics = LocalHapticFeedback.current
     val devModeEnabled by viewModel.developerModeEnabled.collectAsStateWithLifecycle()
@@ -99,7 +102,7 @@ internal fun SettingsScreen(
                 onClick = { viewModel.showAbout() }
             )
             LinkCard(
-                title = "Vizualizer Stats",
+                title = stringResource(R.string.vizualizer_stats),
                 icon = Icons.Default.BarChart,
                 onClick = { viewModel.showStats() }
             )
@@ -619,7 +622,7 @@ internal fun SettingsScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     Text(
-                        text = "On screen vizualizers",
+                        text = stringResource(R.string.on_screen_vizualizers),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -642,7 +645,7 @@ internal fun SettingsScreen(
                         )
 
                         OptionTile(
-                            label = "Edge Visualizer",
+                            label = stringResource(R.string.edge_visualizer),
                             icon = Icons.Default.BorderOuter,
                             isSelected = edgeVisualizerEnabled,
                             onClick = { viewModel.setEdgeVisualizerEnabled(!edgeVisualizerEnabled) }

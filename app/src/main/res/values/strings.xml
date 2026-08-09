@@ -232,4 +232,106 @@
     <string name="license_title">License</string>
     <string name="license_agreement">License Agreement</string>
     <string name="read_license">Read the software license</string>
+    <string name="failed_load_license">Failed to load current license.</string>
+    <string name="retry">Retry</string>
+    <string name="end_license_agreement">END OF LICENSE AGREEMENT</string>
+
+    <!-- Audio Discovery -->
+    <string name="connect_to_device">Connect to Device</string>
+    <string name="no_devices_found">No devices found on your Wi-Fi.</string>
+    <string name="search_again">Search Again</string>
+
+    <!-- MainViewModel Toasts & Status -->
+    <string name="download_failed_http">Download failed: HTTP %d</string>
+    <string name="download_error">Download error: %s</string>
+    <string name="installation_failed">Installation failed: %s</string>
+    <string name="license_load_error">Failed to load license: %d</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="update_checking">Checking for updates...</string>
+    <string name="update_downloading">Downloading: %d%%</string>
+    <string name="update_uptodate">Latest version installed</string>
+    <string name="update_error">Error: %s</string>
+    <string name="check_software_updates">Check for software updates</string>
+
+    <!-- Tile Service -->
+    <string name="tile_running">Running</string>
+    <string name="tile_subtitle_default">Better Nothing Music Vizualiser</string>
+
+    <!-- Feature Monitors -->
+    <string name="haptic_monitor">Haptic Monitor</string>
+    <string name="flashlight_level_stats">LEVEL: %1$d / %2$d</string>
+
+    <!-- Visuals Options -->
+    <string name="top_edge_overlay">Top Edge Overlay</string>
+    <string name="bottom_edge_overlay">Bottom Edge Overlay</string>
+    <string name="edge_visualizer">Edge Visualizer</string>
+    <string name="edge_bar_height">Edge Bar Height</string>
+    <string name="top_edge_segment">Top Edge Segment</string>
+    <string name="bottom_edge_segment">Bottom Edge Segment</string>
+    <string name="screen_corner_radius">Screen Corner Radius</string>
+    <string name="horizontal_bar_count">Horizontal Bar Count</string>
+    <string name="vertical_bar_count">Vertical Bar Count</string>
+    <string name="edge_sensitivity">Edge Sensitivity</string>
+    <string name="x_position">X Position</string>
+    <string name="y_position">Y Position</string>
+    <string name="bar_height">Bar Height</string>
+    <string name="sensitivity">Sensitivity</string>
+
+    <!-- Settings Extra -->
+    <string name="vizualizer_stats">Vizualizer Stats</string>
+    <string name="on_screen_vizualizers">On screen vizualizers</string>
+
+    <!-- Notification Extra -->
+    <string name="notification_channel_name">Glyph Visualizer</string>
+    <string name="notification_title">Glyph Visualizer</string>
+    <string name="notification_action_glyphs_on">GLYPHS</string>
+    <string name="notification_action_glyphs_off">glyphs</string>
+    <string name="notification_action_haptics_on">HAPTICS</string>
+    <string name="notification_action_haptics_off">haptics</string>
+    <string name="notification_action_flash_on">FLASH</string>
+    <string name="notification_action_flash_off">flash</string>
+    <string name="notification_action_prev">Prev</string>
+    <string name="notification_action_stop">Stop</string>
+    <string name="notification_action_next">Next</string>
+
+    <!-- Device Names -->
+    <string name="device_np1">Nothing Phone (1)</string>
+    <string name="device_np2">Nothing Phone (2)</string>
+    <string name="device_np2a">Nothing Phone (2a)</string>
+    <string name="device_np3a">Nothing Phone (3a)</string>
+    <string name="device_np4a">Nothing Phone (4a)</string>
+    <string name="device_np4apro">Nothing Phone (4a) Pro</string>
+    <string name="device_np3">Nothing Phone (3)</string>
+    <string name="device_np4b">Nothing Phone (4b)</string>
+    <string name="device_unknown">Unknown Device</string>
+
+    <!-- Stats Screen -->
+    <string name="usage_stats">Usage Stats</string>
+    <string name="total_visualization_time">Total Visualization Time</string>
+    <string name="engagement">Engagement</string>
+    <string name="active_music">Active Music</string>
+    <string name="idle_pulse">Idle Pulse</string>
+    <string name="feature_breakdown">Feature Breakdown</string>
+    <string name="glyph_interface">Glyph Interface</string>
+    <string name="haptic_feedback">Haptic Feedback</string>
+    <string name="flashlight_sync_stat">Flashlight Sync</string>
+    <string name="total_active_use">Total Active Use</string>
+
+    <!-- Glyphs Screen Extra -->
+    <string name="update_required">Update Required</string>
+    <string name="download_full_config">Download full config to see presets</string>
+    <string name="visualizer_configuration">Visualizer Configuration</string>
+    <string name="config_description">The zones.config file defines how frequencies map to Glyph LEDs. Updating from GitHub ensures support for new devices and presets.</string>
+    <string name="up_to_date">Up to date</string>
+    <string name="update_available_label">UPDATE AVAILABLE</string>
+    <string name="local_config">Local</string>
+    <string name="show_gamma_info">Show Gamma Info</string>
+
+    <!-- About Screen Extra -->
+    <string name="view_source_contributions">View source and contributions</string>
+    <string name="software_update">Software Update</string>
+    <string name="update_label">UPDATE</string>
+
+    <!-- Audio Service -->
+    <string name="audio_route_none">None</string>
 </resources>

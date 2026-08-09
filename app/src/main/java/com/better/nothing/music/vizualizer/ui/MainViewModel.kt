@@ -157,10 +157,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     val content = connection.inputStream.bufferedReader().use { it.readText() }
                     _licenseStatus.value = LicenseStatus.Success(content)
                 } else {
-                    _licenseStatus.value = LicenseStatus.Error("Failed to load license: ${connection.responseCode}")
+                    _licenseStatus.value = LicenseStatus.Error(ctx.getString(R.string.license_load_error, connection.responseCode))
                 }
             } catch (e: Exception) {
-                _licenseStatus.value = LicenseStatus.Error(e.message ?: "Unknown error")
+                _licenseStatus.value = LicenseStatus.Error(e.message ?: ctx.getString(R.string.unknown_error))
             } finally {
                 connection?.disconnect()
             }
@@ -579,15 +579,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 } else {
                     Log.e("MainViewModel", "Download failed with HTTP $responseCode")
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(ctx, "Download failed: HTTP $responseCode", Toast.LENGTH_SHORT).show()
-                        _appUpdateStatus.value = AppUpdateStatus.Error("Download failed: HTTP $responseCode")
+                        Toast.makeText(ctx, ctx.getString(R.string.download_failed_http, responseCode), Toast.LENGTH_SHORT).show()
+                        _appUpdateStatus.value = AppUpdateStatus.Error(ctx.getString(R.string.download_failed_http, responseCode))
                     }
                 }
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Download failed with error", e)
                 withContext(Dispatchers.Main) {
-                    val errorMsg = e.message ?: "Unknown download error"
-                    Toast.makeText(ctx, "Download error: $errorMsg", Toast.LENGTH_SHORT).show()
+                    val errorMsg = e.message ?: ctx.getString(R.string.unknown_error)
+                    Toast.makeText(ctx, ctx.getString(R.string.download_error, errorMsg), Toast.LENGTH_SHORT).show()
                     _appUpdateStatus.value = AppUpdateStatus.Error(errorMsg)
                 }
             } finally {
@@ -607,7 +607,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             ctx.startActivity(intent)
         } catch (e: Exception) {
             Log.e("MainViewModel", "Installation failed", e)
-            Toast.makeText(ctx, "Installation failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(ctx, ctx.getString(R.string.installation_failed, e.message), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -1358,15 +1358,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun phoneModelForDevice(device: Int): String {
         return when (device) {
-            DeviceProfile.DEVICE_NP1 -> "Nothing Phone (1)"
-            DeviceProfile.DEVICE_NP2 -> "Nothing Phone (2)"
-            DeviceProfile.DEVICE_NP2A -> "Nothing Phone (2a)"
-            DeviceProfile.DEVICE_NP3A -> "Nothing Phone (3a)"
-            DeviceProfile.DEVICE_NP4A -> "Nothing Phone (4a)"
-            DeviceProfile.DEVICE_NP4APRO -> "Nothing Phone (4a) Pro"
-            DeviceProfile.DEVICE_NP3 -> "Nothing Phone (3)"
-            DeviceProfile.DEVICE_NP4B -> "Nothing Phone (4b)"
-            else -> "Unknown Device"
+            DeviceProfile.DEVICE_NP1 -> ctx.getString(R.string.device_np1)
+            DeviceProfile.DEVICE_NP2 -> ctx.getString(R.string.device_np2)
+            DeviceProfile.DEVICE_NP2A -> ctx.getString(R.string.device_np2a)
+            DeviceProfile.DEVICE_NP3A -> ctx.getString(R.string.device_np3a)
+            DeviceProfile.DEVICE_NP4A -> ctx.getString(R.string.device_np4a)
+            DeviceProfile.DEVICE_NP4APRO -> ctx.getString(R.string.device_np4apro)
+            DeviceProfile.DEVICE_NP3 -> ctx.getString(R.string.device_np3)
+            DeviceProfile.DEVICE_NP4B -> ctx.getString(R.string.device_np4b)
+            else -> ctx.getString(R.string.device_unknown)
         }
     }
 
@@ -1610,7 +1610,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     val uiPeak = service.latestUiPeak
                     val flashlightPeak = service.latestFlashlightPeak
 
-                    val targetHaptic = (hapticPeak * _hapticAudioGain.value * 12f).coerceIn(0f, 1.0f).toDouble().pow(_hapticGamma.value.toDouble()).toFloat()
+                    val targetHaptic = (hapticPeak * _hapticAudioGain.value * 1.5f).coerceIn(0f, 1.0f).toDouble().pow(_hapticGamma.value.toDouble()).toFloat()
                     if (targetHaptic > smoothedHapticAmplitude) {
                         smoothedHapticAmplitude = smoothedHapticAmplitude * 0.15f + targetHaptic * 0.85f
                     } else {
@@ -1618,10 +1618,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     }
                     _hapticAmplitude.value = (smoothedHapticAmplitude * _hapticMultiplier.value).coerceIn(0f, 1.2f)
 
-                    val fTarget = (flashlightPeak * 16.0f).coerceIn(0f, 1.2f)
+                    val fTarget = (flashlightPeak * 1.8f).coerceIn(0f, 1.2f)
                     val fCur = Math.pow(fTarget.toDouble(), 2.2).toFloat()
                     val fDelta = (fCur - _flashlightAmplitude.value).coerceAtLeast(0f)
-                    _flashlightAmplitude.value = (fCur + fDelta * 1.5f).coerceIn(0f, 1.2f)
+                    _flashlightAmplitude.value = (fCur + fDelta * 0.8f).coerceIn(0f, 1.2f)
 
                     uiPeakValue = uiPeakValue * 0.95f + uiPeak * 0.05f
                     if (uiPeak > uiPeakValue) uiPeakValue = uiPeak
@@ -1638,9 +1638,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 _uiAmplitude.value = if (_uiAmplitudeSyncEnabled.value) smoothedUiAmplitude else 1.0f
 
                 if (magnitude.isNotEmpty()) {
-                    val hzPerBin = 44100f / 2048f
-                    val binLo = (_hapticFreqMin.value / hzPerBin).toInt().coerceIn(0, magnitude.lastIndex)
-                    val binHi = (_hapticFreqMax.value / hzPerBin).toInt().coerceIn(binLo, magnitude.lastIndex)
+                    val binLo = AudioProcessor.findLogBinIndex(_hapticFreqMin.value)
+                    val binHi = AudioProcessor.findLogBinIndex(_hapticFreqMax.value)
 
                     if (_hapticMode.value == HapticMode.BEAT_DETECTION) {
                         hapticBeatDetector.sensitivity = _hapticBeatSensitivity.value
@@ -1651,8 +1650,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     } else _isBeatDetected.value = false
 
                     if (_flashlightMode.value == TorchMode.BEAT_DETECTION) {
-                        val fBinLo = (_flashlightFreqMin.value / hzPerBin).toInt().coerceIn(0, magnitude.lastIndex)
-                        val fBinHi = (_flashlightFreqMax.value / hzPerBin).toInt().coerceIn(fBinLo, magnitude.lastIndex)
+                        val fBinLo = AudioProcessor.findLogBinIndex(_flashlightFreqMin.value)
+                        val fBinHi = AudioProcessor.findLogBinIndex(_flashlightFreqMax.value)
                         flashlightBeatDetector.sensitivity = _flashlightBeatSensitivity.value
                         if (flashlightBeatDetector.detect(magnitude, fBinLo, fBinHi)) {
                             _isFlashlightBeatDetected.value = true

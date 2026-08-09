@@ -59,9 +59,9 @@ internal fun LicenseScreen(
                     }
                     is MainViewModel.LicenseStatus.Error -> {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text("Failed to load current license.", color = MaterialTheme.colorScheme.error)
+                            Text(stringResource(R.string.failed_load_license), color = MaterialTheme.colorScheme.error)
                             Button(onClick = { viewModel.fetchLicense() }) {
-                                Text("Retry")
+                                Text(stringResource(R.string.retry))
                             }
                         }
                     }
@@ -125,7 +125,7 @@ private fun DynamicLicenseText(content: String) {
                         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
                     }
                 }
-                trimmed == "END OF LICENSE AGREEMENT" -> {
+                trimmed == stringResource(R.string.end_license_agreement) -> {
                     Text(trimmed, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 16.dp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                 }
                 else -> {

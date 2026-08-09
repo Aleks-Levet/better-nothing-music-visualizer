@@ -347,7 +347,7 @@ fun HostSelectionSheet(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Connect to Device",
+                text = stringResource(R.string.connect_to_device),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -362,9 +362,9 @@ fun HostSelectionSheet(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("No devices found on your Wi-Fi.")
+                    Text(stringResource(R.string.no_devices_found))
                     Button(onClick = { viewModel.startDiscovery() }) {
-                        Text("Search Again")
+                        Text(stringResource(R.string.search_again))
                     }
                 }
             } else {

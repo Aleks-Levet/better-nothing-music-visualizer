@@ -2,6 +2,7 @@ package com.better.nothing.music.vizualizer.service;
 
 import com.better.nothing.music.vizualizer.R;
 import com.better.nothing.music.vizualizer.ui.MainActivity;
+import com.better.nothing.music.vizualizer.ui.TrampolineActivity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,12 +25,12 @@ public class VisualizerTileService extends TileService {
             String sourceStr = getSharedPreferences("viz_prefs", MODE_PRIVATE).getString("capture_source", "INTERNAL");
             boolean needsMic = "MIC".equals(sourceStr) || "VIZUALIZER".equals(sourceStr);
             boolean hasMicPerm = checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
+            boolean needsTrampoline = "INTERNAL".equals(sourceStr) || (needsMic && (!hasMicPerm || Build.VERSION.SDK_INT >= 34));
 
-            if ("INTERNAL".equals(sourceStr) || (needsMic && !hasMicPerm)) {
+            if (needsTrampoline) {
                 unlockAndRun(() -> {
-                    Intent i = new Intent(this, MainActivity.class);
-                    i.putExtra("request_start", true);
-                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    Intent i = new Intent(this, TrampolineActivity.class);
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_ANIMATION);
                     PendingIntent pendingIntent = PendingIntent.getActivity(
                             this,
                             3,
@@ -57,9 +58,9 @@ public class VisualizerTileService extends TileService {
     private void refresh(boolean on) {
         Tile t=getQsTile(); if(t==null) return;
         t.setState(on?Tile.STATE_ACTIVE:Tile.STATE_INACTIVE);
-        t.setLabel("BNMV");
+        t.setLabel(getString(R.string.app_name));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            t.setSubtitle(on ? "Running" : "Better Nothing Music Vizualiser");
+            t.setSubtitle(on ? getString(R.string.tile_running) : getString(R.string.tile_subtitle_default));
         }
         t.setIcon(Icon.createWithResource(this, R.drawable.ic_launcher_monochrome));
         t.updateTile();

@@ -1,83 +1,122 @@
 package com.better.nothing.music.vizualizer.logic
 
 import android.os.SystemClock
-import java.util.Arrays
-import kotlin.math.ln
 import kotlin.math.max
+import kotlin.math.sqrt
 
 /**
- * Centeralized beat detection logic to be used by UI, Flashlight, and Haptic engines.
+ * Pro-Grade Beat Detector using Smoothed Spectral Flux,
+ * Exponential Moving Averages (O(1) CPU), and 3-Point Peak Detection.
  */
 class BeatDetector(
     var sensitivity: Float = 1.0f,
-    var cooldownMs: Long = 60L
+    var cooldownMs: Long = 130L
 ) {
-    private val deltaHistory = FloatArray(61)
-    private val sortedHistory = FloatArray(61)
-    private var deltaIndex = 0
-    private var deltaCount = 0
-    private var prevEnergy = 0f
+    private var prevMagnitude: FloatArray? = null
+
+    // O(1) Statistical Tracking (Exponential Moving Averages)
+    private var emaMean = 0f
+    private var emaVariance = 0f
+    // Alpha dictates memory length. 0.02f roughly equals a 50-frame history.
+    private val alpha = 0.02f
+
+    // 3-Point Peak Detection History
+    private var flux0 = 0f // Current frame (t)
+    private var flux1 = 0f // Previous frame (t-1)
+    private var flux2 = 0f // Frame before previous (t-2)
+
     private var lastTriggerMs = 0L
     private var thresholdMask = 0f
 
-    /**
-     * Processes a frame of magnitude data and returns true if a beat is detected.
-     */
     fun detect(magnitude: FloatArray, binLo: Int, binHi: Int): Boolean {
         if (magnitude.isEmpty()) return false
+
+        if (prevMagnitude == null || prevMagnitude?.size != magnitude.size) {
+            prevMagnitude = magnitude.copyOf()
+            return false
+        }
+        val prev = prevMagnitude!!
 
         val start = max(0, minOf(binLo, magnitude.lastIndex))
         val end = max(start, minOf(binHi, magnitude.lastIndex))
 
-        var sum = 0f
+        // 1. Calculate Weighted Spectral Flux
+        var totalFlux = 0f
+        var weightSum = 0f
+
         for (i in start..end) {
-            sum += magnitude[i]
+            val diff = magnitude[i] - prev[i]
+            if (diff > 0f) {
+                // Emphasize bass transients (1.0 weight for sub-bass, decaying for treble)
+                val weight = 1.0f / (1.0f + (i - start) * 0.05f)
+                totalFlux += diff * weight
+                weightSum += weight
+            }
         }
 
-        val energy = ln(1f + sum)
-        val delta = energy - prevEnergy
-        prevEnergy = energy
+        System.arraycopy(magnitude, 0, prev, 0, magnitude.size)
 
-        pushDelta(delta)
+        val rawFlux = if (weightSum > 0f) totalFlux / weightSum else 0f
 
-        val threshold = max(medianDelta() * (2.2f * sensitivity), thresholdMask)
+        // 2. Flux Smoothing (Low-Pass Filter)
+        // Blends 70% of new data with 30% of old data to remove micro-jitter
+        val smoothedFlux = (rawFlux * 0.7f) + (flux0 * 0.3f)
+
+        // Shift 3-point time window
+        flux2 = flux1
+        flux1 = flux0
+        flux0 = smoothedFlux
+
+        // 3. O(1) Dynamic Thresholding via EMA (T = μ + k*σ)
+        val stdDev = sqrt(emaVariance)
+        val multiplier = (1.5f / max(0.1f, sensitivity)).coerceIn(0.5f, 4.0f)
+        val dynamicThreshold = max(emaMean + multiplier * stdDev, thresholdMask)
+
+        val noiseGate = 0.005f
         val now = SystemClock.elapsedRealtime()
 
-        val triggered = delta > threshold && delta > 0.025f && (now - lastTriggerMs) >= cooldownMs
+        // 4. True Local Peak Detection
+        // A peak occurred at flux1 (t-1) IF it is higher than both flux2 (t-2) and flux0 (t)
+        val isTruePeak = flux1 > flux2 && flux1 > flux0
+
+        // We evaluate the threshold against flux1 (the peak), not flux0
+        val isAboveThreshold = flux1 > dynamicThreshold && flux1 > noiseGate
+        val cooldownPassed = (now - lastTriggerMs) >= cooldownMs
+
+        val triggered = isTruePeak && isAboveThreshold && cooldownPassed
+
         if (triggered) {
             lastTriggerMs = now
-            thresholdMask = delta * 0.8f
+            thresholdMask = flux1 * 0.7f
+        } else {
+            thresholdMask *= 0.85f
         }
 
-        thresholdMask *= 0.85f
+        // 5. Update Statistics AFTER evaluation
+        // This prevents the current massive transient from sabotaging its own trigger probability
+        updateStatistics(flux0)
+
         return triggered
     }
 
-    private fun pushDelta(delta: Float) {
-        deltaHistory[deltaIndex] = delta.coerceAtLeast(0.0001f)
-        deltaIndex = (deltaIndex + 1) % deltaHistory.size
-        if (deltaCount < deltaHistory.size) deltaCount++
-    }
+    private fun updateStatistics(flux: Float) {
+        // Exponential Moving Average for Mean
+        val delta = flux - emaMean
+        emaMean += alpha * delta
 
-    private fun medianDelta(): Float {
-        if (deltaCount == 0) return 0.01f
-        System.arraycopy(deltaHistory, 0, sortedHistory, 0, deltaCount)
-        Arrays.sort(sortedHistory, 0, deltaCount)
-
-        return if (deltaCount % 2 == 1) {
-            sortedHistory[deltaCount / 2]
-        } else {
-            val mid = deltaCount / 2
-            (sortedHistory[mid - 1] + sortedHistory[mid]) * 0.5f
-        }
+        // Exponential Moving Average for Variance
+        // Calculated using the difference between the flux and the updated mean
+        emaVariance = (1f - alpha) * (emaVariance + alpha * delta * delta)
     }
 
     fun reset() {
-        deltaIndex = 0
-        deltaCount = 0
-        prevEnergy = 0f
+        emaMean = 0f
+        emaVariance = 0f
+        flux0 = 0f
+        flux1 = 0f
+        flux2 = 0f
         lastTriggerMs = 0L
         thresholdMask = 0f
-        Arrays.fill(deltaHistory, 0f)
+        prevMagnitude = null
     }
 }

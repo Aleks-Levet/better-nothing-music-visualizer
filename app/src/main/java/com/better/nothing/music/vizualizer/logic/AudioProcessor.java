@@ -33,7 +33,7 @@ public class AudioProcessor {
     int[][] mLogBinToLinearRange = new int[512][2];
 
     // 512 logarithmic bins from 30Hz to 16kHz
-    static float[][] FFT_FREQ_RANGES = new float[512][2];
+    public static final float[][] FFT_FREQ_RANGES = new float[512][2];
     static {
         float fMin = 30f;
         float fMax = 16000f;

@@ -194,7 +194,7 @@ fun MorphingPolygon(
 
     // Smooth amplitude to avoid jitter, but kept responsive
     val animatedAmplitude by animateFloatAsState(
-        targetValue = (amplitude * 2.5f).coerceAtMost(1.2f),
+        targetValue = amplitude.coerceAtMost(1.2f),
         animationSpec = spring(stiffness = Spring.StiffnessMedium),
         label = "animatedAmplitude"
     )

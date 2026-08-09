@@ -51,6 +51,14 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.TrampolineActivity"
+            android:theme="@style/Theme.Transparent"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity="" />
+
         <service
             android:name=".service.AudioCaptureService"
             android:exported="false"

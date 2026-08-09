@@ -653,7 +653,7 @@ public class AudioCaptureService extends Service {
     public void startNetworkCapture() {
         Log.d(TAG, "startNetworkCapture: starting client mode");
         synchronized (mCaptureLock) {
-            stopCaptureLocked();
+            stopCaptureLocked(false);
             startForegroundWithTypes(CaptureSource.NETWORK, false);
             mCapturing = true; setRunning(true); updateOverlayVisibility(); mCaptureStartTimeMs = SystemClock.elapsedRealtime();
             mUdpSync.startListening(fft -> {
@@ -740,7 +740,7 @@ public class AudioCaptureService extends Service {
         MediaProjectionManager pm = null;
         if (source == CaptureSource.INTERNAL) pm = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
         synchronized (mCaptureLock) {
-            stopCaptureLocked();
+            stopCaptureLocked(false);
             if (source == CaptureSource.INTERNAL) {
                 if (pm == null) return;
                 startForegroundWithTypes(CaptureSource.INTERNAL, true);
@@ -811,11 +811,11 @@ public class AudioCaptureService extends Service {
         }
     }
 
-    public void stopCapture() { synchronized (mCaptureLock) { stopCaptureLocked(); } }
-    private void stopCaptureLocked() {
+    public void stopCapture() { synchronized (mCaptureLock) { stopCaptureLocked(true); } }
+    private void stopCaptureLocked(boolean shouldStopForeground) {
         mCapturing = false; setRunning(false); updateOverlayVisibility();
         shutdownCaptureExecutor(); releaseAudioRecord(); releaseVisualizer(); releaseProjection();
-        turnOffGlyphs(); resetVisualizerState(); stopForeground(STOP_FOREGROUND_REMOVE);
+        turnOffGlyphs(); resetVisualizerState(); if (shouldStopForeground) stopForeground(STOP_FOREGROUND_REMOVE);
     }
     private void releaseAudioRecord() { if (mAudioRecord != null) { try { mAudioRecord.stop(); } catch (Exception ignored) {} mAudioRecord.release(); mAudioRecord = null; } }
     private void releaseProjection() { if (mProjection != null) { try { mProjection.stop(); } catch (Exception ignored) {} mProjection = null; } }
