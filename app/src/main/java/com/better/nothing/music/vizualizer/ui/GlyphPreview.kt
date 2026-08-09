@@ -262,16 +262,12 @@ fun GlyphPreviewContent(
             val viewBoxW = when (device) {
                 DeviceProfile.DEVICE_NP3,
                 DeviceProfile.DEVICE_NP4APRO -> 512f
-                DeviceProfile.DEVICE_NP1,
-                DeviceProfile.DEVICE_NP2A,
-                DeviceProfile.DEVICE_NP3A -> 382f
+                DeviceProfile.DEVICE_NP1 -> 382f
                 else -> 182f
             }
             val viewBoxH = when (device) {
                 DeviceProfile.DEVICE_NP2 -> 390f
-                DeviceProfile.DEVICE_NP1,
-                DeviceProfile.DEVICE_NP2A,
-                DeviceProfile.DEVICE_NP3A -> 382f
+                DeviceProfile.DEVICE_NP1 -> 382f
                 DeviceProfile.DEVICE_NP3,
                 DeviceProfile.DEVICE_NP4APRO -> 512f
                 else -> 182f
@@ -283,7 +279,7 @@ fun GlyphPreviewContent(
 
             // Calculate the horizontal centering offset for legacy models in square viewbox
             // Phone width was 182, ViewBoxW is 382. (382 - 182) / 2 = 100
-            val centeringOffset = if (device == DeviceProfile.DEVICE_NP1 || device == DeviceProfile.DEVICE_NP2A || device == DeviceProfile.DEVICE_NP3A) 100f else 0f
+            val centeringOffset = if (device == DeviceProfile.DEVICE_NP1) 100f else 0f
 
             fun getA(idx: Int): Float {
                 val value = vizState.getOrElse(idx) { 0f }
@@ -365,8 +361,10 @@ fun GlyphPreviewContent(
                     }
 
                     DeviceProfile.DEVICE_NP2A -> {
-                        withTransform({ translate(centeringOffset - 20f, 0f) }) {
-                            val localVbCenter = vbCenter.copy(x = vbCenter.x - (centeringOffset - 20f))
+                        // All glyphs fit in ~130x112 area. (31..160 x 55..166)
+                        // Center is (95.5, 110.5). Centering it in a 182x182 box.
+                        withTransform({ translate(-4.5f, -19.5f) }) {
+                            val localVbCenter = Offset(95.5f, 110.5f)
                             paths["p2a_large"]?.let { drawPathRadial(this, it, color, (0..23).toList(), vizState, baseOpacity, scale, glowPaint, localVbCenter) }
                             paths["p2a_medium"]?.let { drawSmoothPath(it, getA(24)) }
                             paths["p2a_small"]?.let { drawSmoothPath(it, getA(25)) }
@@ -374,8 +372,10 @@ fun GlyphPreviewContent(
                     }
 
                     DeviceProfile.DEVICE_NP3A -> {
-                        withTransform({ translate(centeringOffset - 9f, 0f) }) {
-                            val localVbCenter = vbCenter.copy(x = vbCenter.x - (centeringOffset - 9f))
+                        // All glyphs fit in ~151x124 area. (17..168 x 14..138)
+                        // Center is (92.5, 76). Centering it in a 182x182 box.
+                        withTransform({ translate(-1.5f, 15f) }) {
+                            val localVbCenter = Offset(92.5f, 76f)
                             paths["p3a_large"]?.let { drawPathRadial(this, it, color, (0..19).toList(), vizState, baseOpacity, scale, glowPaint, localVbCenter) }
                             paths["p3a_medium"]?.let { drawPathRadial(this, it, color, (20..30).toList(), vizState, baseOpacity, scale, glowPaint, localVbCenter) }
                             paths["p3a_small"]?.let { drawPathRadial(this, it, color, (31..35).toList(), vizState, baseOpacity, scale, glowPaint, localVbCenter) }

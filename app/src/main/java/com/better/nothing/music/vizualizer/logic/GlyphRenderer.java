@@ -95,17 +95,19 @@ public class GlyphRenderer {
             }
 
             for (int i = 0; i < Math.min(config.zones.length, zoneCount); i++) {
-                int maxVal = 0;
+                float maxVal = 0f;
                 AudioProcessor.FrequencyRange range = config.uniqueRanges[config.zoneToRangeIndices[i][0]];
                 int start = Math.max(0, Math.min(range.logBinLo, 511));
                 int end = Math.max(start, Math.min(range.logBinHi, 511));
                 for (int b = start; b <= end; b++) {
-                    if (fftraw[b] * 1.8 > maxVal) {
-                        maxVal = (int) (fftraw[b] * 1.8);
+                    // Apply a 2.2x boost to glyphs to ensure they hit peaks frequently
+                    float val = fftraw[b] * 2.2f;
+                    if (val > maxVal) {
+                        maxVal = val;
                     }
                 }
 
-                float normalized = maxVal / 4095f;
+                float normalized = Math.min(1.0f, maxVal / 4095f);
                 float mapped = applyPercentSlice(normalized, config.zones[i]);
                 float gammaMapped = applyGamma(mapped);
                 

@@ -54,7 +54,7 @@
     <string name="flashlight_sync_title">Синхрон фонарика</string>
     <string name="font_ndot">NDot (Точечки)</string>
     <string name="font_ntype">NType (Стилевый)</string>
-    <string name="font_google_sans">Google Sans</string>
+    <string name="font_google_sans">Google Sans Flex</string>
     <string name="frequency_range_label">Диапазон частот: %1$d Гц - %2$d Гц</string>
     <string name="gamma_control">Управление гаммой</string>
     <string name="gamma_description">Больше гамма — сочнее свет, но меньше деталей. Меньше гамма — ярче, но цвета бледнеют.</string>

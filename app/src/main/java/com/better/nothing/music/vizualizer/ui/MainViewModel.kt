@@ -533,7 +533,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val _selectedFont = MutableStateFlow("Default")
+    private val _selectedFont = MutableStateFlow("NDot")
     val selectedFont = _selectedFont.asStateFlow()
     fun setSelectedFont(font: String) {
         _selectedFont.value = font
@@ -1037,7 +1037,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         MainActivity.serviceStatic?.setGamma(value)
     }
 
-    val _spectrumGain = MutableStateFlow(1.0f)
+    val _spectrumGain = MutableStateFlow(4.0f)
     val spectrumGain = _spectrumGain.asStateFlow()
 
     fun setSpectrumGain(value: Float) {
@@ -1459,8 +1459,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             uiPeakValue = uiPeakValue * 0.95f + uiPeak * 0.05f
             if (uiPeak > uiPeakValue) uiPeakValue = uiPeak
+
+            val source = _captureSource.value
             val targetGain = if (uiPeakValue > 0.01f) 0.25f / uiPeakValue else 10f
-            uiDynamicGain = uiDynamicGain * 0.9f + targetGain.coerceIn(2f, 20f) * 0.1f
+            
+            val gainLimitMin: Float
+            val gainLimitMax: Float
+            when (source) {
+                AudioCaptureService.CaptureSource.MIC -> {
+                    gainLimitMin = 2f
+                    gainLimitMax = 20f
+                }
+                AudioCaptureService.CaptureSource.INTERNAL, AudioCaptureService.CaptureSource.VIZUALIZER -> {
+                    gainLimitMin = 1f
+                    gainLimitMax = 2.5f
+                }
+                AudioCaptureService.CaptureSource.NETWORK -> {
+                    gainLimitMin = 1f
+                    gainLimitMax = 1f
+                }
+                else -> {
+                    gainLimitMin = 1f
+                    gainLimitMax = 10f
+                }
+            }
+
+            uiDynamicGain = uiDynamicGain * 0.9f + targetGain.coerceIn(gainLimitMin, gainLimitMax) * 0.1f
             (1.0f + (uiPeak * uiDynamicGain - 0.15f)).coerceIn(0.9f, 1.25f)
         }
 
@@ -1640,13 +1664,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _autoDeviceMemorize.value = prefs.getBoolean("auto_device_memorize", true)
         _m3eEnabled.value = prefs.getBoolean("m3e_enabled", true)
         _gammaValue.value = prefs.getFloat("gamma_value", 2.2f)
-        _spectrumGain.value = prefs.getFloat("spectrum_gain", 1.0f)
+        _spectrumGain.value = prefs.getFloat("spectrum_gain", 4.0f)
         _maxBrightness.value = prefs.getInt("max_brightness", 4095).coerceIn(50, 5000)
         _fftReadMethod.value = safeValueOf(prefs.getString("fft_read_method", null), AudioProcessor.ReadMethod.MAX)
         _glyphsEnabled.value = prefs.getBoolean("glyphs_enabled", true)
         _selectedPreset.value = prefs.getString("selected_preset", "Default") ?: "Default"
         _selectedTheme.value = prefs.getString("selected_theme", "Default") ?: "Default"
-        _selectedFont.value = prefs.getString("selected_font", "Default") ?: "Default"
+        _selectedFont.value = prefs.getString("selected_font", "NDot") ?: "NDot"
         _notificationButtonSet.value = prefs.getString("notification_button_set", "presets") ?: "presets"
         _broadcastEnabled.value = prefs.getBoolean("broadcast_enabled", false)
 
@@ -1729,7 +1753,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         _totalActiveTime.value += delta
                         if (_hapticMotorEnabled.value) _totalHapticTime.value += delta
                         if (_flashlightEnabled.value) _totalFlashlightTime.value += delta
-                        if (_maxBrightness.value > 0) _totalGlyphTime.value += delta
+                        if (_glyphsEnabled.value && _maxBrightness.value > 0) _totalGlyphTime.value += delta
                     } else {
                         _totalIdleTime.value += delta
                     }

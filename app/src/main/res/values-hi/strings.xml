@@ -32,7 +32,7 @@
     <string name="typography">टाइपोग्राफी</string>
     <string name="font_ndot">NDot</string>
     <string name="font_ntype">NType</string>
-    <string name="font_google_sans">Google Sans</string>
+    <string name="font_google_sans">Google Sans Flex</string>
     <string name="typography_help_text">पूरे ऐप में NDot और NType फोंट के बीच टॉगल करें।</string>
     <string name="more_settings_coming">अधिक सेटिंग्स जल्द ही आ रही हैं…</string>
 

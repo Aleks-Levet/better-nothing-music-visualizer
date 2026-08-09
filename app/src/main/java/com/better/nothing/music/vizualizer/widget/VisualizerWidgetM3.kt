@@ -160,8 +160,18 @@ class VisualizerWidgetM3 : AppWidgetProvider() {
         }
         
         views.setOnClickPendingIntent(R.id.btn_start_stop, startStopPI)
-        views.setImageViewResource(R.id.btn_start_stop, if (isRunning) R.drawable.ic_stop else R.drawable.ic_play)
+        views.setImageViewResource(R.id.img_start_stop, if (isRunning) R.drawable.ic_stop else R.drawable.ic_play)
+        views.setTextViewText(R.id.txt_start_stop, if (isRunning) "STOP BNMV" else "START BNMV")
         updateButtonState(context, views, R.id.btn_start_stop, isRunning)
+        
+        // Ensure text color is updated for the start/stop button specifically
+        if (isRunning) {
+            views.setTextColor(R.id.txt_start_stop, android.graphics.Color.WHITE)
+            views.setInt(R.id.img_start_stop, "setColorFilter", android.graphics.Color.WHITE)
+        } else {
+            views.setTextColor(R.id.txt_start_stop, context.getColor(R.color.widget_m3_on_surface))
+            views.setInt(R.id.img_start_stop, "setColorFilter", context.getColor(R.color.widget_m3_on_surface))
+        }
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }

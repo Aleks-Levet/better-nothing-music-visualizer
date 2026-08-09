@@ -9,10 +9,11 @@ import org.jtransforms.fft.DoubleFFT_1D;
  */
 public class AudioProcessor {
 
-    public enum ReadMethod {
-        MAX,
-        AVERAGE,
-        RMS
+    public enum SourceType {
+        MIC,
+        INTERNAL,
+        VIZUALIZER,
+        NETWORK
     }
 
     private int sampleRate = 44100;
@@ -52,7 +53,7 @@ public class AudioProcessor {
     private static final float DECAY_SLOW = 0.998f;
     private static final float GAIN_SMOOTHING_ATTACK = 0.15f;
     private static final float GAIN_SMOOTHING_DECAY = 0.02f;
-    private static final float TARGET_PEAK = 0.45f;
+    private static final float TARGET_PEAK = 0.6f;
 
     public AudioProcessor() {
         updateFFTSize();
@@ -91,7 +92,7 @@ public class AudioProcessor {
         }
     }
 
-    public AudioFrameResult processAudioFrame(short[] hopBuffer, boolean isInternalSource, float decayFactor) {
+    public AudioFrameResult processAudioFrame(short[] hopBuffer, SourceType sourceType, float decayFactor) {
         if (hopBuffer == null || ring == null || hann == null || mFftBuffer == null) return null;
 
         for (short value : hopBuffer) {
@@ -142,18 +143,59 @@ public class AudioProcessor {
             float decay = bandMax[i] > mRunningMax[i] ? 0.7f : DECAY_SLOW;
             mRunningMax[i] = Math.max(mRunningMax[i] * decay, bandMax[i]);
             float effectiveMax = Math.max(mRunningMax[i], 0.001f);
-            float target = isInternalSource ? 0.55f : TARGET_PEAK;
-            float desiredGain = target / effectiveMax;
-            desiredGain = Math.max(0.1f, Math.min(200.0f, desiredGain));
+            
+            float target = TARGET_PEAK;
+            float desiredGain;
+            
+            if (sourceType == SourceType.NETWORK) {
+                desiredGain = 1.0f;
+            } else {
+                desiredGain = target / effectiveMax;
+                if (sourceType == SourceType.INTERNAL || sourceType == SourceType.VIZUALIZER) {
+                    // "almost none" for internal sources as they have known volume
+                    desiredGain = Math.max(0.7f, Math.min(1.4f, desiredGain));
+                } else {
+                    // Strong gain for MIC source
+                    desiredGain = Math.max(0.1f, Math.min(200.0f, desiredGain));
+                }
+            }
+            
             float smoothing = desiredGain < mBandGain[i] ? GAIN_SMOOTHING_ATTACK : GAIN_SMOOTHING_DECAY;
-            mBandGain[i] = (mBandGain[i] * (1f - smoothing)) + (desiredGain * smoothing);
+            if (sourceType == SourceType.NETWORK) {
+                mBandGain[i] = 1.0f;
+            } else if (sourceType == SourceType.INTERNAL || sourceType == SourceType.VIZUALIZER) {
+                // Slower adaptation for internal sources to avoid pumping
+                float internalSmoothing = smoothing * 0.1f;
+                mBandGain[i] = (mBandGain[i] * (1f - internalSmoothing)) + (desiredGain * internalSmoothing);
+            } else {
+                mBandGain[i] = (mBandGain[i] * (1f - smoothing)) + (desiredGain * smoothing);
+            }
         }
+
+        // Log pivots for easy 3-band transition
+        double p0 = Math.log10(86.6);
+        double p1 = Math.log10(1000.0);
+        double p2 = Math.log10(8000.0);
 
         // Map to 512 log bins and apply band-specific AGC + Manual Gain
         for (int i = 0; i < 512; i++) {
-            float fStart = FFT_FREQ_RANGES[i][0];
-            int bandIdx = (fStart < 250f) ? 0 : (fStart < 4000f) ? 1 : 2;
-            float gain = mBandGain[bandIdx] * mManualGain;
+            float fCenter = (FFT_FREQ_RANGES[i][0] + FFT_FREQ_RANGES[i][1]) / 2f;
+            double logF = Math.log10(Math.max(1.0, fCenter));
+            
+            float interpolatedGain;
+            if (logF <= p0) {
+                interpolatedGain = mBandGain[0];
+            } else if (logF < p1) {
+                float t = (float) ((logF - p0) / (p1 - p0));
+                interpolatedGain = mBandGain[0] * (1f - t) + mBandGain[1] * t;
+            } else if (logF < p2) {
+                float t = (float) ((logF - p1) / (p2 - p1));
+                interpolatedGain = mBandGain[1] * (1f - t) + mBandGain[2] * t;
+            } else {
+                interpolatedGain = mBandGain[2];
+            }
+            
+            float gain = interpolatedGain * mManualGain;
 
             int startBin = mLogBinToLinearRange[i][0];
             int endBin = mLogBinToLinearRange[i][1];

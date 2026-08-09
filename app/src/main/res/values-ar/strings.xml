@@ -32,7 +32,7 @@
     <string name="typography">الخط</string>
     <string name="font_ndot">NDot</string>
     <string name="font_ntype">NType</string>
-    <string name="font_google_sans">Google Sans</string>
+    <string name="font_google_sans">Google Sans Flex</string>
     <string name="typography_help_text">التبديل بين خطي NDot وNType على مستوى التطبيق بأكمله.</string>
     <string name="more_settings_coming">المزيد من الإعدادات قريبًا…</string>
 

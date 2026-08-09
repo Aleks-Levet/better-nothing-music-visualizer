@@ -13,6 +13,7 @@ import com.better.nothing.music.vizualizer.logic.BeatDetectionHapticEngine;
 import com.better.nothing.music.vizualizer.logic.FlashlightEngine;
 import com.better.nothing.music.vizualizer.logic.UdpNetworkSync;
 import com.better.nothing.music.vizualizer.ui.MainActivity;
+import com.better.nothing.music.vizualizer.R;
 
 import android.Manifest;
 import android.app.Notification;
@@ -496,9 +497,18 @@ public class AudioCaptureService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        String action = intent != null ? intent.getAction() : null;
         if (Build.VERSION.SDK_INT >= 34) {
             boolean isStartingProjection = intent != null && intent.hasExtra(EXTRA_RESULT_CODE) && intent.hasExtra(EXTRA_DATA);
-            startForegroundWithTypes(mCaptureSource, isStartingProjection);
+            // On Android 14+, starting a microphone foreground service from the background is restricted.
+            // To be safe, we start with SPECIAL_USE first and upgrade later in startCaptureInternal.
+            if (!ACTION_STOP.equals(action)) {
+                if (isStartingProjection) {
+                    startForegroundWithTypes(mCaptureSource, true);
+                } else if (!sIsRunning) {
+                    startForeground(NOTIF_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+                }
+            }
         }
         if (intent != null) {
             String action = intent.getAction();
@@ -808,7 +818,7 @@ public class AudioCaptureService extends Service {
                 if (forceMediaProjection || mProjection != null) {
                     type |= ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION;
                 }
-            } else if (source == CaptureSource.MIC || source == CaptureSource.VIZUALIZER) {
+            } else if (source == CaptureSource.MIC) {
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
                     type |= ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
                 }
@@ -820,7 +830,7 @@ public class AudioCaptureService extends Service {
                 if (forceMediaProjection || mProjection != null) {
                     type = ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION;
                 }
-            } else if (source == CaptureSource.MIC || source == CaptureSource.VIZUALIZER) {
+            } else if (source == CaptureSource.MIC) {
                 type = ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
             }
             if (type != 0) startForeground(NOTIF_ID, notification, type);
@@ -933,7 +943,7 @@ public class AudioCaptureService extends Service {
         if (!mCapturing || mVisualizerConfig == null) return;
         mAudioProcessor.updateFFTSize(samplingRate / 1000);
         short[] hop = new short[waveform.length]; for (int i = 0; i < waveform.length; i++) hop[i] = (short) (((waveform[i] & 0xFF) - 128) << 8);
-        AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, false, mVisualizerConfig.decay);
+        AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, AudioProcessor.SourceType.VIZUALIZER, mVisualizerConfig.decay);
         if (result == null) return;
         PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
         synchronized (mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
@@ -944,7 +954,8 @@ public class AudioCaptureService extends Service {
         int hopSize = Math.round(record.getSampleRate() / (float) FPS); short[] hop = new short[hopSize];
         while (mCapturing) {
             int read = record.read(hop, 0, hopSize, AudioRecord.READ_BLOCKING); if (read <= 0) continue;
-            AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, true, mVisualizerConfig != null ? mVisualizerConfig.decay : 0.85f);
+            AudioProcessor.SourceType type = (mCaptureSource == CaptureSource.MIC) ? AudioProcessor.SourceType.MIC : AudioProcessor.SourceType.INTERNAL;
+            AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, type, mVisualizerConfig != null ? mVisualizerConfig.decay : 0.85f);
             if (result == null) continue;
             PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
             synchronized(mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
@@ -965,7 +976,7 @@ public class AudioCaptureService extends Service {
     private int resolveGlyphCount() { return mVisualizerConfig != null ? mVisualizerConfig.zones.length : DeviceProfile.getLedCount(mSelectedDevice); }
 
     private Notification buildNotification() {
-        ensureNotificationChannel(); SharedPreferences appPrefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE); String buttonSet = appPrefs.getString("notification_button_set", "presets"); PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT); String content = (mMaxBrightness > 0 && mVisualizerConfig != null ? mVisualizerConfig.description + " • " : "") + formatDuration(getCaptureDurationMs()); NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID).setContentTitle(getString(R.string.notification_title)).setContentText(content).setSmallIcon(com.better.nothing.music.vizualizer.R.drawable.ic_notif_monochrome).setContentIntent(contentIntent).setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE).setCategory(NotificationCompat.CATEGORY_SERVICE).setOnlyAlertOnce(true).setOngoing(true).setSilent(true);
+        ensureNotificationChannel(); SharedPreferences appPrefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE); String buttonSet = appPrefs.getString("notification_button_set", "presets"); PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT); String content = (mMaxBrightness > 0 && mVisualizerConfig != null ? mVisualizerConfig.description + " • " : "") + formatDuration(getCaptureDurationMs()); NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID).setContentTitle(getString(R.string.notification_title)).setContentText(content).setSmallIcon(R.drawable.ic_notif_monochrome).setContentIntent(contentIntent).setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE).setCategory(NotificationCompat.CATEGORY_SERVICE).setOnlyAlertOnce(true).setOngoing(true).setSilent(true);
         if ("controls".equals(buttonSet)) {
             builder.addAction(0, mMaxBrightness > 0 ? getString(R.string.notification_action_glyphs_on) : getString(R.string.notification_action_glyphs_off), PendingIntent.getService(this, 10, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_GLYPHS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
             builder.addAction(0, mHapticEnabled ? getString(R.string.notification_action_haptics_on) : getString(R.string.notification_action_haptics_off), PendingIntent.getService(this, 11, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_HAPTICS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));

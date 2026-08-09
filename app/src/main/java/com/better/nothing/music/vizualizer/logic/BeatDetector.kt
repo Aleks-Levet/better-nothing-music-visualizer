@@ -4,23 +4,17 @@ import android.os.SystemClock
 import kotlin.math.max
 import kotlin.math.sqrt
 
-/**
- * Pro-Grade Beat Detector tailored for 512 Log-Spaced IntArray FFTs (0-4095 range).
- * Uses Smoothed Spectral Flux, O(1) EMA Tracking, and 3-Point Peak Detection.
- */
 class BeatDetector(
     var sensitivity: Float = 1.0f,
-    var cooldownMs: Long = 130L
+    var cooldownMs: Long = 130L,
+    var noiseGate: Float = 0.015f
 ) {
-    // 1. Changed to IntArray to match your FFT source
     private var prevMagnitude: IntArray? = null
 
-    // O(1) Statistical Tracking
     private var emaMean = 0f
     private var emaVariance = 0f
     private val alpha = 0.02f
 
-    // 3-Point Peak Detection History
     private var flux0 = 0f
     private var flux1 = 0f
     private var flux2 = 0f
@@ -28,9 +22,6 @@ class BeatDetector(
     private var lastTriggerMs = 0L
     private var thresholdMask = 0f
 
-    /**
-     * Detects a beat from an IntArray magnitude buffer (0-4095 range).
-     */
     fun detect(magnitude: IntArray, binLo: Int, binHi: Int): Boolean {
         if (magnitude.isEmpty()) return false
 
@@ -47,44 +38,41 @@ class BeatDetector(
         var weightSum = 0f
 
         for (i in start..end) {
-            // 3. Normalize the 0-4095 Int range to a 0.0f - 1.0f Float range
             val currentNorm = magnitude[i] / 4095f
             val prevNorm = prev[i] / 4095f
 
             val diff = currentNorm - prevNorm
             if (diff > 0f) {
-                // 4. Gentler weighting curve because log-spacing already emphasizes the low-end naturally
+                // SQUARING the difference transforms amplitude into energy.
+                // This exaggerates sharp transients and suppresses minor noise.
+                val energy = diff * diff
+
                 val weight = 1.0f / (1.0f + (i - start) * 0.01f)
-                totalFlux += diff * weight
+                totalFlux += energy * weight
                 weightSum += weight
             }
         }
 
-        // Native IntArray copy
         System.arraycopy(magnitude, 0, prev, 0, magnitude.size)
 
         val rawFlux = if (weightSum > 0f) totalFlux / weightSum else 0f
 
-        // Flux Smoothing (Low-Pass Filter)
+        // Flux Smoothing
         val smoothedFlux = (rawFlux * 0.7f) + (flux0 * 0.3f)
 
-        // Shift 3-point time window
         flux2 = flux1
         flux1 = flux0
         flux0 = smoothedFlux
 
-        // O(1) Dynamic Thresholding
-        val stdDev = sqrt(emaVariance)
+        // Variance Floor: Prevents the threshold from dropping to zero during quiet sections
+        val stdDev = max(0.005f, sqrt(emaVariance))
+
         val multiplier = (1.5f / max(0.1f, sensitivity)).coerceIn(0.5f, 4.0f)
         val dynamicThreshold = max(emaMean + multiplier * stdDev, thresholdMask)
 
-        // Noise gate works perfectly because we normalized to 0.0 - 1.0
-        val noiseGate = 0.005f
         val now = SystemClock.elapsedRealtime()
 
-        // True Local Peak Detection
         val isTruePeak = flux1 > flux2 && flux1 > flux0
-
         val isAboveThreshold = flux1 > dynamicThreshold && flux1 > noiseGate
         val cooldownPassed = (now - lastTriggerMs) >= cooldownMs
 
@@ -94,7 +82,9 @@ class BeatDetector(
             lastTriggerMs = now
             thresholdMask = flux1 * 0.7f
         } else {
-            thresholdMask *= 0.85f
+            // Slower decay. 0.95f ensures the mask acts as a true envelope follower
+            // rather than dropping instantly after a beat.
+            thresholdMask *= 0.95f
         }
 
         updateStatistics(flux0)

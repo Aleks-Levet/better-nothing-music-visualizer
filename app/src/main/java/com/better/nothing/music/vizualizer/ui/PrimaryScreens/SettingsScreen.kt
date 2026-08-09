@@ -158,14 +158,14 @@ internal fun SettingsScreen(
                         )
 
                         ExpressiveSplitButton(
-                            items = listOf("NDot", "NType", "Google Sans"),
+                            items = listOf("NDot", "NType", "Google Sans Flex"),
                             selectedItem = selectedFont,
                             onItemSelection = { viewModel.setSelectedFont(it) },
                             labelProvider = {
                                 when (it) {
                                     "NDot" -> stringResource(R.string.font_ndot)
                                     "NType" -> stringResource(R.string.font_ntype)
-                                    "Google Sans" -> stringResource(R.string.font_google_sans)
+                                    "Google Sans Flex" -> stringResource(R.string.font_google_sans)
                                     else -> it
                                 }
                             },

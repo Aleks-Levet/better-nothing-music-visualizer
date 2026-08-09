@@ -31,6 +31,7 @@ class TrampolineActivity : Activity() {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             }
             startActivity(intentToMain)
+            finish()
         } else {
             // We have permissions and it's a direct start source (MIC/NETWORK)
             // Start the service directly from here (foreground) to satisfy Android 14 requirements
@@ -38,8 +39,18 @@ class TrampolineActivity : Activity() {
                 action = AudioCaptureService.ACTION_START
             }
             startForegroundService(startIntent)
+            
+            // On Android 14+, finishing too quickly might cause the foreground service 
+            // to fail starting with microphone type (SecurityException).
+            // We stay alive for a brief moment to ensure we are "in foreground".
+            if (Build.VERSION.SDK_INT >= 34) {
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    finish()
+                }, 500)
+            } else {
+                finish()
+            }
         }
-        finish()
     }
 
     override fun finish() {
