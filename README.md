@@ -2,7 +2,7 @@
 
 🌐 Read this in other languages (not updated):  🇮🇳 [हिन्दी](Docs/README_HI.md), 🇮🇳 [Marathi](Docs/README_MR.md), 🇹🇷 [Türkçe](Docs/README_TR.md), 🇸🇦 [العربية](Docs/README_AR.md)
 
-### An (android) app that not only brings better music visualization on the Glyph interface of Nothing Phones, but also lets you feel your music through the haptic motor, and also lets you use the flashlight of your phone as a music visualizer!
+### An (android) app that not only brings better music visualization on the Glyph interface/matrix of Nothing Phones, but also lets you feel your music through the haptic motor ***AND*** use the flashlight of your phone as a music visualizer!
 
 This android app grabs the live audio stream from your device using sources such as **Media Projection**, your **microphone**, the classic *Android Visualizer audio stream (not recommened)*, or even with shizuku (in the future), and processes it directly into the glyphs, the haptic motor, or your flashlight. This means you can visualize music from **Spotify, YouTube Music**, and basically any other app! It can even work on games, and also you can use the microphone to vizualise music that others play, especially at a party!
 
