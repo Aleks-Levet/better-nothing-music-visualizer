@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_m3_bg"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <!-- Source Row -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SOURCE"
+        android:textColor="@color/widget_m3_text_secondary"
+        android:textSize="11sp"
+        android:layout_marginStart="4dp"
+        android:layout_marginBottom="4dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/widget_m3_button_bg_selected"
+            android:src="@drawable/ic_phone"
+            app:tint="@android:color/white"
+            android:scaleType="centerInside"
+            android:padding="6dp" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="4dp"
+            android:background="@drawable/widget_m3_button_bg"
+            android:src="@drawable/ic_mic"
+            app:tint="@color/widget_m3_on_surface"
+            android:scaleType="centerInside"
+            android:padding="6dp" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/widget_m3_button_bg"
+            android:src="@drawable/ic_graphic_eq"
+            app:tint="@color/widget_m3_on_surface"
+            android:scaleType="centerInside"
+            android:padding="6dp" />
+    </LinearLayout>
+
+    <!-- Output Row -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OUTPUT"
+        android:textColor="@color/widget_m3_text_secondary"
+        android:textSize="11sp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="4dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/widget_m3_button_bg"
+            android:src="@drawable/ic_vibration"
+            app:tint="@color/widget_m3_on_surface"
+            android:scaleType="centerInside"
+            android:padding="6dp" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="4dp"
+            android:background="@drawable/widget_m3_button_bg_selected"
+            android:src="@drawable/ic_nav_glyphs"
+            app:tint="@android:color/white"
+            android:scaleType="centerInside"
+            android:padding="6dp" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/widget_m3_button_bg"
+            android:src="@drawable/ic_flashlight"
+            app:tint="@color/widget_m3_on_surface"
+            android:scaleType="centerInside"
+            android:padding="6dp" />
+    </LinearLayout>
+
+    <!-- Start/Stop Button -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.2"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/widget_m3_button_bg_selected"
+        android:src="@drawable/ic_stop"
+        app:tint="@android:color/white"
+        android:scaleType="centerInside"
+        android:padding="6dp" />
+
+</LinearLayout>
