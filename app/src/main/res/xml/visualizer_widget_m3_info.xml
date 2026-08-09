@@ -4,6 +4,7 @@
     android:minHeight="110dp"
     android:updatePeriodMillis="86400000"
     android:initialLayout="@layout/visualizer_widget_m3"
+    android:previewLayout="@layout/visualizer_widget_m3_preview"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
     android:description="@string/widget_m3_description">

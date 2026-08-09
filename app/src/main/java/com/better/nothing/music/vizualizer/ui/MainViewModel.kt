@@ -627,6 +627,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun showStats() { _isShowingStats.value = true }
     fun hideStats() { _isShowingStats.value = false }
 
+    private val _isShowingHostPicker = MutableStateFlow(false)
+    val isShowingHostPicker = _isShowingHostPicker.asStateFlow()
+    fun showHostPicker() {
+        startDiscovery()
+        _isShowingHostPicker.value = true
+    }
+    fun hideHostPicker() { _isShowingHostPicker.value = false }
+
     fun checkRemoteConfigVersion() {
         viewModelScope.launch(Dispatchers.IO) {
             var connection: HttpURLConnection? = null
@@ -911,6 +919,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (_isShowingStats.value) { hideStats(); return true }
         if (_isShowingLicense.value) { hideLicense(); return true }
         if (_isShowingAbout.value) { hideAbout(); return true }
+        if (_isShowingHostPicker.value) { hideHostPicker(); return true }
 
         if (tabHistory.isNotEmpty()) {
             val previousTab = tabHistory.removeAt(tabHistory.size - 1)

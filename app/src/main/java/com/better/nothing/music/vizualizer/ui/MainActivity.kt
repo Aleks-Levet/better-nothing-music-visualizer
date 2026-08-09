@@ -70,6 +70,7 @@ import com.better.nothing.music.vizualizer.ui.PrimaryScreens.GlyphsScreen
 import com.better.nothing.music.vizualizer.ui.PrimaryScreens.HapticsScreen
 import com.better.nothing.music.vizualizer.ui.PrimaryScreens.VisualsScreen
 import com.better.nothing.music.vizualizer.ui.PrimaryScreens.SettingsScreen
+import com.better.nothing.music.vizualizer.ui.PrimaryScreens.HostSelectionSheet
 import androidx.compose.animation.*
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.ui.input.pointer.pointerInput
@@ -265,15 +266,29 @@ class MainActivity : AppCompatActivity() {
                     }
                 )
 
+                val isShowingHostPicker by viewModel.isShowingHostPicker.collectAsState()
+                if (isShowingHostPicker) {
+                    HostSelectionSheet(
+                        viewModel = viewModel,
+                        onDismiss = { viewModel.hideHostPicker() },
+                        onHostSelected = { host ->
+                            viewModel.connectToHost(host)
+                            viewModel.hideHostPicker()
+                            // Also start the visualizer after selection
+                            toggleVisualizer(forceStart = true)
+                        }
+                    )
+                }
+
                 MainOverlays(viewModel = viewModel, selectedDevice = viewModel.selectedDevice.collectAsState().value)
             }
         }
     }
 
-    private fun toggleVisualizer() {
+    private fun toggleVisualizer(forceStart: Boolean = false) {
         val s = service ?: return
         val isTrampoline = intent.getBooleanExtra(EXTRA_REQUEST_START, false)
-        if (s.isVisualizerRunning) {
+        if (s.isVisualizerRunning && !forceStart) {
             s.stopVisualizer()
             if (isTrampoline) finish()
         } else {
@@ -315,9 +330,13 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 AudioCaptureService.CaptureSource.NETWORK -> {
-                    startForegroundService(Intent(this, AudioCaptureService::class.java))
-                    s.startVisualizer()
-                    if (isTrampoline) finish()
+                    if (!isTrampoline && !forceStart) {
+                        viewModel.showHostPicker()
+                    } else {
+                        startForegroundService(Intent(this, AudioCaptureService::class.java))
+                        s.startVisualizer()
+                        if (isTrampoline) finish()
+                    }
                 }
             }
         }

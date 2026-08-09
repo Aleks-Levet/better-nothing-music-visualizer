@@ -5,6 +5,8 @@ import android.net.DhcpInfo
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.util.Log
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
@@ -34,7 +36,9 @@ class UdpNetworkSync(private val context: Context) {
     private var streamingSocket: DatagramSocket? = null
     private var listeningSocket: DatagramSocket? = null
     
-    private val clientIps = mutableSetOf<InetAddress>()
+    private val _clientIps = MutableStateFlow<Set<InetAddress>>(emptySet())
+    val clientIps = _clientIps.asStateFlow()
+
     private var isBroadcasting = false
     private var isDiscovering = false
     private var isListening = false
@@ -97,9 +101,7 @@ class UdpNetworkSync(private val context: Context) {
                         Log.d(TAG, "Sent host info to ${packet.address}")
                         
                         // Add to streaming list if not already there
-                        synchronized(clientIps) {
-                            clientIps.add(packet.address)
-                        }
+                        _clientIps.value = _clientIps.value + packet.address
                     }
                 }
             } catch (e: Exception) {
@@ -120,9 +122,7 @@ class UdpNetworkSync(private val context: Context) {
         discoverySocket?.close()
         streamingSocket?.close()
         streamingSocket = null
-        synchronized(clientIps) {
-            clientIps.clear()
-        }
+        _clientIps.value = emptySet()
     }
 
     // --- Discovery (Client Mode) ---
@@ -197,14 +197,11 @@ class UdpNetworkSync(private val context: Context) {
                     streamingSocket = DatagramSocket()
                     Log.d(TAG, "Created streaming socket")
                 }
-                synchronized(clientIps) {
-                    if (clientIps.isEmpty()) return@execute
-                    val it = clientIps.iterator()
-                    while (it.hasNext()) {
-                        val ip = it.next()
-                        val packet = DatagramPacket(packed, packed.size, ip, STREAMING_PORT)
-                        streamingSocket?.send(packet)
-                    }
+                val currentClients = _clientIps.value
+                if (currentClients.isEmpty()) return@execute
+                for (ip in currentClients) {
+                    val packet = DatagramPacket(packed, packed.size, ip, STREAMING_PORT)
+                    streamingSocket?.send(packet)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Streaming send error", e)

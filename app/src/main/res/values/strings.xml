@@ -345,4 +345,5 @@
     <string name="select_capture_source">Select Capture Source</string>
     <string name="broadcast">Broadcast</string>
     <string name="system_language">System Language</string>
+    <string name="widget_m3_description" translatable="false">Material 3 Visualizer Widget (DayNight)</string>
 </resources>

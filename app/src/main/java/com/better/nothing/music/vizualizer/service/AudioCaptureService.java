@@ -133,6 +133,14 @@ public class AudioCaptureService extends Service {
     private static final MutableStateFlow<Boolean> sIsRunningFlow = StateFlowKt.MutableStateFlow(false);
     
     public StateFlow<Boolean> isRunningFlow() { return sIsRunningFlow; }
+    public static boolean isRunning() { return sIsRunning; }
+
+    public StateFlow<java.util.Set<java.net.InetAddress>> getConnectedClientsFlow() {
+        if (mUdpSync != null) {
+            return mUdpSync.getClientIps();
+        }
+        return StateFlowKt.MutableStateFlow(new java.util.HashSet<>());
+    }
 
     private void setRunning(boolean running) {
         boolean wasRunning = sIsRunning;

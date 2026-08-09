@@ -107,6 +107,18 @@
                 android:resource="@xml/visualizer_widget_info" />
         </receiver>
 
+        <receiver
+            android:name=".widget.VisualizerWidgetM3"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.better.nothing.music.vizualizer.REFRESH_WIDGET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/visualizer_widget_m3_info" />
+        </receiver>
+
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
             android:enabled="false"

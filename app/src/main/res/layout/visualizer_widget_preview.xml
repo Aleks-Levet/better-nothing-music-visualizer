@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_bg"
@@ -29,7 +30,7 @@
             android:layout_marginEnd="4dp"
             android:background="@drawable/widget_button_bg_selected"
             android:src="@drawable/ic_phone"
-            android:tint="@android:color/black"
+            app:tint="@android:color/black"
             android:scaleType="centerInside"
             android:padding="8dp" />
 
@@ -40,7 +41,7 @@
             android:layout_marginHorizontal="4dp"
             android:background="@drawable/widget_button_bg"
             android:src="@drawable/ic_mic"
-            android:tint="@android:color/white"
+            app:tint="@android:color/white"
             android:scaleType="centerInside"
             android:padding="8dp" />
 
@@ -51,7 +52,7 @@
             android:layout_marginStart="4dp"
             android:background="@drawable/widget_button_bg"
             android:src="@drawable/ic_graphic_eq"
-            android:tint="@android:color/white"
+            app:tint="@android:color/white"
             android:scaleType="centerInside"
             android:padding="8dp" />
     </LinearLayout>
@@ -80,7 +81,7 @@
             android:layout_marginEnd="4dp"
             android:background="@drawable/widget_button_bg"
             android:src="@drawable/ic_vibration"
-            android:tint="@android:color/white"
+            app:tint="@android:color/white"
             android:scaleType="centerInside"
             android:padding="8dp" />
 
@@ -91,7 +92,7 @@
             android:layout_marginHorizontal="4dp"
             android:background="@drawable/widget_button_bg_selected"
             android:src="@drawable/ic_nav_glyphs"
-            android:tint="@android:color/black"
+            app:tint="@android:color/black"
             android:scaleType="centerInside"
             android:padding="8dp" />
 
@@ -102,7 +103,7 @@
             android:layout_marginStart="4dp"
             android:background="@drawable/widget_button_bg"
             android:src="@drawable/ic_flashlight"
-            android:tint="@android:color/white"
+            app:tint="@android:color/white"
             android:scaleType="centerInside"
             android:padding="8dp" />
     </LinearLayout>
@@ -115,7 +116,8 @@
         android:layout_marginTop="8dp"
         android:background="@drawable/widget_button_bg_selected"
         android:src="@drawable/ic_stop"
-        android:tint="@android:color/black"
-        android:scaleType="centerInside" />
+        app:tint="@android:color/black"
+        android:scaleType="centerInside"
+        android:padding="8dp" />
 
 </LinearLayout>

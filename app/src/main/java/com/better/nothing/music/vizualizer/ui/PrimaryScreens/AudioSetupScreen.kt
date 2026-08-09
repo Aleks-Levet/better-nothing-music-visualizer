@@ -150,7 +150,6 @@ fun AudioScreen(
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
-    var showHostPicker by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -230,8 +229,7 @@ fun AudioScreen(
                         recordAudioLauncher.launch(Manifest.permission.RECORD_AUDIO)
                     }
                 } else if (source == AudioCaptureService.CaptureSource.NETWORK) {
-                    viewModel.startDiscovery()
-                    showHostPicker = true
+                    onCaptureSourceChanged(source)
                 } else {
                     onCaptureSourceChanged(source)
                 }
@@ -309,17 +307,6 @@ fun AudioScreen(
             }
         }
         Spacer(modifier = Modifier.height(86.dp))
-    }
-
-    if (showHostPicker) {
-        HostSelectionSheet(
-            viewModel = viewModel,
-            onDismiss = { showHostPicker = false },
-            onHostSelected = { host ->
-                viewModel.connectToHost(host)
-                showHostPicker = false
-            }
-        )
     }
 }
 
