@@ -4,16 +4,16 @@
 
 ### An (android) app that not only brings better music visualization on the Glyph interface/matrix of Nothing Phones, but also lets you feel your music through the haptic motor ***AND*** use the flashlight of your phone as a music visualizer!
 
-This android app grabs the live audio stream from your device using sources such as **Media Projection**, your **microphone**, the classic *Android Visualizer audio stream (not recommened)*, or even with shizuku (in the future), and processes it directly into the glyphs, the haptic motor, or your flashlight. This means you can visualize music from **Spotify, YouTube Music**, and basically any other app! It can even work on games, and also you can use the microphone to vizualise music that others play, especially at a party!
-
-<img 
-  src="https://img.shields.io/github/downloads/Aleks-Levet/better-nothing-music-visualizer/total?style=for-the-badge&logo=github&label=Devices%20made%20better:&color=ff0000&labelColor=000000"
-  style="height:40px;">
-
 # **Here's the fucking download button, use it!**
 > (if you don't want to read the rest of the readme)
 
 [<img widtht="60%" alt="Get it on GitHub" src="./.github/assets/big-ass-fucking-download-button.png" />](https://github.com/Aleks-Levet/better-nothing-music-visualizer/releases/download/V3.2.1/Better-Nothing-Music-Vizualizer-V3.2.1.apk)
+<img 
+  src="https://img.shields.io/github/downloads/Aleks-Levet/better-nothing-music-visualizer/total?style=for-the-badge&logo=github&label=Devices%20made%20better:&color=ff0000&labelColor=000000"
+  style="height:40px;">
+
+This android app grabs the live audio stream from your device using sources such as **Media Projection**, your **microphone**, the classic *Android Visualizer audio stream (not recommened)*, or even with shizuku (in the future), and processes it directly into the glyphs, the haptic motor, or your flashlight. This means you can visualize music from **Spotify, YouTube Music**, and basically any other app! It can even work on games, and also you can use the microphone to vizualise music that others play, especially at a party!
+
    
 ## 💬 Join Our Discord Server
 
