@@ -24,14 +24,10 @@
     <string name="app_theme">App-Design</string>
     <string name="theme_normal">Standard</string>
     <string name="theme_liquorice">Lakritz-Schwarz</string>
-    <string name="theme_nothing">Nothing</string>
     <string name="theme_nothing_red">Nothing Rot</string>
-    <string name="theme_material_you">Material You</string>
     <string name="theme_music">Musik (Album-Cover)</string>
     <string name="theme_help_text">Änderungen werden nach einem App-Neustart wirksam.</string>
     <string name="typography">Typografie</string>
-    <string name="font_ndot">NDot</string>
-    <string name="font_ntype">NType</string>
     <string name="typography_help_text">Umschalten zwischen NDot- und NType-Schriftarten in der gesamten App.</string>
     <string name="more_settings_coming">Weitere Einstellungen folgen bald…</string>
 

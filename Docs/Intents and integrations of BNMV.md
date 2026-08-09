@@ -28,6 +28,6 @@ From version 4.0.1 of the app:
 
 ### Source & Presets:
 
-* `com.better.nothing.music.vizualizer.ACTION_SET_SOURCE` (String extra source: `INTERNAL`, ``MIC`, `VIZUALIZER`, `NETWORK`)
+* `com.better.nothing.music.vizualizer.ACTION_SET_SOURCE` (String extra source: `INTERNAL`, `MIC`, `VIZUALIZER`, `NETWORK`)
 
 * `com.better.nothing.music.vizualizer.ACTION_SET_PRESET` (String extra preset: the key of the preset, e.g., `np2`)

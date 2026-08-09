@@ -1,29 +1,29 @@
 package com.better.nothing.music.vizualizer.ui.SecondaryScreens
 
-import androidx.compose.foundation.background
+import android.graphics.drawable.Drawable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.better.nothing.music.vizualizer.BuildConfig
 import com.better.nothing.music.vizualizer.R
@@ -68,37 +68,52 @@ internal fun AboutScreen(
             ScreenTitle(text = stringResource(R.string.about_title), modifier = Modifier.padding(bottom = 0.dp))
 
             // App Intro Card
-            ExpressiveCard {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(56.dp)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(painterResource(R.drawable.ic_launcher), null, tint = Color.Black)
-                        }
-                    }
+ExpressiveCard {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(56.dp)
+        ) {
+            Image(
+                painter =
+                    ContextCompat.getDrawable(
+                        LocalContext.current,
+                        R.mipmap.ic_launcher
+                    ),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                alignment = Alignment.Center,
+                contentScale = ContentScale.Fit
+            )
+        }
 
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.app_name),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = stringResource(R.string.version_info, BuildConfig.VERSION_NAME),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        )
-                    }
-                }
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = stringResource(R.string.app_name),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
 
-                HorizontalDivider(
+            Text(
+                text = stringResource(
+                    R.string.version_info,
+                    BuildConfig.VERSION_NAME
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
+        }
+    }
+
+
+            HorizontalDivider(
                     modifier = Modifier.padding(vertical = 8.dp),
                     thickness = 4.dp,
                     color = MaterialTheme.colorScheme.surfaceVariant
@@ -243,6 +258,15 @@ internal fun AboutScreen(
             Spacer(modifier = Modifier.height(100.dp))
         }
     }
+}
+
+private fun RowScope.Image(
+    painter: Drawable?,
+    contentDescription: Nothing?,
+    modifier: Modifier,
+    alignment: Alignment,
+    contentScale: ContentScale
+) {
 }
 
 @Composable

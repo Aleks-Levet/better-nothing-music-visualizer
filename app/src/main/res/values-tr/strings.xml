@@ -24,14 +24,10 @@
     <string name="app_theme">Uygulama Teması</string>
     <string name="theme_normal">Varsayılan</string>
     <string name="theme_liquorice">Meyan Kökü</string>
-    <string name="theme_nothing">Nothing</string>
     <string name="theme_nothing_red">Nothing Kırmızı</string>
-    <string name="theme_material_you">Material You</string>
     <string name="theme_music">Müzik (Albüm Kapağı)</string>
     <string name="theme_help_text">Değişiklikler uygulama yeniden başlatıldıktan sonra uygulanır.</string>
     <string name="typography">Başlık Fontu</string>
-    <string name="font_ndot">NDot</string>
-    <string name="font_ntype">NType</string>
     <string name="typography_help_text">Uygulamanın fontları arasında geçiş yapın.</string>
     <string name="more_settings_coming">Daha fazla ayar çok yakında sizlerle…</string>
 

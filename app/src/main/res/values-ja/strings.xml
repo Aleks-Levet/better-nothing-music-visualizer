@@ -24,15 +24,10 @@
     <string name="app_theme">アプリのテーマ</string>
     <string name="theme_normal">デフォルト</string>
     <string name="theme_liquorice">リコリスブラック</string>
-    <string name="theme_nothing">Nothing</string>
     <string name="theme_nothing_red">Nothingレッド</string>
-    <string name="theme_material_you">Material You</string>
     <string name="theme_music">ミュージック（アルバムアート）</string>
     <string name="theme_help_text">変更はアプリの再起動後に適用されます。</string>
     <string name="typography">タイポグラフィ</string>
-    <string name="font_ndot">NDot</string>
-    <string name="font_ntype">NType</string>
-    <string name="font_google_sans">Google Sans Flex</string>
     <string name="typography_help_text">アプリ全体でNDotフォントとNTypeフォントを切り替えます。</string>
     <string name="more_settings_coming">さらなる設定を近日追加予定…</string>
 

@@ -24,18 +24,18 @@
 
     <!-- Settings Screen -->
     <string name="settings_title">Settings</string>
-    <string name="app_theme">App Theme</string>
+    <string name="app_theme">App theme and font</string>
     <string name="theme_normal">Default</string>
     <string name="theme_liquorice">Liquorice Black</string>
-    <string name="theme_nothing">Nothing</string>
+    <string name="theme_nothing" translatable="false">Nothing</string>
     <string name="theme_nothing_red">Nothing Red</string>
-    <string name="theme_material_you">Material You</string>
+    <string name="theme_material_you" translatable="false">Material You</string>
     <string name="theme_music">Music (Fetches Album Art)</string>
     <string name="theme_help_text">Changes apply after app restart.</string>
     <string name="typography">Typography</string>
-    <string name="font_ndot">NDot</string>
-    <string name="font_ntype">NType</string>
-    <string name="font_google_sans">Google Sans Flex</string>
+    <string name="font_ndot" translatable="false">NDot</string>
+    <string name="font_ntype" translatable="false">NType</string>
+    <string name="font_google_sans" translatable="false">Google Sans</string>
     <string name="typography_help_text">Choose your preferred font app-wide.</string>
     <string name="more_settings_coming">More settings coming soon…</string>
 
@@ -345,5 +345,5 @@
     <string name="select_capture_source">Select Capture Source</string>
     <string name="broadcast">Broadcast</string>
     <string name="system_language">System Language</string>
-    <string name="widget_m3_description" translatable="false">Material 3 Visualizer Widget (DayNight)</string>
+    <string name="widget_m3_description">Material 3 Visualizer Widget (DayNight)</string>
 </resources>

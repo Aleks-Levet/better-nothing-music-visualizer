@@ -24,15 +24,10 @@
     <string name="app_theme">应用主题</string>
     <string name="theme_normal">默认</string>
     <string name="theme_liquorice">甘草黑</string>
-    <string name="theme_nothing">Nothing</string>
     <string name="theme_nothing_red">Nothing 红</string>
-    <string name="theme_material_you">Material You</string>
     <string name="theme_music">音乐（专辑封面）</string>
     <string name="theme_help_text">更改将在应用重启后生效。</string>
     <string name="typography">字体排版</string>
-    <string name="font_ndot">NDot</string>
-    <string name="font_ntype">NType</string>
-    <string name="font_google_sans">Google Sans Flex</string>
     <string name="typography_help_text">在应用范围内切换 NDot 和 NType 字体。</string>
     <string name="more_settings_coming">更多设置即将推出…</string>
 

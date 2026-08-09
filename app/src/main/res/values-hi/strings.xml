@@ -24,15 +24,10 @@
     <string name="app_theme">ऐप थीम</string>
     <string name="theme_normal">डिफ़ॉल्ट</string>
     <string name="theme_liquorice">लिकोरिस ब्लैक</string>
-    <string name="theme_nothing">नथिंग</string>
     <string name="theme_nothing_red">नथिंग रेड</string>
-    <string name="theme_material_you">मटेरियल यू</string>
     <string name="theme_music">संगीत (एल्बम कला)</string>
     <string name="theme_help_text">ऐप पुनरारंभ होने के बाद परिवर्तन लागू होते हैं।</string>
     <string name="typography">टाइपोग्राफी</string>
-    <string name="font_ndot">NDot</string>
-    <string name="font_ntype">NType</string>
-    <string name="font_google_sans">Google Sans Flex</string>
     <string name="typography_help_text">पूरे ऐप में NDot और NType फोंट के बीच टॉगल करें।</string>
     <string name="more_settings_coming">अधिक सेटिंग्स जल्द ही आ रही हैं…</string>
 

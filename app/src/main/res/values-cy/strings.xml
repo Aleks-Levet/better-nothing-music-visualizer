@@ -24,14 +24,10 @@
     <string name="app_theme">Thema\'r Ap</string>
     <string name="theme_normal">Diofyn</string>
     <string name="theme_liquorice">Du Licris</string>
-    <string name="theme_nothing">Nothing</string>
     <string name="theme_nothing_red">Coch Nothing</string>
-    <string name="theme_material_you">Material You</string>
     <string name="theme_music">Cerddoriaeth (Celf Albwm)</string>
     <string name="theme_help_text">Bydd newidiadau\'n dod i rym ar ôl ailgychwyn yr ap.</string>
     <string name="typography">Teipograffeg</string>
-    <string name="font_ndot">NDot</string>
-    <string name="font_ntype">NType</string>
     <string name="typography_help_text">Newid rhwng ffontiau NDot ac NType ar draws yr ap.</string>
     <string name="more_settings_coming">Mwy o osodiadau\'n dod yn fuan…</string>
 

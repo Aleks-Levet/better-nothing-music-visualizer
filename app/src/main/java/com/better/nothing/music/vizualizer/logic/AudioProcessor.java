@@ -16,6 +16,12 @@ public class AudioProcessor {
         NETWORK
     }
 
+    public enum ReadMethod {
+        MAX,
+        MEAN,
+        RMS
+    }
+
     private int sampleRate = 44100;
     private int fftSize;
     private int analysisWindow;

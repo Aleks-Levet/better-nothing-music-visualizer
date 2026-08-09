@@ -24,14 +24,10 @@
     <string name="app_theme">Tema de la aplicación</string>
     <string name="theme_normal">Predeterminado</string>
     <string name="theme_liquorice">Negro Regaliz</string>
-    <string name="theme_nothing">Nothing</string>
     <string name="theme_nothing_red">Rojo Nothing</string>
-    <string name="theme_material_you">Material You</string>
     <string name="theme_music">Música (Carátula del álbum)</string>
     <string name="theme_help_text">Los cambios se aplican después de reiniciar la aplicación.</string>
     <string name="typography">Tipografía</string>
-    <string name="font_ndot">NDot</string>
-    <string name="font_ntype">NType</string>
     <string name="typography_help_text">Cambia entre las fuentes NDot y NType en toda la aplicación.</string>
     <string name="more_settings_coming">Más ajustes próximamente…</string>
 

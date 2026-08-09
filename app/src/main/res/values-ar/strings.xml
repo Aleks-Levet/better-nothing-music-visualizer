@@ -24,15 +24,10 @@
     <string name="app_theme">مظهر التطبيق</string>
     <string name="theme_normal">الافتراضي</string>
     <string name="theme_liquorice">أسود عرق السوس</string>
-    <string name="theme_nothing">Nothing</string>
     <string name="theme_nothing_red">Nothing أحمر</string>
-    <string name="theme_material_you">Material You</string>
     <string name="theme_music">الموسيقى (باستخدام صورة غلاف الألبوم)</string>
     <string name="theme_help_text">تُطبَّق التغييرات بعد إعادة تشغيل التطبيق.</string>
     <string name="typography">الخط</string>
-    <string name="font_ndot">NDot</string>
-    <string name="font_ntype">NType</string>
-    <string name="font_google_sans">Google Sans Flex</string>
     <string name="typography_help_text">التبديل بين خطي NDot وNType على مستوى التطبيق بأكمله.</string>
     <string name="more_settings_coming">المزيد من الإعدادات قريبًا…</string>
 

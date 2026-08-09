@@ -52,9 +52,6 @@
     <string name="flashlight_header">Визуализатор вспышки</string>
     <string name="flashlight_monitor_label">Монитор вспышки</string>
     <string name="flashlight_sync_title">Синхрон фонарика</string>
-    <string name="font_ndot">NDot (Точечки)</string>
-    <string name="font_ntype">NType (Стилевый)</string>
-    <string name="font_google_sans">Google Sans Flex</string>
     <string name="frequency_range_label">Диапазон частот: %1$d Гц - %2$d Гц</string>
     <string name="gamma_control">Управление гаммой</string>
     <string name="gamma_description">Больше гамма — сочнее свет, но меньше деталей. Меньше гамма — ярче, но цвета бледнеют.</string>
@@ -118,10 +115,8 @@
     <string name="tab_haptics">Вибратор))</string>
     <string name="tab_settings">Гайки</string>
     <string name="theme_liquorice">Чернее твоей души</string>
-    <string name="theme_material_you">Material You</string>
     <string name="theme_music">Музыка (обложка альбома)</string>
     <string name="theme_normal">По дефолту</string>
-    <string name="theme_nothing">Nothing (Пафосный минимализм)</string>
     <string name="typography">Шрифты</string>
     <string name="typography_help_text">Переключение между шрифтами NDot и NType во всем приложении.</string>
     <string name="update_available_msg">Свежий патч подоспел! Вот что переписали:</string>

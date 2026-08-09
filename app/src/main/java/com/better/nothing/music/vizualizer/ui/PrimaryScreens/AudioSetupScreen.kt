@@ -1,6 +1,7 @@
 package com.better.nothing.music.vizualizer.ui.PrimaryScreens
 
 import android.Manifest
+import android.R.attr.width
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -96,6 +97,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontVariation.width
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -256,7 +258,7 @@ fun AudioScreen(
                 fftRaw = fftRaw
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(Modifier.height(1.dp))
 
         OutputSelectionCard(
             glyphsEnabled = glyphsEnabled,
@@ -331,7 +333,7 @@ fun HostSelectionSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface,
-        dragHandle = { BottomSheetDefaults.DragHandle() }
+        dragHandle = { BottomSheetDefaults.DragHandle(modifier = Modifier.width(50.dp)) }
     ) {
         Column(
             modifier = Modifier
@@ -339,11 +341,16 @@ fun HostSelectionSheet(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = stringResource(R.string.connect_to_device),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.connect_to_device),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
             if (isDiscovering && hosts.isEmpty()) {
                 Box(modifier = Modifier.fillMaxWidth().height(100.dp), contentAlignment = Alignment.Center) {
