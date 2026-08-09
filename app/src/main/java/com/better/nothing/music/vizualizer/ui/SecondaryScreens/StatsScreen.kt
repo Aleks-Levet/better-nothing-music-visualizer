@@ -77,12 +77,12 @@ internal fun StatsScreen(
                     )
                 }
                 Spacer(modifier = Modifier.width(16.dp))
-                ScreenTitle(text = "Usage Stats", modifier = Modifier.padding(bottom = 0.dp))
+                ScreenTitle(text = stringResource(R.string.usage_stats), modifier = Modifier.padding(bottom = 0.dp))
             }
 
             // Hero Card
             HeroStatCard(
-                label = "Total Visualization Time",
+                label = stringResource(R.string.total_visualization_time),
                 value = formatTime(totalTime),
                 icon = Icons.Default.Timer,
                 color = MaterialTheme.colorScheme.primary
@@ -90,7 +90,7 @@ internal fun StatsScreen(
 
             // Engagement Section
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SectionHeader(text = "Engagement")
+                SectionHeader(text = stringResource(R.string.engagement))
                 
                 val total = (activeTime + idleTime).coerceAtLeast(1L)
                 val activePercent = (activeTime * 100 / total).toInt()
@@ -101,14 +101,14 @@ internal fun StatsScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     EngagementCard(
-                        label = "Active Music",
+                        label = stringResource(R.string.active_music),
                         percentage = activePercent,
                         time = formatTime(activeTime),
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.weight(1f)
                     )
                     EngagementCard(
-                        label = "Idle Pulse",
+                        label = stringResource(R.string.idle_pulse),
                         percentage = idlePercent,
                         time = formatTime(idleTime),
                         color = MaterialTheme.colorScheme.secondary,
@@ -119,25 +119,25 @@ internal fun StatsScreen(
 
             // Feature Breakdown
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SectionHeader(text = "Feature Breakdown")
+                SectionHeader(text = stringResource(R.string.feature_breakdown))
                 
                 ExpressiveCard {
                     Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
                         DetailedFeatureRow(
                             icon = ImageVector.vectorResource(id = R.drawable.ic_nav_glyphs),
-                            label = "Glyph Interface",
+                            label = stringResource(R.string.glyph_interface),
                             value = formatTime(glyphTime),
                             color = MaterialTheme.colorScheme.primary
                         )
                         DetailedFeatureRow(
                             icon = Icons.Default.Vibration,
-                            label = "Haptic Feedback",
+                            label = stringResource(R.string.haptic_feedback),
                             value = formatTime(hapticTime),
                             color = MaterialTheme.colorScheme.secondary
                         )
                         DetailedFeatureRow(
                             icon = Icons.Default.FlashOn,
-                            label = "Flashlight Sync",
+                            label = stringResource(R.string.flashlight_sync_stat),
                             value = formatTime(flashlightTime),
                             color = MaterialTheme.colorScheme.tertiary
                         )
@@ -252,7 +252,7 @@ private fun DetailedFeatureRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(label, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
             Text(
-                text = "Total Active Use",
+                text = stringResource(R.string.total_active_use),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
             )

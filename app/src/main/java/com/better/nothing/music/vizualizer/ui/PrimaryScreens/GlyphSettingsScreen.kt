@@ -180,12 +180,12 @@ internal fun GlyphsScreen(
                             if (configVersion.contains(".simple")) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(
-                                        "Update Required",
+                                        stringResource(R.string.update_required),
                                         style = MaterialTheme.typography.titleMedium,
                                         color = MaterialTheme.colorScheme.error
                                     )
                                     Text(
-                                        "Download full config to see presets",
+                                        stringResource(R.string.download_full_config),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -254,10 +254,10 @@ internal fun GlyphsScreen(
         }
 
         ExpressiveCard {
-            CardHeader(title = "Visualizer Configuration")
+            CardHeader(title = stringResource(R.string.visualizer_configuration))
 
             BodyText(
-                text = "The zones.config file defines how frequencies map to Glyph LEDs. Updating from GitHub ensures support for new devices and presets.",
+                text = stringResource(R.string.config_description),
                 size = 13.sp
             )
 
@@ -283,7 +283,7 @@ internal fun GlyphsScreen(
                         if (remoteVersion != null && remoteVersion != "Unknown") {
                             val isUpdateAvailable = remoteVersion != configVersion
                             Text(
-                                text = if (isUpdateAvailable) "Latest: $remoteVersion" else "Up to date",
+                                text = if (isUpdateAvailable) "Latest: $remoteVersion" else stringResource(R.string.up_to_date),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = if (isUpdateAvailable) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
                             )
@@ -296,7 +296,7 @@ internal fun GlyphsScreen(
                             shape = MaterialTheme.shapes.small
                         ) {
                             Text(
-                                text = "UPDATE AVAILABLE",
+                                text = stringResource(R.string.update_available_label),
                                 modifier = Modifier.padding(
                                     horizontal = 8.dp,
                                     vertical = 4.dp
@@ -322,10 +322,10 @@ internal fun GlyphsScreen(
                 remoteVersion != null && remoteVersion != "Unknown" && remoteVersion != configVersion
 
             ExpressiveSplitButton(
-                primaryText = if (isUpdateAvailable) "Update Now" else "Check GitHub",
+                primaryText = if (isUpdateAvailable) stringResource(R.string.update_now) else stringResource(R.string.check_github),
                 primaryIcon = if (configStatus is com.better.nothing.music.vizualizer.ui.MainViewModel.ConfigUpdateStatus.Updating) Icons.Default.Sync else Icons.Default.CloudDownload,
                 onPrimaryClick = { viewModel.updateZonesConfig() },
-                secondaryText = "Local",
+                secondaryText = stringResource(R.string.local_config),
                 secondaryIcon = Icons.Default.FolderOpen,
                 onSecondaryClick = { filePickerLauncher.launch("*/*") },
                 enabled = configStatus is com.better.nothing.music.vizualizer.ui.MainViewModel.ConfigUpdateStatus.Idle,
@@ -464,7 +464,7 @@ fun GammaSlider(
         IconButton(onClick = onToggleExpand) {
             Icon(
                 imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.Info,
-                contentDescription = "Show Gamma Info",
+                contentDescription = stringResource(R.string.show_gamma_info),
                 tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
             )
         }

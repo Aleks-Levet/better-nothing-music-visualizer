@@ -107,8 +107,8 @@ internal fun AboutScreen(
                 // GitHub Action
                 InfoRow(
                     icon = Icons.Default.Code,
-                    title = "GitHub Repository",
-                    subtitle = "View source and contributions",
+                    title = stringResource(R.string.github_repository),
+                    subtitle = stringResource(R.string.view_source_contributions),
                     onClick = { uriHandler.openUri("https://github.com/Aleks-Levet/better-nothing-music-visualizer") }
                 )
 
@@ -122,17 +122,17 @@ internal fun AboutScreen(
 
                 // Update Action
                 val statusText = when (val status = appUpdateStatus) {
-                    is MainViewModel.AppUpdateStatus.Checking -> "Checking for updates..."
-                    is MainViewModel.AppUpdateStatus.Available -> "Update available: ${status.version}"
-                    is MainViewModel.AppUpdateStatus.Downloading -> "Downloading: ${(status.progress * 100).toInt()}%"
-                    is MainViewModel.AppUpdateStatus.UpToDate -> "Latest version installed"
-                    is MainViewModel.AppUpdateStatus.Error -> "Error: ${status.message}"
-                    else -> "Check for software updates"
+                    is MainViewModel.AppUpdateStatus.Checking -> stringResource(R.string.update_checking)
+                    is MainViewModel.AppUpdateStatus.Available -> stringResource(R.string.update_available, status.version)
+                    is MainViewModel.AppUpdateStatus.Downloading -> stringResource(R.string.update_downloading, (status.progress * 100).toInt())
+                    is MainViewModel.AppUpdateStatus.UpToDate -> stringResource(R.string.update_uptodate)
+                    is MainViewModel.AppUpdateStatus.Error -> stringResource(R.string.update_error, status.message)
+                    else -> stringResource(R.string.check_software_updates)
                 }
 
                 InfoRow(
                     icon = Icons.Default.Sync,
-                    title = "Software Update",
+                    title = stringResource(R.string.software_update),
                     subtitle = statusText,
                     onClick = {
                         val status = appUpdateStatus
@@ -166,7 +166,7 @@ internal fun AboutScreen(
                                 contentColor = MaterialTheme.colorScheme.onError
                             ) {
                                 Text(
-                                    "UPDATE",
+                                    stringResource(R.string.update_label),
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold
