@@ -110,13 +110,18 @@ public class AudioCaptureService extends Service {
     public static final String ACTION_TOGGLE_TORCH = "com.better.nothing.music.vizualizer.action.TOGGLE_TORCH";
     public static final String ACTION_TOGGLE_GLYPHS = "com.better.nothing.music.vizualizer.action.TOGGLE_GLYPHS";
     public static final String ACTION_TOGGLE_BROADCAST = "com.better.nothing.music.vizualizer.action.TOGGLE_BROADCAST";
+    public static final String ACTION_TOGGLE_OVERLAY = "com.better.nothing.music.vizualizer.action.TOGGLE_OVERLAY";
+    public static final String ACTION_TOGGLE_EDGE = "com.better.nothing.music.vizualizer.action.TOGGLE_EDGE";
+    public static final String ACTION_TOGGLE_LENS = "com.better.nothing.music.vizualizer.action.TOGGLE_LENS";
     public static final String ACTION_SET_SOURCE = "com.better.nothing.music.vizualizer.action.SET_SOURCE";
     public static final String ACTION_REFRESH_SETTINGS = "com.better.nothing.music.vizualizer.action.REFRESH_SETTINGS";
     public static final String ACTION_PREV_PRESET = "com.better.nothing.music.vizualizer.action.PREV_PRESET";
     public static final String ACTION_NEXT_PRESET = "com.better.nothing.music.vizualizer.action.NEXT_PRESET";
+    public static final String ACTION_SET_PRESET = "com.better.nothing.music.vizualizer.action.SET_PRESET";
 
     public static final String EXTRA_SOURCE = "extra_source";
     public static final String EXTRA_PRESET_KEY = "preset_key";
+    public static final String EXTRA_ENABLED = "enabled";
     public static final String EXTRA_RESULT_CODE = "result_code";
     public static final String EXTRA_DATA = "data";
     public static final float DEFAULT_GAMMA = 2.2f;
@@ -528,30 +533,58 @@ public class AudioCaptureService extends Service {
                 }
             }
             else if (ACTION_TOGGLE_HAPTICS.equals(action)) {
-                boolean nextEnabled = !mHapticEnabled;
+                boolean nextEnabled = intent.hasExtra(EXTRA_ENABLED) ? intent.getBooleanExtra(EXTRA_ENABLED, false) : !mHapticEnabled;
                 setHapticMotorEnabled(nextEnabled);
                 getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putBoolean("haptic_motor_enabled", nextEnabled).apply();
             }
             else if (ACTION_TOGGLE_TORCH.equals(action)) {
-                boolean nextEnabled = !mFlashlightEnabled;
+                boolean nextEnabled = intent.hasExtra(EXTRA_ENABLED) ? intent.getBooleanExtra(EXTRA_ENABLED, false) : !mFlashlightEnabled;
                 setFlashlightEnabled(nextEnabled);
                 getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putBoolean("flashlight_enabled", nextEnabled).apply();
             }
             else if (ACTION_TOGGLE_BROADCAST.equals(action)) {
-                boolean nextEnabled = !mBroadcastEnabled;
+                boolean nextEnabled = intent.hasExtra(EXTRA_ENABLED) ? intent.getBooleanExtra(EXTRA_ENABLED, false) : !mBroadcastEnabled;
                 setBroadcastEnabled(nextEnabled);
                 getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putBoolean("broadcast_enabled", nextEnabled).apply();
             }
+            else if (ACTION_TOGGLE_OVERLAY.equals(action)) {
+                boolean nextEnabled = intent.hasExtra(EXTRA_ENABLED) ? intent.getBooleanExtra(EXTRA_ENABLED, false) : !mOverlayEnabled;
+                setOverlayEnabled(nextEnabled);
+                getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putBoolean("overlay_enabled", nextEnabled).apply();
+            }
+            else if (ACTION_TOGGLE_EDGE.equals(action)) {
+                boolean nextEnabled = intent.hasExtra(EXTRA_ENABLED) ? intent.getBooleanExtra(EXTRA_ENABLED, false) : !mEdgeVisualizerEnabled;
+                setEdgeVisualizerEnabled(nextEnabled);
+                getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putBoolean("edge_visualizer_enabled", nextEnabled).apply();
+            }
+            else if (ACTION_TOGGLE_LENS.equals(action)) {
+                boolean nextEnabled = intent.hasExtra(EXTRA_ENABLED) ? intent.getBooleanExtra(EXTRA_ENABLED, false) : !mLensVisualizerEnabled;
+                setLensVisualizerEnabled(nextEnabled);
+                getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putBoolean("lens_visualizer_enabled", nextEnabled).apply();
+            }
             else if (ACTION_TOGGLE_GLYPHS.equals(action)) {
                 int nextVal;
-                if (mMaxBrightness > 0) nextVal = 0;
-                else nextVal = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).getInt("max_brightness_last", MAX_GLYPH_BRIGHTNESS);
+                if (intent.hasExtra(EXTRA_ENABLED)) {
+                    boolean enable = intent.getBooleanExtra(EXTRA_ENABLED, false);
+                    if (enable) nextVal = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).getInt("max_brightness_last", MAX_GLYPH_BRIGHTNESS);
+                    else nextVal = 0;
+                } else {
+                    if (mMaxBrightness > 0) nextVal = 0;
+                    else nextVal = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).getInt("max_brightness_last", MAX_GLYPH_BRIGHTNESS);
+                }
                 
                 setMaxBrightness(nextVal);
                 SharedPreferences.Editor editor = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit();
                 editor.putInt("max_brightness", nextVal);
                 if (nextVal > 0) editor.putInt("max_brightness_last", nextVal);
                 editor.apply();
+            }
+            else if (ACTION_SET_PRESET.equals(action)) {
+                String presetKey = intent.getStringExtra(EXTRA_PRESET_KEY);
+                if (presetKey != null) {
+                    setPreset(presetKey);
+                    getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putString("selected_preset", presetKey).apply();
+                }
             }
             else if (ACTION_NEXT_PRESET.equals(action)) {
                 if (!mAvailablePresetKeys.isEmpty()) {

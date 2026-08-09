@@ -119,6 +119,25 @@
                 android:resource="@xml/visualizer_widget_m3_info" />
         </receiver>
 
+        <receiver
+            android:name=".receiver.ExternalControlReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.better.nothing.music.vizualizer.ACTION_START" />
+                <action android:name="com.better.nothing.music.vizualizer.ACTION_STOP" />
+                <action android:name="com.better.nothing.music.vizualizer.ACTION_TOGGLE" />
+                <action android:name="com.better.nothing.music.vizualizer.ACTION_SET_SOURCE" />
+                <action android:name="com.better.nothing.music.vizualizer.ACTION_SET_PRESET" />
+                <action android:name="com.better.nothing.music.vizualizer.ACTION_TOGGLE_GLYPHS" />
+                <action android:name="com.better.nothing.music.vizualizer.ACTION_TOGGLE_HAPTICS" />
+                <action android:name="com.better.nothing.music.vizualizer.ACTION_TOGGLE_TORCH" />
+                <action android:name="com.better.nothing.music.vizualizer.ACTION_TOGGLE_BROADCAST" />
+                <action android:name="com.better.nothing.music.vizualizer.ACTION_TOGGLE_OVERLAY" />
+                <action android:name="com.better.nothing.music.vizualizer.ACTION_TOGGLE_EDGE" />
+                <action android:name="com.better.nothing.music.vizualizer.ACTION_TOGGLE_LENS" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
             android:enabled="false"
