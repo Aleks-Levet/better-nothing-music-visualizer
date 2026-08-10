@@ -117,9 +117,9 @@ class VisualizerWidgetM3 : AppWidgetProvider() {
         val maxBrightness = prefs.getInt("max_brightness", 4095)
         val glyphsEnabled = maxBrightness > 0
 
-        updateImageButtonState(context, views, R.id.btn_source_internal, currentSource == AudioCaptureService.CaptureSource.INTERNAL.name)
-        updateImageButtonState(context, views, R.id.btn_source_mic, currentSource == AudioCaptureService.CaptureSource.MIC.name)
-        updateImageButtonState(context, views, R.id.btn_source_viz, currentSource == AudioCaptureService.CaptureSource.VIZUALIZER.name)
+        views.setBoolean(R.id.btn_source_internal, "setSelected", currentSource == AudioCaptureService.CaptureSource.INTERNAL.name)
+        views.setBoolean(R.id.btn_source_mic, "setSelected", currentSource == AudioCaptureService.CaptureSource.MIC.name)
+        views.setBoolean(R.id.btn_source_viz, "setSelected", currentSource == AudioCaptureService.CaptureSource.VIZUALIZER.name)
 
         views.setOnClickPendingIntent(R.id.btn_source_internal, createSourcePendingIntent(context, AudioCaptureService.CaptureSource.INTERNAL))
         views.setOnClickPendingIntent(R.id.btn_source_mic, createSourcePendingIntent(context, AudioCaptureService.CaptureSource.MIC))
@@ -131,9 +131,9 @@ class VisualizerWidgetM3 : AppWidgetProvider() {
         views.setViewVisibility(R.id.btn_viz_haptics, if (hasHaptic) android.view.View.VISIBLE else android.view.View.GONE)
         views.setViewVisibility(R.id.btn_viz_torch, if (hasFlashlight) android.view.View.VISIBLE else android.view.View.GONE)
 
-        updateImageButtonState(context, views, R.id.btn_viz_haptics, hapticEnabled)
-        updateImageButtonState(context, views, R.id.btn_viz_glyphs, glyphsEnabled)
-        updateImageButtonState(context, views, R.id.btn_viz_torch, flashlightEnabled)
+        views.setBoolean(R.id.btn_viz_haptics, "setSelected", hapticEnabled)
+        views.setBoolean(R.id.btn_viz_glyphs, "setSelected", glyphsEnabled)
+        views.setBoolean(R.id.btn_viz_torch, "setSelected", flashlightEnabled)
 
         views.setOnClickPendingIntent(R.id.btn_viz_haptics, createActionPendingIntent(context, ACTION_TOGGLE_HAPTIC, 110))
         views.setOnClickPendingIntent(R.id.btn_viz_glyphs, createActionPendingIntent(context, ACTION_TOGGLE_GLYPHS, 111))
@@ -162,30 +162,12 @@ class VisualizerWidgetM3 : AppWidgetProvider() {
         views.setOnClickPendingIntent(R.id.btn_start_stop, startStopPI)
         views.setImageViewResource(R.id.img_start_stop, if (isRunning) R.drawable.ic_stop else R.drawable.ic_play)
         views.setTextViewText(R.id.txt_start_stop, if (isRunning) "STOP BNMV" else "START BNMV")
-        
-        if (isRunning) {
-            views.setInt(R.id.btn_start_stop, "setBackgroundResource", R.drawable.widget_m3_button_bg_selected)
-            views.setTextColor(R.id.txt_start_stop, android.graphics.Color.WHITE)
-            views.setInt(R.id.img_start_stop, "setColorFilter", android.graphics.Color.WHITE)
-        } else {
-            views.setInt(R.id.btn_start_stop, "setBackgroundResource", R.drawable.widget_m3_bg)
-            views.setTextColor(R.id.txt_start_stop, context.getColor(R.color.widget_m3_on_surface))
-            views.setInt(R.id.img_start_stop, "setColorFilter", context.getColor(R.color.widget_m3_on_surface))
-        }
+        views.setBoolean(R.id.btn_start_stop, "setSelected", isRunning)
+        views.setBoolean(R.id.img_start_stop, "setSelected", isRunning)
+        views.setBoolean(R.id.txt_start_stop, "setSelected", isRunning)
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
-
-    private fun updateImageButtonState(context: Context, views: RemoteViews, viewId: Int, isActive: Boolean) {
-        if (isActive) {
-            views.setInt(viewId, "setBackgroundResource", R.drawable.widget_m3_button_bg_selected)
-            views.setInt(viewId, "setColorFilter", android.graphics.Color.WHITE)
-        } else {
-            views.setInt(viewId, "setBackgroundResource", R.drawable.widget_m3_button_bg)
-            views.setInt(viewId, "setColorFilter", context.getColor(R.color.widget_m3_on_surface))
-        }
-    }
-
 
     private fun createSourcePendingIntent(context: Context, source: AudioCaptureService.CaptureSource): PendingIntent {
         val intent = Intent(context, VisualizerWidgetM3::class.java).apply {

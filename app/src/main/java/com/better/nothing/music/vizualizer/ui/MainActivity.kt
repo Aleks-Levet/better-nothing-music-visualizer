@@ -18,6 +18,7 @@ import android.os.Looper
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.PredictiveBackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -33,6 +34,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -240,23 +242,53 @@ class MainActivity : AppCompatActivity() {
                 m3eEnabled = m3eEnabled,
                 musicPrimaryColor = musicThemeColor,
             ) {
+                val isShowingAbout by viewModel.isShowingAbout.collectAsStateWithLifecycle()
+                val isShowingLicense by viewModel.isShowingLicense.collectAsStateWithLifecycle()
+                val isShowingStats by viewModel.isShowingStats.collectAsStateWithLifecycle()
+                val isShowingHostPicker by viewModel.isShowingHostPicker.collectAsStateWithLifecycle()
+                val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
 
-                BackHandler(enabled = true) {
-                    if (!viewModel.navigateBack()) {
-                        finish()
+                val shouldIntercept = isShowingAbout || isShowingLicense || isShowingStats || isShowingHostPicker || selectedTab != Tab.Audio
+
+                var backProgress by remember { mutableStateOf(0f) }
+
+                PredictiveBackHandler(enabled = shouldIntercept) { progress ->
+                    try {
+                        progress.collect { backEvent ->
+                            backProgress = backEvent.progress
+                        }
+                        // If we get here, the gesture was completed
+                        viewModel.navigateBack()
+                    } catch (e: Exception) {
+                        // Gesture cancelled
+                    } finally {
+                        backProgress = 0f
                     }
                 }
 
-                BetterVizApp(
-                    viewModel = viewModel,
-                    onToggleVisualizer = { toggleVisualizer() },
-                    onOverlayPermissionRequest = {
-                        val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:$packageName".toUri())
-                        overlayPermissionLauncher.launch(intent)
-                    }
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            if (backProgress > 0f) {
+                                val scale = 1f - (backProgress * 0.05f)
+                                scaleX = scale
+                                scaleY = scale
+                                clip = true
+                                shape = RoundedCornerShape((backProgress * 24).dp)
+                            }
+                        }
+                ) {
+                    BetterVizApp(
+                        viewModel = viewModel,
+                        onToggleVisualizer = { toggleVisualizer() },
+                        onOverlayPermissionRequest = {
+                            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:$packageName".toUri())
+                            overlayPermissionLauncher.launch(intent)
+                        }
+                    )
+                }
 
-                val isShowingHostPicker by viewModel.isShowingHostPicker.collectAsState()
                 if (isShowingHostPicker) {
                     HostSelectionSheet(
                         viewModel = viewModel,

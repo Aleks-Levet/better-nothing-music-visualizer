@@ -1,6 +1,5 @@
 package com.better.nothing.music.vizualizer.ui.SecondaryScreens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -28,7 +27,6 @@ internal fun LicenseScreen(
     viewModel: MainViewModel,
     onDismiss: () -> Unit
 ) {
-    BackHandler { onDismiss() }
     val scrollState = rememberScrollState()
     val licenseStatus by viewModel.licenseStatus.collectAsStateWithLifecycle()
 

@@ -925,9 +925,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (_isShowingAbout.value) { hideAbout(); return true }
         if (_isShowingHostPicker.value) { hideHostPicker(); return true }
 
-        if (tabHistory.isNotEmpty()) {
-            val previousTab = tabHistory.removeAt(tabHistory.size - 1)
-            selectTab(previousTab, recordHistory = false)
+        if (_selectedTab.value != Tab.Audio) {
+            selectTab(Tab.Audio)
             return true
         }
         return false

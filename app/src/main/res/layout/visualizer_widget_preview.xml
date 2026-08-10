@@ -91,7 +91,7 @@
             android:layout_weight="1"
             android:layout_marginHorizontal="4dp"
             android:background="@drawable/widget_button_bg_selected"
-            android:src="@drawable/ic_nav_glyphs"
+            android:src="@drawable/ic_qs_tile"
             app:tint="@android:color/black"
             android:scaleType="centerInside"
             android:padding="8dp" />

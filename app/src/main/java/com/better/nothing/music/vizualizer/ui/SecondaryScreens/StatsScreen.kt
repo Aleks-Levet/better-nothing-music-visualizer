@@ -1,6 +1,5 @@
 package com.better.nothing.music.vizualizer.ui.SecondaryScreens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -39,7 +38,6 @@ internal fun StatsScreen(
     viewModel: MainViewModel,
     onDismiss: () -> Unit
 ) {
-    BackHandler { onDismiss() }
     val scrollState = rememberScrollState()
     
     val totalTime by viewModel.totalVisualizedTime.collectAsStateWithLifecycle()

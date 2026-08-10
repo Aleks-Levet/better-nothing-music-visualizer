@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_m3_bg"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="10dp">
 
     <!-- Source Row -->
     <LinearLayout
@@ -20,8 +21,10 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_marginEnd="4dp"
-            android:background="@drawable/widget_m3_button_bg"
-            android:src="@drawable/ic_phone"
+            android:background="@drawable/widget_m3_button_selector"
+            android:src="@drawable/ic_cast"
+            android:tint="@color/widget_m3_icon_tint"
+            tools:ignore="UseAppTint"
             android:scaleType="centerInside"
             android:padding="8dp"
             android:contentDescription="Internal Source" />
@@ -32,8 +35,10 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_marginHorizontal="4dp"
-            android:background="@drawable/widget_m3_button_bg"
+            android:background="@drawable/widget_m3_button_selector"
             android:src="@drawable/ic_mic"
+            android:tint="@color/widget_m3_icon_tint"
+            tools:ignore="UseAppTint"
             android:scaleType="centerInside"
             android:padding="8dp"
             android:contentDescription="Mic Source" />
@@ -44,8 +49,10 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_marginStart="4dp"
-            android:background="@drawable/widget_m3_button_bg"
+            android:background="@drawable/widget_m3_button_selector"
             android:src="@drawable/ic_graphic_eq"
+            android:tint="@color/widget_m3_icon_tint"
+            tools:ignore="UseAppTint"
             android:scaleType="centerInside"
             android:padding="8dp"
             android:contentDescription="Visualizer Source" />
@@ -65,8 +72,10 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_marginEnd="4dp"
-            android:background="@drawable/widget_m3_button_bg"
+            android:background="@drawable/widget_m3_button_selector"
             android:src="@drawable/ic_vibration"
+            android:tint="@color/widget_m3_icon_tint"
+            tools:ignore="UseAppTint"
             android:scaleType="centerInside"
             android:padding="8dp"
             android:contentDescription="Toggle Haptics" />
@@ -77,8 +86,10 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_marginHorizontal="4dp"
-            android:background="@drawable/widget_m3_button_bg"
+            android:background="@drawable/widget_m3_button_selector"
             android:src="@drawable/ic_nav_glyphs"
+            android:tint="@color/widget_m3_icon_tint"
+            tools:ignore="UseAppTint"
             android:scaleType="centerInside"
             android:padding="8dp"
             android:contentDescription="Toggle Glyphs" />
@@ -89,8 +100,10 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_marginStart="4dp"
-            android:background="@drawable/widget_m3_button_bg"
+            android:background="@drawable/widget_m3_button_selector"
             android:src="@drawable/ic_flashlight"
+            android:tint="@color/widget_m3_icon_tint"
+            tools:ignore="UseAppTint"
             android:scaleType="centerInside"
             android:padding="8dp"
             android:contentDescription="Toggle Torch" />
@@ -103,18 +116,18 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_marginTop="4dp"
-        android:background="@drawable/widget_m3_button_bg"
+        android:background="@drawable/widget_m3_button_selector"
         android:gravity="center"
         android:orientation="horizontal"
-        android:padding="8dp"
-        android:clickable="true"
-        android:focusable="true">
+        android:padding="8dp">
 
         <ImageView
             android:id="@+id/img_start_stop"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_play"
+            android:tint="@color/widget_m3_icon_tint"
+            tools:ignore="UseAppTint"
             android:scaleType="centerInside" />
 
         <TextView
@@ -123,7 +136,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:text="START BNMV"
-            android:textColor="@color/widget_m3_on_surface"
+            android:textColor="@color/widget_m3_button_text_color"
             android:textSize="14sp"
             android:textStyle="bold" />
     </LinearLayout>

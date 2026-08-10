@@ -1,7 +1,5 @@
 package com.better.nothing.music.vizualizer.ui.SecondaryScreens
 
-import androidx.activity.compose.BackHandler
-import android.graphics.drawable.Drawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,19 +14,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.better.nothing.music.vizualizer.BuildConfig
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.ui.ExpressiveCard
+import com.better.nothing.music.vizualizer.ui.LinkCard
 import com.better.nothing.music.vizualizer.ui.MainViewModel
 import com.better.nothing.music.vizualizer.ui.ScreenTitle
 import com.better.nothing.music.vizualizer.ui.SectionHeader
@@ -38,7 +36,6 @@ internal fun AboutScreen(
     viewModel: MainViewModel,
     onDismiss: () -> Unit
 ) {
-    BackHandler { onDismiss() }
     val scrollState = rememberScrollState()
     val uriHandler = LocalUriHandler.current
     val appUpdateStatus by viewModel.appUpdateStatus.collectAsStateWithLifecycle()
@@ -70,59 +67,54 @@ internal fun AboutScreen(
             ScreenTitle(text = stringResource(R.string.about_title), modifier = Modifier.padding(bottom = 0.dp))
 
             // App Intro Card
-ExpressiveCard {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Surface(
-            shape = RoundedCornerShape(12.dp),
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(56.dp)
-        ) {
-            Image(
-                painter =
-                    ContextCompat.getDrawable(
-                        LocalContext.current,
-                        R.mipmap.ic_launcher
-                    ),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                alignment = Alignment.Center,
-                contentScale = ContentScale.Fit
-            )
-        }
+            ExpressiveCard {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(56.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            alignment = Alignment.Center,
+                            contentScale = ContentScale.Fit
+                        )
+                    }
 
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.app_name),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
 
-            Text(
-                text = stringResource(
-                    R.string.version_info,
-                    BuildConfig.VERSION_NAME
-                ),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
-        }
-    }
+                        Text(
+                            text = stringResource(
+                                R.string.version_info,
+                                BuildConfig.VERSION_NAME
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                    }
+                }
+            }
 
 
-            HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    thickness = 4.dp,
-                    color = MaterialTheme.colorScheme.surfaceVariant
-                )
-
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 // GitHub Action
-                InfoRow(
+                LinkCard(
                     icon = Icons.Default.Code,
                     title = stringResource(R.string.github_repository),
                     subtitle = stringResource(R.string.view_source_contributions),
@@ -130,7 +122,7 @@ ExpressiveCard {
                 )
 
                 // License Action
-                InfoRow(
+                LinkCard(
                     icon = Icons.Default.Gavel,
                     title = stringResource(R.string.license_agreement),
                     subtitle = stringResource(R.string.read_license),
@@ -147,7 +139,7 @@ ExpressiveCard {
                     else -> stringResource(R.string.check_software_updates)
                 }
 
-                InfoRow(
+                LinkCard(
                     icon = Icons.Default.Sync,
                     title = stringResource(R.string.software_update),
                     subtitle = statusText,
@@ -258,46 +250,6 @@ ExpressiveCard {
             }
 
             Spacer(modifier = Modifier.height(100.dp))
-        }
-    }
-}
-
-private fun RowScope.Image(
-    painter: Drawable?,
-    contentDescription: Nothing?,
-    modifier: Modifier,
-    alignment: Alignment,
-    contentScale: ContentScale
-) {
-}
-
-@Composable
-private fun InfoRow(
-    icon: ImageVector,
-    title: String,
-    subtitle: String,
-    onClick: (() -> Unit)? = null,
-    trailingContent: @Composable (() -> Unit)? = null
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
-            .padding(vertical = 12.dp, horizontal = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Icon(icon, null, modifier = Modifier.size(24.dp), tint = MaterialTheme.colorScheme.primary)
-        Column(modifier = Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-            Text(
-                subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
-        }
-        if (trailingContent != null) {
-            trailingContent()
         }
     }
 }

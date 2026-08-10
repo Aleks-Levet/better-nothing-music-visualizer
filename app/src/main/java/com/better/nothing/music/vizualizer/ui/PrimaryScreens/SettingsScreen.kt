@@ -94,9 +94,11 @@ internal fun SettingsScreen(
             }
         )
 
+        var expandedCardId by remember { mutableStateOf<String?>(null) }
+
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             LinkCard(
                 title = stringResource(R.string.about_title),
@@ -111,25 +113,17 @@ internal fun SettingsScreen(
         }
 
         // ── App Theme ───────────────────────────────────────────────────────
-        var themeExpanded by remember { mutableStateOf(false) }
-
         ExpandableExpressiveCard(
             title = stringResource(R.string.app_theme),
             icon = Icons.Default.Palette,
-            expanded = themeExpanded,
-            onExpandedChange = { themeExpanded = it }
+            expanded = expandedCardId == "theme",
+            onExpandedChange = { expandedCardId = if (it) "theme" else null }
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                     // Typography
                     if (!isRestrictedLocale) {
-                        Text(
-                            text = stringResource(R.string.typography),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-
                         ExpressiveSplitButton(
                             items = listOf("NDot", "NType", "Google Sans Flex"),
                             selectedItem = selectedFont,
@@ -144,13 +138,6 @@ internal fun SettingsScreen(
                             },
                             modifier = Modifier.fillMaxWidth()
                         )
-
-                        BodyText(
-                            text = stringResource(R.string.typography_help_text),
-                            size = 12.sp
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
                     }
 
                     // Theme Options
@@ -197,56 +184,17 @@ internal fun SettingsScreen(
                             )
                         }
                     }
-                }
             }
         }
 
         // ── Idle Breathing ──────────────────────────────────────────────────
         if (selectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
-            ExpressiveCard(
-                shape = RoundedCornerShape(24.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.surfaceBright,
-                        contentColor = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            Icon(
-                                Icons.Default.Air,
-                                contentDescription = null,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }
-
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = stringResource(R.string.idle_breathing_title),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = stringResource(R.string.idle_breathing_desc),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
+            ExpandableExpressiveCard(
+                title = stringResource(R.string.idle_breathing_title),
+                icon = Icons.Default.Air,
+                expanded = expandedCardId == "idle",
+                onExpandedChange = { expandedCardId = if (it) "idle" else null },
+                trailingContent = {
                     Switch(
                         checked = idleBreathingEnabled,
                         onCheckedChange = onIdleBreathingEnabledChanged,
@@ -257,71 +205,53 @@ internal fun SettingsScreen(
                         modifier = Modifier.size(height = 24.dp, width = 48.dp)
                     )
                 }
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.idle_breathing_desc),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
 
-                AnimatedVisibility(visible = idleBreathingEnabled) {
-                    Column(
-                        modifier = Modifier.padding(top = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.idle_pattern),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                    Text(
+                        text = stringResource(R.string.idle_pattern),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
 
-                        val patternOptions = listOf(
-                            "pulse" to stringResource(R.string.idle_pattern_pulse),
-                            "wave" to stringResource(R.string.idle_pattern_wave),
-                            "rain" to stringResource(R.string.idle_pattern_rain),
-                            "zebra" to stringResource(R.string.idle_pattern_zebra),
-                            "orbit" to stringResource(R.string.idle_pattern_orbit),
-                            "heartbeat" to stringResource(R.string.idle_pattern_heartbeat),
-                            "scanner" to stringResource(R.string.idle_pattern_cylon)
-                        )
+                    val patternOptions = listOf(
+                        "pulse" to stringResource(R.string.idle_pattern_pulse),
+                        "wave" to stringResource(R.string.idle_pattern_wave),
+                        "rain" to stringResource(R.string.idle_pattern_rain),
+                        "zebra" to stringResource(R.string.idle_pattern_zebra),
+                        "orbit" to stringResource(R.string.idle_pattern_orbit),
+                        "heartbeat" to stringResource(R.string.idle_pattern_heartbeat),
+                        "scanner" to stringResource(R.string.idle_pattern_cylon)
+                    )
 
-                        ExpressiveSplitButton(
-                            items = patternOptions.map { it.first },
-                            selectedItem = idlePattern,
-                            onItemSelection = onIdlePatternChanged,
-                            labelProvider = { key ->
-                                patternOptions.find { it.first == key }?.second ?: key
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+                    ExpressiveSplitButton(
+                        items = patternOptions.map { it.first },
+                        selectedItem = idlePattern,
+                        onItemSelection = onIdlePatternChanged,
+                        labelProvider = { key ->
+                            patternOptions.find { it.first == key }?.second ?: key
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
         }
 
         // ── Developer Mode ──────────────────────────────────────────────────
         if (devModeEnabled) {
-            ExpressiveCard {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Code,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.developer_mode),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = stringResource(R.string.developer_mode_description),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        )
-                    }
-                }
-
+            ExpandableExpressiveCard(
+                title = stringResource(R.string.developer_mode),
+                icon = Icons.Default.Code,
+                expanded = expandedCardId == "dev",
+                onExpandedChange = { expandedCardId = if (it) "dev" else null },
+            ) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
@@ -449,14 +379,13 @@ internal fun SettingsScreen(
             }
 
         // ── Audio Processing ────────────────────────────────────────────────
-        var processingExpanded by remember { mutableStateOf(false) }
         val fftReadMethod by viewModel.fftReadMethod.collectAsStateWithLifecycle()
 
         ExpandableExpressiveCard(
             title = stringResource(R.string.audio_pipeline_title),
             icon = Icons.Default.GraphicEq,
-            expanded = processingExpanded,
-            onExpandedChange = { processingExpanded = it }
+            expanded = expandedCardId == "processing",
+            onExpandedChange = { expandedCardId = if (it) "processing" else null }
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -483,13 +412,11 @@ internal fun SettingsScreen(
         }
 
         // ── Experimental Features ───────────────────────────────────────────
-        var experimentalExpanded by remember { mutableStateOf(false) }
-
         ExpandableExpressiveCard(
             title = stringResource(R.string.experimental_features),
             icon = Icons.Default.Tune,
-            expanded = experimentalExpanded,
-            onExpandedChange = { experimentalExpanded = it }
+            expanded = expandedCardId == "experimental",
+            onExpandedChange = { expandedCardId = if (it) "experimental" else null }
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)

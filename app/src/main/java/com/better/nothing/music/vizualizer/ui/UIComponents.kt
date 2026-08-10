@@ -44,6 +44,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseInOutCubic
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
@@ -59,6 +60,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -112,6 +114,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -123,6 +126,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import androidx.graphics.shapes.CornerRounding
@@ -499,7 +503,8 @@ fun LinkCard(
     icon: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    subtitle: String? = null
+    subtitle: String? = null,
+    trailingContent: @Composable (RowScope.() -> Unit)? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val haptics = LocalHapticFeedback.current
@@ -507,7 +512,7 @@ fun LinkCard(
 
     Surface(
         onClick = {
-            haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
             onClick()
         },
         modifier = modifier
@@ -521,100 +526,14 @@ fun LinkCard(
         },
         interactionSource = interactionSource
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.CenterStart
         ) {
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.surfaceBright,
-                contentColor = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(40.dp)
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            }
-
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                if (subtitle != null) {
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            Icon(
-                imageVector = Icons.Default.ChevronRight,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                modifier = Modifier.size(24.dp)
-            )
-        }
-    }
-}
-
-@Composable
-fun ExpandableExpressiveCard(
-    title: String,
-    icon: ImageVector,
-    expanded: Boolean,
-    onExpandedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    subtitle: String? = null,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val haptics = LocalHapticFeedback.current
-    val isPressed by interactionSource.collectIsPressedAsState()
-
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioLowBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            ),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isPressed) MaterialTheme.colorScheme.surfaceBright else MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Column {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 72.dp)
-                    .clickable(
-                        interactionSource = interactionSource,
-                        indication = null
-                    ) {
-                        haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
-                        onExpandedChange(!expanded)
-                    }
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
+                    .padding(start = 20.dp, end = 84.dp, top = 16.dp, bottom = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -656,36 +575,225 @@ fun ExpandableExpressiveCard(
                     }
                 }
 
-                // Expand arrows in a primary colored pill shape
-                Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(width = 48.dp, height = 32.dp)
+                if (trailingContent != null) {
+                    trailingContent()
+                }
+            }
+
+            IndicatorPill(
+                isExpanded = false,
+                isLink = true,
+                onClick = onClick,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 20.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun ExpandableExpressiveCard(
+    title: String,
+    icon: ImageVector,
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    trailingContent: @Composable (RowScope.() -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val haptics = LocalHapticFeedback.current
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val dpBouncySpec: FiniteAnimationSpec<Dp> = spring(
+        dampingRatio = Spring.DampingRatioMediumBouncy,
+        stiffness = Spring.StiffnessLow
+    )
+
+    val intSizeBouncySpec: FiniteAnimationSpec<IntSize> = spring(
+        dampingRatio = Spring.DampingRatioLowBouncy,
+        stiffness = Spring.StiffnessLow
+    )
+
+    // Smoothly animate top padding between 20.dp (centered for 72.dp height) and 16.dp
+    val pillTopPadding by animateDpAsState(
+        targetValue = if (expanded) 16.dp else 20.dp,
+        animationSpec = dpBouncySpec,
+        label = "pillTopPadding"
+    )
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isPressed) MaterialTheme.colorScheme.surfaceBright else MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column(
+            modifier = Modifier.animateContentSize(animationSpec = intSizeBouncySpec)
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 72.dp)
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null
+                        ) {
+                            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onExpandedChange(!expanded)
+                        }
+                        .padding(start = 20.dp, end = 96.dp, top = 16.dp, bottom = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surfaceBright,
+                        contentColor = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
+                        if (subtitle != null) {
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = subtitle,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    if (trailingContent != null) {
+                        trailingContent()
                     }
                 }
+
+                IndicatorPill(
+                    isExpanded = expanded,
+                    onClick = {
+                        onExpandedChange(!expanded)
+                    },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd) // Anchor strictly to TopEnd for transition to work
+                        .padding(
+                            top = pillTopPadding, // Animates smoothly with dpBouncySpec
+                            end = 20.dp
+                        )
+                )
             }
 
             AnimatedVisibility(
                 visible = expanded,
-                enter = fadeIn() + expandVertically(),
-                exit = fadeOut() + shrinkVertically()
+                enter = expandVertically(
+                    animationSpec = intSizeBouncySpec,
+                    expandFrom = Alignment.Top
+                ),
+                exit = shrinkVertically(
+                    animationSpec = intSizeBouncySpec,
+                    shrinkTowards = Alignment.Top
+                )
             ) {
                 Column(
                     modifier = Modifier
+                        .clipToBounds()
                         .padding(horizontal = 20.dp)
                         .padding(bottom = 20.dp)
                 ) {
                     content()
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun IndicatorPill(
+    isExpanded: Boolean,
+    modifier: Modifier = Modifier,
+    isLink: Boolean = false,
+    onClick: (() -> Unit)? = null
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val haptics = LocalHapticFeedback.current
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val bouncySpec = spring<Dp>(
+        dampingRatio = Spring.DampingRatioMediumBouncy,
+        stiffness = Spring.StiffnessLow
+    )
+
+    val baseWidth = when {
+        isExpanded -> 48.dp
+        isLink -> 48.dp
+        else -> 66.dp
+    }
+
+    val targetWidth = if (isPressed) baseWidth - 10.dp else baseWidth
+
+    val width by animateDpAsState(
+        targetValue = targetWidth,
+        animationSpec = bouncySpec,
+        label = "pillWidth"
+    )
+    val height by animateDpAsState(
+        targetValue = if (isExpanded) 48.dp else 32.dp,
+        animationSpec = bouncySpec,
+        label = "pillHeight"
+    )
+    val cornerRadius by animateDpAsState(
+        targetValue = if (isExpanded) 14.dp else 16.dp,
+        animationSpec = bouncySpec,
+        label = "pillRadius"
+    )
+
+    Surface(
+        onClick = {
+            haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick) // Light tick haptic
+            onClick?.invoke()
+        },
+        enabled = onClick != null,
+        interactionSource = interactionSource,
+        shape = RoundedCornerShape(cornerRadius),
+        color = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        modifier = modifier.size(width = width, height = height)
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Icon(
+                imageVector = if (isLink) Icons.Default.ChevronRight
+                else if (isExpanded) Icons.Default.ExpandLess
+                else Icons.Default.ExpandMore,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
         }
     }
 }

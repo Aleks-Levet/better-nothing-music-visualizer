@@ -1,6 +1,5 @@
 package com.better.nothing.music.vizualizer.ui.PrimaryScreens
 
-import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -8,8 +7,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.better.nothing.music.vizualizer.R
+import com.better.nothing.music.vizualizer.ui.ExpandableExpressiveCard
 import com.better.nothing.music.vizualizer.ui.ExpressiveCard
 import com.better.nothing.music.vizualizer.ui.ExpressiveSlider
 import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
@@ -75,30 +74,20 @@ fun VisualsScreen(
 
         ScreenTitle(text = stringResource(R.string.tab_visuals))
 
-        // ── Overlay Visualizer ──────────────────────────────────────────────
-        ExpressiveCard {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(
-                    Icons.Default.Layers,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = stringResource(R.string.nav_overlay),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+        var overlayExpanded by remember { mutableStateOf(overlayEnabled) }
+        var edgeExpanded by remember { mutableStateOf(edgeVisualizerEnabled) }
+        var lensExpanded by remember { mutableStateOf(lensEnabled) }
 
-            AnimatedVisibility(visible = overlayEnabled) {
-                Column(
-                    modifier = Modifier.padding(top = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
+        // ── Overlay Visualizer ──────────────────────────────────────────────
+        ExpandableExpressiveCard(
+            title = stringResource(R.string.nav_overlay),
+            icon = Icons.Default.Layers,
+            expanded = overlayExpanded,
+            onExpandedChange = { overlayExpanded = it }
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                     // Width Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -286,32 +275,18 @@ fun VisualsScreen(
                     }
                 }
             }
-        }
+        
 
         // ── Edge Visualizer ──────────────────────────────────────────────
-        ExpressiveCard {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
+        ExpandableExpressiveCard(
+            title = stringResource(R.string.edge_visualizer),
+            icon = Icons.Default.Layers,
+            expanded = edgeExpanded,
+            onExpandedChange = { edgeExpanded = it }
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Icon(
-                    Icons.Default.Layers,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = stringResource(R.string.edge_visualizer),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            AnimatedVisibility(visible = edgeVisualizerEnabled) {
-                Column(
-                    modifier = Modifier.padding(top = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -460,32 +435,18 @@ fun VisualsScreen(
                     )
                 }
             }
-        }
+        
 
         // ── Lens Visualizer ──────────────────────────────────────────────
-        ExpressiveCard {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
+        ExpandableExpressiveCard(
+            title = stringResource(R.string.lens_visualizer),
+            icon = Icons.Default.Layers,
+            expanded = lensExpanded,
+            onExpandedChange = { lensExpanded = it }
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Icon(
-                    Icons.Default.Layers,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = stringResource(R.string.lens_visualizer),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            AnimatedVisibility(visible = lensEnabled) {
-                Column(
-                    modifier = Modifier.padding(top = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -648,7 +609,7 @@ fun VisualsScreen(
                     )
                 }
             }
-        }
+
         
         Spacer(modifier = Modifier.height(85.dp))
     }
