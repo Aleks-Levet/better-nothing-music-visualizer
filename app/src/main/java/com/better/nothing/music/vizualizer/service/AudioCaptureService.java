@@ -144,11 +144,11 @@ public class AudioCaptureService extends Service {
     public StateFlow<Boolean> isRunningFlow() { return sIsRunningFlow; }
     public static boolean isRunning() { return sIsRunning; }
 
-    public StateFlow<Set<InetAddress>> getConnectedClientsFlow() {
+    public StateFlow<java.util.Map<InetAddress, Integer>> getConnectedClientsFlow() {
         if (mUdpSync != null) {
             return mUdpSync.getClientIps();
         }
-        return StateFlowKt.MutableStateFlow(new HashSet<>());
+        return StateFlowKt.MutableStateFlow(java.util.Collections.emptyMap());
     }
 
     private void setRunning(boolean running) {

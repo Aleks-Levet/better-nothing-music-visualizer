@@ -147,7 +147,7 @@ fun AudioScreen(
     onFlashlightEnabledChanged: (Boolean) -> Unit = {},
     broadcastEnabled: Boolean = false,
     onBroadcastEnabledChanged: (Boolean) -> Unit = {},
-    connectedClients: Set<InetAddress> = emptySet(),
+    connectedClients: Map<InetAddress, Int?> = emptyMap(),
     developerModeEnabled: Boolean = false,
     isGlyphAvailable: Boolean = true,
     hasHapticMotor: Boolean = true,
@@ -411,7 +411,7 @@ fun OutputSelectionCard(
     isGlyphAvailable: Boolean = true,
     hasHapticMotor: Boolean = true,
     hasFlashlight: Boolean = true,
-    connectedClients: Set<InetAddress> = emptySet(),
+    connectedClients: Map<InetAddress, Int?> = emptyMap(),
     isRunning: Boolean = false
 ) {
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
@@ -479,9 +479,10 @@ fun OutputSelectionCard(
                 if (connectedClients.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        connectedClients.forEach { client ->
+                        connectedClients.forEach { (client, latency) ->
+                            val latencyText = if (latency != null) " (Latency: ${latency}ms)" else ""
                             Text(
-                                text = "• ${client.hostAddress}",
+                                text = "• ${client.hostAddress}$latencyText",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )

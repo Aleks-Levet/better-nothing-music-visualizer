@@ -1,5 +1,6 @@
 package com.better.nothing.music.vizualizer.ui.SecondaryScreens
 
+import androidx.activity.compose.BackHandler
 import android.graphics.drawable.Drawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -37,6 +38,7 @@ internal fun AboutScreen(
     viewModel: MainViewModel,
     onDismiss: () -> Unit
 ) {
+    BackHandler { onDismiss() }
     val scrollState = rememberScrollState()
     val uriHandler = LocalUriHandler.current
     val appUpdateStatus by viewModel.appUpdateStatus.collectAsStateWithLifecycle()

@@ -216,7 +216,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _broadcastEnabled = MutableStateFlow(false)
     val broadcastEnabled = _broadcastEnabled.asStateFlow()
 
-    private val _connectedClients = MutableStateFlow<Set<InetAddress>>(emptySet())
+    private val _connectedClients = MutableStateFlow<Map<InetAddress, Int?>>(emptyMap())
     val connectedClients = _connectedClients.asStateFlow()
 
     fun setBroadcastEnabled(enabled: Boolean) {
@@ -1099,7 +1099,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         } else {
-            _connectedClients.value = emptySet()
+            _connectedClients.value = emptyMap()
             saveStatsLocally()
         }
     }

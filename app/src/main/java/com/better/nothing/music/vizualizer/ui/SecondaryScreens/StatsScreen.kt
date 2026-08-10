@@ -1,5 +1,6 @@
 package com.better.nothing.music.vizualizer.ui.SecondaryScreens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -38,6 +39,7 @@ internal fun StatsScreen(
     viewModel: MainViewModel,
     onDismiss: () -> Unit
 ) {
+    BackHandler { onDismiss() }
     val scrollState = rememberScrollState()
     
     val totalTime by viewModel.totalVisualizedTime.collectAsStateWithLifecycle()
@@ -60,25 +62,7 @@ internal fun StatsScreen(
         ) {
             Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(
-                    onClick = onDismiss,
-                    modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), CircleShape)
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-                Spacer(modifier = Modifier.width(16.dp))
                 ScreenTitle(text = stringResource(R.string.usage_stats), modifier = Modifier.padding(bottom = 0.dp))
-            }
 
             // Hero Card
             HeroStatCard(
@@ -182,9 +166,9 @@ private fun HeroStatCard(
             }
             Text(
                 text = value,
-                style = MaterialTheme.typography.displayMedium,
+                style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Black,
-                letterSpacing = (-1).sp
+                letterSpacing = 0.sp
             )
         }
     }

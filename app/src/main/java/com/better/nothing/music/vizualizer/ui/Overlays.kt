@@ -1,9 +1,14 @@
 package com.better.nothing.music.vizualizer.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.EaseOutCubic
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.better.nothing.music.vizualizer.ui.SecondaryScreens.AboutScreen
+import com.better.nothing.music.vizualizer.ui.SecondaryScreens.AboutScreen as AboutScreenSecondary
 import com.better.nothing.music.vizualizer.ui.SecondaryScreens.LicenseScreen
 import com.better.nothing.music.vizualizer.ui.SecondaryScreens.StatsScreen
 
@@ -13,21 +18,42 @@ fun MainOverlays(viewModel: MainViewModel, selectedDevice: Int) {
     val isShowingLicense by viewModel.isShowingLicense.collectAsStateWithLifecycle()
     val isShowingStats by viewModel.isShowingStats.collectAsStateWithLifecycle()
 
-    if (isShowingAbout) {
-        AboutScreen(
+    val enterTransition = slideInHorizontally(
+        initialOffsetX = { it },
+        animationSpec = tween(durationMillis = 500, easing = EaseOutCubic)
+    )
+    val exitTransition = slideOutHorizontally(
+        targetOffsetX = { it },
+        animationSpec = tween(durationMillis = 500, easing = EaseOutCubic)
+    )
+
+    AnimatedVisibility(
+        visible = isShowingAbout,
+        enter = enterTransition,
+        exit = exitTransition
+    ) {
+        AboutScreenSecondary(
             viewModel = viewModel,
             onDismiss = { viewModel.hideAbout() }
         )
     }
 
-    if (isShowingLicense) {
+    AnimatedVisibility(
+        visible = isShowingLicense,
+        enter = enterTransition,
+        exit = exitTransition
+    ) {
         LicenseScreen(
             viewModel = viewModel,
             onDismiss = { viewModel.hideLicense() }
         )
     }
 
-    if (isShowingStats) {
+    AnimatedVisibility(
+        visible = isShowingStats,
+        enter = enterTransition,
+        exit = exitTransition
+    ) {
         StatsScreen(
             viewModel = viewModel,
             onDismiss = { viewModel.hideStats() }

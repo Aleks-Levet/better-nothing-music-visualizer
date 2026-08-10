@@ -382,21 +382,16 @@ internal fun SettingsScreen(
                                 DeviceProfile.DEVICE_NP3
                             )
 
-                            FlowRow(
+                            ExpressiveSplitButton(
+                                items = devices,
+                                selectedItem = spoofedDevice,
+                                onItemSelection = { dev -> viewModel.setSpoofedDevice(dev) },
+                                labelProvider = { dev ->
+                                    DeviceProfile.deviceName(dev).replace("Nothing Phone ", "")
+                                },
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                ExpressiveSplitButton(
-                                    items = devices,
-                                    selectedItem = spoofedDevice,
-                                    onItemSelection = { dev -> viewModel.setSpoofedDevice(dev) },
-                                    labelProvider = { dev ->
-                                        DeviceProfile.deviceName(dev).replace("Nothing Phone ", "")
-                                    },
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
+                                maxButtonsPerRow = 3
+                            )
                             BodyText(
                                 text = stringResource(R.string.spoof_device_description),
                                 size = 11.sp
@@ -455,7 +450,8 @@ internal fun SettingsScreen(
                                 labelProvider = { tag ->
                                     locales.firstOrNull { it.first == tag }?.second.orEmpty()
                                 },
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth(),
+                                maxButtonsPerRow = 4
                             )
                             BodyText(
                                 text = stringResource(R.string.spoof_locale_description),

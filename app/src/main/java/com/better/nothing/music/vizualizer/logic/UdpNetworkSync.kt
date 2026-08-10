@@ -18,8 +18,11 @@ class UdpNetworkSync(private val context: Context) {
         private const val TAG = "BNMV:UdpSync"
         private const val DISCOVERY_PORT = 8888
         private const val STREAMING_PORT = 8889
+        private const val LATENCY_PORT = 8890
         private const val DISCOVERY_MSG = "BNMV_DISCOVER"
         private const val HOST_MSG_PREFIX = "BNMV_HOST"
+        private const val PING_PREFIX = "BNMV_PING"
+        private const val PONG_PREFIX = "BNMV_PONG"
         private const val PROTOCOL_VERSION = "6.0.made.by.aleks.levet"
     }
 
@@ -36,12 +39,14 @@ class UdpNetworkSync(private val context: Context) {
     private var streamingSocket: DatagramSocket? = null
     private var listeningSocket: DatagramSocket? = null
     
-    private val _clientIps = MutableStateFlow<Set<InetAddress>>(emptySet())
+    private val _clientIps = MutableStateFlow<Map<InetAddress, Int?>>(emptyMap())
     val clientIps = _clientIps.asStateFlow()
 
     private var isBroadcasting = false
     private var isDiscovering = false
     private var isListening = false
+    private var isMeasuringLatency = false
+    private var isRespondingToPings = false
     
     private var multicastLock: WifiManager.MulticastLock? = null
 
@@ -75,6 +80,7 @@ class UdpNetworkSync(private val context: Context) {
         if (isBroadcasting) return
         isBroadcasting = true
         acquireMulticastLock()
+        startLatencyMeasurement()
         executor.execute {
             try {
                 discoverySocket = DatagramSocket(null).apply {
@@ -101,7 +107,11 @@ class UdpNetworkSync(private val context: Context) {
                         Log.d(TAG, "Sent host info to ${packet.address}")
                         
                         // Add to streaming list if not already there
-                        _clientIps.value = _clientIps.value + packet.address
+                        if (!_clientIps.value.containsKey(packet.address)) {
+                            val current = _clientIps.value.toMutableMap()
+                            current[packet.address] = null
+                            _clientIps.value = current
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -119,10 +129,124 @@ class UdpNetworkSync(private val context: Context) {
 
     fun stopBroadcasting() {
         isBroadcasting = false
+        stopLatencyMeasurement()
         discoverySocket?.close()
         streamingSocket?.close()
         streamingSocket = null
-        _clientIps.value = emptySet()
+        _clientIps.value = emptyMap()
+    }
+
+    // --- Latency (Host Mode) ---
+
+    private fun startLatencyMeasurement() {
+        if (isMeasuringLatency) return
+        isMeasuringLatency = true
+        executor.execute {
+            var latSocket: DatagramSocket? = null
+            try {
+                latSocket = DatagramSocket().apply {
+                    soTimeout = 800
+                }
+                val buffer = ByteArray(1024)
+                
+                while (isMeasuringLatency) {
+                    val currentClients = _clientIps.value.keys
+                    if (currentClients.isEmpty()) {
+                        Thread.sleep(1000)
+                        continue
+                    }
+                    
+                    val now = System.currentTimeMillis()
+                    for (ip in currentClients) {
+                        val pingMsg = "$PING_PREFIX;$now".toByteArray()
+                        val packet = DatagramPacket(pingMsg, pingMsg.size, ip, LATENCY_PORT)
+                        latSocket.send(packet)
+                    }
+                    
+                    val startListenTime = System.currentTimeMillis()
+                    while (System.currentTimeMillis() - startListenTime < 900) {
+                        try {
+                            val responsePacket = DatagramPacket(buffer, buffer.size)
+                            latSocket.receive(responsePacket)
+                            val response = String(responsePacket.data, 0, responsePacket.length)
+                            if (response.startsWith(PONG_PREFIX)) {
+                                val parts = response.split(";")
+                                if (parts.size >= 2) {
+                                    val sentTime = parts[1].toLong()
+                                    val rtt = System.currentTimeMillis() - sentTime
+                                    val latency = (rtt / 2).toInt()
+                                    
+                                    val current = _clientIps.value.toMutableMap()
+                                    if (current.containsKey(responsePacket.address)) {
+                                        current[responsePacket.address] = latency
+                                        _clientIps.value = current
+                                    }
+                                }
+                            }
+                        } catch (e: java.net.SocketTimeoutException) {
+                            break
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Latency receive error", e)
+                        }
+                    }
+                    Thread.sleep(100)
+                }
+            } catch (e: Exception) {
+                if (isMeasuringLatency) Log.e(TAG, "Latency measurement loop error", e)
+            } finally {
+                latSocket?.close()
+                isMeasuringLatency = false
+            }
+        }
+    }
+
+    private fun stopLatencyMeasurement() {
+        isMeasuringLatency = false
+    }
+
+    // --- Ping Responder (Client Mode) ---
+
+    private fun startPingResponder() {
+        if (isRespondingToPings) return
+        isRespondingToPings = true
+        executor.execute {
+            var respSocket: DatagramSocket? = null
+            try {
+                respSocket = DatagramSocket(null).apply {
+                    reuseAddress = true
+                    bind(java.net.InetSocketAddress(LATENCY_PORT))
+                }
+                val buffer = ByteArray(1024)
+                while (isRespondingToPings) {
+                    val packet = DatagramPacket(buffer, buffer.size)
+                    respSocket.receive(packet)
+                    val msg = String(packet.data, 0, packet.length)
+                    if (msg.startsWith(PING_PREFIX)) {
+                        val parts = msg.split(";")
+                        if (parts.size >= 2) {
+                            val timestamp = parts[1]
+                            val response = "$PONG_PREFIX;$timestamp".toByteArray()
+                            val responsePacket = DatagramPacket(
+                                response,
+                                response.size,
+                                packet.address,
+                                packet.port
+                            )
+                            respSocket.send(responsePacket)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                if (isRespondingToPings) Log.e(TAG, "Ping responder error", e)
+            } finally {
+                respSocket?.close()
+                isRespondingToPings = false
+            }
+        }
+    }
+
+    private fun stopPingResponder() {
+        isRespondingToPings = false
     }
 
     // --- Discovery (Client Mode) ---
@@ -197,7 +321,7 @@ class UdpNetworkSync(private val context: Context) {
                     streamingSocket = DatagramSocket()
                     Log.d(TAG, "Created streaming socket")
                 }
-                val currentClients = _clientIps.value
+                val currentClients = _clientIps.value.keys
                 if (currentClients.isEmpty()) return@execute
                 for (ip in currentClients) {
                     val packet = DatagramPacket(packed, packed.size, ip, STREAMING_PORT)
@@ -215,6 +339,7 @@ class UdpNetworkSync(private val context: Context) {
         if (isListening) return
         isListening = true
         acquireMulticastLock()
+        startPingResponder()
         Log.d(TAG, "Starting to listen for FFT on port $STREAMING_PORT")
         executor.execute {
             try {
@@ -241,6 +366,7 @@ class UdpNetworkSync(private val context: Context) {
                 listeningSocket?.close()
                 listeningSocket = null
                 isListening = false
+                stopPingResponder()
                 releaseMulticastLock()
                 Log.d(TAG, "Stopped listening")
             }
@@ -249,6 +375,7 @@ class UdpNetworkSync(private val context: Context) {
 
     fun stopListening() {
         isListening = false
+        stopPingResponder()
         listeningSocket?.close()
     }
 
