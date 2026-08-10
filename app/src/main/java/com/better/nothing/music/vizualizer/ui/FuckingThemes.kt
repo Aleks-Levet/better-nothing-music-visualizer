@@ -363,7 +363,13 @@ fun BetterVizTheme(
         shapes = shapes,
         typography = typography
     ) {
-        val uiAmplitude by MainViewModel.instance!!.uiAmplitude.collectAsStateWithLifecycle()
+        val mainViewModel = MainViewModel.instance
+        val uiAmplitude = if (mainViewModel != null) {
+            mainViewModel.uiAmplitude.collectAsStateWithLifecycle().value
+        } else {
+            1.0f
+        }
+        
         CompositionLocalProvider(
             LocalAppSpacing provides appSpacing,
             LocalM3EEnabled provides m3eEnabled,
@@ -372,6 +378,7 @@ fun BetterVizTheme(
             content()
         }
     }
+
 }
 
 

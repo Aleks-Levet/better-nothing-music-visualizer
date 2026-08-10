@@ -39,8 +39,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import com.better.nothing.music.vizualizer.logic.AudioProcessor
 import com.better.nothing.music.vizualizer.ui.BodyText
+import com.better.nothing.music.vizualizer.ui.ExpandableExpressiveCard
 import com.better.nothing.music.vizualizer.ui.ExpressiveCard
 import com.better.nothing.music.vizualizer.ui.ExpressiveSplitButton
+import com.better.nothing.music.vizualizer.ui.LinkCard
 import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
 import com.better.nothing.music.vizualizer.ui.MainViewModel
 import com.better.nothing.music.vizualizer.ui.OptionTile
@@ -111,44 +113,15 @@ internal fun SettingsScreen(
         // ── App Theme ───────────────────────────────────────────────────────
         var themeExpanded by remember { mutableStateOf(false) }
 
-        ExpressiveCard {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
-                        themeExpanded = !themeExpanded
-                    },
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+        ExpandableExpressiveCard(
+            title = stringResource(R.string.app_theme),
+            icon = Icons.Default.Palette,
+            expanded = themeExpanded,
+            onExpandedChange = { themeExpanded = it }
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Palette,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = stringResource(R.string.app_theme),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                Icon(
-                    imageVector = if (themeExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-                )
-            }
-
-            AnimatedVisibility(visible = themeExpanded) {
-                Column(
-                    modifier = Modifier.padding(top = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
                     // Typography
                     if (!isRestrictedLocale) {
                         Text(
@@ -230,37 +203,50 @@ internal fun SettingsScreen(
 
         // ── Idle Breathing ──────────────────────────────────────────────────
         if (selectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
-            ExpressiveCard {
+            ExpressiveCard(
+                shape = RoundedCornerShape(24.dp)
+            ) {
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(end = 8.dp),
+                        .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.weight(1f)
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surfaceBright,
+                        contentColor = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(40.dp)
                     ) {
-                        Icon(
-                            Icons.Default.Air,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(R.string.idle_breathing_title),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = stringResource(R.string.idle_breathing_desc),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Icon(
+                                Icons.Default.Air,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
                             )
                         }
                     }
+
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = stringResource(R.string.idle_breathing_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = stringResource(R.string.idle_breathing_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
                     Switch(
                         checked = idleBreathingEnabled,
                         onCheckedChange = onIdleBreathingEnabledChanged,
@@ -466,202 +452,144 @@ internal fun SettingsScreen(
         var processingExpanded by remember { mutableStateOf(false) }
         val fftReadMethod by viewModel.fftReadMethod.collectAsStateWithLifecycle()
 
-        ExpressiveCard {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
-                        processingExpanded = !processingExpanded
-                    },
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+        ExpandableExpressiveCard(
+            title = stringResource(R.string.audio_pipeline_title),
+            icon = Icons.Default.GraphicEq,
+            expanded = processingExpanded,
+            onExpandedChange = { processingExpanded = it }
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Icon(
-                        Icons.Default.GraphicEq,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = stringResource(R.string.audio_pipeline_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                Icon(
-                    imageVector = if (processingExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                Text(
+                    text = stringResource(R.string.freq_detection_method),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
                 )
-            }
 
-            AnimatedVisibility(visible = processingExpanded) {
-                Column(
-                    modifier = Modifier.padding(top = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.freq_detection_method),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                ExpressiveSplitButton(
+                    items = AudioProcessor.ReadMethod.entries,
+                    selectedItem = fftReadMethod,
+                    onItemSelection = { viewModel.setFftReadMethod(it) },
+                    labelProvider = { it.name },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                    ExpressiveSplitButton(
-                        items = AudioProcessor.ReadMethod.entries,
-                        selectedItem = fftReadMethod,
-                        onItemSelection = { viewModel.setFftReadMethod(it) },
-                        labelProvider = { it.name },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    BodyText(
-                        text = stringResource(R.string.freq_detection_desc),
-                        size = 12.sp
-                    )
-                }
+                BodyText(
+                    text = stringResource(R.string.freq_detection_desc),
+                    size = 12.sp
+                )
             }
         }
 
         // ── Experimental Features ───────────────────────────────────────────
         var experimentalExpanded by remember { mutableStateOf(false) }
 
-        ExpressiveCard {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
-                        experimentalExpanded = !experimentalExpanded
-                    },
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+        ExpandableExpressiveCard(
+            title = stringResource(R.string.experimental_features),
+            icon = Icons.Default.Tune,
+            expanded = experimentalExpanded,
+            onExpandedChange = { experimentalExpanded = it }
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    maxItemsInEachRow = 2,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        Icons.Default.Tune,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
+                    OptionTile(
+                        label = stringResource(R.string.sync_ui_to_beat),
+                        icon = Icons.Default.SyncAlt,
+                        isSelected = uiAmplitudeSyncEnabled,
+                        onClick = { viewModel.setUiAmplitudeSyncEnabled(!uiAmplitudeSyncEnabled) }
                     )
-                    Text(
-                        text = stringResource(R.string.experimental_features),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                Icon(
-                    imageVector = if (experimentalExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-                )
-            }
 
-            AnimatedVisibility(visible = experimentalExpanded) {
-                Column(
-                    modifier = Modifier.padding(top = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        maxItemsInEachRow = 2,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
+
+                    if (selectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
                         OptionTile(
-                            label = stringResource(R.string.sync_ui_to_beat),
-                            icon = Icons.Default.SyncAlt,
-                            isSelected = uiAmplitudeSyncEnabled,
-                            onClick = { viewModel.setUiAmplitudeSyncEnabled(!uiAmplitudeSyncEnabled) }
+                            label = stringResource(R.string.disable_glyphs_when_silent_title),
+                            icon = Icons.AutoMirrored.Filled.VolumeOff,
+                            isSelected = disableGlyphsWhenSilent,
+                            onClick = { onDisableGlyphsWhenSilentChanged(!disableGlyphsWhenSilent) }
                         )
-                        if (selectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
-                            OptionTile(
-                                label = stringResource(R.string.disable_glyphs_when_silent_title),
-                                icon = Icons.AutoMirrored.Filled.VolumeOff,
-                                isSelected = disableGlyphsWhenSilent,
-                                onClick = { onDisableGlyphsWhenSilentChanged(!disableGlyphsWhenSilent) }
-                            )
-                        }
                     }
+                }
 
-                    // Notification Button Set
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = stringResource(R.string.notification_controls_title),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    val currentNotifSet by viewModel.notificationButtonSet.collectAsStateWithLifecycle()
-                    ExpressiveSplitButton(
-                        items = listOf("presets", "controls"),
-                        selectedItem = currentNotifSet,
-                        onItemSelection = { viewModel.setNotificationButtonSet(it) },
-                        labelProvider = {
-                            if (it == "presets") stringResource(R.string.notification_button_set_presets) 
-                            else stringResource(R.string.notification_button_set_quick_controls)
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    BodyText(
-                        text = stringResource(R.string.notification_controls_desc),
-                        size = 12.sp
+                // Notification Button Set
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.notification_controls_title),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                val currentNotifSet by viewModel.notificationButtonSet.collectAsStateWithLifecycle()
+                ExpressiveSplitButton(
+                    items = listOf("presets", "controls"),
+                    selectedItem = currentNotifSet,
+                    onItemSelection = { viewModel.setNotificationButtonSet(it) },
+                    labelProvider = {
+                        if (it == "presets") stringResource(R.string.notification_button_set_presets) 
+                        else stringResource(R.string.notification_button_set_quick_controls)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                BodyText(
+                    text = stringResource(R.string.notification_controls_desc),
+                    size = 12.sp
+                )
+
+                // ── UI Amplitude Sync & Visual Toggles (Moved from AudioSetupScreen) ───────────
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Text(
+                    text = stringResource(R.string.on_screen_vizualizers),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                val overlayEnabled by viewModel.overlayEnabled.collectAsStateWithLifecycle()
+                val edgeVisualizerEnabled by viewModel.edgeVisualizerEnabled.collectAsStateWithLifecycle()
+                val lensVisualizerEnabled by viewModel.lensVisualizerEnabled.collectAsStateWithLifecycle()
+
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    maxItemsInEachRow = 2,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OptionTile(
+                        label = stringResource(R.string.nav_overlay),
+                        icon = Icons.Default.Layers,
+                        isSelected = overlayEnabled,
+                        onClick = { viewModel.setOverlayEnabled(!overlayEnabled) }
                     )
 
-                    // ── UI Amplitude Sync & Visual Toggles (Moved from AudioSetupScreen) ───────────
-                    Spacer(modifier = Modifier.height(16.dp))
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    Spacer(modifier = Modifier.height(8.dp))
+                    OptionTile(
+                        label = stringResource(R.string.edge_visualizer),
+                        icon = Icons.Default.BorderOuter,
+                        isSelected = edgeVisualizerEnabled,
+                        onClick = { viewModel.setEdgeVisualizerEnabled(!edgeVisualizerEnabled) }
+                    )
+
+                    OptionTile(
+                        label = stringResource(R.string.lens_visualizer),
+                        icon = Icons.Default.BlurCircular,
+                        isSelected = lensVisualizerEnabled,
+                        onClick = { viewModel.setLensVisualizerEnabled(!lensVisualizerEnabled) }
+                    )
                     
-                    Text(
-                        text = stringResource(R.string.on_screen_vizualizers),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-
-                    val overlayEnabled by viewModel.overlayEnabled.collectAsStateWithLifecycle()
-                    val edgeVisualizerEnabled by viewModel.edgeVisualizerEnabled.collectAsStateWithLifecycle()
-                    val lensVisualizerEnabled by viewModel.lensVisualizerEnabled.collectAsStateWithLifecycle()
-
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        maxItemsInEachRow = 2,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
+                    if (viewModel.hasFlashlight) {
                         OptionTile(
-                            label = stringResource(R.string.nav_overlay),
-                            icon = Icons.Default.Layers,
-                            isSelected = overlayEnabled,
-                            onClick = { viewModel.setOverlayEnabled(!overlayEnabled) }
+                            label = stringResource(R.string.flashlight_multi_intensity_forced_title),
+                            icon = Icons.Default.FlashlightOn,
+                            isSelected = flashlightMultiIntensityForced,
+                            onClick = { viewModel.setFlashlightMultiIntensityForced(!flashlightMultiIntensityForced) }
                         )
-
-                        OptionTile(
-                            label = stringResource(R.string.edge_visualizer),
-                            icon = Icons.Default.BorderOuter,
-                            isSelected = edgeVisualizerEnabled,
-                            onClick = { viewModel.setEdgeVisualizerEnabled(!edgeVisualizerEnabled) }
-                        )
-
-                        OptionTile(
-                            label = stringResource(R.string.lens_visualizer),
-                            icon = Icons.Default.BlurCircular,
-                            isSelected = lensVisualizerEnabled,
-                            onClick = { viewModel.setLensVisualizerEnabled(!lensVisualizerEnabled) }
-                        )
-                        
-                        if (viewModel.hasFlashlight) {
-                            OptionTile(
-                                label = stringResource(R.string.flashlight_multi_intensity_forced_title),
-                                icon = Icons.Default.FlashlightOn,
-                                isSelected = flashlightMultiIntensityForced,
-                                onClick = { viewModel.setFlashlightMultiIntensityForced(!flashlightMultiIntensityForced) }
-                            )
-                        }
                     }
                 }
             }
@@ -681,102 +609,3 @@ internal fun SettingsScreen(
     }
 }
 
-@Composable
-fun LinkCard(
-    title: String,
-    icon: ImageVector,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    subtitle: String? = null
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val view = LocalView.current
-
-    // 1. Stream raw touch events directly to trigger frame-perfect hardware haptics
-    LaunchedEffect(interactionSource) {
-        interactionSource.interactions.collect { interaction ->
-            when (interaction) {
-                is PressInteraction.Press -> {
-                    // Tactile down-press simulation
-                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                }
-                is PressInteraction.Release -> {
-                    // Tactile up-release simulation
-                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY_RELEASE)
-                }
-                is PressInteraction.Cancel -> {
-                    // Mutes or triggers a light cleanup if the user drags their finger away
-                    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
-                }
-            }
-        }
-    }
-
-    // 2. Purely visual spring-physics layout tracking
-    val isPressed by interactionSource.collectIsPressedAsState()
-
-    Surface(
-        onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = 72.dp),
-        shape = RoundedCornerShape(24.dp),
-        color = if (isPressed) {
-            MaterialTheme.colorScheme.surfaceBright
-        } else {
-            MaterialTheme.colorScheme.surface
-        },
-        interactionSource = interactionSource
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Surface(
-                shape = RoundedCornerShape(10.dp),
-                color = MaterialTheme.colorScheme.surfaceBright,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.size(40.dp)
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        modifier = Modifier.size(25.dp)
-                    )
-                }
-            }
-
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                if (subtitle != null) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            Icon(
-                imageVector = Icons.Default.ChevronRight,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(30.dp)
-            )
-        }
-    }
-}

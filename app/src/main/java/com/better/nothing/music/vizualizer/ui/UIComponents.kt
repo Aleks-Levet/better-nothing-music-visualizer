@@ -2,6 +2,7 @@
 
 package com.better.nothing.music.vizualizer.ui
 
+import android.R.attr.shape
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.annotation.SuppressLint
@@ -37,7 +38,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import kotlin.math.roundToInt
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseInOutCubic
 import androidx.compose.animation.core.LinearEasing
@@ -71,10 +75,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -89,6 +97,7 @@ import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -485,6 +494,203 @@ fun ExpressiveCard(
 }
 
 @Composable
+fun LinkCard(
+    title: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val haptics = LocalHapticFeedback.current
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    Surface(
+        onClick = {
+            haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+            onClick()
+        },
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 72.dp),
+        shape = RoundedCornerShape(24.dp),
+        color = if (isPressed) {
+            MaterialTheme.colorScheme.surfaceBright
+        } else {
+            MaterialTheme.colorScheme.surface
+        },
+        interactionSource = interactionSource
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceBright,
+                contentColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (subtitle != null) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                modifier = Modifier.size(24.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun ExpandableExpressiveCard(
+    title: String,
+    icon: ImageVector,
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val haptics = LocalHapticFeedback.current
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            ),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isPressed) MaterialTheme.colorScheme.surfaceBright else MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 72.dp)
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
+                        haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                        onExpandedChange(!expanded)
+                    }
+                    .padding(horizontal = 20.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.surfaceBright,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    if (subtitle != null) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = subtitle,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                // Expand arrows in a primary colored pill shape
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(width = 48.dp, height = 32.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+            }
+
+            AnimatedVisibility(
+                visible = expanded,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .padding(bottom = 20.dp)
+                ) {
+                    content()
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun CardHeader(
     title: String,
     modifier: Modifier = Modifier,
@@ -752,7 +958,6 @@ fun <T> ExpressiveSplitButton(
     maxButtonsPerRow: Int? = null
 ) {
     val haptics = LocalHapticFeedback.current
-    val scope = rememberCoroutineScope()
     val uiAmp = LocalUIAmplitude.current
 
     // 1. Resolve Composable labels into plain strings safely in the Composable pipeline
@@ -904,13 +1109,14 @@ fun <T> ExpressiveSplitButton(
                         }
                     }
 
-                    Surface(
-                        onClick = {
-                            if (!isSelected) {
-                                onItemSelection(item)
-                            }
-                        },
-                        color = containerColor,
+                    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+                        Surface(
+                            onClick = {
+                                if (!isSelected) {
+                                    onItemSelection(item)
+                                }
+                            },
+                            color = containerColor,
                         contentColor = contentColor,
                         shape = dynamicButtonShape,
                         modifier = Modifier.weight(animatedWeight),
@@ -931,6 +1137,7 @@ fun <T> ExpressiveSplitButton(
                     }
                 }
             }
+        }
         }
     }
 }

@@ -208,6 +208,7 @@ class MainActivity : AppCompatActivity() {
 
             val selectedTheme by viewModel.selectedTheme.collectAsStateWithLifecycle()
             val selectedFont by viewModel.selectedFont.collectAsStateWithLifecycle()
+            val m3eEnabled by viewModel.m3eEnabled.collectAsStateWithLifecycle()
             val musicThemeColor by viewModel.musicThemeColor.collectAsStateWithLifecycle()
             val isRunning by viewModel.runningState.collectAsStateWithLifecycle()
 
@@ -236,8 +237,10 @@ class MainActivity : AppCompatActivity() {
             BetterVizTheme(
                 themeName = selectedTheme,
                 fontName = selectedFont,
+                m3eEnabled = m3eEnabled,
                 musicPrimaryColor = musicThemeColor,
             ) {
+
                 BackHandler(enabled = true) {
                     if (!viewModel.navigateBack()) {
                         finish()
@@ -267,7 +270,6 @@ class MainActivity : AppCompatActivity() {
                     )
                 }
 
-                MainOverlays(viewModel = viewModel, selectedDevice = viewModel.selectedDevice.collectAsState().value)
             }
         }
     }
@@ -677,6 +679,13 @@ internal fun BetterVizApp(
                 }
             }
         }
+        MainOverlays(
+            viewModel = viewModel,
+            selectedDevice = selectedDevice,
+            isTablet = isTablet,
+            visibleTabCount = visibleTabs.size,
+            padding = padding
+        )
     }
 }
 

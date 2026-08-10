@@ -2,7 +2,7 @@
 <resources>
     <!-- M3 Widget Colors Dark -->
     <color name="widget_m3_surface_low">#1D1B20</color>
-    <color name="widget_m3_button_bg">#2B2930</color>
+    <color name="widget_m3_button_bg">#1D1B20</color>
     <color name="widget_m3_on_surface">#E6E1E5</color>
     <color name="widget_m3_text_secondary">#938F99</color>
 </resources>

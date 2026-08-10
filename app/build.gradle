@@ -52,6 +52,7 @@ android {
 dependencies {
     implementation 'androidx.compose.foundation:foundation-layout:1.11.3'
     implementation 'androidx.compose.runtime:runtime:1.11.3'
+    implementation 'androidx.compose.runtime:runtime:1.11.4'
     implementation 'androidx.compose.ui:ui-text:1.11.3'
 
     // 1. Keep your local SDK

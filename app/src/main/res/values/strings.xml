@@ -161,6 +161,8 @@
     <string name="global_announcements_desc">Notify all users about updates or news</string>
     <string name="sync_ui_to_beat">Sync UI to the beat</string>
     <string name="nav_overlay">Nav Overlay</string>
+
+
     <string name="lens_visualizer">Lens Visualizer</string>
     <string name="lens_radius">Lens Radius</string>
     <string name="lens_bar_width">Bar Width</string>
