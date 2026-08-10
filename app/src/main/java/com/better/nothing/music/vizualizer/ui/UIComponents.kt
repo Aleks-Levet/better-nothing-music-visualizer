@@ -647,6 +647,7 @@ fun NativeBottomBar(
     onTabSelected: (Tab) -> Unit,
 ) {
     val haptics = LocalHapticFeedback.current
+
     NavigationBar(
         modifier = Modifier.fillMaxWidth(),
         containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
@@ -654,58 +655,88 @@ fun NativeBottomBar(
         windowInsets = NavigationBarDefaults.windowInsets
     ) {
         val uiAmp = LocalUIAmplitude.current
-        visibleTabs.forEach { tab ->
+
+        // Iterate over all possible tabs so hiding/showing tabs can animate smoothly
+        Tab.entries.forEach { tab ->
+            val isVisible = tab in visibleTabs
             val isSelected = tab == selectedTab
+
+            // 1. Animate the weight from ~0f to 1f with a bouncy spring
+            val animatedWeight by animateFloatAsState(
+                targetValue = if (isVisible) 1f else 0.0001f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                ),
+                label = "nav_tab_weight"
+            )
+
+            // 2. Animate scale/alpha so the tab cleanly fades & shrinks as weight decreases
+            val animatedAlpha by animateFloatAsState(
+                targetValue = if (isVisible) 1f else 0f,
+                animationSpec = tween(durationMillis = 150),
+                label = "nav_tab_alpha"
+            )
+
             val selectionScale by animateFloatAsState(
                 targetValue = if (isSelected) 1.25f else 1.0f,
                 animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessLow),
                 label = "nav_selection_scale"
             )
 
-            NavigationBarItem(
-                selected = isSelected,
-                onClick = {
-                    if (!isSelected) {
-                        haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
-                        onTabSelected(tab)
-                    }
-                },
-                label = {
-                    Text(
-                        text = stringResource(tab.labelRes),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                icon = {
-                    Box(contentAlignment = Alignment.Center) {
-                        val iconModifier = Modifier
-                            .size(24.dp)
-                            .graphicsLayer {
-                                val iconScale = selectionScale + (if (isSelected) (uiAmp - 1.0f) * 0.5f else 0f)
-                                scaleX = iconScale
-                                scaleY = iconScale
-                            }
-
-                        when (tab) {
-                            Tab.Audio -> Icon(painter = painterResource(R.drawable.ic_notif_monochrome), contentDescription = stringResource(tab.labelRes), modifier = iconModifier)
-                            Tab.Glyphs -> Icon(painter = painterResource(R.drawable.ic_nav_glyphs), contentDescription = stringResource(tab.labelRes), modifier = iconModifier)
-                            Tab.Visuals -> Icon(Icons.Default.Layers, stringResource(tab.labelRes), modifier = iconModifier)
-                            Tab.Haptics -> Icon(Icons.Filled.Vibration, stringResource(tab.labelRes), modifier = iconModifier)
-                            Tab.Flashlight -> Icon(Icons.Filled.FlashlightOn, stringResource(tab.labelRes), modifier = iconModifier)
-                            Tab.Settings -> Icon(Icons.Filled.Settings, stringResource(tab.labelRes), modifier = iconModifier)
+            // Render tab only if it has a noticeable weight
+            if (animatedWeight > 0.005f) {
+                NavigationBarItem(
+                    modifier = Modifier
+                        .weight(animatedWeight)
+                        .graphicsLayer { alpha = animatedAlpha },
+                    selected = isSelected,
+                    onClick = {
+                        if (!isSelected && isVisible) {
+                            haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                            onTabSelected(tab)
                         }
-                    }
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    label = {
+                        Text(
+                            text = stringResource(tab.labelRes),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,                         // Forces maximum of 1 line
+                            softWrap = false,                      // Disables text wrapping onto next lines
+                            overflow = TextOverflow.Ellipsis      // Truncates with "..." if the label is too long (requires importing androidx.compose.ui.text.style.TextOverflow)
+                        )
+                    },
+                    icon = {
+                        Box(contentAlignment = Alignment.Center) {
+                            val iconModifier = Modifier
+                                .size(24.dp)
+                                .graphicsLayer {
+                                    val iconScale = selectionScale + (if (isSelected) (uiAmp - 1.0f) * 0.5f else 0f)
+                                    scaleX = iconScale
+                                    scaleY = iconScale
+                                }
+
+                            when (tab) {
+                                Tab.Audio -> Icon(painter = painterResource(R.drawable.ic_notif_monochrome), contentDescription = stringResource(tab.labelRes), modifier = iconModifier)
+                                Tab.Glyphs -> Icon(painter = painterResource(R.drawable.ic_nav_glyphs), contentDescription = stringResource(tab.labelRes), modifier = iconModifier)
+                                Tab.Visuals -> Icon(Icons.Default.Layers, stringResource(tab.labelRes), modifier = iconModifier)
+                                Tab.Haptics -> Icon(Icons.Filled.Vibration, stringResource(tab.labelRes), modifier = iconModifier)
+                                Tab.Flashlight -> Icon(Icons.Filled.FlashlightOn, stringResource(tab.labelRes), modifier = iconModifier)
+                                Tab.Settings -> Icon(Icons.Filled.Settings, stringResource(tab.labelRes), modifier = iconModifier)
+                            }
+                        }
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 )
-            )
+            }
         }
     }
 }
@@ -717,7 +748,8 @@ fun <T> ExpressiveSplitButton(
     selectedItem: T,
     onItemSelection: (T) -> Unit,
     labelProvider: @Composable (T) -> String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    maxButtonsPerRow: Int? = null
 ) {
     val haptics = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
@@ -727,8 +759,14 @@ fun <T> ExpressiveSplitButton(
     val resolvedLabels = items.associateWith { labelProvider(it) }
 
     // 2. Chunk items into rows using the resolved plain string map
-    val chunkedRows = remember(items, resolvedLabels) {
-        if (items.size <= 3) {
+    val chunkedRows = remember(items, resolvedLabels, maxButtonsPerRow) {
+        if (maxButtonsPerRow != null) {
+            if (items.size == 4 && maxButtonsPerRow == 3) {
+                items.chunked(2)
+            } else {
+                items.chunked(maxButtonsPerRow)
+            }
+        } else if (items.size <= 3) {
             listOf(items)
         } else {
             val rows = mutableListOf<MutableList<T>>()
@@ -845,39 +883,38 @@ fun <T> ExpressiveSplitButton(
                         bottomEnd = bottomEnd.coerceAtLeast(0.dp)
                     )
 
+                    val interactionSource = remember { MutableInteractionSource() }
+
+                    LaunchedEffect(interactionSource) {
+                        interactionSource.interactions.collect { interaction ->
+                            when (interaction) {
+                                is PressInteraction.Press -> {
+                                    isPressed = true
+                                    haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                                }
+                                is PressInteraction.Release -> {
+                                    haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                                    delay(80)
+                                    isPressed = false
+                                }
+                                is PressInteraction.Cancel -> {
+                                    isPressed = false
+                                }
+                            }
+                        }
+                    }
+
                     Surface(
+                        onClick = {
+                            if (!isSelected) {
+                                onItemSelection(item)
+                            }
+                        },
                         color = containerColor,
                         contentColor = contentColor,
                         shape = dynamicButtonShape,
-                        modifier = Modifier
-                            .weight(animatedWeight)
-                            .pointerInput(item, isSelected) {
-                                detectTapGestures(
-                                    onPress = {
-                                        val startTime = System.currentTimeMillis()
-                                        isPressed = true
-                                        haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
-
-                                        try {
-                                            awaitRelease()
-                                        } finally {
-                                            haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
-                                            val elapsedTime = System.currentTimeMillis() - startTime
-                                            val remainingTime = 100L - elapsedTime
-
-                                            scope.launch {
-                                                if (remainingTime > 0) {
-                                                    delay(remainingTime.milliseconds)
-                                                }
-                                                isPressed = false
-                                                if (!isSelected) {
-                                                    onItemSelection(item)
-                                                }
-                                            }
-                                        }
-                                    }
-                                )
-                            }
+                        modifier = Modifier.weight(animatedWeight),
+                        interactionSource = interactionSource
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 4.dp, vertical = 10.dp),
