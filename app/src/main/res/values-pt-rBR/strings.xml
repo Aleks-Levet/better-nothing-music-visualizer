@@ -8,7 +8,6 @@
     <string name="saving_latency_for">Salvando latência para: %s</string>
     <string name="internal_speaker">Alto-falante Interno</string>
     <string name="manual_mode_global_latency">Modo manual (Latência global)</string>
-    <string name="latency_compensation_description">A compensação de latência garante que os Glyphs batam exatamente no ritmo, especialmente útil para dispositivos Bluetooth.</string>
     <string name="latency_compensation">Compensação de Latência</string>
     <string name="live_spectrum">Espectro de Áudio ao Vivo</string>
 
@@ -25,11 +24,6 @@
     <string name="theme_normal">Padrão</string>
     <string name="theme_liquorice">Preto Alcaçuz</string>
     <string name="theme_nothing_red">Vermelho Nothing</string>
-    <string name="theme_music">Música (Capa do Álbum)</string>
-    <string name="theme_help_text">As alterações são aplicadas após reiniciar o app.</string>
-    <string name="typography">Tipografia</string>
-    <string name="typography_help_text">Alternar entre as fontes NDot e NType em todo o app.</string>
-    <string name="more_settings_coming">Mais configurações em breve…</string>
 
     <!-- Haptics Screen -->
     <string name="haptics_title">Hápticos</string>
@@ -60,7 +54,6 @@
 
     <string name="experimental_features">Recursos Experimentais</string>
     <string name="developer_mode">Modo Desenvolvedor</string>
-    <string name="developer_mode_description">Ativar recursos avançados de teste e simulação de dispositivo.</string>
     <string name="spoof_device">Simular Dispositivo</string>
     <string name="spoof_device_description">Força o app a se comportar como se estivesse rodando no dispositivo selecionado.</string>
     <string name="idle_breathing_title">Respiração Ociosa</string>
@@ -73,12 +66,6 @@
 
     <!-- About Screen -->
     <string name="about_title">Informações do app e atualizações</string>
-    <string name="about_intro">Better Nothing Music Visualizer desbloqueia todo o potencial da Interface Glyph com análise de frequência em tempo real de alta fidelidade.</string>
-    <string name="about_section_why">Por que somos melhores que a implementação da Nothing:</string>
-    <string name="about_why_1">• Brilho de 12 bits (4096 níveis) vs ~2 bits padrão (3 níveis)</string>
-    <string name="about_why_2">• Animações fluidas de 60 FPS vs ~25 FPS padrão</string>
-    <string name="about_why_3">• Sincronização FFT precisa vs resposta semi-aleatória</string>
-    <string name="about_why_4">• Controle independente de subzonas</string>
     <string name="github_repository">Repositório GitHub</string>
     <string name="view_source">Ver Código Fonte</string>
     <string name="version_info">Versão %s</string>
@@ -117,7 +104,6 @@
     <string name="idle_pattern_orbit">Órbita</string>
     <string name="idle_pattern_rain">Chuva</string>
     <string name="cancel">Cancelar</string>
-    <string name="global_announcements_desc">Notificar todos os usuários sobre atualizações ou notícias</string>
     <string name="nav_overlay">Sobreposição de Navegação</string>
     <string name="overlay_width">Largura da Sobreposição</string>
     <string name="overlay_height">Altura da Sobreposição</string>
@@ -139,17 +125,11 @@
     <string name="downloading_update">Baixando Atualização…</string>
 
     <string name="app_name_caps">VISUALIZADOR DE MÚSICA BETTER NOTHING</string>
-    <string name="appreciate_support">AGRADECEMOS O SEU APOIO.</string>
-    <string name="youre_welcome">DE NADA!</string>
 
     <string name="mediaprojection_permission">Permissão de MediaProjection</string>
     <string name="mediaprojection_description">Esta permissão permite que o app acesse o fluxo de áudio do dispositivo através do sistema de captura do Android para que o visualizador Glyph possa reagir em tempo real. Nenhuma gravação desnecessária é armazenada e o app não salva suas mídias ou dados privados.</string>
     <string name="continue_label">Continuar</string>
 
-    <string name="shizuku_permission_required">A permissão do Shizuku é necessária para esta fonte</string>
-    <string name="shizuku_not_running">O Shizuku não está rodando ou não está instalado</string>
-    <string name="announcement_posted">Anúncio postado!</string>
-    <string name="failed_to_post">Falha ao postar: %s</string>
     <string name="audio_permission_required">A permissão de gravação de áudio é necessária</string>
     <string name="screen_capture_denied">Permissão de captura de tela negada</string>
     <string name="notifications_required">As notificações são necessárias enquanto o visualizador estiver ativo</string>

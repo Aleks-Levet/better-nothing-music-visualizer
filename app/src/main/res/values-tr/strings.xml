@@ -8,7 +8,6 @@
     <string name="saving_latency_for">Şunun için gecikme kaydediliyor: %s</string>
     <string name="internal_speaker">Dahili Hoparlör</string>
     <string name="manual_mode_global_latency">Manuel mod (Genel gecikme)</string>
-    <string name="latency_compensation_description">Gecikme telafisi, özellikle Bluetooth cihazları için kullanışlıdır ve Glyphlerin tam olarak ritme göre yanmasını sağlar.</string>
     <string name="latency_compensation">Gecikme Telafisi</string>
     <string name="live_spectrum">Canlı Ses Spektrumu</string>
 
@@ -25,11 +24,6 @@
     <string name="theme_normal">Varsayılan</string>
     <string name="theme_liquorice">Meyan Kökü</string>
     <string name="theme_nothing_red">Nothing Kırmızı</string>
-    <string name="theme_music">Müzik (Albüm Kapağı)</string>
-    <string name="theme_help_text">Değişiklikler uygulama yeniden başlatıldıktan sonra uygulanır.</string>
-    <string name="typography">Başlık Fontu</string>
-    <string name="typography_help_text">Uygulamanın fontları arasında geçiş yapın.</string>
-    <string name="more_settings_coming">Daha fazla ayar çok yakında sizlerle…</string>
 
     <!-- Haptics Screen -->
     <string name="haptics_title">Dokunsal</string>
@@ -60,7 +54,6 @@
 
     <string name="experimental_features">Deneysel Özellikler</string>
     <string name="developer_mode">Geliştirici Modu</string>
-    <string name="developer_mode_description">Gelişmiş test ve cihaz taklidi (spoofing) özelliklerini etkinleştirin.</string>
     <string name="spoof_device">Cihazı Taklit Et</string>
     <string name="spoof_device_description">Uygulamayı seçilen cihazda çalışıyormuş gibi davranmaya zorlar.</string>
     <string name="idle_breathing_title">Boşta (idle) Animasyonu</string>
@@ -73,12 +66,6 @@
 
     <!-- About Screen -->
     <string name="about_title">Uygulama Hakkında ve Güncellemeler</string>
-    <string name="about_intro">Better Nothing Müzik Görselleştirici, yüksek kaliteli ve gerçek zamanlı frekans analizi ile Glyph Arayüzü\'nün tüm potansiyelini ortaya çıkarır.</string>
-    <string name="about_section_why">Neden Nothing\'in görselleştiricisinden daha iyiyiz:</string>
-    <string name="about_why_1">• 12-bit parlaklık (4096 seviye) vs ~2-bit stok (3 seviye)</string>
-    <string name="about_why_2">• 60 FPS akıcı animasyonlar vs ~25 FPS stok</string>
-    <string name="about_why_3">• Hassas FFT senkronizasyonu vs yarı-rastgele tepki</string>
-    <string name="about_why_4">• Bağımsız alt bölge kontrolü</string>
     <string name="github_repository">GitHub Sayfası</string>
     <string name="view_source">Kaynağı Görüntüle</string>
     <string name="version_info">Sürüm %s</string>
@@ -117,7 +104,6 @@
     <string name="idle_pattern_orbit">Yörünge</string>
     <string name="idle_pattern_rain">Yağmur</string>
     <string name="cancel">İptal</string>
-    <string name="global_announcements_desc">Tüm kullanıcıları güncellemeler veya haberler hakkında bilgilendirin</string>
     <string name="nav_overlay">NavBar Spektrum</string>
     <string name="overlay_width">Spektrum Genişliği</string>
     <string name="overlay_height">Spektrum Yüksekliği</string>
@@ -139,17 +125,11 @@
     <string name="downloading_update">Güncelleme İndiriliyor…</string>
 
     <string name="app_name_caps">BETTER NOTHING MUSIC VISUALIZER</string>
-    <string name="appreciate_support">DESTEĞİNİZ İÇİN TEŞEKKÜR EDERİZ.</string>
-    <string name="youre_welcome">RİCA EDERİM!</string>
 
     <string name="mediaprojection_permission">MediaProjection izni</string>
     <string name="mediaprojection_description">Bu izin, Glyph görselleştiricinin gerçek zamanlı olarak tepki verebilmesi için uygulamanın Android\'in yakalama sistemi aracılığıyla cihazın ses akışına erişmesine olanak tanır. Gereksiz kayıtlar saklanmaz ve uygulama medyanızı veya özel verilerinizi kaydetmez.</string>
     <string name="continue_label">Devam Et</string>
 
-    <string name="shizuku_permission_required">Bu kaynak için Shizuku izni gereklidir</string>
-    <string name="shizuku_not_running">Shizuku çalışmıyor veya yüklü değil</string>
-    <string name="announcement_posted">Duyuru yayınlandı!</string>
-    <string name="failed_to_post">Yayınlanamadı: %s</string>
     <string name="audio_permission_required">Ses kaydı izni gereklidir</string>
     <string name="screen_capture_denied">Ekran yakalama izni reddedildi</string>
     <string name="notifications_required">Görselleştirici aktifken bildirimler gereklidir</string>

@@ -8,7 +8,6 @@
     <string name="saving_latency_for">レイテンシを保存中： %s</string>
     <string name="internal_speaker">内蔵スピーカー</string>
     <string name="manual_mode_global_latency">マニュアルモード（グローバルレイテンシ）</string>
-    <string name="latency_compensation_description">レイテンシ補正により、Glyphが正確にビートを刻むようになります。特にBluetoothデバイスで便利です。</string>
     <string name="latency_compensation">レイテンシ補正</string>
     <string name="live_spectrum">ライブ・オーディオ・スペクトラム</string>
 
@@ -25,11 +24,6 @@
     <string name="theme_normal">デフォルト</string>
     <string name="theme_liquorice">リコリスブラック</string>
     <string name="theme_nothing_red">Nothingレッド</string>
-    <string name="theme_music">ミュージック（アルバムアート）</string>
-    <string name="theme_help_text">変更はアプリの再起動後に適用されます。</string>
-    <string name="typography">タイポグラフィ</string>
-    <string name="typography_help_text">アプリ全体でNDotフォントとNTypeフォントを切り替えます。</string>
-    <string name="more_settings_coming">さらなる設定を近日追加予定…</string>
 
     <!-- Haptics Screen -->
     <string name="haptics_title">ハプティクス</string>
@@ -60,7 +54,6 @@
 
     <string name="experimental_features">実験的機能</string>
     <string name="developer_mode">開発者モード</string>
-    <string name="developer_mode_description">高度なテストやデバイスのなりすまし機能を有効にします。</string>
     <string name="spoof_device">デバイスのなりすまし</string>
     <string name="spoof_device_description">選択したデバイス上で動作しているかのようにアプリを強制的に動作させます。</string>
     <string name="idle_breathing_title">待機時の呼吸</string>
@@ -73,12 +66,6 @@
 
     <!-- About Screen -->
     <string name="about_title">アプリ情報とアップデート</string>
-    <string name="about_intro">Better Nothing 音楽ビジュアライザーは、高忠実度・リアルタイムの周波数分析により、Glyphインターフェースの可能性を最大限に引き出します。</string>
-    <string name="about_section_why">Nothingの実装よりも優れている理由：</string>
-    <string name="about_why_1">• 12ビット輝度（4096段階） vs 約2ビットの標準（3段階）</string>
-    <string name="about_why_2">• 60 FPSの滑らかなアニメーション vs 約25 FPSの標準</string>
-    <string name="about_why_3">• 正確なFFT同期 vs 半ランダムなレスポンス</string>
-    <string name="about_why_4">• 独立したサブゾーン制御</string>
     <string name="github_repository">GitHubリポジトリ</string>
     <string name="view_source">ソースコードを表示</string>
     <string name="version_info">バージョン %s</string>
@@ -117,7 +104,6 @@
     <string name="idle_pattern_orbit">軌道</string>
     <string name="idle_pattern_rain">雨</string>
     <string name="cancel">キャンセル</string>
-    <string name="global_announcements_desc">アップデートやニュースをすべてのユーザーに通知します</string>
     <string name="nav_overlay">ナビゲーション・オーバーレイ</string>
     <string name="overlay_width">オーバーレイの幅</string>
     <string name="overlay_height">オーバーレイの高さ</string>
@@ -139,17 +125,11 @@
     <string name="downloading_update">アップデートをダウンロード中…</string>
 
     <string name="app_name_caps">BETTER NOTHING 音楽ビジュアライザー</string>
-    <string name="appreciate_support">ご支援ありがとうございます。</string>
-    <string name="youre_welcome">どういたしまして！</string>
 
     <string name="mediaprojection_permission">MediaProjectionの権限</string>
     <string name="mediaprojection_description">この権限により、アプリはAndroidのキャプチャシステムを介してデバイスのオーディオストリームにアクセスでき、Glyphビジュアライザーがリアルタイムで反応できるようになります。不要な録画は保存されず、アプリがメディアやプライベートデータを保存することはありません。</string>
     <string name="continue_label">続行</string>
 
-    <string name="shizuku_permission_required">このソースにはShizukuの権限が必要です</string>
-    <string name="shizuku_not_running">Shizukuが実行されていないか、インストールされていません</string>
-    <string name="announcement_posted">アナウンスメントが投稿されました！</string>
-    <string name="failed_to_post">投稿に失敗しました： %s</string>
     <string name="audio_permission_required">録音の権限が必要です</string>
     <string name="screen_capture_denied">画面キャプチャの権限が拒否されました</string>
     <string name="notifications_required">ビジュアライザーの動作中は通知が必要です</string>

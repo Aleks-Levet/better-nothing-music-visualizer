@@ -8,7 +8,6 @@
     <string name="saving_latency_for">正在保存延迟： %s</string>
     <string name="internal_speaker">内置扬声器</string>
     <string name="manual_mode_global_latency">手动模式（全局延迟）</string>
-    <string name="latency_compensation_description">延迟补偿可确保 Glyph 准确命中节拍，对于蓝牙设备尤其有用。</string>
     <string name="latency_compensation">延迟补偿</string>
     <string name="live_spectrum">实时音频频谱</string>
 
@@ -25,11 +24,6 @@
     <string name="theme_normal">默认</string>
     <string name="theme_liquorice">甘草黑</string>
     <string name="theme_nothing_red">Nothing 红</string>
-    <string name="theme_music">音乐（专辑封面）</string>
-    <string name="theme_help_text">更改将在应用重启后生效。</string>
-    <string name="typography">字体排版</string>
-    <string name="typography_help_text">在应用范围内切换 NDot 和 NType 字体。</string>
-    <string name="more_settings_coming">更多设置即将推出…</string>
 
     <!-- Haptics Screen -->
     <string name="haptics_title">触感</string>
@@ -60,11 +54,9 @@
 
     <string name="experimental_features">实验性功能</string>
     <string name="developer_mode">开发者模式</string>
-    <string name="developer_mode_description">启用高级测试和设备伪装功能。</string>
     <string name="spoof_device">伪装设备</string>
     <string name="spoof_device_description">强制应用表现得像是在所选设备上运行一样。</string>
     <string name="idle_breathing_title">空闲呼吸灯</string>
-    <string name="idle_breathing_desc">当可视化器激活但没有音频播放时，Glyph 会细微地闪动。</string>
     <string name="disable_glyphs_when_silent_title">静音时禁用 Glyph</string>
     <string name="disable_glyphs_when_silent_desc">当检测不到音频时，完全关闭 Glyph 并释放会话。</string>
     <string name="start_visualizer">开始</string>
@@ -73,12 +65,6 @@
 
     <!-- About Screen -->
     <string name="about_title">应用信息和更新</string>
-    <string name="about_intro">Better Nothing 音乐可视化工具通过高保真实时频率分析释放 Glyph 界面的全部潜力。</string>
-    <string name="about_section_why">为什么我们比 Nothing 的实现更好：</string>
-    <string name="about_why_1">• 12 位亮度（4096 级）对标 ~2 位原生（3 级）</string>
-    <string name="about_why_2">• 60 FPS 流畅动画对标 ~25 FPS 原生</string>
-    <string name="about_why_3">• 精确的 FFT 同步对标半随机响应</string>
-    <string name="about_why_4">• 独立的子区域控制</string>
     <string name="github_repository">GitHub 仓库</string>
     <string name="view_source">查看源代码</string>
     <string name="version_info">版本 %s</string>
@@ -117,7 +103,6 @@
     <string name="idle_pattern_orbit">轨道</string>
     <string name="idle_pattern_rain">雨</string>
     <string name="cancel">取消</string>
-    <string name="global_announcements_desc">通知所有用户关于更新或新闻</string>
     <string name="nav_overlay">导航栏覆盖层</string>
     <string name="overlay_width">覆盖层宽度</string>
     <string name="overlay_height">覆盖层高度</string>
@@ -139,17 +124,11 @@
     <string name="downloading_update">正在下载更新…</string>
 
     <string name="app_name_caps">BETTER NOTHING 音乐可视化工具</string>
-    <string name="appreciate_support">感谢您的支持。</string>
-    <string name="youre_welcome">不客气！</string>
 
     <string name="mediaprojection_permission">MediaProjection 权限</string>
     <string name="mediaprojection_description">此权限允许应用通过 Android 的采集系统访问设备音频流，以便 Glyph 可视化器能够实时做出响应。不会存储不必要的录音，应用也不会保存您的媒体或隐私数据。</string>
     <string name="continue_label">继续</string>
 
-    <string name="shizuku_permission_required">此来源需要 Shizuku 权限</string>
-    <string name="shizuku_not_running">Shizuku 未运行或未安装</string>
-    <string name="announcement_posted">公告已发布！</string>
-    <string name="failed_to_post">发布失败： %s</string>
     <string name="audio_permission_required">需要录音权限</string>
     <string name="screen_capture_denied">屏幕采集权限被拒绝</string>
     <string name="notifications_required">可视化器运行时需要通知权限</string>

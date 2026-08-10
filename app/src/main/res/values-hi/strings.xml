@@ -8,7 +8,6 @@
     <string name="saving_latency_for">के लिए विलंबता सहेजी जा रही है: %s</string>
     <string name="internal_speaker">आंतरिक स्पीकर</string>
     <string name="manual_mode_global_latency">मैनुअल मोड (ग्लोबल लेटेंसी)</string>
-    <string name="latency_compensation_description">विलंबता मुआवजा यह सुनिश्चित करता है कि ग्लिफ़ बिल्कुल ताल पर हिट करें, खासकर ब्लूटूथ डिवाइस के लिए उपयोगी।</string>
     <string name="latency_compensation">विलंबता मुआवजा</string>
     <string name="live_spectrum">लाइव ऑडियो स्पेक्ट्रम</string>
 
@@ -25,11 +24,6 @@
     <string name="theme_normal">डिफ़ॉल्ट</string>
     <string name="theme_liquorice">लिकोरिस ब्लैक</string>
     <string name="theme_nothing_red">नथिंग रेड</string>
-    <string name="theme_music">संगीत (एल्बम कला)</string>
-    <string name="theme_help_text">ऐप पुनरारंभ होने के बाद परिवर्तन लागू होते हैं।</string>
-    <string name="typography">टाइपोग्राफी</string>
-    <string name="typography_help_text">पूरे ऐप में NDot और NType फोंट के बीच टॉगल करें।</string>
-    <string name="more_settings_coming">अधिक सेटिंग्स जल्द ही आ रही हैं…</string>
 
     <!-- Haptics Screen -->
     <string name="haptics_title">हैप्टिक्स</string>
@@ -55,7 +49,6 @@
 
     <string name="experimental_features">प्रायोगिक विशेषताएं</string>
     <string name="developer_mode">डेवलपर मोड</string>
-    <string name="developer_mode_description">उन्नत परीक्षण और डिवाइस स्पूफिंग सुविधाओं को सक्षम करें।</string>
     <string name="spoof_device">स्पूफ डिवाइस</string>
     <string name="spoof_device_description">ऐप को यह व्यवहार करने के लिए मजबूर करता है जैसे कि यह चयनित डिवाइस पर चल रहा हो।</string>
     <string name="idle_breathing_title">आइडल ब्रीदिंग</string>
@@ -68,12 +61,6 @@
 
     <!-- About Screen -->
     <string name="about_title">ऐप की जानकारी और अपडेट</string>
-    <string name="about_intro">बेटर नथिंग म्यूजिक विज़ुअलाइज़र हाई-फिडेलिटी, रीयल-टाइम फ्रीक्वेंसी विश्लेषण के साथ ग्लिफ इंटरफ़ेस की पूरी क्षमता को अनलॉक करता है।</string>
-    <string name="about_section_why">हम नथिंग के कार्यान्वयन से बेहतर क्यों हैं:</string>
-    <string name="about_why_1">• 12-बिट चमक (4096 स्तर) बनाम ~2-बिट स्टॉक (3 स्तर)</string>
-    <string name="about_why_2">• 60 FPS फ्लूइड एनिमेशन बनाम ~25 FPS स्टॉक</string>
-    <string name="about_why_3">• सटीक FFT सिंक बनाम अर्ध-यादृच्छिक प्रतिक्रिया</string>
-    <string name="about_why_4">• स्वतंत्र उप-क्षेत्र नियंत्रण</string>
     <string name="github_repository">GitHub रिपॉजिटरी</string>
     <string name="view_source">सोर्स कोड देखें</string>
     <string name="version_info">संस्करण %s</string>
@@ -112,7 +99,6 @@
     <string name="idle_pattern_orbit">ऑर्बिट</string>
     <string name="idle_pattern_rain">बारिश</string>
     <string name="cancel">रद्द करें</string>
-    <string name="global_announcements_desc">अपडेट या समाचार के बारे में सभी उपयोगकर्ताओं को सूचित करें</string>
     <string name="nav_overlay">नेविगेशन ओवरले</string>
     <string name="overlay_width">ओवरले चौड़ाई</string>
     <string name="overlay_height">ओवरले ऊंचाई</string>
@@ -136,17 +122,11 @@
     <string name="downloading_update">अपडेट डाउनलोड किया जा रहा है…</string>
 
     <string name="app_name_caps">बेटर नथिंग म्यूजिक विज़ुअलाइज़र</string>
-    <string name="appreciate_support">हम आपके समर्थन की सराहना करते हैं।</string>
-    <string name="youre_welcome">आपका स्वागत है!</string>
 
     <string name="mediaprojection_permission">MediaProjection अनुमति</string>
     <string name="mediaprojection_description">यह अनुमति ऐप को एंड्रॉइड कैप्चर सिस्टम के माध्यम से डिवाइस ऑडियो स्ट्रीम तक पहुंचने देती है ताकि ग्लिफ़ विज़ुअलाइज़र वास्तविक समय में प्रतिक्रिया कर सके। कोई अनावश्यक रिकॉर्डिंग सहेजी नहीं जाती है, और ऐप आपके मीडिया या निजी डेटा को सहेजता नहीं है।</string>
     <string name="continue_label">जारी रखें</string>
 
-    <string name="shizuku_permission_required">इस स्रोत के लिए Shizuku अनुमति आवश्यक है</string>
-    <string name="shizuku_not_running">Shizuku नहीं चल रहा है या इंस्टॉल नहीं है</string>
-    <string name="announcement_posted">घोषणा पोस्ट की गई!</string>
-    <string name="failed_to_post">पोस्ट करने में विफल: %s</string>
     <string name="audio_permission_required">ऑडियो रिकॉर्डिंग अनुमति आवश्यक है</string>
     <string name="screen_capture_denied">स्क्रीन कैप्चर की अनुमति नकारी गई</string>
     <string name="notifications_required">विज़ुअलाइज़र सक्रिय होने पर नोटिफिकेशन आवश्यक हैं</string>

@@ -1,16 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="about_intro">Better Nothing Music Visualizer раскрывает весь потенциал светяшек с помощью черной магии.</string>
-    <string name="about_section_why">Почему стоковый визуализатор Nothing — это каловые массы:</string>
     <string name="about_title">Инфа и обновы</string>
-    <string name="about_why_1">• 12-битная яркость (4096 уровней) против ~2-битного убожества в стоке (3 уровня)</string>
-    <string name="about_why_2">• Честные 60 FPS анимации против 25 кадров слайд-шоу от заводских разрабов</string>
-    <string name="about_why_3">• Точный математический FFT-анализ вместо рандомного мигания лампочек</string>
-    <string name="about_why_4">• Посегментный контроль: рули каждой диодной полоской как бог</string>
-    <string name="announcement_posted">Инфа улетела в народ!</string>
     <string name="app_name_caps">BETTER NOTHING MUSIC VISUALIZER</string>
     <string name="app_theme">Темки и стиль</string>
-    <string name="appreciate_support">ТЫ ПРОСТО БОСС, ТЫ ПРОСТО НАЧАЛЬНИК, СПАСИБО!</string>
     <string name="audio_description_running">Визуализатор активен. Глифы теперь жестко колбасятся под ритм! Контент НУ ТОЧНО не сохраняется, конфиденциальность на 200%.</string>
     <string name="audio_permission_required">Дай доступ к ушам телефона (аудио)</string>
     <string name="audio_warning_vizualizer">Предупреждение: этот источник использует дефолтный аудиопоток Андроида. Качество там ублюдское и работать всё будет... ну о-о-очень хуево.</string>
@@ -37,7 +29,6 @@
     <string name="credit_sebiai_role">Главный по модам и мучению глифов</string>
     <string name="credits">Кто всё это заварил</string>
     <string name="developer_mode">Режим Хакера</string>
-    <string name="developer_mode_description">Включает тесты и подмену девайса. Можно случайно вызвать сатану.</string>
     <string name="disable_glyphs_when_silent_title">Спать, когда музыка не играет</string>
     <string name="discord_server">Наш Дискорд-сервер</string>
     <string name="download">Качнуть</string>
@@ -46,7 +37,6 @@
     <string name="dynamic_gain">Динамический буст</string>
     <string name="editing_segments_count">Мучаем сразу %d сегментов</string>
     <string name="experimental_features">Опасные эксперименты</string>
-    <string name="failed_to_post">Не получилось запостить: %s</string>
     <string name="flashlight_frequency_desc">Диапазон Гц для вспышки. Ниже — под басы, выше — под тарелки и вокал.</string>
     <string name="flashlight_frequency_label">Частота: %1$d - %2$d Гц</string>
     <string name="flashlight_header">Визуализатор вспышки</string>
@@ -56,7 +46,6 @@
     <string name="gamma_control">Управление гаммой</string>
     <string name="gamma_description">Больше гамма — сочнее свет, но меньше деталей. Меньше гамма — ярче, но цвета бледнеют.</string>
     <string name="github_repository">Священный исходник на GitHub</string>
-    <string name="global_announcements_desc">Спамить всем пользователям важные новости</string>
     <string name="glyph_controls">Управление глифами</string>
     <string name="glyph_no_config">Конфига нет. Тыкни «Обновить» в настройках, чтобы скачать пресеты.</string>
     <string name="haptics_amplitude_label">Мощность тряски: %.1fx</string>
@@ -80,7 +69,6 @@
     <string name="install">Накатить</string>
     <string name="internal_speaker">Динамик телефона</string>
     <string name="latency_compensation">Костыль для задержки</string>
-    <string name="latency_compensation_description">Сдвигает тайминги света, чтобы глифы мигали ровно в такт, а не с задержкой через Bluetooth.</string>
     <string name="license_agreement">Лицензионное соглашение</string>
     <string name="license_title">Лицензия</string>
     <string name="light_gamma">Гамма света:</string>
@@ -103,8 +91,6 @@
     <string name="saving_latency_for">Запоминаем задержку для: %s</string>
     <string name="screen_capture_denied">Ты зажал доступ к экрану, визуализатор обиделся</string>
     <string name="settings_title">Крутилки и гайки</string>
-    <string name="shizuku_not_running">Shizuku уууулетает на Гаити (не запущен или не установлен)</string>
-    <string name="shizuku_permission_required">Тут нужен Shizuku, давай разрешение</string>
     <string name="spoof_device">Притвориться другим девайсом</string>
     <string name="spoof_device_description">Заставляет приложение думать, что оно работает на совсем другом смартфона.</string>
     <string name="start_visualizer">ПОЕХАЛИ!</string>
@@ -115,14 +101,10 @@
     <string name="tab_haptics">Вибратор))</string>
     <string name="tab_settings">Гайки</string>
     <string name="theme_liquorice">Чернее твоей души</string>
-    <string name="theme_music">Музыка (обложка альбома)</string>
     <string name="theme_normal">По дефолту</string>
-    <string name="typography">Шрифты</string>
-    <string name="typography_help_text">Переключение между шрифтами NDot и NType во всем приложении.</string>
     <string name="update_available_msg">Свежий патч подоспел! Вот что переписали:</string>
     <string name="update_available_title">Доступна обнова: %s</string>
     <string name="version_info">Версия %s</string>
     <string name="vertical_position">Высота полета</string>
     <string name="visualizer_presets">Пресеты светомузыки</string>
-    <string name="youre_welcome">Да незачто!</string>
 </resources>

@@ -8,7 +8,6 @@
     <string name="saving_latency_for">جارٍ حفظ زمن التأخير لـ: %s</string>
     <string name="internal_speaker">مكبر الصوت الداخلي</string>
     <string name="manual_mode_global_latency">الوضع اليدوي (زمن استجابة عام)</string>
-    <string name="latency_compensation_description">تعويض زمن التأخير يضمن مزامنة Glyph بدقة مع الإيقاع، وهو مفيد خصوصًا لأجهزة Bluetooth.</string>
     <string name="latency_compensation">تعويض زمن التأخير</string>
     <string name="live_spectrum">طيف الصوت المباشر</string>
 
@@ -25,11 +24,6 @@
     <string name="theme_normal">الافتراضي</string>
     <string name="theme_liquorice">أسود عرق السوس</string>
     <string name="theme_nothing_red">Nothing أحمر</string>
-    <string name="theme_music">الموسيقى (باستخدام صورة غلاف الألبوم)</string>
-    <string name="theme_help_text">تُطبَّق التغييرات بعد إعادة تشغيل التطبيق.</string>
-    <string name="typography">الخط</string>
-    <string name="typography_help_text">التبديل بين خطي NDot وNType على مستوى التطبيق بأكمله.</string>
-    <string name="more_settings_coming">المزيد من الإعدادات قريبًا…</string>
 
     <!-- Haptics Screen -->
     <string name="haptics_title">الاهتزاز</string>
@@ -70,13 +64,11 @@
 
     <string name="experimental_features">ميزات تجريبية</string>
     <string name="developer_mode">وضع المطوّر</string>
-    <string name="developer_mode_description">تفعيل ميزات الاختبار المتقدمة ومحاكاة الأجهزة.</string>
     <string name="spoof_device">محاكاة جهاز</string>
     <string name="spoof_device_description">يجبر التطبيق على التصرف كما لو كان يعمل على الجهاز المحدد.</string>
     <string name="spoof_locale">محاكاة اللغة</string>
     <string name="spoof_locale_description">إجبار التطبيق على استخدام لغة معينة لأغراض الاختبار.</string>
     <string name="idle_breathing_title">التنفّس عند الخمول</string>
-    <string name="idle_breathing_desc">تنبض Glyph بلطف عندما يكون المصور المرئي نشطًا ولا يوجد صوت قيد التشغيل.</string>
     <string name="disable_glyphs_when_silent_title">تعطيل Glyph عند الصمت</string>
     <string name="disable_glyphs_when_silent_desc">إيقاف تشغيل Glyph تمامًا وإنهاء الجلسة عند عدم اكتشاف أي صوت.</string>
     <string name="start_visualizer">بدء</string>
@@ -85,14 +77,8 @@
 
     <!-- About Screen -->
     <string name="about_title">معلومات التطبيق والتحديثات</string>
-    <string name="about_intro">يُطلق تطبيق Better Nothing Music Visualizer الإمكانات الكاملة لواجهة Glyph من خلال تحليل ترددي فوري وعالي الدقة.</string>
-    <string name="about_section_why">لماذا نحن أفضل من مصور Nothing الأصلي:</string>
     <string name="analytics_disclaimer_title">التحليلات</string>
     <string name="analytics_disclaimer_text">يستخدم هذا التطبيق خدمة Google Analytics (Firebase) لجمع إحصاءات استخدام مجهولة الهوية وتقارير الأعطال للمساعدة في تحسين تجربة التطبيق. لا يتم جمع أي بيانات شخصية أو محتوى صوتي.</string>
-    <string name="about_why_1">• سطوع 12 بت (4096 مستوى) مقابل نحو 2 بت في المصور الأصلي (3 مستويات)</string>
-    <string name="about_why_2">• معدل تحديث 60 Hz مقابل نحو 25 Hz في المصور الأصلي</string>
-    <string name="about_why_3">• مزامنة دقيقة عبر FFT مقابل استجابة شبه عشوائية</string>
-    <string name="about_why_4">• تحكم مستقل بالمناطق الفرعية</string>
     <string name="github_repository">مستودع GitHub</string>
     <string name="view_source">عرض المصدر</string>
     <string name="version_info">الإصدار %s</string>
@@ -138,7 +124,6 @@
     <string name="preset_by_author">بواسطة %1$s • %2$s</string>
     <string name="downloads_count">%1$s • %2$d تنزيل</string>
     <string name="clear">مسح</string>
-    <string name="global_announcements_desc">إخطار جميع المستخدمين بالتحديثات أو الأخبار</string>
     <string name="sync_ui_to_beat">مزامنة الواجهة مع الإيقاع</string>
     <string name="nav_overlay">تراكب شريط التنقل</string>
     <string name="lens_visualizer">مصور العدسة المرئي</string>
@@ -180,17 +165,11 @@
     <string name="downloading_update">جارٍ تنزيل التحديث...</string>
 
     <string name="app_name_caps">BETTER NOTHING MUSIC VISUALIZER</string>
-    <string name="appreciate_support">نُقدّر دعمكم.</string>
-    <string name="youre_welcome">على الرحب والسعة!</string>
 
     <string name="mediaprojection_permission">إذن MediaProjection</string>
     <string name="mediaprojection_description">يتيح هذا الإذن للتطبيق الوصول إلى البث الصوتي للجهاز عبر نظام الالتقاط الخاص بـAndroid، لكي يستجيب مصور Glyph المرئي في الوقت الفعلي. لا يتم تخزين أي تسجيلات غير ضرورية، ولا يحفظ التطبيق وسائطك أو بياناتك الخاصة.</string>
     <string name="continue_label">متابعة</string>
 
-    <string name="shizuku_permission_required">إذن Shizuku مطلوب لهذا المصدر</string>
-    <string name="shizuku_not_running">Shizuku متوقف أو غير مثبّت</string>
-    <string name="announcement_posted">تم نشر الإعلان!</string>
-    <string name="failed_to_post">فشل النشر: %s</string>
     <string name="audio_permission_required">إذن تسجيل الصوت مطلوب</string>
     <string name="screen_capture_denied">تم رفض إذن التقاط الشاشة</string>
     <string name="notifications_required">الإشعارات مطلوبة أثناء نشاط المصور المرئي</string>

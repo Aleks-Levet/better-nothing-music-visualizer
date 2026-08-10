@@ -84,6 +84,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
@@ -745,6 +746,13 @@ fun IndicatorPill(
     val haptics = LocalHapticFeedback.current
     val isPressed by interactionSource.collectIsPressedAsState()
 
+    // Trigger light haptic tick immediately when pressed down
+    LaunchedEffect(isPressed) {
+        if (isPressed) {
+            haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+        }
+    }
+
     val bouncySpec = spring<Dp>(
         dampingRatio = Spring.DampingRatioMediumBouncy,
         stiffness = Spring.StiffnessLow
@@ -776,7 +784,6 @@ fun IndicatorPill(
 
     Surface(
         onClick = {
-            haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick) // Light tick haptic
             onClick?.invoke()
         },
         enabled = onClick != null,
@@ -975,13 +982,20 @@ fun NativeBottomBar(
             val isVisible = tab in visibleTabs
             val isSelected = tab == selectedTab
 
-            // 1. Animate the weight from ~0f to 1f with a bouncy spring
+            // 1. Animate the weight: high bounce on entry, 400ms EaseOutCubic on exit
             val animatedWeight by animateFloatAsState(
                 targetValue = if (isVisible) 1f else 0.0001f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                ),
+                animationSpec = if (isVisible) {
+                    spring(
+                        dampingRatio = Spring.DampingRatioHighBouncy,
+                        stiffness = Spring.StiffnessMediumLow
+                    )
+                } else {
+                    tween(
+                        durationMillis = 400,
+                        easing = EaseOutCubic
+                    )
+                },
                 label = "nav_tab_weight"
             )
 
@@ -993,7 +1007,7 @@ fun NativeBottomBar(
             )
 
             val selectionScale by animateFloatAsState(
-                targetValue = if (isSelected) 1.25f else 1.0f,
+                targetValue = if (isSelected) 1.1f else 1.0f,
                 animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessLow),
                 label = "nav_selection_scale"
             )
@@ -1007,7 +1021,6 @@ fun NativeBottomBar(
                     selected = isSelected,
                     onClick = {
                         if (!isSelected && isVisible) {
-                            haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
                             onTabSelected(tab)
                         }
                     },

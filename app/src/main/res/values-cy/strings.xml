@@ -8,7 +8,6 @@
     <string name="saving_latency_for">Cadw hwyrni ar gyfer: %s</string>
     <string name="internal_speaker">Siaradwr Mewnol</string>
     <string name="manual_mode_global_latency">Modd llaw (Hwyrni byd-eang)</string>
-    <string name="latency_compensation_description">Mae iawndal hwyrni yn sicrhau bod Glyphs yn taro\'n union ar y curiad, yn enwedig yn ddefnyddiol ar gyfer dyfeisiau Bluetooth.</string>
     <string name="latency_compensation">Iawndal Hwyrni</string>
     <string name="live_spectrum">Sbectrwm Sain Byw</string>
 
@@ -25,11 +24,6 @@
     <string name="theme_normal">Diofyn</string>
     <string name="theme_liquorice">Du Licris</string>
     <string name="theme_nothing_red">Coch Nothing</string>
-    <string name="theme_music">Cerddoriaeth (Celf Albwm)</string>
-    <string name="theme_help_text">Bydd newidiadau\'n dod i rym ar ôl ailgychwyn yr ap.</string>
-    <string name="typography">Teipograffeg</string>
-    <string name="typography_help_text">Newid rhwng ffontiau NDot ac NType ar draws yr ap.</string>
-    <string name="more_settings_coming">Mwy o osodiadau\'n dod yn fuan…</string>
 
     <!-- Haptics Screen -->
     <string name="haptics_title">Haptigau</string>
@@ -54,7 +48,6 @@
 
     <string name="experimental_features">Nodweddion Arbrofol</string>
     <string name="developer_mode">Modd Datblygwr</string>
-    <string name="developer_mode_description">Galluogi nodweddion profi uwch a ffugio dyfais.</string>
     <string name="spoof_device">Ffugio Dyfais</string>
     <string name="spoof_device_description">Gorfodi\'r ap i ymddwyn fel pe bai\'n rhedeg ar y ddyfais a ddewiswyd.</string>
     <string name="spoof_locale">Ffugio Iaith</string>
@@ -69,12 +62,6 @@
 
     <!-- About Screen -->
     <string name="about_title">Gwybodaeth ap a diweddariadau</string>
-    <string name="about_intro">Mae Better Nothing Music Visualizer yn datgloi potensial llawn y Rhyngwyneb Glyph gyda dadansoddiad amlder amser real, manylder uchel.</string>
-    <string name="about_section_why">Pam rydyn ni\'n well na gweithrediad Nothing:</string>
-    <string name="about_why_1">• Disgleirdeb 12-bit (4096 lefel) vs ~2-bit stoc (3 lefel)</string>
-    <string name="about_why_2">• Animeiddiadau hylif 60 FPS vs ~25 FPS stoc</string>
-    <string name="about_why_3">• Cydweddiad FFT manwl vs ymateb lled-arhap</string>
-    <string name="about_why_4">• Rheolaeth is-barth annibynnol</string>
     <string name="github_repository">Ystorfa GitHub</string>
     <string name="view_source">Gweld y Cod Ffynhonnell</string>
     <string name="version_info">Fersiwn %s</string>
@@ -113,7 +100,6 @@
     <string name="idle_pattern_orbit">Orbit</string>
     <string name="idle_pattern_rain">Glaw</string>
     <string name="cancel">Canslo</string>
-    <string name="global_announcements_desc">Hysbysu pob defnyddiwr am ddiweddariadau neu newyddion</string>
     <string name="nav_overlay">Troslun Llywio</string>
     <string name="overlay_width">Lled y Troslun</string>
     <string name="overlay_height">Uchder y Troslun</string>
@@ -135,17 +121,11 @@
     <string name="downloading_update">Wrthi\'n Lawrlwytho Diweddariad…</string>
 
     <string name="app_name_caps">DELWEDDYDD CERDDORIAETH BETTER NOTHING</string>
-    <string name="appreciate_support">RYDYM YN GWERTHFAWROGI EICH CEFNOGAETH.</string>
-    <string name="youre_welcome">CROESO!</string>
 
     <string name="mediaprojection_permission">Caniatâd MediaProjection</string>
     <string name="mediaprojection_description">Mae\'r caniatâd hwn yn gadael i\'r ap gael mynediad i ffrwd sain y ddyfais trwy system ddal Android fel y gall y delweddydd Glyph ymateb mewn amser real. Ni storir unrhyw recordiadau diangen, ac nid yw\'r ap yn cadw eich cyfryngau na\'ch data preifat.</string>
     <string name="continue_label">Parhau</string>
 
-    <string name="shizuku_permission_required">Mae angen caniatâd Shizuku ar gyfer y ffynhonnell hon</string>
-    <string name="shizuku_not_running">Shizuku ddim yn rhedeg neu heb ei osod</string>
-    <string name="announcement_posted">Cyhoeddiad wedi\'i bostio!</string>
-    <string name="failed_to_post">Wedi methu postio: %s</string>
     <string name="audio_permission_required">Mae angen caniatâd recordio sain</string>
     <string name="screen_capture_denied">Gwrthodwyd caniatâd dal sgrin</string>
     <string name="notifications_required">Mae angen hysbysiadau tra bod y delweddydd yn weithredol</string>
