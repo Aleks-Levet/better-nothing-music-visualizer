@@ -366,7 +366,10 @@ public class AudioCaptureService extends Service {
         @Override public void onAudioDevicesRemoved(AudioDeviceInfo[] removed) { refreshLatencyForCurrentAudioRoute(); }
     };
 
-    private void applyEffectiveMaxBrightness() { if (mGlyphRenderer != null) mGlyphRenderer.setMaxBrightness(mMaxBrightness); }
+    private void applyEffectiveMaxBrightness() {
+        int effective = (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) ? 0 : mMaxBrightness;
+        if (mGlyphRenderer != null) mGlyphRenderer.setMaxBrightness(effective);
+    }
 
     private static final class PendingFrame {
         final int[] fftraw;
@@ -678,6 +681,7 @@ public class AudioCaptureService extends Service {
     public void setHapticPulseDurationMs(int ms) { mHapticPulseDurationMs = ms; if (mBeatDetectionEngine != null) mBeatDetectionEngine.setPulseDurationMs(ms); }
 
     public void setMaxBrightness(int brightness) {
+        if (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) brightness = 0;
         int clamped = clampGlyphBrightness(brightness);
         final int targetBrightness = clamped;
         final boolean reopeningAfterEnable = mMaxBrightness <= 0 && targetBrightness > 0;
@@ -1003,7 +1007,15 @@ public class AudioCaptureService extends Service {
         if (mGMM != null) { int size = DeviceProfile.getMatrixWidth(mSelectedDevice) * DeviceProfile.getMatrixHeight(mSelectedDevice); if (size > 0) try { mGMM.setAppMatrixFrame(new int[size]); } catch (Exception ignored) {} }
     }
 
-    private void ensureGlyphSession() { if (mGM == null || mSessionOpen || mMaxBrightness <= 0) return; try { mGM.openSession(); mSessionOpen = true; } catch (Exception e) { Log.e(TAG, "Failed to open Glyph session", e); } }
+    private void ensureGlyphSession() {
+        if (mGM == null || mSessionOpen || mMaxBrightness <= 0 || mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) return;
+        try {
+            mGM.openSession();
+            mSessionOpen = true;
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to open Glyph session", e);
+        }
+    }
 
     private void clearGlyphSession() { try { turnOffGlyphs(); if (mGM != null && mSessionOpen) { try { mGM.closeSession(); } catch (Exception ignored) {} mSessionOpen = false; } } catch (Exception ignored) {} }
 

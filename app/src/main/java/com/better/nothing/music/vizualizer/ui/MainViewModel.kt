@@ -992,8 +992,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val targetDevice = if (_developerModeEnabled.value) _spoofedDevice.value else actualDevice
 
         selectedDevice.value = targetDevice
-        if (targetDevice == DeviceProfile.DEVICE_UNKNOWN && _selectedTab.value == Tab.Glyphs) {
-            _selectedTab.value = Tab.Audio
+        if (targetDevice == DeviceProfile.DEVICE_UNKNOWN) {
+            _glyphsEnabled.value = false
+            MainActivity.serviceStatic?.setMaxBrightness(0)
+            if (_selectedTab.value == Tab.Glyphs) {
+                _selectedTab.value = Tab.Audio
+            }
         }
         refreshPresets()
         reloadLatencyForCurrentRoute()
@@ -1070,6 +1074,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val glyphsEnabled = _glyphsEnabled.asStateFlow()
 
     fun setGlyphsEnabled(enabled: Boolean) {
+        if (selectedDevice.value == DeviceProfile.DEVICE_UNKNOWN && enabled) return
         _glyphsEnabled.value = enabled
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
@@ -1077,6 +1082,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         MainActivity.serviceStatic?.setMaxBrightness(if (enabled) _maxBrightness.value else 0)
         AudioCaptureService.requestWidgetRefresh(ctx)
+        refreshPresets()
     }
 
     fun setMaxBrightness(value: Int) {
