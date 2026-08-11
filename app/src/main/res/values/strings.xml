@@ -326,7 +326,7 @@
     <string name="audio_route_none">None</string>
     <string name="output_selection">Select the outputs</string>
     <string name="select_capture_source">Select the audio source</string>
-    <string name="broadcast">Let other devices connect</string>
+    <string name="broadcast">Let other devices connect...</string>
     <string name="system_language">System Language</string>
     <string name="select_language">Select Language</string>
     <string name="widget_m3_description">Material 3 Visualizer Widget (DayNight)</string>

@@ -1020,7 +1020,7 @@ fun NativeBottomBar(
             )
 
             // Render tab only if it has a noticeable weight
-            if (animatedWeight > 0.005f) {
+            if (animatedWeight > 0.0005f) {
                 NavigationBarItem(
                     modifier = Modifier
                         .weight(animatedWeight)

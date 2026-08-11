@@ -108,108 +108,100 @@ internal fun GlyphsScreen(
                 selectedDevice == com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4B
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.Top
         ) {
             ExpressiveCard(
-                modifier = Modifier.weight(if (isSlimDevice) 0.85f else 1f)
+                modifier = Modifier.weight(if (isSlimDevice) 0.72f else 1f).fillMaxHeight()
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    CardHeader(
-                        title = stringResource(
-                            R.string.visualizer_presets
-                        )
+                CardHeader(
+                    title = stringResource(
+                        R.string.visualizer_presets
                     )
-                }
+                )
 
                 val favorites by viewModel.favoritePresets.collectAsStateWithLifecycle()
                 val sortedPresets = remember(presets, favorites) {
                     presets.sortedByDescending { favorites.contains(it.key) }
                 }
 
-                FlowRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 20.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    if (sortedPresets.isNotEmpty()) {
-                        ExpressiveSplitButton(
-                            items = sortedPresets,
-                            selectedItem = sortedPresets.firstOrNull { it.key == selectedPreset }
-                                ?: sortedPresets.first(),
-                            onItemSelection = { preset -> onPresetSelected(preset.key) },
-                            labelProvider = { preset -> preset.key },
-                            modifier = Modifier.fillMaxWidth(),
-                        )
+                if (sortedPresets.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(20.dp))
+                    ExpressiveSplitButton(
+                        items = sortedPresets,
+                        selectedItem = sortedPresets.firstOrNull { it.key == selectedPreset }
+                            ?: sortedPresets.first(),
+                        onItemSelection = { preset -> onPresetSelected(preset.key) },
+                        labelProvider = { preset -> preset.key },
+                        modifier = Modifier.fillMaxWidth(),
+                        maxButtonsPerRow = if (isSlimDevice) 2 else 3
+                    )
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Crossfade(
-                                targetState = selectedInfo?.description,
-                                label = "desc_fade",
-                                animationSpec = spring(stiffness = Spring.StiffnessMedium),
-                                modifier = Modifier.weight(1f)
-                            ) { description ->
-                                Text(
-                                    text = description ?: stringResource(R.string.glyph_no_config),
-                                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 22.sp),
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
-                                    modifier = Modifier.fillMaxWidth(),
-                                )
-                            }
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    Crossfade(
+                        targetState = selectedPreset,
+                        label = "desc_fade",
+                        animationSpec = spring(stiffness = Spring.StiffnessMedium),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp)
+                    ) { presetKey ->
+                        val description = remember(presetKey, presets) {
+                            presets.firstOrNull { it.key == presetKey }?.description
+                                ?: presets.firstOrNull { it.key == selectedPreset }?.description
+                                ?: presets.firstOrNull()?.description
                         }
-                    } else {
-                        Box(
+                        Text(
+                            text = description ?: stringResource(R.string.glyph_no_config),
+                            style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 22.sp),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(20.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (configVersion.contains(".simple")) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text(
-                                        stringResource(R.string.update_required),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = MaterialTheme.colorScheme.error
-                                    )
-                                    Text(
-                                        stringResource(R.string.download_full_config),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            } else {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(24.dp),
-                                    strokeWidth = 2.dp,
-                                    color = MaterialTheme.colorScheme.primary
+                                .padding(horizontal = 4.dp),
+                        )
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (configVersion.contains(".simple")) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    stringResource(R.string.update_required),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                                Text(
+                                    stringResource(R.string.download_full_config),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
+                        } else {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
                         }
                     }
                 }
             }
 
-            if (isSlimDevice && isRunning) {
+            AnimatedVisibility(isSlimDevice && isRunning) {
                 val vizStateState = viewModel.visualizerState.collectAsStateWithLifecycle()
                 GlyphPreview(
                     vizStateProvider = { vizStateState.value },
                     device = selectedDevice,
                     modifier = Modifier
                         .width(60.dp)
-                        .height(320.dp)
+                        .height(300.dp)
                 )
             }
         }

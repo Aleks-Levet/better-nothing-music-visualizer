@@ -130,7 +130,6 @@
     <string name="mediaprojection_description">Questa autorizzazione consente all\'app di accedere al flusso audio del dispositivo tramite il sistema di cattura di Android, in modo che il visualizzatore Glyph possa reagire in tempo reale. Non vengono memorizzate registrazioni non necessarie e l\'app non salva i tuoi file multimediali o dati privati.</string>
     <string name="continue_label">Continua</string>
 
-    <string name="failed_to_post">Pubblicazione fallita: %s</string>
     <string name="audio_permission_required">L\'autorizzazione alla registrazione audio è richiesta</string>
     <string name="screen_capture_denied">Autorizzazione alla cattura dello schermo negata</string>
     <string name="notifications_required">Le notifiche sono richieste quando il visualizzatore è attivo</string>

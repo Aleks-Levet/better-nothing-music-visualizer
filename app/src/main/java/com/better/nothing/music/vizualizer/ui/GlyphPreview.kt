@@ -224,7 +224,11 @@ fun GlyphPreviewContent(
         val startY = 36f
         val centerX = 256f
         val centerY = 256f
-        val radiusSq = 220f * 220f
+        val radiusSq = when (device) {
+            DeviceProfile.DEVICE_NP3 -> 221f * 221f
+            DeviceProfile.DEVICE_NP4APRO -> 216.1f * 216.1f
+            else -> 220f * 220f
+        }
 
         val visibleLeds = mutableListOf<Triple<Int, Offset, Size>>()
         for (idx in 0 until (matrixW * matrixH)) {
@@ -254,20 +258,28 @@ fun GlyphPreviewContent(
             .padding(horizontal = 4.dp)
             .clip(RoundedCornerShape(if (device == DeviceProfile.DEVICE_NP4A || device == DeviceProfile.DEVICE_NP4B) 16.dp else 40.dp))
             .background(Color(0xFF0A0A0A))
-            .padding(if (device == DeviceProfile.DEVICE_NP4A || device == DeviceProfile.DEVICE_NP4B) 8.dp else 24.dp),
+            // 1. Reduced inner padding for 4b / 4z
+            .padding(
+                if (device == DeviceProfile.DEVICE_NP4A || device == DeviceProfile.DEVICE_NP4B) 2.dp
+                else 24.dp
+            ),
         contentAlignment = Alignment.Center
     ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
+        Canvas(modifier = Modifier.fillMaxSize().padding(0.dp)) {
             val vizState = vizStateProvider()
             val viewBoxW = when (device) {
                 DeviceProfile.DEVICE_NP3,
                 DeviceProfile.DEVICE_NP4APRO -> 512f
                 DeviceProfile.DEVICE_NP1 -> 382f
+                DeviceProfile.DEVICE_NP4A,
+                DeviceProfile.DEVICE_NP4B -> 80f
                 else -> 182f
             }
             val viewBoxH = when (device) {
                 DeviceProfile.DEVICE_NP2 -> 390f
-                DeviceProfile.DEVICE_NP1 -> 382f
+                DeviceProfile.DEVICE_NP1,
+                DeviceProfile.DEVICE_NP4A,
+                DeviceProfile.DEVICE_NP4B -> 382f
                 DeviceProfile.DEVICE_NP3,
                 DeviceProfile.DEVICE_NP4APRO -> 512f
                 else -> 182f
@@ -290,8 +302,10 @@ fun GlyphPreviewContent(
                 if (alpha > baseOpacity) {
                     drawIntoCanvas { canvas ->
                         glowPaint.color = color
-                        glowPaint.alpha = alpha * 0.35f
-                        glowPaint.nativePaint.maskFilter = android.graphics.BlurMaskFilter(12f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL)
+                        glowPaint.alpha = alpha * 0.45f
+                        if (scale > 0f) {
+                            glowPaint.nativePaint.maskFilter = android.graphics.BlurMaskFilter(12f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL)
+                        }
                         canvas.drawPath(path, glowPaint)
                     }
                 }
@@ -384,23 +398,25 @@ fun GlyphPreviewContent(
 
                     DeviceProfile.DEVICE_NP4A, DeviceProfile.DEVICE_NP4B -> {
                         val count = if (device == DeviceProfile.DEVICE_NP4A) 7 else 5
-                        val spacing = 8f
+                        val spacing = 6f
                         val availableH = viewBoxH - spacing * 2
                         val squareSize = availableH / count
-                        val actualSquareSize = squareSize - 4f
+                        val actualSquareSize = squareSize - 2f
 
                         for (i in 0 until count) {
                             val alpha = getA(i)
                             val isLast = i == count - 1
                             val squareColor = if (isLast) Color.Red else color
                             val px = (viewBoxW - actualSquareSize) / 2f
-                            val py = spacing + i * squareSize + 2f
+                            val py = spacing + i * squareSize
 
                             if (alpha > baseOpacity) {
                                 drawIntoCanvas { canvas ->
                                     glowPaint.color = squareColor
                                     glowPaint.alpha = alpha * 0.4f
-                                    glowPaint.nativePaint.maskFilter = android.graphics.BlurMaskFilter(8f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL)
+                                    if (scale > 0f) {
+                                        glowPaint.nativePaint.maskFilter = android.graphics.BlurMaskFilter(8f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL)
+                                    }
                                     canvas.drawRect(px, py, px + actualSquareSize, py + actualSquareSize, glowPaint)
                                 }
                             }
@@ -411,13 +427,15 @@ fun GlyphPreviewContent(
                     DeviceProfile.DEVICE_NP3, DeviceProfile.DEVICE_NP4APRO -> {
                         drawCircle(color = Color.Black, radius = 256f, center = Offset(256f, 256f))
                         matrixData?.forEach { (idx, pos, ledSize) ->
-                            val value = if (device == DeviceProfile.DEVICE_NP3) (if (idx < 512) vizState.getOrElse(idx) { 0f } else 0f) else vizState.getOrElse(idx) { 0f }
+                            val value = vizState.getOrElse(idx) { 0f }
                             val a = 0.11f + (value * 0.89f)
                             if (value > 0) {
                                 drawIntoCanvas { canvas ->
                                     glowPaint.color = Color.White
                                     glowPaint.alpha = a * 0.4f
-                                    glowPaint.nativePaint.maskFilter = android.graphics.BlurMaskFilter(6f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL)
+                                    if (scale > 0f) {
+                                        glowPaint.nativePaint.maskFilter = android.graphics.BlurMaskFilter(6f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL)
+                                    }
                                     canvas.drawRect(pos.x, pos.y, pos.x + ledSize.width, pos.y + ledSize.height, glowPaint)
                                 }
                             }
@@ -507,7 +525,9 @@ private fun drawPathRadial(
 
             paint.color = color
             paint.alpha = alpha * 0.4f
-            paint.nativePaint.maskFilter = android.graphics.BlurMaskFilter(8f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL)
+            if (scale > 0f) {
+                paint.nativePaint.maskFilter = android.graphics.BlurMaskFilter(8f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL)
+            }
             canvas.drawPath(path, paint)
 
             paint.alpha = alpha
@@ -540,7 +560,9 @@ private fun drawPathVerticalSegments(scope: DrawScope, path: Path, color: Color,
 
             paint.color = color
             paint.alpha = alpha * 0.4f
-            paint.nativePaint.maskFilter = android.graphics.BlurMaskFilter(8f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL)
+            if (scale > 0f) {
+                paint.nativePaint.maskFilter = android.graphics.BlurMaskFilter(8f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL)
+            }
             canvas.drawPath(path, paint)
 
             paint.alpha = alpha

@@ -439,7 +439,7 @@ fun OutputSelectionCard(
                     enabled = isHardwareAvailable,
                     onClick = { if (isHardwareAvailable) onToggle(!isEnabled) },
                     modifier = Modifier.height(64.dp),
-                    maxLines = 1
+                    maxLines = 2
                 )
             }
         }

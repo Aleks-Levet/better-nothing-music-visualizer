@@ -807,62 +807,115 @@ public class AudioCaptureService extends Service {
 
     private void startCaptureInternal(CaptureSource source, int resultCode, Intent data) {
         mCaptureSource = source;
-        MediaProjectionManager pm = null;
-        if (source == CaptureSource.INTERNAL) pm = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
+
         synchronized (mCaptureLock) {
+            // 1. Explicitly teardown previous audio capture session & projection handle
             stopCaptureLocked(false);
+
+            // Give the system a moment to release the previous audio policy
+            SystemClock.sleep(500);
+
             if (source == CaptureSource.INTERNAL) {
+                MediaProjectionManager pm = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
                 if (pm == null) return;
+
+                // 2. Start Foreground Service WITH mediaProjection type FIRST (Crucial for Android 14+)
                 startForegroundWithTypes(CaptureSource.INTERNAL, true);
+
+                // 3. Obtain MediaProjection token strictly AFTER service is elevated
                 mProjection = pm.getMediaProjection(resultCode, data);
-                if (mProjection == null) { stopForeground(STOP_FOREGROUND_REMOVE); setRunning(false); return; }
-                startForegroundWithTypes(CaptureSource.INTERNAL, true); // Re-call to include MEDIA_PROJECTION type now that mProjection is set
+                if (mProjection == null) {
+                    stopForeground(STOP_FOREGROUND_REMOVE);
+                    setRunning(false);
+                    return;
+                }
+
                 mProjection.registerCallback(mProjectionCallback, mWorkerHandler);
-            } else startForegroundWithTypes(source, false);
-            mCapturing = true; setRunning(true); updateOverlayVisibility(); mCaptureStartTimeMs = SystemClock.elapsedRealtime();
+            } else {
+                startForegroundWithTypes(source, false);
+            }
+
+            mCapturing = true;
+            setRunning(true);
+            updateOverlayVisibility();
+            mCaptureStartTimeMs = SystemClock.elapsedRealtime();
+
             ensureCaptureExecutor();
             mCaptureExecutor.execute(() -> {
                 Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
-                SystemClock.sleep(1000); // Increased settle delay
+                // Increased settle delay to ensure native audio policy registration is ready
+                SystemClock.sleep(1500);
                 AudioRecord lr = null;
+
                 try {
                     mCurrentSampleRate = (source == CaptureSource.MIC) ? SAMPLE_RATE : 48000;
                     int csr = mCurrentSampleRate;
                     int minBs = AudioRecord.getMinBufferSize(csr, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-                    int bs = Math.max(minBs * 2, 8192); // Increased buffer size for stability
+                    int bs = Math.max(minBs * 2, 8192);
+
                     if (source == CaptureSource.INTERNAL) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && mProjection != null) {
                             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+
                                 AudioPlaybackCaptureConfiguration cfg = new AudioPlaybackCaptureConfiguration.Builder(mProjection)
                                         .addMatchingUsage(AudioAttributes.USAGE_MEDIA)
                                         .addMatchingUsage(AudioAttributes.USAGE_GAME)
                                         .addMatchingUsage(AudioAttributes.USAGE_UNKNOWN)
-                                        .addMatchingUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                                        .excludeUid(Process.myUid())
                                         .build();
-                                AudioRecord.Builder arb = new AudioRecord.Builder()
-                                        .setAudioPlaybackCaptureConfig(cfg)
-                                        .setAudioFormat(new AudioFormat.Builder()
-                                                .setSampleRate(csr)
-                                                .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
-                                                .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                                                .build())
-                                        .setBufferSizeInBytes(bs);
-                                
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                    arb.setContext(createAttributionContext("AudioVisualizerTag"));
+
+                                AudioFormat format = new AudioFormat.Builder()
+                                        .setSampleRate(csr)
+                                        .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
+                                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                                        .build();
+
+                                // Retry loop to handle native AudioFlinger registration delays
+                                // Using more attempts and longer backoff
+                                int maxRetries = 5;
+                                for (int i = 0; i < maxRetries; i++) {
+                                    try {
+                                        AudioRecord.Builder arb = new AudioRecord.Builder()
+                                                .setAudioPlaybackCaptureConfig(cfg)
+                                                .setAudioFormat(format)
+                                                .setBufferSizeInBytes(bs);
+
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                            arb.setContext(createAttributionContext("AudioVisualizerTag"));
+                                        }
+
+                                        lr = arb.build();
+                                        if (lr != null && lr.getState() == AudioRecord.STATE_INITIALIZED) {
+                                            break; // Success
+                                        }
+
+                                        if (lr != null) {
+                                            lr.release();
+                                            lr = null;
+                                        }
+                                    } catch (UnsupportedOperationException e) {
+                                        Log.w(TAG, "AudioRecord build attempt " + (i + 1) + " failed: " + e.getMessage());
+                                        if (lr != null) {
+                                            lr.release();
+                                            lr = null;
+                                        }
+                                        if (i == maxRetries - 1) throw e;
+                                        SystemClock.sleep(500); // Give AudioFlinger time to release policy state
+                                    }
                                 }
-                                
-                                lr = arb.build();
                             }
                         }
-                    } else if (source == CaptureSource.VIZUALIZER) { setupVisualizerCapture(); return; }
-                    else if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                    } else if (source == CaptureSource.VIZUALIZER) {
+                        setupVisualizerCapture();
+                        return;
+                    } else if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
                         lr = new AudioRecord(MediaRecorder.AudioSource.UNPROCESSED, SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bs);
                     }
-                    
+
                     if (lr != null && lr.getState() == AudioRecord.STATE_INITIALIZED) {
                         mHapticRange = new AudioProcessor.FrequencyRange(mHapticMinHz, mHapticMaxHz);
                         mFlashlightRange = new AudioProcessor.FrequencyRange(mFlashlightMinHz, mFlashlightMaxHz);
+
                         synchronized (mCaptureLock) {
                             if (!mCapturing) {
                                 lr.release();
@@ -870,6 +923,7 @@ public class AudioCaptureService extends Service {
                             }
                             mAudioRecord = lr;
                         }
+
                         lr.startRecording();
                         runCaptureLoop(lr);
                     } else {
@@ -928,11 +982,29 @@ public class AudioCaptureService extends Service {
     }
 
     public void stopCapture() { synchronized (mCaptureLock) { stopCaptureLocked(true); } }
-    private void stopCaptureLocked(boolean shouldStopForeground) {
-        mCapturing = false; setRunning(false); updateOverlayVisibility();
-        shutdownCaptureExecutor(); releaseAudioRecord(); releaseVisualizer(); releaseProjection();
-        if (mUdpSync != null) mUdpSync.stopListening();
-        turnOffGlyphs(); resetVisualizerState(); if (shouldStopForeground) stopForeground(STOP_FOREGROUND_REMOVE);
+    private void stopCaptureLocked(boolean stopService) {
+        mCapturing = false;
+
+        if (mAudioRecord != null) {
+            try {
+                if (mAudioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING) {
+                    mAudioRecord.stop();
+                }
+            } catch (Exception ignored) {}
+            mAudioRecord.release();
+            mAudioRecord = null;
+        }
+
+        if (mProjection != null) {
+            mProjection.unregisterCallback(mProjectionCallback);
+            mProjection.stop(); // CRITICAL: Invalidate native token so AudioFlinger cleans up policy
+            mProjection = null;
+        }
+
+        if (stopService) {
+            stopForeground(STOP_FOREGROUND_REMOVE);
+            setRunning(false);
+        }
     }
     private void releaseAudioRecord() { if (mAudioRecord != null) { try { mAudioRecord.stop(); } catch (Exception ignored) {} mAudioRecord.release(); mAudioRecord = null; } }
     private void releaseProjection() { if (mProjection != null) { try { mProjection.stop(); } catch (Exception ignored) {} mProjection = null; } }
