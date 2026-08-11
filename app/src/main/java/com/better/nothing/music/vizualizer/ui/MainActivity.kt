@@ -163,6 +163,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val notificationPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { _ ->
+        // Proceed regardless of whether permission was granted or denied
+        toggleVisualizer(skipNotificationCheck = true)
+    }
+
     private val overlayPermissionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (Settings.canDrawOverlays(this)) {
             // We don't know which one was requested, so we enable based on intent if possible, 
@@ -312,13 +317,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun toggleVisualizer(forceStart: Boolean = false) {
+    private fun toggleVisualizer(forceStart: Boolean = false, skipNotificationCheck: Boolean = false) {
         val s = service ?: return
         val isTrampoline = intent.getBooleanExtra(EXTRA_REQUEST_START, false)
         if (s.isVisualizerRunning && !forceStart) {
             s.stopVisualizer()
             if (isTrampoline) finish()
         } else {
+            // Check for notification permission on Android 13+ if not skipped
+            if (!skipNotificationCheck && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    return
+                }
+            }
+
             val source = if (isTrampoline) {
                 val prefs = getSharedPreferences("viz_prefs", MODE_PRIVATE)
                 val saved = prefs.getString("capture_source", AudioCaptureService.CaptureSource.INTERNAL.name)

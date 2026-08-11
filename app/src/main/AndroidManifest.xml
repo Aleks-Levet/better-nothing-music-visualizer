@@ -63,6 +63,7 @@
             android:name=".service.AudioCaptureService"
             android:exported="false"
             android:foregroundServiceType="mediaProjection|microphone|specialUse"
+            android:attributionTags="AudioVisualizerTag"
             android:stopWithTask="false">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="AudioVisualizer"/>

@@ -8,6 +8,8 @@ import android.os.Build
 import android.os.Bundle
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
 
+import androidx.core.content.edit
+
 class TrampolineActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,8 +25,22 @@ class TrampolineActivity : Activity() {
         val sourceStr = prefs.getString("capture_source", "INTERNAL")
         val needsMic = "MIC" == sourceStr || "VIZUALIZER" == sourceStr
         val hasMicPerm = checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        
+        // Notification permission is optional, only redirect to MainActivity if we haven't asked yet
+        val needsNotifPrompt = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val hasPerm = checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+            // If we don't have permission and haven't been denied before (shouldShowRequestPermissionRationale is false 
+            // before any prompt, but we can't easily check "never asked" without a pref).
+            // Let's use a simple pref to only prompt once from the Tile.
+            !hasPerm && !prefs.getBoolean("notif_prompt_shown", false)
+        } else {
+            false
+        }
 
-        if (sourceStr == "INTERNAL" || (needsMic && !hasMicPerm)) {
+        if (sourceStr == "INTERNAL" || (needsMic && !hasMicPerm) || needsNotifPrompt) {
+            if (needsNotifPrompt) {
+                prefs.edit { putBoolean("notif_prompt_shown", true) }
+            }
             // Need MainActivity for projection prompt or permission request
             val intentToMain = Intent(this, MainActivity::class.java).apply {
                 putExtra(MainActivity.EXTRA_REQUEST_START, true)
