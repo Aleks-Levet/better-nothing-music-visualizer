@@ -611,6 +611,7 @@ public class AudioCaptureService extends Service {
     @Override
     public void onDestroy() {
         sInstance = null; stopCapture(); clearGlyphSession();
+        if (mUdpSync != null) mUdpSync.stopBroadcasting();
         if (mGM != null) mGM.unInit(); if (mGMM != null) mGMM.unInit();
         if (mAudioManager != null) mAudioManager.unregisterAudioDeviceCallback(mAudioDeviceCallback);
         if (mWorkerThread != null) mWorkerThread.quitSafely();
@@ -878,6 +879,7 @@ public class AudioCaptureService extends Service {
     private void stopCaptureLocked(boolean shouldStopForeground) {
         mCapturing = false; setRunning(false); updateOverlayVisibility();
         shutdownCaptureExecutor(); releaseAudioRecord(); releaseVisualizer(); releaseProjection();
+        if (mUdpSync != null) mUdpSync.stopListening();
         turnOffGlyphs(); resetVisualizerState(); if (shouldStopForeground) stopForeground(STOP_FOREGROUND_REMOVE);
     }
     private void releaseAudioRecord() { if (mAudioRecord != null) { try { mAudioRecord.stop(); } catch (Exception ignored) {} mAudioRecord.release(); mAudioRecord = null; } }

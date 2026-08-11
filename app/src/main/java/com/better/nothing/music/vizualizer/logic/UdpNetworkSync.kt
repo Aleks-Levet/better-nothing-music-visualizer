@@ -39,6 +39,7 @@ class UdpNetworkSync(private val context: Context) {
     private var discoverySocket: DatagramSocket? = null
     private var streamingSocket: DatagramSocket? = null
     private var listeningSocket: DatagramSocket? = null
+    private var pingResponderSocket: DatagramSocket? = null
     
     private val _clientIps = MutableStateFlow<Map<InetAddress, Int?>>(emptyMap())
     val clientIps = _clientIps.asStateFlow()
@@ -139,6 +140,7 @@ class UdpNetworkSync(private val context: Context) {
         isBroadcasting = false
         stopLatencyMeasurement()
         discoverySocket?.close()
+        discoverySocket = null
         streamingSocket?.close()
         streamingSocket = null
         _clientIps.value = emptyMap()
@@ -218,16 +220,15 @@ class UdpNetworkSync(private val context: Context) {
         if (isRespondingToPings) return
         isRespondingToPings = true
         executor.execute {
-            var respSocket: DatagramSocket? = null
             try {
-                respSocket = DatagramSocket(null).apply {
+                pingResponderSocket = DatagramSocket(null).apply {
                     reuseAddress = true
                     bind(java.net.InetSocketAddress(LATENCY_PORT))
                 }
                 val buffer = ByteArray(1024)
                 while (isRespondingToPings) {
                     val packet = DatagramPacket(buffer, buffer.size)
-                    respSocket.receive(packet)
+                    pingResponderSocket?.receive(packet)
                     val msg = String(packet.data, 0, packet.length)
                     if (msg.startsWith(PING_PREFIX)) {
                         val parts = msg.split(";")
@@ -240,14 +241,15 @@ class UdpNetworkSync(private val context: Context) {
                                 packet.address,
                                 packet.port
                             )
-                            respSocket.send(responsePacket)
+                            pingResponderSocket?.send(responsePacket)
                         }
                     }
                 }
             } catch (e: Exception) {
                 if (isRespondingToPings) Log.e(TAG, "Ping responder error", e)
             } finally {
-                respSocket?.close()
+                pingResponderSocket?.close()
+                pingResponderSocket = null
                 isRespondingToPings = false
             }
         }
@@ -255,6 +257,8 @@ class UdpNetworkSync(private val context: Context) {
 
     private fun stopPingResponder() {
         isRespondingToPings = false
+        pingResponderSocket?.close()
+        pingResponderSocket = null
     }
 
     // --- Discovery (Client Mode) ---
