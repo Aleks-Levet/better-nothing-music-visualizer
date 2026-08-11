@@ -7,6 +7,7 @@ import android.os.Build
 import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
@@ -42,35 +43,41 @@ class UdpNetworkSync(private val context: Context) {
     private val _clientIps = MutableStateFlow<Map<InetAddress, Int?>>(emptyMap())
     val clientIps = _clientIps.asStateFlow()
 
-    private var isBroadcasting = false
-    private var isDiscovering = false
-    private var isListening = false
-    private var isMeasuringLatency = false
-    private var isRespondingToPings = false
+    @Volatile private var isBroadcasting = false
+    @Volatile private var isDiscovering = false
+    @Volatile private var isListening = false
+    @Volatile private var isMeasuringLatency = false
+    @Volatile private var isRespondingToPings = false
     
     private var multicastLock: WifiManager.MulticastLock? = null
+    private val lockSync = Any()
 
     private fun acquireMulticastLock() {
-        try {
-            val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            if (multicastLock == null) {
-                multicastLock = wifiManager.createMulticastLock(TAG)
+        synchronized(lockSync) {
+            try {
+                val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+                if (multicastLock == null) {
+                    multicastLock = wifiManager.createMulticastLock(TAG)
+                    multicastLock?.setReferenceCounted(true)
+                }
+                multicastLock?.acquire()
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to acquire MulticastLock", e)
             }
-            multicastLock?.acquire()
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to acquire MulticastLock", e)
         }
     }
 
     private fun releaseMulticastLock() {
-        try {
-            multicastLock?.let {
-                if (it.isHeld) {
-                    it.release()
+        synchronized(lockSync) {
+            try {
+                multicastLock?.let {
+                    if (it.isHeld) {
+                        it.release()
+                    }
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to release MulticastLock", e)
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to release MulticastLock", e)
         }
     }
 
@@ -108,9 +115,10 @@ class UdpNetworkSync(private val context: Context) {
                         
                         // Add to streaming list if not already there
                         if (!_clientIps.value.containsKey(packet.address)) {
-                            val current = _clientIps.value.toMutableMap()
-                            current[packet.address] = null
-                            _clientIps.value = current
+                            _clientIps.update { current ->
+                                if (current.containsKey(packet.address)) current
+                                else current + (packet.address to null)
+                            }
                         }
                     }
                 }
@@ -176,10 +184,10 @@ class UdpNetworkSync(private val context: Context) {
                                     val rtt = System.currentTimeMillis() - sentTime
                                     val latency = (rtt / 2).toInt()
                                     
-                                    val current = _clientIps.value.toMutableMap()
-                                    if (current.containsKey(responsePacket.address)) {
-                                        current[responsePacket.address] = latency
-                                        _clientIps.value = current
+                                    _clientIps.update { current ->
+                                        if (current.containsKey(responsePacket.address)) {
+                                            current + (responsePacket.address to latency)
+                                        } else current
                                     }
                                 }
                             }
@@ -262,22 +270,30 @@ class UdpNetworkSync(private val context: Context) {
                 clientSocket = DatagramSocket(null).apply {
                     reuseAddress = true
                     broadcast = true
-                    soTimeout = 3000
+                    soTimeout = 1000
                 }
                 clientSocket.bind(null)
                 
-                val broadcastAddr = getBroadcastAddress() ?: run {
-                    Log.e(TAG, "Could not get broadcast address")
-                    return@execute
-                }
-                Log.d(TAG, "Sending discovery broadcast to $broadcastAddr:$DISCOVERY_PORT from port ${clientSocket.localPort}")
+                val targets = getDiscoveryTargets()
+                Log.d(TAG, "Sending discovery to targets: $targets from port ${clientSocket.localPort}")
                 val msg = DISCOVERY_MSG.toByteArray()
-                val packet = DatagramPacket(msg, msg.size, broadcastAddr, DISCOVERY_PORT)
-                clientSocket.send(packet)
+                
+                // Send discovery packets multiple times to all targets
+                repeat(3) {
+                    for (target in targets) {
+                        try {
+                            val packet = DatagramPacket(msg, msg.size, target, DISCOVERY_PORT)
+                            clientSocket.send(packet)
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Failed to send discovery to $target: ${e.message}")
+                        }
+                    }
+                    Thread.sleep(200)
+                }
 
                 val buffer = ByteArray(1024)
                 val startTime = System.currentTimeMillis()
-                while (System.currentTimeMillis() - startTime < 3000) {
+                while (System.currentTimeMillis() - startTime < 3500) {
                     try {
                         val responsePacket = DatagramPacket(buffer, buffer.size)
                         clientSocket.receive(responsePacket)
@@ -286,10 +302,13 @@ class UdpNetworkSync(private val context: Context) {
                         if (response.startsWith(HOST_MSG_PREFIX)) {
                             val parts = response.split(";")
                             if (parts.size >= 6) {
+                                val reportedIp = parts[3]
+                                val actualIp = responsePacket.address.hostAddress ?: reportedIp
+                                
                                 val host = HostInfo(
                                     name = parts[1],
                                     model = parts[2],
-                                    ip = parts[3],
+                                    ip = actualIp,
                                     port = parts[4].toInt(),
                                     version = parts[5]
                                 )
@@ -297,7 +316,9 @@ class UdpNetworkSync(private val context: Context) {
                             }
                         }
                     } catch (e: java.net.SocketTimeoutException) {
-                        break
+                        // Continue until time limit
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Receive error during discovery", e)
                     }
                 }
             } catch (e: Exception) {
@@ -306,6 +327,7 @@ class UdpNetworkSync(private val context: Context) {
                 clientSocket?.close()
                 isDiscovering = false
                 releaseMulticastLock()
+                Log.d(TAG, "Discovery finished")
             }
         }
     }
@@ -318,12 +340,16 @@ class UdpNetworkSync(private val context: Context) {
         executor.execute {
             try {
                 if (streamingSocket == null) {
-                    streamingSocket = DatagramSocket()
-                    Log.d(TAG, "Created streaming socket")
+                    synchronized(this) {
+                        if (streamingSocket == null) {
+                            streamingSocket = DatagramSocket()
+                            Log.d(TAG, "Created streaming socket")
+                        }
+                    }
                 }
-                val currentClients = _clientIps.value.keys
-                if (currentClients.isEmpty()) return@execute
-                for (ip in currentClients) {
+                val clients = _clientIps.value.keys
+                if (clients.isEmpty()) return@execute
+                for (ip in clients) {
                     val packet = DatagramPacket(packed, packed.size, ip, STREAMING_PORT)
                     streamingSocket?.send(packet)
                 }
@@ -422,35 +448,90 @@ class UdpNetworkSync(private val context: Context) {
 
     private fun getIpAddress(): String {
         try {
+            val interfaces = java.util.Collections.list(java.net.NetworkInterface.getNetworkInterfaces())
+            // Prioritize Wi-Fi and Hotspot interfaces
+            val sorted = interfaces.sortedByDescending { 
+                it.name.startsWith("wlan") || it.name.startsWith("ap") || it.name.startsWith("softap") 
+            }
+            for (networkInterface in sorted) {
+                if (networkInterface.isLoopback || !networkInterface.isUp) continue
+                val addresses = java.util.Collections.list(networkInterface.inetAddresses)
+                for (address in addresses) {
+                    if (address is java.net.Inet4Address) {
+                        val ip = address.hostAddress
+                        if (ip != null && ip != "0.0.0.0") return ip
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting IP address via NetworkInterface", e)
+        }
+
+        try {
             val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
             val connectionInfo = wifiManager.connectionInfo
             val ipAddress = connectionInfo.ipAddress
-            if (ipAddress == 0) return "0.0.0.0"
-            
-            return String.format(
-                "%d.%d.%d.%d",
-                ipAddress and 0xff,
-                ipAddress shr 8 and 0xff,
-                ipAddress shr 16 and 0xff,
-                ipAddress shr 24 and 0xff
-            )
+            if (ipAddress != 0) {
+                return String.format(
+                    "%d.%d.%d.%d",
+                    ipAddress and 0xff,
+                    ipAddress shr 8 and 0xff,
+                    ipAddress shr 16 and 0xff,
+                    ipAddress shr 24 and 0xff
+                )
+            }
         } catch (e: Exception) {
-            Log.e(TAG, "Error getting IP address", e)
-            return "0.0.0.0"
+            Log.e(TAG, "Error getting IP address via WifiManager", e)
         }
+        return "0.0.0.0"
     }
 
-    private fun getBroadcastAddress(): InetAddress? {
+    private fun getDiscoveryTargets(): Set<InetAddress> {
+        val targets = mutableSetOf<InetAddress>()
+        
+        // 1. Universal Broadcast
+        try { targets.add(InetAddress.getByName("255.255.255.255")) } catch (ignored: Exception) {}
+        
+        // 2. NetworkInterface Broadcasts
+        try {
+            val interfaces = java.util.Collections.list(java.net.NetworkInterface.getNetworkInterfaces())
+            for (networkInterface in interfaces) {
+                if (networkInterface.isLoopback || !networkInterface.isUp) continue
+                for (interfaceAddress in networkInterface.interfaceAddresses) {
+                    val broadcast = interfaceAddress.broadcast
+                    if (broadcast != null) targets.add(broadcast)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting broadcast addresses via NetworkInterface", e)
+        }
+
+        // 3. DHCP Gateway (Crucial for Hotspots/Restricted networks)
         try {
             val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            val dhcp: DhcpInfo = wifiManager.dhcpInfo ?: return null
-            val broadcast = dhcp.ipAddress and dhcp.netmask or dhcp.netmask.inv()
-            val quads = ByteArray(4)
-            for (k in 0..3) quads[k] = (broadcast shr k * 8 and 0xff).toByte()
-            return InetAddress.getByAddress(quads)
+            val dhcp: DhcpInfo = wifiManager.dhcpInfo
+            if (dhcp != null && dhcp.gateway != 0) {
+                val gateway = String.format(
+                    "%d.%d.%d.%d",
+                    dhcp.gateway and 0xff,
+                    dhcp.gateway shr 8 and 0xff,
+                    dhcp.gateway shr 16 and 0xff,
+                    dhcp.gateway shr 24 and 0xff
+                )
+                targets.add(InetAddress.getByName(gateway))
+            }
         } catch (e: Exception) {
-            Log.e(TAG, "Error getting broadcast address", e)
-            return null
+            Log.e(TAG, "Error getting gateway via WifiManager", e)
         }
+
+        // 4. Common Hotspot Subnets Fallback
+        try {
+            targets.add(InetAddress.getByName("192.168.43.1"))   // Android Default Hotspot Gateway
+            targets.add(InetAddress.getByName("192.168.43.255")) // Android Default Hotspot Broadcast
+            targets.add(InetAddress.getByName("172.20.10.1"))    // iOS Default Hotspot Gateway
+            targets.add(InetAddress.getByName("192.168.1.1"))    // Common Router Gateway
+        } catch (ignored: Exception) {}
+
+        return targets
     }
 }
