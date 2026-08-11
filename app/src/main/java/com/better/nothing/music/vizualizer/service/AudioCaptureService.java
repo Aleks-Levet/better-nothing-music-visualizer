@@ -156,6 +156,7 @@ public class AudioCaptureService extends Service {
         sIsRunning = running;
         sIsRunningFlow.setValue(running);
         requestWidgetRefresh(this);
+        requestTileRefresh(this);
         if (running && !wasRunning) {
             mMainHandler.removeCallbacks(mIdlePulseRunnable);
             mMainHandler.post(mIdlePulseRunnable);
@@ -1066,7 +1067,14 @@ public class AudioCaptureService extends Service {
         });
     }
 
-    private void requestTileRefresh() { TileService.requestListeningState(this, new ComponentName(this, "com.better.nothing.music.vizualizer.service.VisualizerTileService")); }
+    public static void requestTileRefresh(Context context) {
+        TileService.requestListeningState(context, new ComponentName(context, "com.better.nothing.music.vizualizer.service.VisualizerTileService"));
+    }
+
+    private void requestTileRefresh() {
+        requestTileRefresh(this);
+    }
+
     public static void requestWidgetRefresh(Context context) { Intent intent = new Intent("com.better.nothing.music.vizualizer.REFRESH_WIDGET"); intent.setPackage(context.getPackageName()); context.sendBroadcast(intent); }
     private void requestWidgetRefresh() { requestWidgetRefresh(this); }
     public static int loadLatencyCompensationMs(Context context, int device) { return getPreferences(context).getInt("latency_device_" + device, 0); }

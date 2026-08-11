@@ -145,6 +145,7 @@ class MainActivity : AppCompatActivity() {
             deliverProjectionToken(result.resultCode, result.data!!)
         } else {
             if (intent.getBooleanExtra(EXTRA_REQUEST_START, false)) {
+                AudioCaptureService.requestTileRefresh(this)
                 finish()
             }
         }
@@ -156,6 +157,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             Toast.makeText(this, getString(R.string.audio_permission_required), Toast.LENGTH_SHORT).show()
             if (intent.getBooleanExtra(EXTRA_REQUEST_START, false)) {
+                AudioCaptureService.requestTileRefresh(this)
                 finish()
             }
         }
