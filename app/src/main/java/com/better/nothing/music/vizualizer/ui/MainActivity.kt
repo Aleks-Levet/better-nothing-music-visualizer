@@ -24,6 +24,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -631,19 +634,7 @@ internal fun BetterVizApp(
         }
     }
 
-    val haptics = LocalHapticFeedback.current
-    LaunchedEffect(pagerState.currentPage) {
-        haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
-    }
-
-    LaunchedEffect(pagerState.settledPage) {
-        if (pagerState.settledPage < visibleTabs.size) {
-            val tab = visibleTabs[pagerState.settledPage]
-            if (!isProgrammaticScroll && viewModel.selectedTab.value != tab) {
-                viewModel.selectTab(tab)
-            }
-        }
-    }
+    val tabletTabWidth by viewModel.tabletTabWidth.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = {
@@ -663,10 +654,12 @@ internal fun BetterVizApp(
         modifier = Modifier.fillMaxSize()
     ) { padding ->
         if (isTablet) {
+            val scrollState = rememberScrollState()
             Row(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
+                    .horizontalScroll(scrollState)
             ) {
                 visibleTabs.forEachIndexed { index, tab ->
                     key(tab) {
@@ -677,10 +670,14 @@ internal fun BetterVizApp(
                             else -> true
                         }
 
+                        val tabModifier = if (tabletTabWidth > 0) {
+                            Modifier.width(tabletTabWidth.dp)
+                        } else {
+                            Modifier.weight(1f).widthIn(min = 500.dp)
+                        }
+
                         Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .widthIn(min = 500.dp)
+                            modifier = tabModifier
                                 .fillMaxHeight()
                         ) {
                             if (isTabEnabled) {
@@ -695,7 +692,8 @@ internal fun BetterVizApp(
                                     flashlightEnabled,
                                     visualsEnabled,
                                     onOverlayPermissionRequest,
-                                    PaddingValues(0.dp)
+                                    PaddingValues(0.dp),
+                                    isTablet = true
                                 )
                             } else {
                                 DisabledFeaturePlaceholder(tab)
@@ -742,7 +740,7 @@ internal fun BetterVizApp(
                             rotationZ = if (pageOffset > 0) -rotationAmount else rotationAmount
                         }
                 ) {
-                    TabContent(tab, viewModel, isRunning, totalVisualizedTime, developerModeEnabled, glyphsEnabled, hapticsEnabled, flashlightEnabled, visualsEnabled, onOverlayPermissionRequest, padding)
+                    TabContent(tab, viewModel, isRunning, totalVisualizedTime, developerModeEnabled, glyphsEnabled, hapticsEnabled, flashlightEnabled, visualsEnabled, onOverlayPermissionRequest, padding, isTablet = false)
                 }
             }
         }
@@ -769,7 +767,8 @@ private fun TabContent(
     flashlightEnabled: Boolean,
     visualsEnabled: Boolean,
     onOverlayPermissionRequest: () -> Unit,
-    padding: PaddingValues
+    padding: PaddingValues,
+    isTablet: Boolean = false
 ) {
     val selectedDevice by viewModel.selectedDevice.collectAsStateWithLifecycle()
     when (tab) {
@@ -972,7 +971,8 @@ private fun TabContent(
                         it
                     )
                 },
-                padding = padding
+                padding = padding,
+                isTablet = isTablet
             )
         }
     }

@@ -59,6 +59,7 @@ internal fun SettingsScreen(
     disableGlyphsWhenSilent: Boolean,
     onDisableGlyphsWhenSilentChanged: (Boolean) -> Unit,
     padding: PaddingValues = PaddingValues(),
+    isTablet: Boolean = false,
 ) {
     val uiAmplitudeSyncEnabled by viewModel.uiAmplitudeSyncEnabled.collectAsStateWithLifecycle()
     val flashlightMultiIntensityForced by viewModel.flashlightMultiIntensityForced.collectAsStateWithLifecycle()
@@ -183,6 +184,28 @@ internal fun SettingsScreen(
                                 maxLines = 1
                             )
                         }
+                    }
+
+                    // Tablet Mode Settings
+                    if (isTablet) {
+                        val tabletTabWidth by viewModel.tabletTabWidth.collectAsStateWithLifecycle()
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(R.string.tablet_width_title),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        ExpressiveSplitButton(
+                            items = listOf(400, 500, 600, 700, 0),
+                            selectedItem = tabletTabWidth,
+                            onItemSelection = { viewModel.setTabletTabWidth(it) },
+                            labelProvider = {
+                                if (it == 0) stringResource(R.string.fill_screen)
+                                else "${it}dp"
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            maxButtonsPerRow = 4
+                        )
                     }
             }
         }

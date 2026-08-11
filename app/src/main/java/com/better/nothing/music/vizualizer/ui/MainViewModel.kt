@@ -314,6 +314,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val _tabletTabWidth = MutableStateFlow(0)
+    val tabletTabWidth = _tabletTabWidth.asStateFlow()
+    fun setTabletTabWidth(width: Int) {
+        _tabletTabWidth.value = width
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putInt("tablet_tab_width", width) }
+        }
+    }
+
     private val _overlayYOffset = MutableStateFlow(2)
     val overlayYOffset = _overlayYOffset.asStateFlow()
     fun setOverlayYOffset(offset: Int) {
@@ -1724,6 +1734,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _overlayWidth.value = prefs.getInt("overlay_width", 120)
         _overlayHeight.value = prefs.getInt("overlay_height", 12)
         _overlayHeightBottom.value = prefs.getInt("overlay_height_bottom", 12)
+        _tabletTabWidth.value = prefs.getInt("tablet_tab_width", 0)
         _overlayYOffset.value = prefs.getInt("overlay_y_offset", 2)
         _overlaySensitivity.value = prefs.getFloat("overlay_sensitivity", 1.0f)
         _overlaySensitivityBottom.value = prefs.getFloat("overlay_sensitivity_bottom", 1.0f)

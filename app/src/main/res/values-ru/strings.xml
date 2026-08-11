@@ -107,4 +107,6 @@
     <string name="version_info">Версия %s</string>
     <string name="vertical_position">Высота полета</string>
     <string name="visualizer_presets">Пресеты светомузыки</string>
+    <string name="tablet_width_title">Ширина вкладки планшета</string>
+    <string name="fill_screen">Заполнить весь экран</string>
 </resources>

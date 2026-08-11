@@ -267,6 +267,8 @@
     <!-- Settings Extra -->
     <string name="vizualizer_stats">Vizualizer Stats</string>
     <string name="on_screen_vizualizers">On screen vizualizers</string>
+    <string name="tablet_width_title">Tablet Tab Width</string>
+    <string name="fill_screen">Fill the entire screen</string>
 
     <!-- Notification Extra -->
     <string name="notification_channel_name">Glyph Visualizer</string>
