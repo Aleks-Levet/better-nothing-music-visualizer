@@ -75,7 +75,7 @@ internal fun AboutScreen(
                 ) {
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = Color.White,
                         modifier = Modifier.size(56.dp)
                     ) {
                         Image(
