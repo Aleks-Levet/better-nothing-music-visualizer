@@ -181,12 +181,6 @@ internal fun AboutScreen(
                                     fontWeight = FontWeight.Bold
                                 )
                             }
-                        } else {
-                            Icon(
-                                Icons.Default.ChevronRight,
-                                null,
-                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                            )
                         }
                     }
                 )

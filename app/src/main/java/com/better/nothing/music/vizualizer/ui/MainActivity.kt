@@ -43,6 +43,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -649,23 +650,37 @@ internal fun BetterVizApp(
                     .padding(padding)
             ) {
                 visibleTabs.forEachIndexed { index, tab ->
-                    val isTabEnabled = when (tab) {
-                        Tab.Glyphs -> glyphsEnabled
-                        Tab.Haptics -> hapticsEnabled
-                        Tab.Flashlight -> flashlightEnabled
-                        else -> true
-                    }
+                    key(tab) {
+                        val isTabEnabled = when (tab) {
+                            Tab.Glyphs -> glyphsEnabled
+                            Tab.Haptics -> hapticsEnabled
+                            Tab.Flashlight -> flashlightEnabled
+                            else -> true
+                        }
 
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .widthIn(min = 500.dp)
-                            .fillMaxHeight()
-                    ) {
-                        if (isTabEnabled) {
-                            TabContent(tab, viewModel, isRunning, totalVisualizedTime, developerModeEnabled, glyphsEnabled, hapticsEnabled, flashlightEnabled, visualsEnabled, onOverlayPermissionRequest, PaddingValues(0.dp))
-                        } else {
-                            DisabledFeaturePlaceholder(tab)
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .widthIn(min = 500.dp)
+                                .fillMaxHeight()
+                        ) {
+                            if (isTabEnabled) {
+                                TabContent(
+                                    tab,
+                                    viewModel,
+                                    isRunning,
+                                    totalVisualizedTime,
+                                    developerModeEnabled,
+                                    glyphsEnabled,
+                                    hapticsEnabled,
+                                    flashlightEnabled,
+                                    visualsEnabled,
+                                    onOverlayPermissionRequest,
+                                    PaddingValues(0.dp)
+                                )
+                            } else {
+                                DisabledFeaturePlaceholder(tab)
+                            }
                         }
                     }
                     if (index < visibleTabs.size - 1) {
@@ -684,7 +699,8 @@ internal fun BetterVizApp(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize(),
                 beyondViewportPageCount = 6,
-                userScrollEnabled = true
+                userScrollEnabled = true,
+                key = { page -> if (page < visibleTabs.size) visibleTabs[page].name else page }
             ) { page ->
                 if (page >= visibleTabs.size) return@HorizontalPager
                 val tab = visibleTabs[page]

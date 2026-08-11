@@ -534,7 +534,12 @@ fun LinkCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 20.dp, end = 84.dp, top = 16.dp, bottom = 16.dp),
+                    .padding(
+                        start = 20.dp,
+                        end = if (trailingContent != null) 20.dp else 84.dp,
+                        top = 16.dp,
+                        bottom = 16.dp
+                    ),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -581,14 +586,16 @@ fun LinkCard(
                 }
             }
 
-            IndicatorPill(
-                isExpanded = false,
-                isLink = true,
-                onClick = onClick,
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 20.dp)
-            )
+            if (trailingContent == null) {
+                IndicatorPill(
+                    isExpanded = false,
+                    isLink = true,
+                    onClick = onClick,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 20.dp)
+                )
+            }
         }
     }
 }

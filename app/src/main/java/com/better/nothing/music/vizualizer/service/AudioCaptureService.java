@@ -391,6 +391,7 @@ public class AudioCaptureService extends Service {
     }
 
     public static List<PresetInfo> loadPresetInfos(Context c, int deviceType) {
+        if (deviceType == DeviceProfile.DEVICE_UNKNOWN) return Collections.emptyList();
         try {
             JSONObject root = loadZonesConfigRoot(c);
             String pm = phoneModelForDevice(deviceType);
@@ -425,7 +426,6 @@ public class AudioCaptureService extends Service {
         mUdpSync = new UdpNetworkSync(this);
         mAudioDeviceManager = new AudioDeviceManager(this, this::refreshLatencyForCurrentAudioRoute);
         mSelectedDevice = DeviceProfile.detectDevice();
-        if (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) mSelectedDevice = DeviceProfile.DEVICE_NP2;
         mLatencyCompensationMs = loadLatencyCompensationMs(this, mSelectedDevice);
         mGamma = loadGamma(this);
         SharedPreferences appPrefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE);
@@ -1075,9 +1075,16 @@ public class AudioCaptureService extends Service {
     private static SharedPreferences getPreferences(Context context) { return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); }
     public static boolean isHapticEnabledGlobal(Context context) { return context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).getBoolean("haptic_motor_enabled", false); }
     public static Intent createStopIntent(Context context) { Intent intent = new Intent(context, AudioCaptureService.class); intent.setAction(ACTION_STOP); return intent; }
-    private void refreshPresetCatalog() throws IOException, JSONException { JSONObject root = loadZonesConfigRoot(this); mAvailablePresetKeys = getPresetKeysForPhoneModel(root, phoneModelForDevice(mSelectedDevice)); if (mAvailablePresetKeys.isEmpty()) mAvailablePresetKeys = getAllPresetKeys(root); }
+    private void refreshPresetCatalog() throws IOException, JSONException {
+        if (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN || mMaxBrightness <= 0) {
+            mAvailablePresetKeys = Collections.emptyList();
+            return;
+        }
+        JSONObject root = loadZonesConfigRoot(this); mAvailablePresetKeys = getPresetKeysForPhoneModel(root, phoneModelForDevice(mSelectedDevice)); if (mAvailablePresetKeys.isEmpty()) mAvailablePresetKeys = getAllPresetKeys(root);
+    }
 
     private AudioProcessor.VisualizerConfig loadVisualizerConfig(String presetKey, int sampleRate) throws IOException, JSONException {
+        if (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN || mMaxBrightness <= 0) return null;
         JSONObject root = loadZonesConfigRoot(this); JSONObject p = root.optJSONObject(presetKey); if (p == null) throw new JSONException("Preset not found"); JSONArray za = p.optJSONArray("zones"); if (za == null || za.length() == 0) throw new JSONException("No zones"); double da = p.has("decay-alpha") ? p.optDouble("decay-alpha", 0.8) : root.optDouble("decay-alpha", 0.8); AudioProcessor.ZoneSpec[] zs = parseZoneSpecs(za); return buildVisualizerConfig(presetKey, p.optString("description", presetKey), da, zs);
     }
 

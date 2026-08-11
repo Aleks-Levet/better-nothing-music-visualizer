@@ -640,6 +640,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun hideHostPicker() { _isShowingHostPicker.value = false }
 
     fun checkRemoteConfigVersion() {
+        if (selectedDevice.value == DeviceProfile.DEVICE_UNKNOWN || !_glyphsEnabled.value) return
         viewModelScope.launch(Dispatchers.IO) {
             var connection: HttpURLConnection? = null
             try {
@@ -673,6 +674,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
     fun importZonesConfig(uri: Uri) {
+        if (selectedDevice.value == DeviceProfile.DEVICE_UNKNOWN || !_glyphsEnabled.value) return
         _configUpdateStatus.value = ConfigUpdateStatus.Updating
 
         viewModelScope.launch {
@@ -710,6 +712,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
     fun updateZonesConfig() {
+        if (selectedDevice.value == DeviceProfile.DEVICE_UNKNOWN || !_glyphsEnabled.value) return
         // 1. Set loading state immediately on Main Thread
         _configUpdateStatus.value = ConfigUpdateStatus.Updating
 
@@ -1571,6 +1574,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refreshPresetsInternal() {
+        if (selectedDevice.value == DeviceProfile.DEVICE_UNKNOWN || !_glyphsEnabled.value) {
+            _configVersion.value = "Disabled"
+            _presetInfos.value = emptyList()
+            return
+        }
         try {
             val json = AudioCaptureService.loadZonesConfigText(ctx)
             if (json != null) {
