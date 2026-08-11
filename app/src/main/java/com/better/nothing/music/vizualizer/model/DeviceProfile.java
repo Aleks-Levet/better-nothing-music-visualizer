@@ -50,13 +50,27 @@ public final class DeviceProfile {
         return switch (device) {
             case DEVICE_NP1 -> "Phone (1)";
             case DEVICE_NP2 -> "Phone (2)";
-            case DEVICE_NP2A -> "Phone (2a) / 2a+";
-            case DEVICE_NP3A -> "Phone (3a) / 3a Pro";
+            case DEVICE_NP2A -> "Phone (2a)";
+            case DEVICE_NP3A -> "Phone (3a)";
             case DEVICE_NP4A -> "Phone (4a)";
-            case DEVICE_NP4APRO -> "phone (4a) pro";
+            case DEVICE_NP4APRO -> "Phone (4a) Pro";
             case DEVICE_NP3 -> "Phone (3)";
             case DEVICE_NP4B -> "Phone (4b)";
             default -> "Unknown";
+        };
+    }
+
+    public static String shortdeviceName(int device) {
+        return switch (device) {
+            case DEVICE_NP1 -> "np1";
+            case DEVICE_NP2 -> "np2";
+            case DEVICE_NP2A -> "np2a";
+            case DEVICE_NP3A -> "np3a";
+            case DEVICE_NP4A -> "np4a";
+            case DEVICE_NP4APRO -> "np4ap";
+            case DEVICE_NP3 -> "np3";
+            case DEVICE_NP4B -> "np4b";
+            default -> "Other";
         };
     }
 

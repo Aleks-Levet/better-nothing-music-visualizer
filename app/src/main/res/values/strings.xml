@@ -83,11 +83,11 @@
     <string name="flashlight_duration_desc" translatable="false">Duration of the pulse in milliseconds.</string>
 
     <string name="experimental_features">Experimental Features</string>
-    <string name="developer_mode">Developer Mode</string>
-    <string name="spoof_device">Spoof Device</string>
+    <string name="developer_mode">Spoof device...</string>
+    <string name="spoof_device">Spoof Device Model</string>
     <string name="spoof_device_description">Forces the app to behave as if it\'s running on the selected device.</string>
     <string name="spoof_locale">Spoof Locale</string>
-    <string name="spoof_locale_description">Force the app to use a specific language for testing.</string>
+    <string name="spoof_locale_description">Changes the application\'s language for localization testing.</string>
     <string name="idle_breathing_title">Idle Breathing</string>
     <string name="disable_glyphs_when_silent_title">Disable Glyphs when silent</string>
     <string name="disable_glyphs_when_silent_desc">Completely turn off Glyphs and release the session when no audio is detected.</string>
@@ -326,6 +326,7 @@
     <string name="select_capture_source">Select the audio source</string>
     <string name="broadcast">Let other devices connect</string>
     <string name="system_language">System Language</string>
+    <string name="select_language">Select Language</string>
     <string name="widget_m3_description">Material 3 Visualizer Widget (DayNight)</string>
     <string name="idle_breathing_desc">Glyphs pulse subtly when the visualizer is active but no audio is playing.</string>
 </resources>

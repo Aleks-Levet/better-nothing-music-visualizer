@@ -264,22 +264,6 @@ internal fun SettingsScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                Icon(
-                                    Icons.Default.Dns,
-                                    null,
-                                    modifier = Modifier.size(18.dp),
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    stringResource(R.string.spoof_device),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
                         }
 
                         Column(
@@ -288,6 +272,7 @@ internal fun SettingsScreen(
                         ) {
                             val spoofedDevice by viewModel.spoofedDevice.collectAsStateWithLifecycle()
                             val devices = listOf(
+                                DeviceProfile.DEVICE_UNKNOWN,
                                 DeviceProfile.DEVICE_NP1,
                                 DeviceProfile.DEVICE_NP2,
                                 DeviceProfile.DEVICE_NP2A,
@@ -303,10 +288,10 @@ internal fun SettingsScreen(
                                 selectedItem = spoofedDevice,
                                 onItemSelection = { dev -> viewModel.setSpoofedDevice(dev) },
                                 labelProvider = { dev ->
-                                    DeviceProfile.deviceName(dev).replace("Nothing Phone ", "")
+                                    DeviceProfile.shortdeviceName(dev)
                                 },
                                 modifier = Modifier.fillMaxWidth(),
-                                maxButtonsPerRow = 3
+                                maxButtonsPerRow = 4
                             )
                             BodyText(
                                 text = stringResource(R.string.spoof_device_description),
@@ -314,69 +299,53 @@ internal fun SettingsScreen(
                             )
                         }
                     }
-
-                    // 4. Locale Spoofing
-                    val currentSpoofLocale by viewModel.spoofLocale.collectAsStateWithLifecycle()
-                    Column {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    Icon(
-                                        Icons.Default.Language,
-                                        null,
-                                        modifier = Modifier.size(18.dp),
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                    Text(
-                                        stringResource(R.string.spoof_locale),
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                            }
-
-                            val locales = listOf(
-                                "en" to "English",
-                                "fr" to "Français",
-                                "it" to "Italiano",
-                                "de" to "DE",
-                                "es" to "Espanol",
-                                "ru" to "RU",
-                                "tr" to "TR",
-                                "pt-BR" to "PT-BR",
-                                "zh-CN" to "ZH-CN",
-                                "ja" to "JA",
-                                "hi" to "HI",
-                                "cy" to "CY",
-                                null to stringResource(R.string.system_language)
-                            )
-
-                            ExpressiveSplitButton(
-                                items = locales.map { it.first },
-                                selectedItem = currentSpoofLocale,
-                                onItemSelection = { tag -> viewModel.setSpoofLocale(tag) },
-                                labelProvider = { tag ->
-                                    locales.firstOrNull { it.first == tag }?.second.orEmpty()
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                maxButtonsPerRow = 4
-                            )
-                            BodyText(
-                                text = stringResource(R.string.spoof_locale_description),
-                                size = 11.sp
-                            )
-                        }
-                    }
                 }
             }
+        }
+
+        // ── Language Selection ──────────────────────────────────────────────
+        val currentSpoofLocale by viewModel.spoofLocale.collectAsStateWithLifecycle()
+        ExpandableExpressiveCard(
+            title = stringResource(R.string.select_language),
+            icon = Icons.Default.Language,
+            expanded = expandedCardId == "locale",
+            onExpandedChange = { expandedCardId = if (it) "locale" else null },
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                val locales = listOf(
+                    "en" to "English",
+                    "fr" to "Français",
+                    "it" to "Italiano",
+                    "de" to "DE",
+                    "es" to "Espanol",
+                    "ru" to "RU",
+                    "tr" to "TR",
+                    "pt-BR" to "PT-BR",
+                    "zh-CN" to "ZH-CN",
+                    "ja" to "JA",
+                    "hi" to "HI",
+                    "cy" to "CY",
+                    null to stringResource(R.string.system_language)
+                )
+
+                ExpressiveSplitButton(
+                    items = locales.map { it.first },
+                    selectedItem = currentSpoofLocale,
+                    onItemSelection = { tag -> viewModel.setSpoofLocale(tag) },
+                    labelProvider = { tag ->
+                        locales.firstOrNull { it.first == tag }?.second.orEmpty()
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    maxButtonsPerRow = 4
+                )
+                BodyText(
+                    text = stringResource(R.string.spoof_locale_description),
+                    size = 11.sp
+                )
+            }
+        }
 
         // ── Audio Processing ────────────────────────────────────────────────
         val fftReadMethod by viewModel.fftReadMethod.collectAsStateWithLifecycle()
