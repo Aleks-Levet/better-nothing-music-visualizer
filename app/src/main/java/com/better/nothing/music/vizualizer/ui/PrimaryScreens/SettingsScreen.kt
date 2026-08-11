@@ -415,27 +415,29 @@ internal fun SettingsScreen(
                 }
 
                 // Notification Button Set
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.notification_controls_title),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                val currentNotifSet by viewModel.notificationButtonSet.collectAsStateWithLifecycle()
-                ExpressiveSplitButton(
-                    items = listOf("presets", "controls"),
-                    selectedItem = currentNotifSet,
-                    onItemSelection = { viewModel.setNotificationButtonSet(it) },
-                    labelProvider = {
-                        if (it == "presets") stringResource(R.string.notification_button_set_presets) 
-                        else stringResource(R.string.notification_button_set_quick_controls)
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                BodyText(
-                    text = stringResource(R.string.notification_controls_desc),
-                    size = 12.sp
-                )
+                if (selectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.notification_controls_title),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    val currentNotifSet by viewModel.notificationButtonSet.collectAsStateWithLifecycle()
+                    ExpressiveSplitButton(
+                        items = listOf("presets", "controls"),
+                        selectedItem = currentNotifSet,
+                        onItemSelection = { viewModel.setNotificationButtonSet(it) },
+                        labelProvider = {
+                            if (it == "presets") stringResource(R.string.notification_button_set_presets)
+                            else stringResource(R.string.notification_button_set_quick_controls)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    BodyText(
+                        text = stringResource(R.string.notification_controls_desc),
+                        size = 12.sp
+                    )
+                }
 
                 // ── UI Amplitude Sync & Visual Toggles (Moved from AudioSetupScreen) ───────────
                 Spacer(modifier = Modifier.height(16.dp))

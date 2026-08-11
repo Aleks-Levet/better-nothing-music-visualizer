@@ -269,11 +269,13 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
+                val isOverlayVisible = isShowingAbout || isShowingLicense || isShowingStats || isShowingHostPicker
+
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .graphicsLayer {
-                            if (backProgress > 0f) {
+                            if (backProgress > 0f && !isOverlayVisible) {
                                 val scale = 1f - (backProgress * 0.05f)
                                 scaleX = scale
                                 scaleY = scale
@@ -288,7 +290,8 @@ class MainActivity : AppCompatActivity() {
                         onOverlayPermissionRequest = {
                             val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:$packageName".toUri())
                             overlayPermissionLauncher.launch(intent)
-                        }
+                        },
+                        backProgress = if (isOverlayVisible) backProgress else 0f
                     )
                 }
 
@@ -534,7 +537,8 @@ fun AudioDeviceInfo.toAudioRoute(): AudioRoute {
 internal fun BetterVizApp(
     viewModel: MainViewModel,
     onToggleVisualizer: () -> Unit,
-    onOverlayPermissionRequest: () -> Unit
+    onOverlayPermissionRequest: () -> Unit,
+    backProgress: Float = 0f
 ) {
     val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
     val isRunning by viewModel.runningState.collectAsStateWithLifecycle()
@@ -734,7 +738,8 @@ internal fun BetterVizApp(
             selectedDevice = selectedDevice,
             isTablet = isTablet,
             visibleTabCount = visibleTabs.size,
-            padding = padding
+            padding = padding,
+            backProgress = backProgress
         )
     }
 }

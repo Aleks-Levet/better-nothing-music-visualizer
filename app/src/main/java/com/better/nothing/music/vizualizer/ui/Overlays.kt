@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.better.nothing.music.vizualizer.ui.SecondaryScreens.AboutScreen as AboutScreenSecondary
@@ -27,7 +28,8 @@ fun MainOverlays(
     selectedDevice: Int,
     isTablet: Boolean = false,
     visibleTabCount: Int = 1,
-    padding: PaddingValues = PaddingValues(0.dp)
+    padding: PaddingValues = PaddingValues(0.dp),
+    backProgress: Float = 0f
 ) {
     val isShowingAbout by viewModel.isShowingAbout.collectAsStateWithLifecycle()
     val isShowingLicense by viewModel.isShowingLicense.collectAsStateWithLifecycle()
@@ -55,7 +57,11 @@ fun MainOverlays(
             visible = isShowingAbout,
             enter = enterTransition,
             exit = exitTransition,
-            modifier = overlayModifier
+            modifier = overlayModifier.graphicsLayer {
+                if (isShowingAbout && backProgress > 0f) {
+                    translationX = size.width * backProgress
+                }
+            }
         ) {
             AboutScreenSecondary(
                 viewModel = viewModel,
@@ -67,7 +73,11 @@ fun MainOverlays(
             visible = isShowingLicense,
             enter = enterTransition,
             exit = exitTransition,
-            modifier = overlayModifier
+            modifier = overlayModifier.graphicsLayer {
+                if (isShowingLicense && backProgress > 0f) {
+                    translationX = size.width * backProgress
+                }
+            }
         ) {
             LicenseScreen(
                 viewModel = viewModel,
@@ -79,7 +89,11 @@ fun MainOverlays(
             visible = isShowingStats,
             enter = enterTransition,
             exit = exitTransition,
-            modifier = overlayModifier
+            modifier = overlayModifier.graphicsLayer {
+                if (isShowingStats && backProgress > 0f) {
+                    translationX = size.width * backProgress
+                }
+            }
         ) {
             StatsScreen(
                 viewModel = viewModel,
