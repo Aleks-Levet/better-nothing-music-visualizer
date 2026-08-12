@@ -76,6 +76,7 @@ fun FlashlightScreen(
     flashlightIntensityLevels: Int,
     flashlightCurrentLevel: Int,
     flashlightAmplitudeFlow: StateFlow<Float>,
+    flashlightMotorIntensityFlow: StateFlow<Float>,
     isBeatDetectedFlow: StateFlow<Boolean>,
     padding: androidx.compose.foundation.layout.PaddingValues = androidx.compose.foundation.layout.PaddingValues(),
 ) {
@@ -259,6 +260,7 @@ fun FlashlightScreen(
 
                 val isBeatDetected by isBeatDetectedFlow.collectAsStateWithLifecycle()
                 val flashlightAmplitude by flashlightAmplitudeFlow.collectAsStateWithLifecycle()
+                val motorIntensity by flashlightMotorIntensityFlow.collectAsStateWithLifecycle()
 
                 val flashColor by animateColorAsState(
                     targetValue = if (flashlightCurrentLevel > 0) Color.White else MaterialTheme.colorScheme.primary.copy(
@@ -299,14 +301,19 @@ fun FlashlightScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         // Glowing white dot
+                        val dotScaleTarget = 0.3f + (motorIntensity * 0.7f)
+                        val dotAlphaTarget = 0.2f + (motorIntensity * 0.8f)
+
+                        val isBinary = flashlightIntensityLevels <= 1
+                        
                         val dotScale by animateFloatAsState(
-                            targetValue = 0.3f + (flashlightAmplitude * 0.7f),
-                            animationSpec = androidx.compose.animation.core.spring(stiffness = Spring.StiffnessMedium),
+                            targetValue = dotScaleTarget,
+                            animationSpec = if (isBinary) snap() else androidx.compose.animation.core.spring(stiffness = Spring.StiffnessMedium),
                             label = "dotScale"
                         )
                         val dotAlpha by animateFloatAsState(
-                            targetValue = 0.2f + (flashlightAmplitude * 0.8f),
-                            animationSpec = androidx.compose.animation.core.spring(stiffness = Spring.StiffnessMedium),
+                            targetValue = dotAlphaTarget,
+                            animationSpec = if (isBinary) snap() else androidx.compose.animation.core.spring(stiffness = Spring.StiffnessMedium),
                             label = "dotAlpha"
                         )
 

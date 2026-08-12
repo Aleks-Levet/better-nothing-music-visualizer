@@ -78,6 +78,7 @@
     <string name="mediaprojection_permission">Разрешение MediaProjection</string>
     <string name="music_theme_notification_access">Музыкальной теме нужен доступ к уведомлениям. Включи его, не жадничай.</string>
     <string name="nav_overlay">Навигационный оверлей</string>
+    <string name="enable_on_screen_visualizers">Включить экранные визуализаторы</string>
     <string name="no_changelog">Патчноут съела собака.</string>
     <string name="no_presets_found">Тут пусто, как в карманах к концу месяца. Будь первым, закинь пресет!</string>
     <string name="not_now">Отстань!</string>

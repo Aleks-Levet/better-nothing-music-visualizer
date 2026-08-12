@@ -140,8 +140,20 @@ public class AudioCaptureService extends Service {
 
     private static volatile boolean sIsRunning = false;
     private static final MutableStateFlow<Boolean> sIsRunningFlow = StateFlowKt.MutableStateFlow(false);
-    
+    private static final MutableStateFlow<Float> sHapticMotorIntensityFlow = StateFlowKt.MutableStateFlow(0f);
+    private static final MutableStateFlow<Float> sFlashlightMotorIntensityFlow = StateFlowKt.MutableStateFlow(0f);
+    private static final MutableStateFlow<Float> sHapticRawPeakFlow = StateFlowKt.MutableStateFlow(0f);
+    private static final MutableStateFlow<Float> sFlashlightRawPeakFlow = StateFlowKt.MutableStateFlow(0f);
+    private static final MutableStateFlow<Boolean> sHapticBeatFlow = StateFlowKt.MutableStateFlow(false);
+    private static final MutableStateFlow<Boolean> sFlashlightBeatFlow = StateFlowKt.MutableStateFlow(false);
+
     public StateFlow<Boolean> isRunningFlow() { return sIsRunningFlow; }
+    public static StateFlow<Float> hapticMotorIntensityFlow() { return sHapticMotorIntensityFlow; }
+    public static StateFlow<Float> flashlightMotorIntensityFlow() { return sFlashlightMotorIntensityFlow; }
+    public static StateFlow<Float> hapticRawPeakFlow() { return sHapticRawPeakFlow; }
+    public static StateFlow<Float> flashlightRawPeakFlow() { return sFlashlightRawPeakFlow; }
+    public static StateFlow<Boolean> hapticBeatFlow() { return sHapticBeatFlow; }
+    public static StateFlow<Boolean> flashlightBeatFlow() { return sFlashlightBeatFlow; }
     public static boolean isRunning() { return sIsRunning; }
 
     public StateFlow<java.util.Map<InetAddress, Integer>> getConnectedClientsFlow() {
@@ -1004,6 +1016,7 @@ public class AudioCaptureService extends Service {
         if (stopService) {
             stopForeground(STOP_FOREGROUND_REMOVE);
             setRunning(false);
+            clearGlyphSession();
         }
     }
     private void releaseAudioRecord() { if (mAudioRecord != null) { try { mAudioRecord.stop(); } catch (Exception ignored) {} mAudioRecord.release(); mAudioRecord = null; } }
@@ -1069,17 +1082,40 @@ public class AudioCaptureService extends Service {
                 if (mOverlayView != null) mOverlayView.updateMagnitudes(mLatestRawFFT);
                 if (mEdgeVisualizerView != null) mEdgeVisualizerView.updateMagnitudes(mLatestRawFFT);
                 if (mLensVisualizerView != null) mLensVisualizerView.updateMagnitudes(mLatestRawFFT);
-                
+
+                float hRawPeak = getLatestHapticPeak();
+                float fRawPeak = getLatestFlashlightPeak();
+                sHapticRawPeakFlow.setValue(hRawPeak);
+                sFlashlightRawPeakFlow.setValue(fRawPeak);
+
                 if (mHapticEnabled) {
                     if (mHapticMode == HapticMode.BASS_TO_AMPLITUDE) {
-                        if (mContinuousHapticEngine != null) mContinuousHapticEngine.performHapticFeedback(getLatestHapticPeak(), latestDueFrame.config);
+                        if (mContinuousHapticEngine != null) {
+                            float intensity = mContinuousHapticEngine.performHapticFeedback(hRawPeak, latestDueFrame.config);
+                            sHapticMotorIntensityFlow.setValue(intensity);
+                        }
+                        sHapticBeatFlow.setValue(false);
                     } else if (mBeatDetectionEngine != null) {
                         mBeatDetectionEngine.performHapticFeedback(mLatestRawFFT, mHapticRange);
+                        sHapticMotorIntensityFlow.setValue(mBeatDetectionEngine.getCurrentIntensity());
+                        sHapticBeatFlow.setValue(mBeatDetectionEngine.isBeatTriggeredThisFrame());
                     }
+                } else {
+                    sHapticMotorIntensityFlow.setValue(0f);
+                    sHapticBeatFlow.setValue(false);
                 }
+
                 if (mFlashlightEnabled && mFlashlightEngine != null) {
-                    mFlashlightEngine.performFlashlightFeedback(getLatestFlashlightPeak(), latestDueFrame.config, mLatestRawFFT, mFlashlightRange != null ? mFlashlightRange.logBinLo : 0, mFlashlightRange != null ? mFlashlightRange.logBinHi : 0);
+                    mFlashlightEngine.performFlashlightFeedback(fRawPeak, latestDueFrame.config, mLatestRawFFT, mFlashlightRange != null ? mFlashlightRange.logBinLo : 0, mFlashlightRange != null ? mFlashlightRange.logBinHi : 0);
+                    int levels = mFlashlightEngine.getTorchIntensityLevels();
+                    float intensity = (levels > 1) ? (float) mFlashlightEngine.getCurrentLevel() / levels : (mFlashlightEngine.getCurrentLevel() > 0 ? 1f : 0f);
+                    sFlashlightMotorIntensityFlow.setValue(intensity);
+                    sFlashlightBeatFlow.setValue(mFlashlightMode == TorchMode.BEAT_DETECTION && mFlashlightEngine.isBeatTriggeredThisFrame());
+                } else {
+                    sFlashlightMotorIntensityFlow.setValue(0f);
+                    sFlashlightBeatFlow.setValue(false);
                 }
+
                 processFrame(latestDueFrame.fftraw, latestDueFrame.config, latestDueFrame.configVersion);
             } catch (Exception e) { Log.e(TAG, "Error dispatching frame", e); }
         }
@@ -1131,20 +1167,37 @@ public class AudioCaptureService extends Service {
 
     private void turnOffGlyphs() {
         if (mGM != null && mSessionOpen) { int count = resolveGlyphCount(); if (count > 0) try { mGM.setFrameColors(new int[count]); } catch (Exception ignored) {} try { mGM.turnOff(); } catch (Exception ignored) {} }
-        if (mGMM != null) { int size = DeviceProfile.getMatrixWidth(mSelectedDevice) * DeviceProfile.getMatrixHeight(mSelectedDevice); if (size > 0) try { mGMM.setAppMatrixFrame(new int[size]); } catch (Exception ignored) {} }
+        if (mGMM != null && mSessionOpen) { int size = DeviceProfile.getMatrixWidth(mSelectedDevice) * DeviceProfile.getMatrixHeight(mSelectedDevice); if (size > 0) try { mGMM.setAppMatrixFrame(new int[size]); } catch (Exception ignored) {} }
     }
 
     private void ensureGlyphSession() {
-        if (mGM == null || mSessionOpen || mMaxBrightness <= 0 || mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) return;
+        if (mSessionOpen || mMaxBrightness <= 0 || mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) return;
         try {
-            mGM.openSession();
-            mSessionOpen = true;
+            if (mGM != null) {
+                mGM.openSession();
+                mSessionOpen = true;
+            }
         } catch (Exception e) {
             Log.e(TAG, "Failed to open Glyph session", e);
         }
     }
 
-    private void clearGlyphSession() { try { turnOffGlyphs(); if (mGM != null && mSessionOpen) { try { mGM.closeSession(); } catch (Exception ignored) {} mSessionOpen = false; } } catch (Exception ignored) {} }
+    private void clearGlyphSession() {
+        try {
+            turnOffGlyphs();
+            if (mSessionOpen) {
+                if (DeviceProfile.getMatrixWidth(mSelectedDevice) > 0) {
+                    if (mGMM != null) {
+                        try { mGMM.closeAppMatrix(); } catch (Exception ignored) {}
+                    }
+                }
+                if (mGM != null) {
+                    try { mGM.closeSession(); } catch (Exception ignored) {}
+                }
+                mSessionOpen = false;
+            }
+        } catch (Exception ignored) {}
+    }
 
     private boolean canPushGlyphFrames() { if (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) return false; if (DeviceProfile.getMatrixWidth(mSelectedDevice) > 0) return mGMM != null; return mGM != null && mSessionOpen; }
 

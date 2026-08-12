@@ -259,6 +259,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         setCaptureSource(AudioCaptureService.CaptureSource.NETWORK)
     }
 
+    private val _onScreenVisualizersEnabled = MutableStateFlow(false)
+    val onScreenVisualizersEnabled = _onScreenVisualizersEnabled.asStateFlow()
+
+    fun setOnScreenVisualizersEnabled(enabled: Boolean, context: Context, onPermissionRequired: () -> Unit) {
+        if (enabled && !android.provider.Settings.canDrawOverlays(context)) {
+            onPermissionRequired()
+            return
+        }
+        _onScreenVisualizersEnabled.value = enabled
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("on_screen_visualizers_enabled", enabled) }
+        }
+        // If master switch is turned off, we should probably tell the service to hide everything
+        if (!enabled) {
+            MainActivity.serviceStatic?.setOverlayEnabled(false)
+            MainActivity.serviceStatic?.setEdgeVisualizerEnabled(false)
+            MainActivity.serviceStatic?.setLensVisualizerEnabled(false)
+        } else {
+            // Restore individual states
+            MainActivity.serviceStatic?.setOverlayEnabled(_overlayEnabled.value)
+            MainActivity.serviceStatic?.setEdgeVisualizerEnabled(_edgeVisualizerEnabled.value)
+            MainActivity.serviceStatic?.setLensVisualizerEnabled(_lensVisualizerEnabled.value)
+        }
+    }
+
     private val _overlayWidth = MutableStateFlow(120)
     val overlayWidth = _overlayWidth.asStateFlow()
     fun setOverlayWidth(width: Int) {
@@ -361,7 +387,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val edgeVisualizerEnabled = _edgeVisualizerEnabled.asStateFlow()
     fun setEdgeVisualizerEnabled(enabled: Boolean) {
         _edgeVisualizerEnabled.value = enabled
-        MainActivity.serviceStatic?.setEdgeVisualizerEnabled(enabled)
+        if (_onScreenVisualizersEnabled.value) {
+            MainActivity.serviceStatic?.setEdgeVisualizerEnabled(enabled)
+        }
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putBoolean("edge_visualizer_enabled", enabled) }
@@ -449,7 +477,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val lensVisualizerEnabled = _lensVisualizerEnabled.asStateFlow()
     fun setLensVisualizerEnabled(enabled: Boolean) {
         _lensVisualizerEnabled.value = enabled
-        MainActivity.serviceStatic?.setLensVisualizerEnabled(enabled)
+        if (_onScreenVisualizersEnabled.value) {
+            MainActivity.serviceStatic?.setLensVisualizerEnabled(enabled)
+        }
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putBoolean("lens_visualizer_enabled", enabled) }
@@ -807,7 +837,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setOverlayEnabled(enabled: Boolean) {
         _overlayEnabled.value = enabled
-        MainActivity.serviceStatic?.setOverlayEnabled(enabled)
+        if (_onScreenVisualizersEnabled.value) {
+            MainActivity.serviceStatic?.setOverlayEnabled(enabled)
+        }
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putBoolean("overlay_enabled", enabled) }
@@ -1409,11 +1441,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _hapticAmplitude = MutableStateFlow(0f)
     val hapticAmplitude = _hapticAmplitude.asStateFlow()
 
+    val _hapticMotorIntensity = MutableStateFlow(0f)
+    val hapticMotorIntensity = _hapticMotorIntensity.asStateFlow()
+
     val _uiAmplitude = MutableStateFlow(1f)
     val uiAmplitude = _uiAmplitude.asStateFlow()
 
     val _flashlightAmplitude = MutableStateFlow(0f)
     val flashlightAmplitude = _flashlightAmplitude.asStateFlow()
+
+    val _flashlightMotorIntensity = MutableStateFlow(0f)
+    val flashlightMotorIntensity = _flashlightMotorIntensity.asStateFlow()
 
     val _isBeatDetected = MutableStateFlow(false)
     val isBeatDetected = _isBeatDetected.asStateFlow()
@@ -1446,7 +1484,55 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
             _fftState.value = manualDecayFft.copyOf()
-            updateAmplitudesAndBeats(raw)
+            // updateAmplitudesAndBeats(raw) // This is now handled by direct flow sync in MainActivity
+        }
+    }
+
+    fun syncIntensities(hPeak: Float, hIntensity: Float, fPeak: Float, fIntensity: Float, hBeat: Boolean, fBeat: Boolean) {
+        _hapticAmplitude.value = hPeak
+        _hapticMotorIntensity.value = hIntensity
+        _flashlightAmplitude.value = fPeak
+        _flashlightMotorIntensity.value = fIntensity
+
+        if (hBeat) {
+            _isBeatDetected.value = true
+            viewModelScope.launch { delay(50); _isBeatDetected.value = false }
+        }
+
+        if (fBeat) {
+            _isFlashlightBeatDetected.value = true
+            viewModelScope.launch { delay(50); _isFlashlightBeatDetected.value = false }
+        }
+        
+        // Handle UI amplitude smoothing
+        val service = MainActivity.serviceStatic
+        if (service != null) {
+            val uiPeak = service.latestUiPeak
+            uiPeakValue = uiPeakValue * 0.95f + uiPeak * 0.05f
+            if (uiPeak > uiPeakValue) uiPeakValue = uiPeak
+
+            val source = _captureSource.value
+            val targetGain = if (uiPeakValue > 0.01f) 0.25f / uiPeakValue else 10f
+            
+            val gainLimitMin = when (source) {
+                AudioCaptureService.CaptureSource.MIC -> 2f
+                else -> 1f
+            }
+            val gainLimitMax = when (source) {
+                AudioCaptureService.CaptureSource.MIC -> 20f
+                AudioCaptureService.CaptureSource.NETWORK -> 1f
+                else -> 2.5f
+            }
+
+            uiDynamicGain = uiDynamicGain * 0.9f + targetGain.coerceIn(gainLimitMin, gainLimitMax) * 0.1f
+            val target = (1.0f + (uiPeak * uiDynamicGain - 0.15f)).coerceIn(0.9f, 1.25f)
+            
+            if (target > smoothedUiAmplitude) {
+                smoothedUiAmplitude = smoothedUiAmplitude * 0.05f + target * 0.95f
+            } else {
+                smoothedUiAmplitude = smoothedUiAmplitude * 0.7f + target * 0.3f
+            }
+            _uiAmplitude.value = if (_uiAmplitudeSyncEnabled.value) smoothedUiAmplitude else 1.0f
         }
     }
 
@@ -1514,26 +1600,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _uiAmplitude.value = if (_uiAmplitudeSyncEnabled.value) smoothedUiAmplitude else 1.0f
 
         if (fftraw.isNotEmpty()) {
-            val binLo = AudioProcessor.findLogBinIndex(_hapticFreqMin.value)
-            val binHi = AudioProcessor.findLogBinIndex(_hapticFreqMax.value)
-
-            if (_hapticMode.value == HapticMode.BEAT_DETECTION) {
-                hapticBeatDetector.sensitivity = _hapticBeatSensitivity.value
-                if (hapticBeatDetector.detect(fftraw, binLo, binHi)) {
-                    _isBeatDetected.value = true
-                    viewModelScope.launch { delay(50); _isBeatDetected.value = false }
-                }
-            } else _isBeatDetected.value = false
-
-            if (_flashlightMode.value == TorchMode.BEAT_DETECTION) {
-                val fBinLo = AudioProcessor.findLogBinIndex(_flashlightFreqMin.value)
-                val fBinHi = AudioProcessor.findLogBinIndex(_flashlightFreqMax.value)
-                flashlightBeatDetector.sensitivity = _flashlightBeatSensitivity.value
-                if (flashlightBeatDetector.detect(fftraw, fBinLo, fBinHi)) {
-                    _isFlashlightBeatDetected.value = true
-                    viewModelScope.launch { delay(50); _isFlashlightBeatDetected.value = false }
-                }
-            } else _isFlashlightBeatDetected.value = false
+            // Beats are now synced via syncIntensities from the service engines
         }
     }
 
@@ -1755,6 +1822,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _lensVisualizerMaxHeight.value = prefs.getFloat("lens_visualizer_max_height", 5f)
         _lensVisualizerBarCount.value = prefs.getInt("lens_visualizer_bar_count", 35)
         _lensVisualizerSensitivity.value = prefs.getFloat("lens_visualizer_sensitivity", 0.32f)
+
+        _onScreenVisualizersEnabled.value = prefs.getBoolean("on_screen_visualizers_enabled", false)
 
         // Launch background tasks
         viewModelScope.launch {

@@ -105,6 +105,7 @@
     <string name="idle_pattern_rain">Yağmur</string>
     <string name="cancel">İptal</string>
     <string name="nav_overlay">NavBar Spektrum</string>
+    <string name="enable_on_screen_visualizers">Ekran görselleştiricilerini etkinleştir</string>
     <string name="overlay_width">Spektrum Genişliği</string>
     <string name="overlay_height">Spektrum Yüksekliği</string>
     <string name="vertical_position">Dikey Konum</string>

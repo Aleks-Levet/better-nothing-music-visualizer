@@ -60,6 +60,7 @@ fun HapticsScreen(
     hapticBeatGamma: Float,
     onHapticBeatGammaChanged: (Float) -> Unit,
     hapticAmplitudeFlow: StateFlow<Float>,
+    hapticMotorIntensityFlow: StateFlow<Float>,
     isBeatDetectedFlow: StateFlow<Boolean>,
     padding: androidx.compose.foundation.layout.PaddingValues = androidx.compose.foundation.layout.PaddingValues(),
 ) {
@@ -265,6 +266,7 @@ fun HapticsScreen(
 
                 val isBeatDetected by isBeatDetectedFlow.collectAsStateWithLifecycle()
                 val hapticAmplitude by hapticAmplitudeFlow.collectAsStateWithLifecycle()
+                val motorIntensity by hapticMotorIntensityFlow.collectAsStateWithLifecycle()
 
                 val flashColor by animateColorAsState(
                     targetValue = if (isBeatDetected) Color.White else MaterialTheme.colorScheme.primary.copy(
@@ -306,7 +308,7 @@ fun HapticsScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         HapticSquigglyLine(
-                            amplitude = hapticAmplitude,
+                            amplitude = motorIntensity,
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -328,7 +330,7 @@ fun HapticSquigglyLine(
         initialValue = 0f,
         targetValue = 2f * Math.PI.toFloat(),
         animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = LinearEasing),
+            animation = tween(400, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
         ),
         label = "phase"
@@ -336,7 +338,8 @@ fun HapticSquigglyLine(
 
     androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
         val width = size.width
-        val height = size.height
+        val height = size.height * (1f - (amplitude * 0.2f))
+        val yOffset = (size.height - height) / 2f
         val points = 50
         val path = androidx.compose.ui.graphics.Path()
 
@@ -345,7 +348,7 @@ fun HapticSquigglyLine(
 
         for (i in 0..points) {
             val progress = i.toFloat() / points
-            val y = progress * height
+            val y = yOffset + progress * height
             val x = width / 2 + Math.sin(progress * 4 * Math.PI + phase).toFloat() * currentSquiggleWidth / 2
 
             if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)

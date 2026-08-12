@@ -24,6 +24,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.width
@@ -173,9 +175,8 @@ class MainActivity : AppCompatActivity() {
 
     private val overlayPermissionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (Settings.canDrawOverlays(this)) {
-            // We don't know which one was requested, so we enable based on intent if possible, 
-            // but for simplicity let's just assume overlay enabled if they granted it.
-            viewModel.setOverlayEnabled(true)
+            // If they granted it, enable the master switch
+            viewModel.setOnScreenVisualizersEnabled(true, this) {}
         } else {
             Toast.makeText(this, getString(R.string.overlay_permission_denied), Toast.LENGTH_SHORT).show()
         }
@@ -238,6 +239,14 @@ class MainActivity : AppCompatActivity() {
                             if (raw != null) {
                                 viewModel.setFftData(raw)
                             }
+                            viewModel.syncIntensities(
+                                AudioCaptureService.hapticRawPeakFlow().value,
+                                AudioCaptureService.hapticMotorIntensityFlow().value,
+                                AudioCaptureService.flashlightRawPeakFlow().value,
+                                AudioCaptureService.flashlightMotorIntensityFlow().value,
+                                AudioCaptureService.hapticBeatFlow().value,
+                                AudioCaptureService.flashlightBeatFlow().value
+                            )
                         }
                         delay(16.milliseconds)
                     }
@@ -270,8 +279,28 @@ class MainActivity : AppCompatActivity() {
                         }
                         // If we get here, the gesture was completed
                         viewModel.navigateBack()
+                        
+                        // Smoothly finish the slide out animation
+                        if (backProgress > 0f) {
+                            animate(
+                                initialValue = backProgress,
+                                targetValue = 1f,
+                                animationSpec = tween(durationMillis = 400)
+                            ) { value, _ ->
+                                backProgress = value
+                            }
+                        }
                     } catch (e: Exception) {
                         // Gesture cancelled
+                        if (backProgress > 0f) {
+                            animate(
+                                initialValue = backProgress,
+                                targetValue = 0f,
+                                animationSpec = tween(durationMillis = 400)
+                            ) { value, _ ->
+                                backProgress = value
+                            }
+                        }
                     } finally {
                         backProgress = 0f
                     }
@@ -299,7 +328,7 @@ class MainActivity : AppCompatActivity() {
                             val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:$packageName".toUri())
                             overlayPermissionLauncher.launch(intent)
                         },
-                        backProgress = if (isOverlayVisible) backProgress else 0f
+                        backProgress = backProgress
                     )
                 }
 
@@ -428,7 +457,7 @@ class MainActivity : AppCompatActivity() {
             it.setIdleBreathingEnabled(viewModel.idleBreathingEnabled.value)
             it.setIdlePattern(viewModel.idlePattern.value)
             it.setDisableGlyphsWhenSilent(viewModel.disableGlyphsWhenSilent.value)
-            it.setLensVisualizerEnabled(viewModel.lensVisualizerEnabled.value)
+            it.setLensVisualizerEnabled(viewModel.onScreenVisualizersEnabled.value && viewModel.lensVisualizerEnabled.value)
             it.setLensVisualizerRadius(viewModel.lensVisualizerRadius.value)
             it.setLensVisualizerX(viewModel.lensVisualizerX.value)
             it.setLensVisualizerY(viewModel.lensVisualizerY.value)
@@ -437,7 +466,7 @@ class MainActivity : AppCompatActivity() {
             it.setLensVisualizerBarCount(viewModel.lensVisualizerBarCount.value)
             it.setLensVisualizerSensitivity(viewModel.lensVisualizerSensitivity.value)
             
-            it.setOverlayEnabled(viewModel.overlayEnabled.value)
+            it.setOverlayEnabled(viewModel.onScreenVisualizersEnabled.value && viewModel.overlayEnabled.value)
             it.setOverlayTopEnabled(viewModel.overlayTopEnabled.value)
             it.setOverlayBottomEnabled(viewModel.overlayBottomEnabled.value)
             it.setOverlayWidth(viewModel.overlayWidth.value)
@@ -447,7 +476,7 @@ class MainActivity : AppCompatActivity() {
             it.setOverlaySensitivity(viewModel.overlaySensitivity.value)
             it.setOverlaySensitivityBottom(viewModel.overlaySensitivityBottom.value)
             
-            it.setEdgeVisualizerEnabled(viewModel.edgeVisualizerEnabled.value)
+            it.setEdgeVisualizerEnabled(viewModel.onScreenVisualizersEnabled.value && viewModel.edgeVisualizerEnabled.value)
             it.setEdgeThickness(viewModel.edgeThickness.value)
             it.setEdgeSensitivity(viewModel.edgeSensitivity.value)
             it.setEdgeBarCounts(viewModel.edgeBarCountHoriz.value, viewModel.edgeBarCountVert.value)
@@ -568,12 +597,13 @@ internal fun BetterVizApp(
     val edgeEnabled by viewModel.edgeVisualizerEnabled.collectAsStateWithLifecycle()
     val lensEnabled by viewModel.lensVisualizerEnabled.collectAsStateWithLifecycle()
     val flashlightEnabled by viewModel.flashlightEnabled.collectAsStateWithLifecycle()
+    val onScreenVisualizersEnabled by viewModel.onScreenVisualizersEnabled.collectAsStateWithLifecycle()
 
     val config = LocalConfiguration.current
     val isTablet = config.smallestScreenWidthDp >= 600 && config.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
     val context = LocalContext.current
 
-    val visibleTabs = remember(selectedDevice, glyphsEnabled, hapticsEnabled, visualsEnabled, edgeEnabled, lensEnabled, flashlightEnabled, isTablet) {
+    val visibleTabs = remember(selectedDevice, glyphsEnabled, hapticsEnabled, visualsEnabled, edgeEnabled, lensEnabled, flashlightEnabled, onScreenVisualizersEnabled, isTablet) {
         var tabs = Tab.entries.toList()
 
         if (!isTablet) {
@@ -599,7 +629,7 @@ internal fun BetterVizApp(
             }
         }
 
-        if (!visualsEnabled && !edgeEnabled && !lensEnabled) {
+        if (!onScreenVisualizersEnabled || (!visualsEnabled && !edgeEnabled && !lensEnabled)) {
             tabs = tabs.filter { it != Tab.Visuals }
         }
         tabs
@@ -614,9 +644,19 @@ internal fun BetterVizApp(
         if (pagerState.currentPage != target) {
             isProgrammaticScroll = true
             try {
-                pagerState.scrollToPage(target)
+                pagerState.animateScrollToPage(target)
             } finally {
                 isProgrammaticScroll = false
+            }
+        }
+    }
+
+    // Sync selectedTab when pager is scrolled by user
+    LaunchedEffect(pagerState.settledPage) {
+        if (!isProgrammaticScroll) {
+            val swipedTab = visibleTabs.getOrNull(pagerState.settledPage)
+            if (swipedTab != null && swipedTab != selectedTab) {
+                viewModel.selectTab(swipedTab, recordHistory = false)
             }
         }
     }
@@ -895,6 +935,7 @@ private fun TabContent(
                 hapticBeatGamma = hapticBeatGamma,
                 onHapticBeatGammaChanged = { viewModel.setHapticBeatGamma(it) },
                 hapticAmplitudeFlow = viewModel.hapticAmplitude,
+                hapticMotorIntensityFlow = viewModel.hapticMotorIntensity,
                 isBeatDetectedFlow = viewModel.isBeatDetected,
                 padding = padding
             )
@@ -946,6 +987,7 @@ private fun TabContent(
                 flashlightIntensityLevels = flashlightIntensityLevels,
                 flashlightCurrentLevel = flashlightLevel,
                 flashlightAmplitudeFlow = viewModel.flashlightAmplitude,
+                flashlightMotorIntensityFlow = viewModel.flashlightMotorIntensity,
                 isBeatDetectedFlow = viewModel.isFlashlightBeatDetected,
                 padding = padding
             )
@@ -971,6 +1013,7 @@ private fun TabContent(
                         it
                     )
                 },
+                onOverlayPermissionRequest = onOverlayPermissionRequest,
                 padding = padding,
                 isTablet = isTablet
             )

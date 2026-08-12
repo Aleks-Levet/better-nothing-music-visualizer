@@ -51,6 +51,8 @@ public final class FlashlightEngine {
     private float smoothedIntensity = 0f;
     private float prevTarget = 0f;
 
+    private boolean isBeatTriggeredThisFrame = false;
+
     public FlashlightEngine(Context context) {
         Context appContext = Objects.requireNonNull(context, "context").getApplicationContext();
         this.cameraManager = (CameraManager) appContext.getSystemService(Context.CAMERA_SERVICE);
@@ -212,9 +214,17 @@ public final class FlashlightEngine {
     }
 
     private synchronized void performBeatDetection(int[] fftraw, int logBinLo, int logBinHi) {
-        if (beatDetector.detect(fftraw, logBinLo, logBinHi)) triggerBeat();
+        isBeatTriggeredThisFrame = false;
+        if (beatDetector.detect(fftraw, logBinLo, logBinHi)) {
+            triggerBeat();
+            isBeatTriggeredThisFrame = true;
+        }
         if (beatFlashStartMs != 0L) updateBeatFlashState();
         else stopFlashlightInternal();
+    }
+
+    public synchronized boolean isBeatTriggeredThisFrame() {
+        return isBeatTriggeredThisFrame;
     }
 
     public synchronized void triggerBeat() {

@@ -75,9 +75,9 @@ public class GlyphRenderer {
         if (config == null || fftraw == null) return new int[0];
 
         try {
-            long deltaMs = (mLastFrameMs > 0) ? (nowMs - mLastFrameMs) : 16;
-            // update mLastFrameMs later in applyIdleBreathing or here
-            
+            // Update mLastFrameMs
+            mLastFrameMs = nowMs;
+
             int hardwareCount = DeviceProfile.getLedCount(mDeviceType);
             int zoneCount = Math.max(config.zones.length, hardwareCount);
 
@@ -85,34 +85,37 @@ public class GlyphRenderer {
                 mCurrentLightState = new float[zoneCount];
             }
 
-            // Manually decay the glyph zones according to the preset used
-            float decayFactor = config.decay;
-            // Apply linear decay to normalized values (0-1).
-            float drop = Math.max(0.005f, (1f - decayFactor) * (deltaMs / 16f) * 0.5f);
-
+            // Exponential blending decay from original Python script:
+            // prev = ad * prev + (1 - ad) * current
+            float ad = config.decay; // Calculated in AudioCaptureService as 0.86 + da/10
+            
             for (int i = 0; i < zoneCount; i++) {
-                mCurrentLightState[i] = Math.max(0f, mCurrentLightState[i] - drop);
-            }
-
-            for (int i = 0; i < Math.min(config.zones.length, zoneCount); i++) {
-                float maxVal = 0f;
-                AudioProcessor.FrequencyRange range = config.uniqueRanges[config.zoneToRangeIndices[i][0]];
-                int start = Math.max(0, Math.min(range.logBinLo, 511));
-                int end = Math.max(start, Math.min(range.logBinHi, 511));
-                for (int b = start; b <= end; b++) {
-                    // Apply a 2.2x boost to glyphs to ensure they hit peaks frequently
-                    float val = fftraw[b] * 2.2f;
-                    if (val > maxVal) {
-                        maxVal = val;
+                float targetZoneVal = 0f;
+                if (i < config.zones.length) {
+                    float maxVal = 0f;
+                    AudioProcessor.FrequencyRange range = config.uniqueRanges[config.zoneToRangeIndices[i][0]];
+                    int start = Math.max(0, Math.min(range.logBinLo, 511));
+                    int end = Math.max(start, Math.min(range.logBinHi, 511));
+                    for (int b = start; b <= end; b++) {
+                        // Apply a 2.2x boost to glyphs to ensure they hit peaks frequently
+                        float val = fftraw[b] * 2.2f;
+                        if (val > maxVal) {
+                            maxVal = val;
+                        }
                     }
+
+                    float normalized = Math.min(1.0f, maxVal / 4095f);
+                    float mapped = applyPercentSlice(normalized, config.zones[i]);
+                    targetZoneVal = applyGamma(mapped);
                 }
 
-                float normalized = Math.min(1.0f, maxVal / 4095f);
-                float mapped = applyPercentSlice(normalized, config.zones[i]);
-                float gammaMapped = applyGamma(mapped);
-                
-                if (gammaMapped > mCurrentLightState[i]) {
-                    mCurrentLightState[i] = gammaMapped;
+                // Apply decay blending
+                // Instant rise
+                if (targetZoneVal > mCurrentLightState[i]) {
+                    mCurrentLightState[i] = targetZoneVal;
+                } else {
+                    // Exponential fall
+                    mCurrentLightState[i] = ad * mCurrentLightState[i] + (1f - ad) * targetZoneVal;
                 }
             }
 
@@ -209,15 +212,9 @@ public class GlyphRenderer {
         float multiplier = (float) mMaxBrightness;
         for (int i = 0; i < Math.min(normalizedLightState.length, expectedLength); i++) {
             float n = normalizedLightState[i];
-            int val;
-            if (n > 0 && multiplier >= 50) {
-                // Map n [0..1] to [50..multiplier]
-                val = Math.round(50f + n * (multiplier - 50f));
-            } else {
-                val = Math.round(n * multiplier);
-            }
             // Hardware/SDK max is typically 4095. 
             // App multiplier goes up to 10000 (150% of old max) to act as gain.
+            int val = Math.round(n * multiplier);
             frameColors[i] = Math.max(0, Math.min(4095, val));
         }
         return frameColors;

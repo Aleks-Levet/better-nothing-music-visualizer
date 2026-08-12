@@ -1,6 +1,7 @@
 package com.better.nothing.music.vizualizer.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
@@ -56,9 +57,9 @@ fun MainOverlays(
         AnimatedVisibility(
             visible = isShowingAbout,
             enter = enterTransition,
-            exit = exitTransition,
+            exit = if (backProgress > 0f) fadeOut(animationSpec = tween(500)) else exitTransition,
             modifier = overlayModifier.graphicsLayer {
-                if (isShowingAbout && backProgress > 0f) {
+                if (backProgress > 0f) {
                     translationX = size.width * backProgress
                 }
             }
@@ -72,9 +73,9 @@ fun MainOverlays(
         AnimatedVisibility(
             visible = isShowingLicense,
             enter = enterTransition,
-            exit = exitTransition,
+            exit = if (backProgress > 0f) fadeOut(animationSpec = tween(500)) else exitTransition,
             modifier = overlayModifier.graphicsLayer {
-                if (isShowingLicense && backProgress > 0f) {
+                if (backProgress > 0f) {
                     translationX = size.width * backProgress
                 }
             }
@@ -88,9 +89,9 @@ fun MainOverlays(
         AnimatedVisibility(
             visible = isShowingStats,
             enter = enterTransition,
-            exit = exitTransition,
+            exit = if (backProgress > 0f) fadeOut(animationSpec = tween(500)) else exitTransition,
             modifier = overlayModifier.graphicsLayer {
-                if (isShowingStats && backProgress > 0f) {
+                if (backProgress > 0f) {
                     translationX = size.width * backProgress
                 }
             }

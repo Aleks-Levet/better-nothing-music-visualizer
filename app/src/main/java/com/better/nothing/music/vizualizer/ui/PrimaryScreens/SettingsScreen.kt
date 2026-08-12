@@ -58,6 +58,7 @@ internal fun SettingsScreen(
     onIdlePatternChanged: (String) -> Unit,
     disableGlyphsWhenSilent: Boolean,
     onDisableGlyphsWhenSilentChanged: (Boolean) -> Unit,
+    onOverlayPermissionRequest: () -> Unit,
     padding: PaddingValues = PaddingValues(),
     isTablet: Boolean = false,
 ) {
@@ -473,9 +474,8 @@ internal fun SettingsScreen(
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                val overlayEnabled by viewModel.overlayEnabled.collectAsStateWithLifecycle()
-                val edgeVisualizerEnabled by viewModel.edgeVisualizerEnabled.collectAsStateWithLifecycle()
-                val lensVisualizerEnabled by viewModel.lensVisualizerEnabled.collectAsStateWithLifecycle()
+                val onScreenVisualizersEnabled by viewModel.onScreenVisualizersEnabled.collectAsStateWithLifecycle()
+                val flashlightMultiIntensityForced by viewModel.flashlightMultiIntensityForced.collectAsStateWithLifecycle()
 
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
@@ -484,24 +484,12 @@ internal fun SettingsScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OptionTile(
-                        label = stringResource(R.string.nav_overlay),
+                        label = stringResource(R.string.enable_on_screen_visualizers),
                         icon = Icons.Default.Layers,
-                        isSelected = overlayEnabled,
-                        onClick = { viewModel.setOverlayEnabled(!overlayEnabled) }
-                    )
-
-                    OptionTile(
-                        label = stringResource(R.string.edge_visualizer),
-                        icon = Icons.Default.BorderOuter,
-                        isSelected = edgeVisualizerEnabled,
-                        onClick = { viewModel.setEdgeVisualizerEnabled(!edgeVisualizerEnabled) }
-                    )
-
-                    OptionTile(
-                        label = stringResource(R.string.lens_visualizer),
-                        icon = Icons.Default.BlurCircular,
-                        isSelected = lensVisualizerEnabled,
-                        onClick = { viewModel.setLensVisualizerEnabled(!lensVisualizerEnabled) }
+                        isSelected = onScreenVisualizersEnabled,
+                        onClick = {
+                            viewModel.setOnScreenVisualizersEnabled(!onScreenVisualizersEnabled, context, onOverlayPermissionRequest)
+                        }
                     )
                     
                     if (viewModel.hasFlashlight) {

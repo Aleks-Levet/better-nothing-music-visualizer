@@ -2,42 +2,15 @@
 
 ## To Do Fuckery
 
-* rework the qs tiles, make one for glyph viz, one for haptic viz, and one for flashlight viz. enable of disable the service automatically based on if we have anything running or not.
-  
 * **and work on the translation tools so we can get hoomans to translate our app.**
-
-* Remove brightness value text on the glyph brightness slider
 
 * Make some gifs for the demos, not videos!
 
-* Make the audio spectrum have the dynamic gain applied to it
-
-* Last viewed screen should be kept in memory
-
 * Check if auto update works
 
-* ENHANCE THE FUCKING WIDGET
-
----
-
-## Oliver's todo
-* track audio source playing time, not audio_source_change
-* Add multiples intensities to flashlight 
-* Tapping back on the Viz preset editor should go to the prev screen., and tapping back should 
-predictively go to the prev viewed screen tab before exiting the app.
-
----
-
 ## Aleks' fucking todo
-* track viz mode playing time (flashlight time, haptics time, glyphs time, these will be added up in the firebase charts if possible)
-
-* ***Improve notification (ALEKS DOES IT)***
-
-* BNMV redisigned settings expandable cards, with M3E BOUNCY ARROW
-
 * Auto update mechanism without scary permissions
 
-* Modify the BNMV liscence so only the owner can release, and everything that other developers do should be reported to the owner. And state that debug builds should never be released to the public because they are not meant to be used by the users, but only by the developers for developing purposes.
 
 * enhance the built-in switches by adding an X (cross) or a done (✅) in them, like the battery guru's settings switches, and also with bouncy animations and nice haptics
 
@@ -52,13 +25,6 @@ predictively go to the prev viewed screen tab before exiting the app.
 * Add rotary haptic motor mode
 
 * parametric spectrum range preset for all phones
-
-* update flashlight monitor with shape = audio, and other thing next to it = flashlight intensity.
-  * make the shape flash to the flashlight brightness
-
-* update haptic monitor with shape = audio, and line next to it = motor amplitude
-
-* Do tablet UI
 
 ---
 

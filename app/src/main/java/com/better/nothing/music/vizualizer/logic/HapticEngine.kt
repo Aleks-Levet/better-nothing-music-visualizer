@@ -22,6 +22,8 @@ class BeatDetectionHapticEngine(context: Context) {
     private var pulseDurationMs = 40
     
     private val beatDetector = BeatDetector()
+    private var lastTriggerTime = 0L
+    private var isBeatTriggeredThisFrame = false
 
     init {
         val appContext = context.applicationContext
@@ -50,6 +52,7 @@ class BeatDetectionHapticEngine(context: Context) {
         fftraw: IntArray,
         range: AudioProcessor.FrequencyRange?
     ) {
+        isBeatTriggeredThisFrame = false
         if (
             vibrator == null ||
             !vibrator.hasVibrator() ||
@@ -61,10 +64,14 @@ class BeatDetectionHapticEngine(context: Context) {
 
         if (beatDetector.detect(fftraw, range.logBinLo, range.logBinHi)) {
             triggerHaptic()
+            isBeatTriggeredThisFrame = true
         }
     }
 
+    fun isBeatTriggeredThisFrame(): Boolean = isBeatTriggeredThisFrame
+
     private fun triggerHaptic() {
+        lastTriggerTime = SystemClock.elapsedRealtime()
         try {
             val effect = if (engineMode == BeatEngineMode.SHORT_PULSE || !hasAmplitudeControl()) {
                 pulseEffect ?: buildPulseEffect()
@@ -165,5 +172,28 @@ class BeatDetectionHapticEngine(context: Context) {
 
     fun setHapticSensitivity(sensitivity: Float) {
         beatDetector.sensitivity = sensitivity
+    }
+
+    fun getCurrentIntensity(): Float {
+        if (lastTriggerTime == 0L) return 0f
+        val elapsed = SystemClock.elapsedRealtime() - lastTriggerTime
+        
+        return if (engineMode == BeatEngineMode.SHORT_PULSE || !hasAmplitudeControl()) {
+            if (elapsed < pulseDurationMs) hapticMultiplier else 0f
+        } else {
+            val sustainMs = 40
+            val decayMs = 1500
+            val t = elapsed.toInt()
+            
+            val amp = if (t < sustainMs) {
+                1.0f
+            } else if (t < sustainMs + decayMs) {
+                val x = 1f - ((t - sustainMs).toFloat() / decayMs.toFloat())
+                x.coerceIn(0f, 1f).pow(hapticGamma)
+            } else {
+                0f
+            }
+            amp * hapticMultiplier
+        }
     }
 }

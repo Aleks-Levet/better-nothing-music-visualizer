@@ -146,6 +146,7 @@
     <string name="clear">Clear</string>
     <string name="sync_ui_to_beat">Sync UI to the beat</string>
     <string name="nav_overlay">Nav Overlay</string>
+    <string name="enable_on_screen_visualizers">Enable on-screen visualizers</string>
 
 
     <string name="lens_visualizer">Lens Visualizer</string>

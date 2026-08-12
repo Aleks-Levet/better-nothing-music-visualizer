@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BlurCircular
+import androidx.compose.material.icons.filled.BorderOuter
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -83,7 +85,18 @@ fun VisualsScreen(
             title = stringResource(R.string.nav_overlay),
             icon = Icons.Default.Layers,
             expanded = overlayExpanded,
-            onExpandedChange = { overlayExpanded = it }
+            onExpandedChange = { overlayExpanded = it },
+            trailingContent = {
+                Switch(
+                    checked = overlayEnabled,
+                    onCheckedChange = onOverlayEnabledChanged,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = MaterialTheme.colorScheme.primary
+                    ),
+                    modifier = Modifier.size(height = 24.dp, width = 48.dp)
+                )
+            }
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -280,9 +293,20 @@ fun VisualsScreen(
         // ── Edge Visualizer ──────────────────────────────────────────────
         ExpandableExpressiveCard(
             title = stringResource(R.string.edge_visualizer),
-            icon = Icons.Default.Layers,
+            icon = Icons.Default.BorderOuter,
             expanded = edgeExpanded,
-            onExpandedChange = { edgeExpanded = it }
+            onExpandedChange = { edgeExpanded = it },
+            trailingContent = {
+                Switch(
+                    checked = edgeVisualizerEnabled,
+                    onCheckedChange = { viewModel.setEdgeVisualizerEnabled(it) },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = MaterialTheme.colorScheme.primary
+                    ),
+                    modifier = Modifier.size(height = 24.dp, width = 48.dp)
+                )
+            }
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -440,9 +464,20 @@ fun VisualsScreen(
         // ── Lens Visualizer ──────────────────────────────────────────────
         ExpandableExpressiveCard(
             title = stringResource(R.string.lens_visualizer),
-            icon = Icons.Default.Layers,
+            icon = Icons.Default.BlurCircular,
             expanded = lensExpanded,
-            onExpandedChange = { lensExpanded = it }
+            onExpandedChange = { lensExpanded = it },
+            trailingContent = {
+                Switch(
+                    checked = lensEnabled,
+                    onCheckedChange = { viewModel.setLensVisualizerEnabled(it) },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = MaterialTheme.colorScheme.primary
+                    ),
+                    modifier = Modifier.size(height = 24.dp, width = 48.dp)
+                )
+            }
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
