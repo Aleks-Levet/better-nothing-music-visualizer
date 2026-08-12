@@ -43,6 +43,7 @@ public class EdgeVisualizerView extends View {
         setFitsSystemWindows(false);
         setClickable(false);
         setFocusable(false);
+        setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         setBarCounts(20, 40);
     }
 

@@ -23,11 +23,11 @@ public class VisualizerService extends Service {
                 mVisualizerView.updateMagnitudes(magnitudes);
                 
                 // Update properties from service instance
-                mVisualizerView.setRadius(AudioCaptureService.sInstance.mLensVisualizerRadius);
+                mVisualizerView.setRadius(AudioCaptureService.sInstance.mLensVisualizerRadius * 4);
                 mVisualizerView.setXPosition(AudioCaptureService.sInstance.mLensVisualizerX);
                 mVisualizerView.setYPosition(AudioCaptureService.sInstance.mLensVisualizerY);
-                mVisualizerView.setBarWidth(AudioCaptureService.sInstance.mLensVisualizerBarWidth);
-                mVisualizerView.setMaxHeight(AudioCaptureService.sInstance.mLensVisualizerMaxHeight);
+                mVisualizerView.setBarWidth(AudioCaptureService.sInstance.mLensVisualizerBarWidth * 4);
+                mVisualizerView.setMaxHeight(AudioCaptureService.sInstance.mLensVisualizerMaxHeight * 4);
                 mVisualizerView.setBarCount(AudioCaptureService.sInstance.mLensVisualizerBarCount);
                 mVisualizerView.setSensitivity(AudioCaptureService.sInstance.mLensVisualizerSensitivity);
             }

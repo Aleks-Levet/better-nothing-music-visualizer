@@ -394,9 +394,8 @@ fun FlowRowScope.OptionTile(
 
     // Weight Animation using the managed isWeightExpanded state
     val targetWeight = if (isWeightExpanded && enabled) 1.2f else 1f
-    val uiAmp = LocalUIAmplitude.current
     val animatedWeight by animateFloatAsState(
-        targetValue = targetWeight * uiAmp,
+        targetValue = targetWeight,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessMediumLow

@@ -435,6 +435,14 @@ internal fun SettingsScreen(
                             isSelected = disableGlyphsWhenSilent,
                             onClick = { onDisableGlyphsWhenSilentChanged(!disableGlyphsWhenSilent) }
                         )
+
+                        val alternateGlyphVizEnabled by viewModel.alternateGlyphVizEnabled.collectAsStateWithLifecycle()
+                        OptionTile(
+                            label = stringResource(R.string.alternate_glyph_viz),
+                            icon = Icons.Default.Bolt,
+                            isSelected = alternateGlyphVizEnabled,
+                            onClick = { viewModel.setAlternateGlyphVizEnabled(!alternateGlyphVizEnabled) }
+                        )
                     }
                 }
 

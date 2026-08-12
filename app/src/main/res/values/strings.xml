@@ -145,6 +145,8 @@
     <string name="downloads_count">%1$s • %2$d downloads</string>
     <string name="clear">Clear</string>
     <string name="sync_ui_to_beat">Sync UI to the beat</string>
+    <string name="alternate_glyph_viz">Alternate Glyph Visualizer</string>
+    <string name="alternate_glyph_viz_desc">Uses audio frame difference as input for glyphs. Provides a more reactive and sharp look. (Experimental)</string>
     <string name="nav_overlay">Nav Overlay</string>
     <string name="enable_on_screen_visualizers">Enable on-screen visualizers</string>
 

@@ -25,6 +25,9 @@ public class LensVisualizerView extends View {
         mPaint.setColor(Color.WHITE);
         mPaint.setStyle(Paint.Style.FILL);
         mPaint.setAntiAlias(true);
+        setClickable(false);
+        setFocusable(false);
+        setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
     }
 
     public void setRadius(float radius) { this.mRadius = radius; }

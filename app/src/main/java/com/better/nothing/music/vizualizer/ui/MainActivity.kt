@@ -629,7 +629,7 @@ internal fun BetterVizApp(
             }
         }
 
-        if (!onScreenVisualizersEnabled || (!visualsEnabled && !edgeEnabled && !lensEnabled)) {
+        if (!onScreenVisualizersEnabled) {
             tabs = tabs.filter { it != Tab.Visuals }
         }
         tabs

@@ -18,6 +18,8 @@ public class GlyphRenderer {
     private boolean mIdleBreathingEnabled;
     private int mDeviceType;
     private String mIdlePattern = "pulse";
+    private boolean mAlternateMode = false;
+    private int[] mPreviousFftRaw = null;
 
     private float[] mCurrentLightState = new float[0];
     private int mLastHash = Integer.MIN_VALUE;
@@ -37,6 +39,11 @@ public class GlyphRenderer {
     }
 
     public void setIdlePattern(String pattern) { this.mIdlePattern = pattern; }
+
+    public void setAlternateMode(boolean enabled) {
+        this.mAlternateMode = enabled;
+        if (!enabled) mPreviousFftRaw = null;
+    }
 
     public void setGamma(float gamma) {
         mGamma = gamma;
@@ -74,6 +81,17 @@ public class GlyphRenderer {
     public int[] processFrame(int[] fftraw, AudioProcessor.VisualizerConfig config, long nowMs) {
         if (config == null || fftraw == null) return new int[0];
 
+        int[] actualFft = fftraw;
+        if (mAlternateMode) {
+            if (mPreviousFftRaw == null || mPreviousFftRaw.length != fftraw.length) {
+                mPreviousFftRaw = new int[fftraw.length];
+            }
+            actualFft = new int[fftraw.length];
+            for (int i = 0; i < fftraw.length; i++) {
+                actualFft[i] = Math.max(0, Math.min(2047, fftraw[i] - mPreviousFftRaw[i])) * 2;
+            }
+        }
+
         try {
             // Update mLastFrameMs
             mLastFrameMs = nowMs;
@@ -87,7 +105,7 @@ public class GlyphRenderer {
 
             // Exponential blending decay from original Python script:
             // prev = ad * prev + (1 - ad) * current
-            float ad = config.decay; // Calculated in AudioCaptureService as 0.86 + da/10
+            float ad = config.decay - 0.1f; // Calculated in AudioCaptureService as 0.86 + da/10
             
             for (int i = 0; i < zoneCount; i++) {
                 float targetZoneVal = 0f;
@@ -98,7 +116,7 @@ public class GlyphRenderer {
                     int end = Math.max(start, Math.min(range.logBinHi, 511));
                     for (int b = start; b <= end; b++) {
                         // Apply a 2.2x boost to glyphs to ensure they hit peaks frequently
-                        float val = fftraw[b] * 2.2f;
+                        float val = actualFft[b] * 2.2f;
                         if (val > maxVal) {
                             maxVal = val;
                         }
@@ -120,6 +138,7 @@ public class GlyphRenderer {
             }
 
             applyIdleBreathing(mCurrentLightState, fftraw, nowMs);
+            mPreviousFftRaw = fftraw.clone();
 
             int[] frameColors = buildFrameColors(mCurrentLightState, zoneCount);
             int frameHash = Arrays.hashCode(frameColors);

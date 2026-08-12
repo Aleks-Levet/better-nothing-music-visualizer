@@ -1137,6 +1137,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val _alternateGlyphVizEnabled = MutableStateFlow(false)
+    val alternateGlyphVizEnabled = _alternateGlyphVizEnabled.asStateFlow()
+
+    fun setAlternateGlyphVizEnabled(enabled: Boolean) {
+        _alternateGlyphVizEnabled.value = enabled
+        MainActivity.serviceStatic?.setAlternateGlyphVizEnabled(enabled)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("alternate_glyph_viz_enabled", enabled) }
+        }
+    }
+
     val _runningState = MutableStateFlow(false)
     val runningState = _runningState.asStateFlow()
 
@@ -1484,7 +1496,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
             _fftState.value = manualDecayFft.copyOf()
-            // updateAmplitudesAndBeats(raw) // This is now handled by direct flow sync in MainActivity
         }
     }
 
@@ -1511,20 +1522,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             uiPeakValue = uiPeakValue * 0.95f + uiPeak * 0.05f
             if (uiPeak > uiPeakValue) uiPeakValue = uiPeak
 
-            val source = _captureSource.value
-            val targetGain = if (uiPeakValue > 0.01f) 0.25f / uiPeakValue else 10f
-            
-            val gainLimitMin = when (source) {
-                AudioCaptureService.CaptureSource.MIC -> 2f
-                else -> 1f
-            }
-            val gainLimitMax = when (source) {
-                AudioCaptureService.CaptureSource.MIC -> 20f
-                AudioCaptureService.CaptureSource.NETWORK -> 1f
-                else -> 2.5f
-            }
-
-            uiDynamicGain = uiDynamicGain * 0.9f + targetGain.coerceIn(gainLimitMin, gainLimitMax) * 0.1f
+            uiDynamicGain = 1.0f
             val target = (1.0f + (uiPeak * uiDynamicGain - 0.15f)).coerceIn(0.9f, 1.25f)
             
             if (target > smoothedUiAmplitude) {
@@ -1536,77 +1534,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun updateAmplitudesAndBeats(fftraw: IntArray) {
-        val service = MainActivity.serviceStatic
-        val target = if (fftraw.isEmpty() || service == null) {
-            _hapticAmplitude.value = 0f
-            _flashlightAmplitude.value = 0f
-            _isBeatDetected.value = false
-            1.0f
-        } else {
-            val hapticPeak = service.latestHapticPeak
-            val uiPeak = service.latestUiPeak
-            val flashlightPeak = service.latestFlashlightPeak
 
-            val targetHaptic = (hapticPeak * _hapticAudioGain.value * 1.5f).coerceIn(0f, 1.0f).toDouble().pow(_hapticGamma.value.toDouble()).toFloat()
-            if (targetHaptic > smoothedHapticAmplitude) {
-                smoothedHapticAmplitude = smoothedHapticAmplitude * 0.15f + targetHaptic * 0.85f
-            } else {
-                smoothedHapticAmplitude = smoothedHapticAmplitude * 0.7f + targetHaptic * 0.3f
-            }
-            _hapticAmplitude.value = (smoothedHapticAmplitude * _hapticMultiplier.value).coerceIn(0f, 1.2f)
-
-            val fTarget = (flashlightPeak * 1.8f).coerceIn(0f, 1.2f)
-            val fCur = Math.pow(fTarget.toDouble(), 2.2).toFloat()
-            val fDelta = (fCur - _flashlightAmplitude.value).coerceAtLeast(0f)
-            _flashlightAmplitude.value = (fCur + fDelta * 0.8f).coerceIn(0f, 1.2f)
-
-            uiPeakValue = uiPeakValue * 0.95f + uiPeak * 0.05f
-            if (uiPeak > uiPeakValue) uiPeakValue = uiPeak
-
-            val source = _captureSource.value
-            val targetGain = if (uiPeakValue > 0.01f) 0.25f / uiPeakValue else 10f
-            
-            val gainLimitMin: Float
-            val gainLimitMax: Float
-            when (source) {
-                AudioCaptureService.CaptureSource.MIC -> {
-                    gainLimitMin = 2f
-                    gainLimitMax = 20f
-                }
-                AudioCaptureService.CaptureSource.INTERNAL, AudioCaptureService.CaptureSource.VIZUALIZER -> {
-                    gainLimitMin = 1f
-                    gainLimitMax = 2.5f
-                }
-                AudioCaptureService.CaptureSource.NETWORK -> {
-                    gainLimitMin = 1f
-                    gainLimitMax = 1f
-                }
-                else -> {
-                    gainLimitMin = 1f
-                    gainLimitMax = 10f
-                }
-            }
-
-            uiDynamicGain = uiDynamicGain * 0.9f + targetGain.coerceIn(gainLimitMin, gainLimitMax) * 0.1f
-            (1.0f + (uiPeak * uiDynamicGain - 0.15f)).coerceIn(0.9f, 1.25f)
-        }
-
-        if (target > smoothedUiAmplitude) {
-            smoothedUiAmplitude = smoothedUiAmplitude * 0.05f + target * 0.95f
-        } else {
-            smoothedUiAmplitude = smoothedUiAmplitude * 0.7f + target * 0.3f
-        }
-        _uiAmplitude.value = if (_uiAmplitudeSyncEnabled.value) smoothedUiAmplitude else 1.0f
-
-        if (fftraw.isNotEmpty()) {
-            // Beats are now synced via syncIntensities from the service engines
-        }
-    }
 
     fun setFftStateEmpty() {
         manualDecayFft.fill(0f)
         _fftState.value = floatArrayOf()
+        
+        _hapticAmplitude.value = 0f
+        _hapticMotorIntensity.value = 0f
+        _flashlightAmplitude.value = 0f
+        _flashlightMotorIntensity.value = 0f
+        _uiAmplitude.value = 1.0f
+        smoothedUiAmplitude = 1.0f
+        smoothedHapticAmplitude = 0f
+        uiDynamicGain = 1.0f
+        uiPeakValue = 0.1f
     }
 
     fun phoneModelForDevice(device: Int): String {
@@ -1823,6 +1765,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _lensVisualizerBarCount.value = prefs.getInt("lens_visualizer_bar_count", 35)
         _lensVisualizerSensitivity.value = prefs.getFloat("lens_visualizer_sensitivity", 0.32f)
 
+        _alternateGlyphVizEnabled.value = prefs.getBoolean("alternate_glyph_viz_enabled", false)
+        _alternateGlyphVizEnabled.value = prefs.getBoolean("alternate_glyph_viz_enabled", false)
         _onScreenVisualizersEnabled.value = prefs.getBoolean("on_screen_visualizers_enabled", false)
 
         // Launch background tasks

@@ -5,7 +5,7 @@ build/
 .codex
 .vscode/
 app/build/*
-
+.artifacts/
 app/build/
 app/build/outputs/*
 app/build/outputs/

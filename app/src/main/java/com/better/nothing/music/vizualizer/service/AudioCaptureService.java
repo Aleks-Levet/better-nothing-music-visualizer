@@ -169,6 +169,14 @@ public class AudioCaptureService extends Service {
         sIsRunningFlow.setValue(running);
         requestWidgetRefresh(this);
         requestTileRefresh(this);
+        if (!running) {
+            sHapticMotorIntensityFlow.setValue(0f);
+            sFlashlightMotorIntensityFlow.setValue(0f);
+            sHapticRawPeakFlow.setValue(0f);
+            sFlashlightRawPeakFlow.setValue(0f);
+            sHapticBeatFlow.setValue(false);
+            sFlashlightBeatFlow.setValue(false);
+        }
         if (running && !wasRunning) {
             mMainHandler.removeCallbacks(mIdlePulseRunnable);
             mMainHandler.post(mIdlePulseRunnable);
@@ -248,13 +256,13 @@ public class AudioCaptureService extends Service {
     public volatile float mLensVisualizerSensitivity = 1.0f;
 
     public void setLensVisualizerEnabled(boolean enabled) { mLensVisualizerEnabled = enabled; updateOverlayVisibility(); requestWidgetRefresh(); }
-    public void setLensVisualizerRadius(float r) { mLensVisualizerRadius = r; if (mLensVisualizerView != null) mLensVisualizerView.setRadius(r * 4); }
-    public void setLensVisualizerX(float x) { mLensVisualizerX = x; if (mLensVisualizerView != null) mLensVisualizerView.setXPosition(x); }
-    public void setLensVisualizerY(float y) { mLensVisualizerY = y; if (mLensVisualizerView != null) mLensVisualizerView.setYPosition(y); }
-    public void setLensVisualizerBarWidth(float w) { mLensVisualizerBarWidth = w; if (mLensVisualizerView != null) mLensVisualizerView.setBarWidth(w * 4); }
-    public void setLensVisualizerMaxHeight(float h) { mLensVisualizerMaxHeight = h; if (mLensVisualizerView != null) mLensVisualizerView.setMaxHeight(h * 4); }
-    public void setLensVisualizerBarCount(int c) { mLensVisualizerBarCount = c; if (mLensVisualizerView != null) mLensVisualizerView.setBarCount(c); }
-    public void setLensVisualizerSensitivity(float s) { mLensVisualizerSensitivity = s; if (mLensVisualizerView != null) mLensVisualizerView.setSensitivity(s); }
+    public void setLensVisualizerRadius(float r) { mLensVisualizerRadius = r; }
+    public void setLensVisualizerX(float x) { mLensVisualizerX = x; }
+    public void setLensVisualizerY(float y) { mLensVisualizerY = y; }
+    public void setLensVisualizerBarWidth(float w) { mLensVisualizerBarWidth = w; }
+    public void setLensVisualizerMaxHeight(float h) { mLensVisualizerMaxHeight = h; }
+    public void setLensVisualizerBarCount(int c) { mLensVisualizerBarCount = c; }
+    public void setLensVisualizerSensitivity(float s) { mLensVisualizerSensitivity = s; }
     
     private int mOverlayWidth = 120;
     private int mOverlayHeight = 12;
@@ -277,7 +285,6 @@ public class AudioCaptureService extends Service {
 
     private WindowManager mWindowManager;
     private VisualizerOverlayView mOverlayView;
-    private LensVisualizerView mLensVisualizerView;
 
     private volatile boolean mHapticEnabled = false;
     private volatile HapticMode mHapticMode = HapticMode.BASS_TO_AMPLITUDE;
@@ -289,6 +296,8 @@ public class AudioCaptureService extends Service {
     private volatile float mHapticAudioGain = 1.0f;
     private volatile float mHapticBeatSensitivity = 1.0f;
     private volatile float mHapticBeatGamma = 8.0f;
+
+    private AudioProcessor.FrequencyRange mUiRange;
 
     private volatile boolean mFlashlightEnabled = false;
     private volatile TorchMode mFlashlightMode = TorchMode.AMPLITUDE;
@@ -333,8 +342,11 @@ public class AudioCaptureService extends Service {
 
     public float getLatestUiPeak() {
         int[] fft = getLatestRawFFT();
+        if (mUiRange == null) return 0f;
         int max = 0;
-        for (int i = 0; i < 512; i++) if (fft[i] > max) max = fft[i];
+        for (int i = mUiRange.logBinLo; i <= mUiRange.logBinHi && i < fft.length; i++) {
+            if (fft[i] > max) max = fft[i];
+        }
         return max / 4095f;
     }
 
@@ -363,7 +375,6 @@ public class AudioCaptureService extends Service {
                 if (now - mLastSendMs >= 16 && mVisualizerConfig != null) {
                     if (mOverlayView != null) mOverlayView.updateMagnitudes(mLatestRawFFT);
                     if (mEdgeVisualizerView != null) mEdgeVisualizerView.updateMagnitudes(mLatestRawFFT);
-                    if (mLensVisualizerView != null) mLensVisualizerView.updateMagnitudes(mLatestRawFFT);
 
                     processFrame(mLatestRawFFT, mVisualizerConfig, mPresetConfigVersion.get());
                 }
@@ -442,6 +453,7 @@ public class AudioCaptureService extends Service {
         mUdpSync = new UdpNetworkSync(this);
         mAudioDeviceManager = new AudioDeviceManager(this, this::refreshLatencyForCurrentAudioRoute);
         mSelectedDevice = DeviceProfile.detectDevice();
+        mUiRange = new AudioProcessor.FrequencyRange(70f, 120f);
         mLatencyCompensationMs = loadLatencyCompensationMs(this, mSelectedDevice);
         mGamma = loadGamma(this);
         SharedPreferences appPrefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE);
@@ -452,7 +464,9 @@ public class AudioCaptureService extends Service {
             mCaptureSource = CaptureSource.INTERNAL;
         }
         mIdleBreathingEnabled = appPrefs.getBoolean("idle_breathing_enabled", false);
+        if (mGlyphRenderer != null) mGlyphRenderer.setAlternateMode(appPrefs.getBoolean("alternate_glyph_viz_enabled", false));
         mDisableGlyphsWhenSilent = appPrefs.getBoolean("disable_glyphs_when_silent", false);
+        if (mGlyphRenderer != null) mGlyphRenderer.setAlternateMode(appPrefs.getBoolean("alternate_glyph_viz_enabled", false));
         mBroadcastEnabled = appPrefs.getBoolean("broadcast_enabled", false);
         mOverlayEnabled = appPrefs.getBoolean("overlay_enabled", false);
         mOverlayWidth = appPrefs.getInt("overlay_width", 120);
@@ -503,9 +517,11 @@ public class AudioCaptureService extends Service {
         setFlashlightEnabled(appPrefs.getBoolean("flashlight_enabled", false));
         
         mIdleBreathingEnabled = appPrefs.getBoolean("idle_breathing_enabled", false);
+        if (mGlyphRenderer != null) mGlyphRenderer.setAlternateMode(appPrefs.getBoolean("alternate_glyph_viz_enabled", false));
         if (mGlyphRenderer != null) mGlyphRenderer.setIdleBreathingEnabled(mIdleBreathingEnabled);
         
         mDisableGlyphsWhenSilent = appPrefs.getBoolean("disable_glyphs_when_silent", false);
+        if (mGlyphRenderer != null) mGlyphRenderer.setAlternateMode(appPrefs.getBoolean("alternate_glyph_viz_enabled", false));
         setBroadcastEnabled(appPrefs.getBoolean("broadcast_enabled", false));
         
         mOverlayEnabled = appPrefs.getBoolean("overlay_enabled", false);
@@ -996,6 +1012,9 @@ public class AudioCaptureService extends Service {
     public void stopCapture() { synchronized (mCaptureLock) { stopCaptureLocked(true); } }
     private void stopCaptureLocked(boolean stopService) {
         mCapturing = false;
+        synchronized (mFftLock) {
+            mLatestRawFFT = EMPTY_FFT;
+        }
 
         if (mAudioRecord != null) {
             try {
@@ -1018,12 +1037,17 @@ public class AudioCaptureService extends Service {
             setRunning(false);
             clearGlyphSession();
         }
+        updateOverlayVisibility();
     }
     private void releaseAudioRecord() { if (mAudioRecord != null) { try { mAudioRecord.stop(); } catch (Exception ignored) {} mAudioRecord.release(); mAudioRecord = null; } }
     private void releaseProjection() { if (mProjection != null) { try { mProjection.stop(); } catch (Exception ignored) {} mProjection = null; } }
     private void releaseVisualizer() { if (mVisualizer != null) { try { mVisualizer.release(); } catch (Exception ignored) {} mVisualizer = null; } synchronized (mVisualizerPendingFrames) { mVisualizerPendingFrames.clear(); } }
     private void ensureCaptureExecutor() { if (mCaptureExecutor == null || mCaptureExecutor.isShutdown()) mCaptureExecutor = Executors.newSingleThreadExecutor(); }
     private void shutdownCaptureExecutor() { if (mCaptureExecutor != null) { mCaptureExecutor.shutdownNow(); mCaptureExecutor = null; } }
+
+    public void setAlternateGlyphVizEnabled(boolean enabled) {
+        if (mGlyphRenderer != null) mGlyphRenderer.setAlternateMode(enabled);
+    }
 
     private void processFrame(int[] fftraw, AudioProcessor.VisualizerConfig config, int configVersion) {
         if (config == null || configVersion != mPresetConfigVersion.get()) return;
@@ -1081,7 +1105,6 @@ public class AudioCaptureService extends Service {
 
                 if (mOverlayView != null) mOverlayView.updateMagnitudes(mLatestRawFFT);
                 if (mEdgeVisualizerView != null) mEdgeVisualizerView.updateMagnitudes(mLatestRawFFT);
-                if (mLensVisualizerView != null) mLensVisualizerView.updateMagnitudes(mLatestRawFFT);
 
                 float hRawPeak = getLatestHapticPeak();
                 float fRawPeak = getLatestFlashlightPeak();
@@ -1278,16 +1301,6 @@ public class AudioCaptureService extends Service {
                 }
                 mOverlayView.setTopEnabled(mOverlayTopEnabled); mOverlayView.setBottomEnabled(mOverlayBottomEnabled); mOverlayView.setHeights(mOverlayHeight, mOverlayHeightBottom); mOverlayView.setTopSensitivity(mOverlaySensitivity); mOverlayView.setBottomSensitivity(mOverlaySensitivityBottom);
             } else if (mOverlayView != null) { try { mWindowManager.removeView(mOverlayView); } catch (Exception ignored) {} mOverlayView = null; }
-            if (mLensVisualizerEnabled && mCapturing) {
-                if (mLensVisualizerView == null) {
-                    mLensVisualizerView = new LensVisualizerView(this);
-                    WindowManager.LayoutParams params = new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, PixelFormat.TRANSLUCENT);
-                    params.gravity = Gravity.TOP | Gravity.START;
-                    if (Build.VERSION.SDK_INT >= 28) params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
-                    try { mWindowManager.addView(mLensVisualizerView, params); } catch (Exception ignored) {}
-                }
-                mLensVisualizerView.setRadius(mLensVisualizerRadius * 4); mLensVisualizerView.setBarWidth(mLensVisualizerBarWidth * 4); mLensVisualizerView.setMaxHeight(mLensVisualizerMaxHeight * 4); mLensVisualizerView.setBarCount(mLensVisualizerBarCount); mLensVisualizerView.setSensitivity(mLensVisualizerSensitivity); mLensVisualizerView.setXPosition(mLensVisualizerX); mLensVisualizerView.setYPosition(mLensVisualizerY);
-            } else if (mLensVisualizerView != null) { try { mWindowManager.removeView(mLensVisualizerView); } catch (Exception ignored) {} mLensVisualizerView = null; }
             updateVisualizerService();
         });
     }

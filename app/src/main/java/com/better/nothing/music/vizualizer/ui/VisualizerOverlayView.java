@@ -26,6 +26,9 @@ public class VisualizerOverlayView extends View {
         mPaint.setColor(mColor);
         mPaint.setStyle(Paint.Style.FILL);
         mPaint.setAntiAlias(true);
+        setClickable(false);
+        setFocusable(false);
+        setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
     }
 
     public void setColor(int color) {

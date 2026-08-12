@@ -6,8 +6,12 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.os.VibratorManager
+import android.view.View
 import android.widget.RemoteViews
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
@@ -93,12 +97,19 @@ class VisualizerWidget : AppWidgetProvider() {
     }
 
     private fun performHapticFeedback(context: Context) {
-        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
-        if (vibrator != null && vibrator.hasVibrator()) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vibratorManager.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        }
+
+        if (vibrator.hasVibrator()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK))
             } else {
-                vibrator.vibrate(10)
+                vibrator.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE))
             }
         }
     }
@@ -137,8 +148,8 @@ class VisualizerWidget : AppWidgetProvider() {
         val hasHaptic = AudioCaptureService.hasHapticMotor(context)
         val hasFlashlight = AudioCaptureService.hasFlashlight(context)
 
-        views.setViewVisibility(R.id.btn_viz_haptics, if (hasHaptic) android.view.View.VISIBLE else android.view.View.GONE)
-        views.setViewVisibility(R.id.btn_viz_torch, if (hasFlashlight) android.view.View.VISIBLE else android.view.View.GONE)
+        views.setViewVisibility(R.id.btn_viz_haptics, if (hasHaptic) View.VISIBLE else View.GONE)
+        views.setViewVisibility(R.id.btn_viz_torch, if (hasFlashlight) View.VISIBLE else View.GONE)
 
         updateButtonState(views, R.id.btn_viz_haptics, hapticEnabled)
         updateButtonState(views, R.id.btn_viz_glyphs, glyphsEnabled)
@@ -161,11 +172,7 @@ class VisualizerWidget : AppWidgetProvider() {
                 PendingIntent.getActivity(context, 20, startIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             } else {
                 val startIntent = Intent(context, AudioCaptureService::class.java).apply { action = AudioCaptureService.ACTION_START }
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    PendingIntent.getForegroundService(context, 20, startIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-                } else {
-                    PendingIntent.getService(context, 20, startIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-                }
+                PendingIntent.getForegroundService(context, 20, startIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             }
         }
         
@@ -179,10 +186,10 @@ class VisualizerWidget : AppWidgetProvider() {
     private fun updateButtonState(views: RemoteViews, viewId: Int, isActive: Boolean) {
         if (isActive) {
             views.setInt(viewId, "setBackgroundResource", R.drawable.widget_button_bg_selected)
-            views.setInt(viewId, "setColorFilter", android.graphics.Color.BLACK)
+            views.setInt(viewId, "setColorFilter", Color.BLACK)
         } else {
             views.setInt(viewId, "setBackgroundResource", R.drawable.widget_button_bg)
-            views.setInt(viewId, "setColorFilter", android.graphics.Color.WHITE)
+            views.setInt(viewId, "setColorFilter", Color.WHITE)
         }
     }
 
