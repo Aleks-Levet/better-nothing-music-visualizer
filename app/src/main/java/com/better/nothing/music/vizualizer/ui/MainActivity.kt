@@ -676,111 +676,113 @@ internal fun BetterVizApp(
 
     val tabletTabWidth by viewModel.tabletTabWidth.collectAsStateWithLifecycle()
 
-    Scaffold(
-        bottomBar = {
-            if (!isTablet) {
-                NativeBottomBar(
-                    selectedTab = selectedTab,
-                    visibleTabs = visibleTabs,
-                    onTabSelected = { viewModel.selectTab(it) }
-                )
-            }
-        },
-        floatingActionButton = {
-            StartStopButton(running = isRunning, onClick = onToggleVisualizer)
-        },
-        containerColor = MaterialTheme.colorScheme.background,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        modifier = Modifier.fillMaxSize()
-    ) { padding ->
-        if (isTablet) {
-            val scrollState = rememberScrollState()
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .horizontalScroll(scrollState)
-            ) {
-                visibleTabs.forEachIndexed { index, tab ->
-                    key(tab) {
-                        val isTabEnabled = when (tab) {
-                            Tab.Glyphs -> glyphsEnabled
-                            Tab.Haptics -> hapticsEnabled
-                            Tab.Flashlight -> flashlightEnabled
-                            else -> true
-                        }
-
-                        val tabModifier = if (tabletTabWidth > 0) {
-                            Modifier.width(tabletTabWidth.dp)
-                        } else {
-                            Modifier.weight(1f).widthIn(min = 500.dp)
-                        }
-
-                        Box(
-                            modifier = tabModifier
-                                .fillMaxHeight()
-                        ) {
-                            if (isTabEnabled) {
-                                TabContent(
-                                    tab,
-                                    viewModel,
-                                    isRunning,
-                                    totalVisualizedTime,
-                                    developerModeEnabled,
-                                    glyphsEnabled,
-                                    hapticsEnabled,
-                                    flashlightEnabled,
-                                    visualsEnabled,
-                                    onOverlayPermissionRequest,
-                                    PaddingValues(0.dp),
-                                    isTablet = true
-                                )
-                            } else {
-                                DisabledFeaturePlaceholder(tab)
-                            }
-                        }
-                    }
-                    if (index < visibleTabs.size - 1) {
-                        VerticalDivider(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .padding(horizontal = 12.dp),
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant
-                        )
-                    }
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            bottomBar = {
+                if (!isTablet) {
+                    NativeBottomBar(
+                        selectedTab = selectedTab,
+                        visibleTabs = visibleTabs,
+                        onTabSelected = { viewModel.selectTab(it) }
+                    )
                 }
-            }
-        } else {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize(),
-                beyondViewportPageCount = 6,
-                userScrollEnabled = true,
-                key = { page -> if (page < visibleTabs.size) visibleTabs[page].name else page }
-            ) { page ->
-                if (page >= visibleTabs.size) return@HorizontalPager
-                val tab = visibleTabs[page]
-                Box(
+            },
+            floatingActionButton = {
+                StartStopButton(running = isRunning, onClick = onToggleVisualizer)
+            },
+            containerColor = MaterialTheme.colorScheme.background,
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
+            modifier = Modifier.fillMaxSize()
+        ) { padding ->
+            if (isTablet) {
+                val scrollState = rememberScrollState()
+                Row(
                     modifier = Modifier
                         .fillMaxSize()
-                        .graphicsLayer {
-                            val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
-                            val absOffset = pageOffset.coerceIn(-1f, 1f).let { kotlin.math.abs(it) }
-                            val fraction = 1f - absOffset
-
-                            val scale = 0.85f + (1f - 0.85f) * fraction
-                            scaleX = scale
-                            scaleY = scale
-                            alpha = fraction
-
-                            val maxRotation = 8f
-                            val rotationAmount = maxRotation * (1f - fraction)
-
-                            rotationZ = if (pageOffset > 0) -rotationAmount else rotationAmount
-                        }
+                        .padding(padding)
+                        .horizontalScroll(scrollState)
                 ) {
-                    TabContent(tab, viewModel, isRunning, totalVisualizedTime, developerModeEnabled, glyphsEnabled, hapticsEnabled, flashlightEnabled, visualsEnabled, onOverlayPermissionRequest, padding, isTablet = false)
+                    visibleTabs.forEachIndexed { index, tab ->
+                        key(tab) {
+                            val isTabEnabled = when (tab) {
+                                Tab.Glyphs -> glyphsEnabled
+                                Tab.Haptics -> hapticsEnabled
+                                Tab.Flashlight -> flashlightEnabled
+                                else -> true
+                            }
+
+                            val tabModifier = if (tabletTabWidth > 0) {
+                                Modifier.width(tabletTabWidth.dp)
+                            } else {
+                                Modifier.weight(1f).widthIn(min = 500.dp)
+                            }
+
+                            Box(
+                                modifier = tabModifier
+                                    .fillMaxHeight()
+                            ) {
+                                if (isTabEnabled) {
+                                    TabContent(
+                                        tab,
+                                        viewModel,
+                                        isRunning,
+                                        totalVisualizedTime,
+                                        developerModeEnabled,
+                                        glyphsEnabled,
+                                        hapticsEnabled,
+                                        flashlightEnabled,
+                                        visualsEnabled,
+                                        onOverlayPermissionRequest,
+                                        PaddingValues(0.dp),
+                                        isTablet = true
+                                    )
+                                } else {
+                                    DisabledFeaturePlaceholder(tab)
+                                }
+                            }
+                        }
+                        if (index < visibleTabs.size - 1) {
+                            VerticalDivider(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .padding(horizontal = 12.dp),
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            )
+                        }
+                    }
+                }
+            } else {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize(),
+                    beyondViewportPageCount = 6,
+                    userScrollEnabled = true,
+                    key = { page -> if (page < visibleTabs.size) visibleTabs[page].name else page }
+                ) { page ->
+                    if (page >= visibleTabs.size) return@HorizontalPager
+                    val tab = visibleTabs[page]
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .graphicsLayer {
+                                val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+                                val absOffset = pageOffset.coerceIn(-1f, 1f).let { kotlin.math.abs(it) }
+                                val fraction = 1f - absOffset
+
+                                val scale = 0.85f + (1f - 0.85f) * fraction
+                                scaleX = scale
+                                scaleY = scale
+                                alpha = fraction
+
+                                val maxRotation = 8f
+                                val rotationAmount = maxRotation * (1f - fraction)
+
+                                rotationZ = if (pageOffset > 0) -rotationAmount else rotationAmount
+                            }
+                    ) {
+                        TabContent(tab, viewModel, isRunning, totalVisualizedTime, developerModeEnabled, glyphsEnabled, hapticsEnabled, flashlightEnabled, visualsEnabled, onOverlayPermissionRequest, padding, isTablet = false)
+                    }
                 }
             }
         }
@@ -789,7 +791,6 @@ internal fun BetterVizApp(
             selectedDevice = selectedDevice,
             isTablet = isTablet,
             visibleTabCount = visibleTabs.size,
-            padding = padding,
             backProgress = backProgress
         )
     }

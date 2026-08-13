@@ -6,7 +6,6 @@ import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,7 +28,6 @@ fun MainOverlays(
     selectedDevice: Int,
     isTablet: Boolean = false,
     visibleTabCount: Int = 1,
-    padding: PaddingValues = PaddingValues(0.dp),
     backProgress: Float = 0f
 ) {
     val isShowingAbout by viewModel.isShowingAbout.collectAsStateWithLifecycle()
@@ -45,7 +43,7 @@ fun MainOverlays(
         animationSpec = tween(durationMillis = 500, easing = EaseOutCubic)
     )
 
-    Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.CenterEnd) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterEnd) {
         val overlayModifier = if (isTablet) {
             Modifier
                 .fillMaxHeight()
