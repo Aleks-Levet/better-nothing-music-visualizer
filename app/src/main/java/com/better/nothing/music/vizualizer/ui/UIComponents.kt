@@ -1014,7 +1014,7 @@ fun NativeBottomBar(
 
             val selectionScale by animateFloatAsState(
                 targetValue = if (isSelected) 1.1f else 1.0f,
-                animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessLow),
+                animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMedium),
                 label = "nav_selection_scale"
             )
 

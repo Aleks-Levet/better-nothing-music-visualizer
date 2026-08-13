@@ -652,9 +652,9 @@ internal fun BetterVizApp(
     }
 
     // Sync selectedTab when pager is scrolled by user
-    LaunchedEffect(pagerState.settledPage) {
+    LaunchedEffect(pagerState.currentPage) {
         if (!isProgrammaticScroll) {
-            val swipedTab = visibleTabs.getOrNull(pagerState.settledPage)
+            val swipedTab = visibleTabs.getOrNull(pagerState.currentPage)
             if (swipedTab != null && swipedTab != selectedTab) {
                 viewModel.selectTab(swipedTab, recordHistory = false)
             }
