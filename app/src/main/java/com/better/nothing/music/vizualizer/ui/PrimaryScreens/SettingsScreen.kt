@@ -269,7 +269,7 @@ internal fun SettingsScreen(
         }
 
         // ── Developer Mode ──────────────────────────────────────────────────
-        if (devModeEnabled) {
+        AnimatedVisibility(devModeEnabled) {
             ExpandableExpressiveCard(
                 title = stringResource(R.string.developer_mode),
                 icon = Icons.Default.Code,
