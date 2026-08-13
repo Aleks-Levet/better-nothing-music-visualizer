@@ -857,19 +857,19 @@ fun BodyText(
     modifier: Modifier = Modifier,
     size: TextUnit = 16.sp,
     lineHeight: TextUnit = 24.sp,
+    fontWeight: FontWeight = FontWeight.Normal,
+    color: Color = MaterialTheme.colorScheme.onBackground
 ) {
     Text(
-        text  = text,
-        // Hoist TextStyle out of every recomposition; only reallocated when
-        // size or lineHeight actually changes.
-        style = remember(size, lineHeight) {
+        text = text,
+        style = remember(size, lineHeight, fontWeight) {
             TextStyle(
-                fontSize   = size,
+                fontSize = size,
                 lineHeight = lineHeight,
-                fontWeight = FontWeight.Normal,
+                fontWeight = fontWeight,
             )
         },
-        color    = MaterialTheme.colorScheme.onBackground,
+        color = color,
         modifier = modifier,
     )
 }

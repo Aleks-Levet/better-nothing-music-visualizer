@@ -173,7 +173,7 @@ class VisualizerWidgetM3 : AppWidgetProvider() {
         
         views.setOnClickPendingIntent(R.id.btn_start_stop, startStopPI)
         views.setImageViewResource(R.id.img_start_stop, if (isRunning) R.drawable.ic_stop else R.drawable.ic_play)
-        views.setTextViewText(R.id.txt_start_stop, if (isRunning) "STOP BNMV" else "START BNMV")
+        views.setTextViewText(R.id.txt_start_stop, context.getString(if (isRunning) R.string.widget_stop_bnmv else R.string.widget_start_bnmv))
         
         if (isRunning) {
             views.setInt(R.id.btn_start_stop, "setBackgroundResource", R.drawable.widget_m3_button_bg_selected)

@@ -121,9 +121,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:text="START BNMV"
+            android:text="@string/widget_start_bnmv"
             android:textColor="@color/widget_m3_on_surface"
-            android:textSize="14sp"
+            android:textSize="12sp"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:textStyle="bold" />
     </LinearLayout>
 

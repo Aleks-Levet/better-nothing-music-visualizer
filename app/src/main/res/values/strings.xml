@@ -327,11 +327,41 @@
 
     <!-- Audio Service -->
     <string name="audio_route_none">None</string>
-    <string name="output_selection">Select the outputs</string>
-    <string name="select_capture_source">Select the audio source</string>
+    <string name="output_selection">2. Select the outputs</string>
+    <string name="select_capture_source">1. Select the audio source</string>
     <string name="broadcast">Let other devices connect...</string>
+
+    <!-- Audio Help Guides -->
+    <string name="help_source_intro">Choose where to capture audio for visualization:</string>
+    <string name="help_source_internal_title">Media projection</string>
+    <string name="help_source_internal_desc">Captures high-quality audio directly from your apps. The "screen share" popup is what android needs to allow audio capture by BNMV. It does not record your screen and is highly battery efficient. </string>
+    <string name="help_source_mic_title">Microphone</string>
+    <string name="help_source_mic_desc">Captures sound from the environment. Useful for parties where you do not play the songs yourself.</string>
+    <string name="help_source_network_title">Another device or app...</string>
+    <string name="help_source_network_desc">Receives audio data from another device that is broadcasting audio data with this app.</string>
+    <string name="help_source_viz_title">Android built in Visualizer</string>
+    <string name="help_source_viz_desc">This is what android officially lets visualizer apps use, a very low quality audio stream. It doesn\'t ask for screen sharing permissions tho.</string>
+    <string name="help_source_privacy">Remember, no audio data is ever saved or stored on your device.</string>
+
+    <string name="help_output_intro">Control where the visualization appears:</string>
+    <string name="help_output_glyphs_title">Glyphs</string>
+    <string name="help_output_glyphs_desc">Visualizes audio using the Glyph Interface / Matrix LEDs.</string>
+    <string name="help_output_haptics_title">Haptics</string>
+    <string name="help_output_haptics_desc">Lets you feel the music through the haptic vibration motor.</string>
+    <string name="help_output_flash_title">Flashlight</string>
+    <string name="help_output_flash_desc">Pulses the camera flashlight to the beat.</string>
+    <string name="help_output_broadcast_title">Broadcast</string>
+    <string name="help_output_broadcast_desc">Streams audio data to other devices on your network.</string>
+    <string name="help_sync_title">Connecting to another device:</string>
+    <string name="help_sync_step1">1. Enable \'Let other devices connect...\' on the device playing music (Source).</string>
+    <string name="help_sync_step2">2. On this device, select \'Another device or app...\' as the Audio Source and pick the source device from the list.</string>
+
     <string name="system_language">System Language</string>
     <string name="select_language">Select Language</string>
     <string name="widget_m3_description">Material 3 Visualizer Widget (DayNight)</string>
     <string name="idle_breathing_desc">Glyphs pulse subtly when the visualizer is active but no audio is playing.</string>
+
+    <!-- Widget -->
+    <string name="widget_start_bnmv" translatable="false">START BNMV</string>
+    <string name="widget_stop_bnmv" translatable="false">STOP BNMV</string>
 </resources>

@@ -1160,7 +1160,11 @@ public class AudioCaptureService extends Service {
 
     private void processVisualizerWaveform(byte[] waveform, int samplingRate) {
         if (!mCapturing || mVisualizerConfig == null) return;
-        mAudioProcessor.updateFFTSize(samplingRate / 1000);
+        // Robust sampling rate detection: handle both Hz (most devices) and mHz (docs)
+        int hz = (samplingRate > 1000000) ? (samplingRate / 1000) : samplingRate;
+        if (hz < 8000) hz = 44100; // Fallback for invalid values
+
+        mAudioProcessor.updateFFTSize(hz);
         short[] hop = new short[waveform.length]; for (int i = 0; i < waveform.length; i++) hop[i] = (short) (((waveform[i] & 0xFF) - 128) << 8);
         AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, AudioProcessor.SourceType.VIZUALIZER, mVisualizerConfig.decay);
         if (result == null) return;
@@ -1306,7 +1310,7 @@ public class AudioCaptureService extends Service {
     }
 
     public static void requestTileRefresh(Context context) {
-        TileService.requestListeningState(context, new ComponentName(context, "com.better.nothing.music.vizualizer.service.VisualizerTileService"));
+        TileService.requestListeningState(context, new ComponentName(context, VisualizerTileService.class));
     }
 
     private void requestTileRefresh() {

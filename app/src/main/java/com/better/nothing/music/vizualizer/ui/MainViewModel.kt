@@ -1164,6 +1164,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _connectedClients.value = emptyMap()
             saveStatsLocally()
         }
+        AudioCaptureService.requestTileRefresh(ctx)
     }
 
     val _selectedPreset = MutableStateFlow("Default")
@@ -1474,10 +1475,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val hapticBeatDetector = BeatDetector()
     val flashlightBeatDetector = BeatDetector()
 
-    var smoothedUiAmplitude = 1f
     var smoothedHapticAmplitude = 0f
-    private var uiDynamicGain = 1.0f
-    private var uiPeakValue = 0.1f
 
     val _fftState = MutableStateFlow(floatArrayOf())
     val fftState = _fftState.asStateFlow()
@@ -1515,22 +1513,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             viewModelScope.launch { delay(50); _isFlashlightBeatDetected.value = false }
         }
         
-        // Handle UI amplitude smoothing
+        // Handle UI amplitude - Direct mapping of 0..1 (from 0..4095) to 1.0..1.25
         val service = MainActivity.serviceStatic
         if (service != null) {
             val uiPeak = service.latestUiPeak
-            uiPeakValue = uiPeakValue * 0.95f + uiPeak * 0.05f
-            if (uiPeak > uiPeakValue) uiPeakValue = uiPeak
-
-            uiDynamicGain = 1.0f
-            val target = (1.0f + (uiPeak * uiDynamicGain - 0.15f)).coerceIn(0.9f, 1.25f)
-            
-            if (target > smoothedUiAmplitude) {
-                smoothedUiAmplitude = smoothedUiAmplitude * 0.05f + target * 0.95f
-            } else {
-                smoothedUiAmplitude = smoothedUiAmplitude * 0.7f + target * 0.3f
-            }
-            _uiAmplitude.value = if (_uiAmplitudeSyncEnabled.value) smoothedUiAmplitude else 1.0f
+            val target = 1.0f + (uiPeak * 0.25f)
+            _uiAmplitude.value = if (_uiAmplitudeSyncEnabled.value) target.coerceIn(1.0f, 1.25f) else 1.0f
         }
     }
 
@@ -1545,10 +1533,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _flashlightAmplitude.value = 0f
         _flashlightMotorIntensity.value = 0f
         _uiAmplitude.value = 1.0f
-        smoothedUiAmplitude = 1.0f
         smoothedHapticAmplitude = 0f
-        uiDynamicGain = 1.0f
-        uiPeakValue = 0.1f
     }
 
     fun phoneModelForDevice(device: Int): String {

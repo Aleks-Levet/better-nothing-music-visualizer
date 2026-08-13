@@ -6,8 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.*
 import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -50,6 +49,7 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.PhoneAndroid
@@ -63,6 +63,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
@@ -415,8 +416,53 @@ fun OutputSelectionCard(
     connectedClients: Map<InetAddress, Int?> = emptyMap(),
     isRunning: Boolean = false
 ) {
+    var isHelpExpanded by remember { mutableStateOf(false) }
+
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-        CardHeader(title = stringResource(R.string.output_selection))
+        CardHeader(
+            title = stringResource(R.string.output_selection),
+            trailingContent = {
+                IconButton(onClick = { isHelpExpanded = !isHelpExpanded }) {
+                    Icon(
+                        imageVector = if (isHelpExpanded) Icons.Default.ExpandLess else Icons.Default.Info,
+                        contentDescription = "Show help",
+                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                    )
+                }
+            }
+        )
+
+        AnimatedVisibility(
+            visible = isHelpExpanded,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            Column(modifier = Modifier.padding(bottom = 16.dp)) {
+                BodyText(
+                    text = stringResource(R.string.help_output_intro),
+                    size = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                HelpItem(stringResource(R.string.help_output_glyphs_title), stringResource(R.string.help_output_glyphs_desc))
+                HelpItem(stringResource(R.string.help_output_haptics_title), stringResource(R.string.help_output_haptics_desc))
+                HelpItem(stringResource(R.string.help_output_flash_title), stringResource(R.string.help_output_flash_desc))
+                HelpItem(stringResource(R.string.help_output_broadcast_title), stringResource(R.string.help_output_broadcast_desc))
+
+                Spacer(modifier = Modifier.height(12.dp))
+                BodyText(
+                    text = stringResource(R.string.help_sync_title),
+                    size = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                BodyText(
+                    text = "${stringResource(R.string.help_sync_step1)}\n${stringResource(R.string.help_sync_step2)}",
+                    size = 13.sp,
+                    lineHeight = 18.sp
+                )
+            }
+        }
+
         val outputs = listOf(
             Triple(stringResource(R.string.tab_glyphs), ImageVector.vectorResource(R.drawable.ic_nav_glyphs), Triple(glyphsEnabled, onGlyphsToggle, isGlyphAvailable)),
             Triple(stringResource(R.string.tab_haptics), Icons.Default.Vibration, Triple(hapticsEnabled, onHapticsToggle, hasHapticMotor)),
@@ -509,8 +555,48 @@ fun CaptureSourceCard(
     onSourceSelected: (AudioCaptureService.CaptureSource) -> Unit,
     developerModeEnabled: Boolean
 ) {
+    var isHelpExpanded by remember { mutableStateOf(false) }
+
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-        CardHeader(title = stringResource(R.string.select_capture_source))
+        CardHeader(
+            title = stringResource(R.string.select_capture_source),
+            trailingContent = {
+                IconButton(onClick = { isHelpExpanded = !isHelpExpanded }) {
+                    Icon(
+                        imageVector = if (isHelpExpanded) Icons.Default.ExpandLess else Icons.Default.Info,
+                        contentDescription = "Show help",
+                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                    )
+                }
+            }
+        )
+
+        AnimatedVisibility(
+            visible = isHelpExpanded,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            Column(modifier = Modifier.padding(bottom = 16.dp)) {
+                BodyText(
+                    text = stringResource(R.string.help_source_intro),
+                    size = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                HelpItem(stringResource(R.string.help_source_internal_title), stringResource(R.string.help_source_internal_desc))
+                HelpItem(stringResource(R.string.help_source_mic_title), stringResource(R.string.help_source_mic_desc))
+                HelpItem(stringResource(R.string.help_source_network_title), stringResource(R.string.help_source_network_desc))
+                HelpItem(stringResource(R.string.help_source_viz_title), stringResource(R.string.help_source_viz_desc))
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                BodyText(
+                    text = stringResource(R.string.help_source_privacy),
+                    size = 13.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+
         val mainSources = listOf(
             Triple(
                 AudioCaptureService.CaptureSource.INTERNAL,
@@ -903,6 +989,24 @@ fun FFTSpectrumCard(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun HelpItem(title: String, description: String) {
+    Column(modifier = Modifier.padding(vertical = 4.dp)) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.ExtraBold,
+            color = MaterialTheme.colorScheme.secondary
+        )
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            lineHeight = 16.sp
+        )
     }
 }
 

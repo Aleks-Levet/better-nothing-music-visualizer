@@ -112,9 +112,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:text="STOP BNMV"
+            android:text="@string/widget_stop_bnmv"
             android:textColor="@android:color/white"
-            android:textSize="14sp"
+            android:textSize="12sp"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:textStyle="bold" />
     </LinearLayout>
 
