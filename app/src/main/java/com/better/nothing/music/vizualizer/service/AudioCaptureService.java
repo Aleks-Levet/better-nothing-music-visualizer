@@ -169,6 +169,15 @@ public class AudioCaptureService extends Service {
         sIsRunningFlow.setValue(running);
         requestWidgetRefresh(this);
         requestTileRefresh(this);
+
+        if (mWorkerHandler != null) {
+            if (running && !wasRunning) {
+                mWorkerHandler.post(this::ensureGlyphSession);
+            } else if (!running && wasRunning) {
+                mWorkerHandler.post(this::clearGlyphSession);
+            }
+        }
+
         if (!running) {
             sHapticMotorIntensityFlow.setValue(0f);
             sFlashlightMotorIntensityFlow.setValue(0f);
@@ -496,7 +505,6 @@ public class AudioCaptureService extends Service {
         } catch (Exception ignored) {}
         resetVisualizerState();
         refreshSettingsFromPrefs();
-        if (mSelectedDevice != DeviceProfile.DEVICE_UNKNOWN && Build.VERSION.SDK_INT >= 31) ensureGlyphManagerInitialized();
         mMainHandler.post(mIdlePulseRunnable);
     }
 
@@ -934,7 +942,7 @@ public class AudioCaptureService extends Service {
                             }
                         }
                     } else if (source == CaptureSource.VIZUALIZER) {
-                        setupVisualizerCapture();
+                        mWorkerHandler.post(this::setupVisualizerCapture);
                         return;
                     } else if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
                         lr = new AudioRecord(MediaRecorder.AudioSource.UNPROCESSED, SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bs);
@@ -1198,7 +1206,14 @@ public class AudioCaptureService extends Service {
     }
 
     private void ensureGlyphSession() {
-        if (mSessionOpen || mMaxBrightness <= 0 || mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) return;
+        if (mMaxBrightness <= 0 || mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN || !sIsRunning) return;
+
+        if (mGM == null || mGMM == null) {
+            ensureGlyphManagerInitialized();
+            return; // Callback will re-invoke this
+        }
+
+        if (mSessionOpen) return;
         try {
             if (mGM != null) {
                 mGM.openSession();

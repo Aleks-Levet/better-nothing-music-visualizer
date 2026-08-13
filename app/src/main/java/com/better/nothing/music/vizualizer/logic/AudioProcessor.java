@@ -157,9 +157,12 @@ public class AudioProcessor {
                 desiredGain = 1.0f;
             } else {
                 desiredGain = target / effectiveMax;
-                if (sourceType == SourceType.INTERNAL || sourceType == SourceType.VIZUALIZER) {
+                if (sourceType == SourceType.INTERNAL) {
                     // "almost none" for internal sources as they have known volume
                     desiredGain = Math.max(0.7f, Math.min(1.4f, desiredGain));
+                } else if (sourceType == SourceType.VIZUALIZER) {
+                    // Visualizer on session 0 is affected by master volume, needs more gain range
+                    desiredGain = Math.max(0.1f, Math.min(20.0f, desiredGain));
                 } else {
                     // Strong gain for MIC source
                     desiredGain = Math.max(0.1f, Math.min(200.0f, desiredGain));
