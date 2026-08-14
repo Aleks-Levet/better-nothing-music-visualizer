@@ -413,6 +413,7 @@ internal fun SettingsScreen(
             onExpandedChange = { expandedCardId = if (it) "experimental" else null }
         ) {
             val alternateGlyphVizEnabled by viewModel.alternateGlyphVizEnabled.collectAsStateWithLifecycle()
+            val dualFftEnabled by viewModel.dualFftEnabled.collectAsStateWithLifecycle()
             val onScreenVisualizersEnabled by viewModel.onScreenVisualizersEnabled.collectAsStateWithLifecycle()
 
             FlowRow(
@@ -426,6 +427,13 @@ internal fun SettingsScreen(
                     icon = Icons.Default.SyncAlt,
                     isSelected = uiAmplitudeSyncEnabled,
                     onClick = { viewModel.setUiAmplitudeSyncEnabled(!uiAmplitudeSyncEnabled) }
+                )
+
+                OptionTile(
+                    label = stringResource(R.string.dual_fft),
+                    icon = Icons.Default.GraphicEq,
+                    isSelected = dualFftEnabled,
+                    onClick = { viewModel.setDualFftEnabled(!dualFftEnabled) }
                 )
 
                 if (selectedDevice != DeviceProfile.DEVICE_UNKNOWN) {

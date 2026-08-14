@@ -1142,6 +1142,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _alternateGlyphVizEnabled = MutableStateFlow(false)
     val alternateGlyphVizEnabled = _alternateGlyphVizEnabled.asStateFlow()
 
+    private val _dualFftEnabled = MutableStateFlow(false)
+    val dualFftEnabled = _dualFftEnabled.asStateFlow()
+
+    fun setDualFftEnabled(enabled: Boolean) {
+        _dualFftEnabled.value = enabled
+        MainActivity.serviceStatic?.setDualFftEnabled(enabled)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("dual_fft_enabled", enabled) }
+        }
+    }
+
     fun setAlternateGlyphVizEnabled(enabled: Boolean) {
         _alternateGlyphVizEnabled.value = enabled
         MainActivity.serviceStatic?.setAlternateGlyphVizEnabled(enabled)
@@ -1763,7 +1775,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _lensVisualizerSensitivity.value = prefs.getFloat("lens_visualizer_sensitivity", 0.32f)
 
         _alternateGlyphVizEnabled.value = prefs.getBoolean("alternate_glyph_viz_enabled", false)
-        _alternateGlyphVizEnabled.value = prefs.getBoolean("alternate_glyph_viz_enabled", false)
+        _dualFftEnabled.value = prefs.getBoolean("dual_fft_enabled", false)
         _onScreenVisualizersEnabled.value = prefs.getBoolean("on_screen_visualizers_enabled", false)
 
         // Launch background tasks

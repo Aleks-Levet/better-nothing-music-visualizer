@@ -529,6 +529,7 @@ public class AudioCaptureService extends Service {
         
         mDisableGlyphsWhenSilent = appPrefs.getBoolean("disable_glyphs_when_silent", false);
         if (mGlyphRenderer != null) mGlyphRenderer.setAlternateMode(appPrefs.getBoolean("alternate_glyph_viz_enabled", false));
+        setDualFftEnabled(appPrefs.getBoolean("dual_fft_enabled", false));
         setBroadcastEnabled(appPrefs.getBoolean("broadcast_enabled", false));
         
         mOverlayEnabled = appPrefs.getBoolean("overlay_enabled", false);
@@ -1057,6 +1058,12 @@ public class AudioCaptureService extends Service {
 
     public void setAlternateGlyphVizEnabled(boolean enabled) {
         if (mGlyphRenderer != null) mGlyphRenderer.setAlternateMode(enabled);
+    }
+
+    public void setDualFftEnabled(boolean enabled) {
+        if (mAudioProcessor != null) {
+            mAudioProcessor.setDualFftEnabled(enabled);
+        }
     }
 
     private void processFrame(int[] fftraw, AudioProcessor.VisualizerConfig config, int configVersion) {
