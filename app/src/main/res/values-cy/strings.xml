@@ -2,7 +2,6 @@
 <resources>
 
     <!-- Audio Screen -->
-    <string name="audio_description_running">Mae\'r delweddydd sain amser real yn weithredol. Mae eich ffôn nawr yn dawnsio i\'r curiad! Ni fydd unrhyw gynnwys yn cael ei gadw, ac mae preifatrwydd yn cael ei barchu.</string>
     <string name="audio_warning_vizualizer">Rhybudd: mae\'r ffynhonnell hon yn defnyddio ffrwd sain arddull delweddydd safonol Android. Mae o fanylder isel ac fe allai fod yn wael.</string>
     <string name="auto_memorize_device">Cofio Dyfais yn Awtomatig</string>
     <string name="saving_latency_for">Cadw hwyrni ar gyfer: %s</string>

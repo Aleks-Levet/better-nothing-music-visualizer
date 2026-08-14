@@ -2,7 +2,6 @@
 <resources>
 
     <!-- Audio Screen -->
-    <string name="audio_description_running">Echtzeit-Audio-Visualisierer ist aktiv. Dein Handy tanzt jetzt zum Beat! Es werden keine Inhalte gespeichert und die Privatsphäre wird respektiert.</string>
     <string name="audio_warning_vizualizer">Warnung: Diese Quelle nutzt den Standard-Android-Visualisierungs-Audiostream. Er ist von geringer Qualität und könnte unzureichend sein.</string>
     <string name="auto_memorize_device">Gerät automatisch merken</string>
     <string name="saving_latency_for">Latenz speichern für: %s</string>

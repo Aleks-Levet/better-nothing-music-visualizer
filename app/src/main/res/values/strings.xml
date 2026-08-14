@@ -4,7 +4,6 @@
 
     <!-- Audio Screen -->
     <string name="audio_screen_title" translatable="false">Better Nothing\nMusic Visualizer</string>
-    <string name="audio_description_running">Real time audio visualizer is active. Your phone is now dancing to the beat! No audio content is saved.</string>
     <string name="audio_warning_vizualizer">Warning: this source uses the standard Android visualizer-style audio stream. It is low fidelity and may suck.</string>
     <string name="auto_memorize_device">Auto-Memorize Device</string>
     <string name="saving_latency_for">Saving latency for: %s</string>
@@ -224,7 +223,6 @@
     <string name="read_license">Read the software license</string>
     <string name="failed_load_license">Failed to load current license.</string>
     <string name="retry">Retry</string>
-    <string name="end_license_agreement">END OF LICENSE AGREEMENT</string>
 
     <!-- Audio Discovery -->
     <string name="connect_to_device">Connect to Device</string>
@@ -350,7 +348,7 @@
     <string name="help_output_haptics_desc">Lets you feel the music through the haptic vibration motor.</string>
     <string name="help_output_flash_title">Flashlight</string>
     <string name="help_output_flash_desc">Pulses the camera flashlight to the beat.</string>
-    <string name="help_output_broadcast_title">Broadcast</string>
+    <string name="help_output_broadcast_title">\"Let other devices connect...\"</string>
     <string name="help_output_broadcast_desc">Streams audio data to other devices on your network.</string>
     <string name="help_sync_title">Connecting to another device:</string>
     <string name="help_sync_step1">1. Enable \'Let other devices connect...\' on the device playing music (Source).</string>
@@ -371,7 +369,7 @@
     <string name="easter_egg_glyph_popup_title" translatable="false">Glyphs go brrr</string>
     <string name="easter_egg_glyph_popup_body">This app icon concept was made by the developer of the biggest app that was made by the Nothing Community, NoVolume. It\'s an amazing app and you definitely need to check it out on the play store.\n\nThis is what he said:</string>
     <string name="easter_egg_glyph_popup_quote">\"I think that this app icon would suit the app much more and more people would install the app.\"</string>
-    <string name="ok">OK</string>
+    <string name="ok" translatable="false">OK</string>
     <string name="i_dont_give_a_fuck">I don\'t give a fuck</string>
 
 </resources>

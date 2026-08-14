@@ -2,7 +2,6 @@
 <resources>
 
     <!-- Audio Screen -->
-    <string name="audio_description_running">रीयल-टाइम ऑडियो विज़ुअलाइज़र सक्रिय है। आपका फोन अब ताल पर नाच रहा है! कोई भी सामग्री सहेजी नहीं जाती है, और गोपनीयता का सम्मान किया जाता है।</string>
     <string name="audio_warning_vizualizer">चेतावनी: यह स्रोत मानक एंड्रॉइड विज़ुअलाइज़र-शैली ऑडियो स्ट्रीम का उपयोग करता है। यह कम निष्ठा वाला है और खराब हो सकता है।</string>
     <string name="auto_memorize_device">डिवाइस ऑटो-मेमोराइज करें</string>
     <string name="saving_latency_for">के लिए विलंबता सहेजी जा रही है: %s</string>

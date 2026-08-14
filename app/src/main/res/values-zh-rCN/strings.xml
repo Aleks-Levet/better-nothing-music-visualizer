@@ -2,7 +2,6 @@
 <resources>
 
     <!-- Audio Screen -->
-    <string name="audio_description_running">实时音频可视化工具已激活。您的手机正随节奏舞动！不保存任何内容，尊重隐私。</string>
     <string name="audio_warning_vizualizer">警告：此来源使用标准的 Android 可视化器样式音频流。它是低保真的，效果可能不佳。</string>
     <string name="auto_memorize_device">自动记忆设备</string>
     <string name="saving_latency_for">正在保存延迟： %s</string>

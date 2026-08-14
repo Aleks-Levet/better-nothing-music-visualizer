@@ -35,6 +35,8 @@ import com.better.nothing.music.vizualizer.ui.ScreenTitle
 import com.better.nothing.music.vizualizer.ui.invLerpLog
 import com.better.nothing.music.vizualizer.ui.lerpLog
 
+import androidx.compose.ui.platform.LocalView
+import android.view.HapticFeedbackConstants
 import android.content.Context
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -72,6 +74,7 @@ fun HapticsScreen(
     padding: androidx.compose.foundation.layout.PaddingValues = androidx.compose.foundation.layout.PaddingValues(),
 ) {
     val scrollState = rememberScrollState()
+    val view = androidx.compose.ui.platform.LocalView.current
 
     val context = androidx.compose.ui.platform.LocalContext.current
     val vibrator = remember(context) {
@@ -104,6 +107,9 @@ fun HapticsScreen(
                     @Suppress("DEPRECATION")
                     vibrator.vibrate(1000)
                 }
+            },
+            onLongPress = {
+                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
             }
         )
 

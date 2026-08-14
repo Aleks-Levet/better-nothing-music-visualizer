@@ -96,6 +96,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalView
+import android.view.HapticFeedbackConstants
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontVariation.width
@@ -203,6 +205,9 @@ fun AudioScreen(
     val fullTitle = stringResource(R.string.audio_screen_title)
     val shortTitle = stringResource(R.string.app_name)
 
+    val haptics = LocalHapticFeedback.current
+    val view = LocalView.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -219,6 +224,7 @@ fun AudioScreen(
                 android.widget.Toast.makeText(context, context.getString(R.string.toast_audio_title_tap), android.widget.Toast.LENGTH_SHORT).show()
             },
             onLongPress = {
+                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
                 isTitleToggled = !isTitleToggled
             }
         )
@@ -286,26 +292,7 @@ fun AudioScreen(
             isRunning = isRunning
         )
         Spacer(modifier = Modifier.height(8.dp))
-        if (isRunning) {
-            val seconds = (sessionDuration / 1000) % 60
-            val minutes = (sessionDuration / (1000 * 60)) % 60
-            val hours = (sessionDuration / (1000 * 60 * 60))
-            val timeStr = if (hours > 0) {
-                String.format(Locale.US, "%02d:%02d:%02d", hours, minutes, seconds)
-            } else {
-                String.format(Locale.US, "%02d:%02d", minutes, seconds)
-            }
-            val descriptionText = stringResource(R.string.audio_description_running) + "\n\nActive Time: $timeStr"
-
-            ExpressiveCard(
-                containerColor = MaterialTheme.colorScheme.surface
-            ) {
-                BodyText(
-                    text = descriptionText,
-                    size = 14.sp
-                )
-            }
-        }
+        
 
         AnimatedVisibility(visible = isRunning) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -456,18 +443,6 @@ fun OutputSelectionCard(
                 HelpItem(stringResource(R.string.help_output_haptics_title), stringResource(R.string.help_output_haptics_desc))
                 HelpItem(stringResource(R.string.help_output_flash_title), stringResource(R.string.help_output_flash_desc))
                 HelpItem(stringResource(R.string.help_output_broadcast_title), stringResource(R.string.help_output_broadcast_desc))
-
-                Spacer(modifier = Modifier.height(12.dp))
-                BodyText(
-                    text = stringResource(R.string.help_sync_title),
-                    size = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                BodyText(
-                    text = "${stringResource(R.string.help_sync_step1)}\n${stringResource(R.string.help_sync_step2)}",
-                    size = 13.sp,
-                    lineHeight = 18.sp
-                )
             }
         }
 
@@ -593,14 +568,25 @@ fun CaptureSourceCard(
                 Spacer(modifier = Modifier.height(8.dp))
                 HelpItem(stringResource(R.string.help_source_internal_title), stringResource(R.string.help_source_internal_desc))
                 HelpItem(stringResource(R.string.help_source_mic_title), stringResource(R.string.help_source_mic_desc))
-                HelpItem(stringResource(R.string.help_source_network_title), stringResource(R.string.help_source_network_desc))
                 HelpItem(stringResource(R.string.help_source_viz_title), stringResource(R.string.help_source_viz_desc))
+                HelpItem(stringResource(R.string.help_source_network_title), stringResource(R.string.help_source_network_desc))
                 
                 Spacer(modifier = Modifier.height(8.dp))
                 BodyText(
                     text = stringResource(R.string.help_source_privacy),
                     size = 13.sp,
                     color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                BodyText(
+                    text = stringResource(R.string.help_sync_title),
+                    size = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                BodyText(
+                    text = "${stringResource(R.string.help_sync_step1)}\n${stringResource(R.string.help_sync_step2)}",
+                    size = 13.sp,
+                    lineHeight = 18.sp
                 )
             }
         }
@@ -680,6 +666,7 @@ fun LatencyCard(
     connectedDeviceName: String?
 ) {
     val haptics = LocalHapticFeedback.current
+    val view = LocalView.current
     var draggingIndex by remember { mutableIntStateOf(-1) }
 
     val visualOrder = remember(latencyPresets) {
@@ -694,7 +681,7 @@ fun LatencyCard(
             isFirstOrderChange = false
             return@LaunchedEffect
         }
-        haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
     }
 
     val activeIndex = if (draggingIndex != -1) draggingIndex else latencyPresets.indexOf(latencyMs)
@@ -760,7 +747,7 @@ fun LatencyCard(
                         .clip(MaterialTheme.shapes.medium)
                         .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
                         .clickable {
-                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
                             draggingIndex = index
                             onLatencyChanged(preset)
                         },
@@ -796,7 +783,7 @@ fun LatencyCard(
                 FineTuneButton(
                     amount = amount,
                     onClick = {
-                        haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
                         updateLatency(latencyMs + amount)
                     }
                 )

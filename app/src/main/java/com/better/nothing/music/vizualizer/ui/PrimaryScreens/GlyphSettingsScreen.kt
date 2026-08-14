@@ -28,6 +28,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalView
+import android.view.HapticFeedbackConstants
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -139,8 +143,12 @@ internal fun GlyphsScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        val haptics = LocalHapticFeedback.current
                         OutlinedButton(
-                            onClick = { showEasterEggPopup = false },
+                            onClick = {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                showEasterEggPopup = false
+                            },
                             modifier = Modifier.weight(5f),
                             shape = RoundedCornerShape(12.dp)
                         ) {
@@ -151,7 +159,10 @@ internal fun GlyphsScreen(
                         }
 
                         Button(
-                            onClick = { showEasterEggPopup = false },
+                            onClick = {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                showEasterEggPopup = false
+                            },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp),
                             contentPadding = PaddingValues(0.dp)
@@ -431,7 +442,8 @@ fun BrightnessCard(
     gammaValue: Float,
     onGammaChanged: (Float) -> Unit,
 ) {
-    androidx.compose.ui.platform.LocalHapticFeedback.current
+    val haptics = LocalHapticFeedback.current
+    val view = LocalView.current
 
     val MIN_BRIGHTNESS = 50
     val MAX_BRIGHTNESS = 5000
@@ -522,6 +534,8 @@ fun GammaSlider(
     isExpanded: Boolean,
     onToggleExpand: () -> Unit
 ) {
+    val haptics = LocalHapticFeedback.current
+    val view = LocalView.current
     CardHeader(
         title = stringResource(
             R.string.light_gamma
@@ -544,7 +558,10 @@ fun GammaSlider(
             modifier = Modifier.weight(1f),
         )
 
-        IconButton(onClick = onToggleExpand) {
+        IconButton(onClick = {
+            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+            onToggleExpand()
+        }) {
             Icon(
                 imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.Info,
                 contentDescription = stringResource(R.string.show_gamma_info),

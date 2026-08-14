@@ -16,6 +16,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.provider.Settings
+import android.view.HapticFeedbackConstants
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.PredictiveBackHandler
@@ -58,6 +59,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -601,7 +603,7 @@ internal fun BetterVizApp(
 
     val config = LocalConfiguration.current
     val isTablet = config.smallestScreenWidthDp >= 600 && config.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
-    val context = LocalContext.current
+    val view = LocalView.current
 
     val visibleTabs = remember(selectedDevice, glyphsEnabled, hapticsEnabled, visualsEnabled, edgeEnabled, lensEnabled, flashlightEnabled, onScreenVisualizersEnabled, isTablet) {
         var tabs = Tab.entries.toList()
@@ -656,6 +658,7 @@ internal fun BetterVizApp(
         if (!isProgrammaticScroll) {
             val swipedTab = visibleTabs.getOrNull(pagerState.currentPage)
             if (swipedTab != null && swipedTab != selectedTab) {
+                view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
                 viewModel.selectTab(swipedTab, recordHistory = false)
             }
         }

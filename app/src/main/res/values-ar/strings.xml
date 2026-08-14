@@ -2,7 +2,6 @@
 <resources>
 
     <!-- Audio Screen -->
-    <string name="audio_description_running">المصور المرئي للصوت نشط الآن. هاتفك يرقص الآن على الإيقاع! لا يتم حفظ أي محتوى صوتي.</string>
     <string name="audio_warning_vizualizer">تنويه: يستخدم هذا المصدر بث الصوت المرئي القياسي الخاص بنظام Android. جودته منخفضة وقد يؤدي إلى نتائج غير مرضية.</string>
     <string name="auto_memorize_device">حفظ الجهاز تلقائيًا</string>
     <string name="saving_latency_for">جارٍ حفظ زمن التأخير لـ: %s</string>

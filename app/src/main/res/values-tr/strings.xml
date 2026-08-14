@@ -2,7 +2,6 @@
 <resources>
 
     <!-- Audio Screen -->
-    <string name="audio_description_running">Gerçek zamanlı ses görselleştirici aktif. Telefonunuz şimdi ritme göre dans ediyor! Hiçbir içerik kaydedilmez ve gizliliğe saygı duyulur.</string>
     <string name="audio_warning_vizualizer">Uyarı: Bu kaynak standart Android görselleştirici tarzı ses akışını kullanır. Düşük sadakatlidir ve kötü olabilir.</string>
     <string name="auto_memorize_device">Cihazı Otomatik Hatırla</string>
     <string name="saving_latency_for">Şunun için gecikme kaydediliyor: %s</string>

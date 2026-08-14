@@ -32,6 +32,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalView
+import android.view.HapticFeedbackConstants
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -81,6 +83,7 @@ fun FlashlightScreen(
     padding: androidx.compose.foundation.layout.PaddingValues = androidx.compose.foundation.layout.PaddingValues(),
 ) {
     val scrollState = rememberScrollState()
+    val view = androidx.compose.ui.platform.LocalView.current
 
     Column(
         modifier = Modifier
@@ -92,7 +95,12 @@ fun FlashlightScreen(
     ) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
 
-        ScreenTitle(text = stringResource(R.string.flashlight_header))
+        ScreenTitle(
+            text = stringResource(R.string.flashlight_header),
+            onLongPress = {
+                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+            }
+        )
 
         Column(
             modifier = Modifier.fillMaxWidth(),

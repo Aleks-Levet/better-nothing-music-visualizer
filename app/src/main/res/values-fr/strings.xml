@@ -2,7 +2,6 @@
 <resources>
 
     <!-- Audio Screen -->
-    <string name="audio_description_running">Le visualiseur audio en temps réel est actif. Votre téléphone danse désormais au rythme de la musique ! Aucun contenu n\'est enregistré et votre vie privée est respectée.</string>
     <string name="audio_warning_vizualizer">Attention : cette source utilise le flux audio standard du visualiseur Android. La fidélité est moindre et le résultat est dans la plupart des cas merdique.</string>
     <string name="auto_memorize_device">Mémorisation auto de l\'appareil</string>
     <string name="saving_latency_for">Latence enregistrée pour : %s</string>

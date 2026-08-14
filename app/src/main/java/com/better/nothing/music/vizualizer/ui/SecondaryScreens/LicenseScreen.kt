@@ -123,12 +123,8 @@ private fun DynamicLicenseText(content: String) {
                         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
                     }
                 }
-                trimmed == stringResource(R.string.end_license_agreement) -> {
-                    Text(trimmed, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 16.dp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
-                }
-                else -> {
-                    BodyText(text = trimmed, size = 14.sp)
-                }
+                else -> BodyText(text = trimmed, size = 14.sp)
+
             }
         }
     }

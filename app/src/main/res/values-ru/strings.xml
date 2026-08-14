@@ -3,7 +3,6 @@
     <string name="about_title">Инфа и обновы</string>
     <string name="app_name_caps">BETTER NOTHING MUSIC VISUALIZER</string>
     <string name="app_theme">Темки и стиль</string>
-    <string name="audio_description_running">Визуализатор активен. Глифы теперь жестко колбасятся под ритм! Контент НУ ТОЧНО не сохраняется, конфиденциальность на 200%.</string>
     <string name="audio_permission_required">Дай доступ к ушам телефона (аудио)</string>
     <string name="audio_warning_vizualizer">Предупреждение: этот источник использует дефолтный аудиопоток Андроида. Качество там ублюдское и работать всё будет... ну о-о-очень хуево.</string>
     <string name="back">Свалить назад</string>

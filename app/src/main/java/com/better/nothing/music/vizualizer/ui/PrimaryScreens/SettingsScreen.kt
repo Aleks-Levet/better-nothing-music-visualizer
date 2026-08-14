@@ -76,6 +76,7 @@ internal fun SettingsScreen(
     val currentLocale = configuration.locales[0].language
     val isRestrictedLocale = restrictedLocales.contains(currentLocale)
     val haptics = LocalHapticFeedback.current
+    val view = LocalView.current
     val devModeEnabled by viewModel.developerModeEnabled.collectAsStateWithLifecycle()
 
     Column(
@@ -91,7 +92,7 @@ internal fun SettingsScreen(
         ScreenTitle(
             text = stringResource(R.string.settings_title),
             onLongPress = {
-                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
                 viewModel.setDeveloperModeEnabled(!devModeEnabled)
             }
         )

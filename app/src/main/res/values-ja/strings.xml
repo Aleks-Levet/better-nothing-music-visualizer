@@ -2,7 +2,6 @@
 <resources>
 
     <!-- Audio Screen -->
-    <string name="audio_description_running">リアルタイム・オーディオ・ビジュアライザーが有効です。あなたのスマートフォンがリズムに合わせて踊っています！コンテンツは保存されず、プライバシーは尊重されます。</string>
     <string name="audio_warning_vizualizer">警告：このソースは標準的なAndroidビジュアライザースタイルのオーディオストリームを使用しています。低忠実度であり、品質が劣る可能性があります。</string>
     <string name="auto_memorize_device">デバイスを自動記憶</string>
     <string name="saving_latency_for">レイテンシを保存中： %s</string>

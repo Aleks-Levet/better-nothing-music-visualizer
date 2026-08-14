@@ -2,7 +2,6 @@
 <resources>
 
     <!-- Audio Screen -->
-    <string name="audio_description_running">El visualizador de audio en tiempo real está activo. ¡Tu teléfono ahora baila al ritmo! No se guarda ningún contenido y se respeta la privacidad.</string>
     <string name="audio_warning_vizualizer">Advertencia: esta fuente utiliza el flujo de audio estándar de Android estilo visualizador. Es de baja fidelidad y puede no ser óptimo.</string>
     <string name="auto_memorize_device">Recordar dispositivo automáticamente</string>
     <string name="saving_latency_for">Guardando latencia para: %s</string>

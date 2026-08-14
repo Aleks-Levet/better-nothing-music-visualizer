@@ -125,6 +125,7 @@ public class AudioCaptureService extends Service {
     public static final String EXTRA_RESULT_CODE = "result_code";
     public static final String EXTRA_DATA = "data";
     public static final float DEFAULT_GAMMA = 2.2f;
+    private static final float DECAY_MULTIPLIER = 0.75f;
 
     private static final String PREFS_NAME = "glyph_visualizer_prefs";
     private static final String APP_PREFS_NAME = "viz_prefs";
@@ -1032,6 +1033,9 @@ public class AudioCaptureService extends Service {
     public void stopCapture() { synchronized (mCaptureLock) { stopCaptureLocked(true); } }
     private void stopCaptureLocked(boolean stopService) {
         mCapturing = false;
+        releaseVisualizer();
+        if (mUdpSync != null) mUdpSync.stopListening();
+
         synchronized (mFftLock) {
             mLatestRawFFT = EMPTY_FFT;
         }
@@ -1411,7 +1415,10 @@ public class AudioCaptureService extends Service {
 
     private AudioProcessor.VisualizerConfig loadVisualizerConfig(String presetKey, int sampleRate) throws IOException, JSONException {
         if (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN || mMaxBrightness <= 0) return null;
-        JSONObject root = loadZonesConfigRoot(this); JSONObject p = root.optJSONObject(presetKey); if (p == null) throw new JSONException("Preset not found"); JSONArray za = p.optJSONArray("zones"); if (za == null || za.length() == 0) throw new JSONException("No zones"); double da = p.has("decay-alpha") ? p.optDouble("decay-alpha", 0.8) : root.optDouble("decay-alpha", 0.8); AudioProcessor.ZoneSpec[] zs = parseZoneSpecs(za); return buildVisualizerConfig(presetKey, p.optString("description", presetKey), da, zs);
+        JSONObject root = loadZonesConfigRoot(this); JSONObject p = root.optJSONObject(presetKey); if (p == null) throw new JSONException("Preset not found"); JSONArray za = p.optJSONArray("zones"); if (za == null || za.length() == 0) throw new JSONException("No zones");
+        double da = p.has("decay-alpha") ? p.optDouble("decay-alpha", 0.8) : root.optDouble("decay-alpha", 0.8);
+        da *= DECAY_MULTIPLIER;
+        AudioProcessor.ZoneSpec[] zs = parseZoneSpecs(za); return buildVisualizerConfig(presetKey, p.optString("description", presetKey), da, zs);
     }
 
     private AudioProcessor.VisualizerConfig buildVisualizerConfig(String pk, String d, double da, AudioProcessor.ZoneSpec[] zs) {

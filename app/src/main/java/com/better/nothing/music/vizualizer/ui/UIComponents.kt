@@ -120,6 +120,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
+import android.view.HapticFeedbackConstants
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
@@ -260,6 +261,7 @@ fun ExpressiveSplitButton(
     enabled: Boolean = true
 ) {
     val haptics = LocalHapticFeedback.current
+    val view = LocalView.current
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -274,7 +276,7 @@ fun ExpressiveSplitButton(
         // Primary Action
         Surface(
             onClick = {
-                haptics.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_THRESHOLD_ACTIVATE)
                 onPrimaryClick()
             },
             enabled = enabled,
@@ -297,7 +299,7 @@ fun ExpressiveSplitButton(
         // Secondary Action
         Surface(
             onClick = {
-                haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
                 onSecondaryClick()
             },
             enabled = enabled,
@@ -334,6 +336,7 @@ fun FlowRowScope.OptionTile(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val haptics = LocalHapticFeedback.current
+    val view = LocalView.current
 
     // This state controls the weight expansion explicitly
     var isWeightExpanded by remember { mutableStateOf(false) }
@@ -346,7 +349,7 @@ fun FlowRowScope.OptionTile(
             when (interaction) {
                 is PressInteraction.Press -> {
                     pressStartTime = SystemClock.elapsedRealtime()
-                    haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
                     isWeightExpanded = true
                 }
                 is PressInteraction.Release, is PressInteraction.Cancel -> {
@@ -358,7 +361,7 @@ fun FlowRowScope.OptionTile(
                         delay(remainingFloorDelay.milliseconds)
                     }
                     isWeightExpanded = false
-                    haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
                 }
             }
         }
@@ -513,11 +516,12 @@ fun LinkCard(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val haptics = LocalHapticFeedback.current
+    val view = LocalView.current
     val isPressed by interactionSource.collectIsPressedAsState()
 
     Surface(
         onClick = {
-            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            view.performHapticFeedback(HapticFeedbackConstants.TEXT_HANDLE_MOVE)
             onClick()
         },
         modifier = modifier
@@ -617,6 +621,7 @@ fun ExpandableExpressiveCard(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val haptics = LocalHapticFeedback.current
+    val view = LocalView.current
     val isPressed by interactionSource.collectIsPressedAsState()
 
     val dpBouncySpec: FiniteAnimationSpec<Dp> = spring(
@@ -658,7 +663,7 @@ fun ExpandableExpressiveCard(
                             interactionSource = interactionSource,
                             indication = null
                         ) {
-                            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
                             onExpandedChange(!expanded)
                         }
                         .padding(start = 20.dp, end = 96.dp, top = 16.dp, bottom = 16.dp),
@@ -755,12 +760,13 @@ fun IndicatorPill(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val haptics = LocalHapticFeedback.current
+    val view = LocalView.current
     val isPressed by interactionSource.collectIsPressedAsState()
 
     // Trigger light haptic tick immediately when pressed down
     LaunchedEffect(isPressed) {
         if (isPressed) {
-            haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+            view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
         }
     }
 
@@ -888,6 +894,7 @@ fun StartStopButton(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed         by interactionSource.collectIsPressedAsState()
     val haptics           = LocalHapticFeedback.current
+    val view              = LocalView.current
     val uiAmp             = LocalUIAmplitude.current
 
     val scale by animateFloatAsState(
@@ -924,7 +931,7 @@ fun StartStopButton(
     ) {
         FloatingActionButton(
             onClick = {
-                haptics.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_THRESHOLD_ACTIVATE)
                 onClick()
             },
             interactionSource = interactionSource,
@@ -1031,6 +1038,7 @@ fun NativeBottomBar(
                         .graphicsLayer { alpha = animatedAlpha },
                     selected = isSelected,
                     onClick = {
+                        haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
                         if (!isSelected && isVisible) {
                             onTabSelected(tab)
                         }
@@ -1090,6 +1098,7 @@ fun <T> ExpressiveSplitButton(
     maxButtonsPerRow: Int? = null
 ) {
     val haptics = LocalHapticFeedback.current
+    val view = LocalView.current
     val uiAmp = LocalUIAmplitude.current
 
     // 1. Resolve Composable labels into plain strings safely in the Composable pipeline
@@ -1227,10 +1236,10 @@ fun <T> ExpressiveSplitButton(
                             when (interaction) {
                                 is PressInteraction.Press -> {
                                     isPressed = true
-                                    haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                                    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
                                 }
                                 is PressInteraction.Release -> {
-                                    haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                                    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
                                     delay(80)
                                     isPressed = false
                                 }
@@ -1293,14 +1302,15 @@ fun ExpressiveSlider(
 
     val wasActive = remember { mutableStateOf(false) }
 
+    val view = LocalView.current
     // Trigger haptic on Press/Release (skip initial state)
     LaunchedEffect(isActive) {
         if (!wasActive.value && isActive) {
             // Trigger on press (transition from false to true)
-            haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+            view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
         } else if (wasActive.value && !isActive) {
             // Trigger on release (transition from true to false)
-            haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+            view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
         }
         wasActive.value = isActive
     }
@@ -1315,7 +1325,6 @@ fun ExpressiveSlider(
         label = "expressive_bounce"
     )
 
-    val view = LocalView.current
     Slider(
         value = value,
         onValueChange = { newValue ->
@@ -1393,6 +1402,7 @@ fun ExpressiveRangeSlider(
     val endActive by endInteractionSource.collectIsPressedAsState()
     val endDragged by endInteractionSource.collectIsDraggedAsState()
 
+    val view = LocalView.current
     val isAnyActive = startActive || startDragged || endActive || endDragged
     val wasActive = remember { mutableStateOf(false) }
 
@@ -1400,10 +1410,10 @@ fun ExpressiveRangeSlider(
     LaunchedEffect(isAnyActive) {
         if (!wasActive.value && isAnyActive) {
             // Trigger on press (transition from false to true)
-            haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+            view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
         } else if (wasActive.value && !isAnyActive) {
             // Trigger on release (transition from true to false)
-            haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+            view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
         }
         wasActive.value = isAnyActive
     }
@@ -1418,10 +1428,11 @@ fun ExpressiveRangeSlider(
     val startThumbFactor by animateFloatAsState(if ((startActive || startDragged) && LocalM3EEnabled.current) 2.1f else 1.0f)
     val endThumbFactor by animateFloatAsState(if ((endActive || endDragged) && LocalM3EEnabled.current) 2.1f else 1.0f)
 
-    val view = LocalView.current
     RangeSlider(
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = { newValue ->
+            onValueChange(newValue)
+        },
         valueRange = valueRange,
         startInteractionSource = startInteractionSource,
         endInteractionSource = endInteractionSource,
