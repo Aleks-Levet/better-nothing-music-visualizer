@@ -435,7 +435,12 @@ fun FlowRowScope.OptionTile(
 }
 
 @Composable
-fun ScreenTitle(text: String, modifier: Modifier = Modifier, onLongPress: (() -> Unit)? = null) {
+fun ScreenTitle(
+    text: String,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+    onLongPress: (() -> Unit)? = null
+) {
     val configuration = LocalConfiguration.current
     val isRestrictedLocale = remember(configuration) {
         val currentLocale = configuration.locales.get(0).language
@@ -446,9 +451,9 @@ fun ScreenTitle(text: String, modifier: Modifier = Modifier, onLongPress: (() ->
         modifier = modifier
             .padding(bottom = 8.dp)
             .then(
-                if (onLongPress != null) {
+                if (onLongPress != null || onClick != null) {
                     Modifier.combinedClickable(
-                        onClick = {},
+                        onClick = onClick ?: {},
                         onLongClick = onLongPress
                     )
                 } else {

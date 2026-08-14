@@ -364,4 +364,14 @@
     <!-- Widget -->
     <string name="widget_start_bnmv" translatable="false">START BNMV</string>
     <string name="widget_stop_bnmv" translatable="false">STOP BNMV</string>
+    <!-- Easter Eggs -->
+    <string name="toast_no_output">You didn\'t enable any output, so BNMV does NOTHING 😆</string>
+    <string name="toast_audio_title_tap">Why are you clicking here? It does NOTHING! 😆</string>
+    <string name="toast_haptics_title_tap">Haptics go brrrr</string>
+    <string name="easter_egg_glyph_popup_title" translatable="false">Glyphs go brrr</string>
+    <string name="easter_egg_glyph_popup_body">This app icon concept was made by the developer of the biggest app that was made by the Nothing Community, NoVolume. It\'s an amazing app and you definitely need to check it out on the play store.\n\nThis is what he said:</string>
+    <string name="easter_egg_glyph_popup_quote">\"I think that this app icon would suit the app much more and more people would install the app.\"</string>
+    <string name="ok">OK</string>
+    <string name="i_dont_give_a_fuck">I don\'t give a fuck</string>
+
 </resources>

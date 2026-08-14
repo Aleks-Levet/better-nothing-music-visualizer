@@ -226,6 +226,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putBoolean("broadcast_enabled", enabled) }
         }
+        checkAnyOutputSelected()
     }
 
     private val _discoveredHosts = MutableStateFlow<List<UdpNetworkSync.HostInfo>>(emptyList())
@@ -394,6 +395,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putBoolean("edge_visualizer_enabled", enabled) }
         }
+        checkAnyOutputSelected()
     }
 
     private val _edgeThickness = MutableStateFlow(12)
@@ -484,6 +486,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putBoolean("lens_visualizer_enabled", enabled) }
         }
+        checkAnyOutputSelected()
     }
 
     private val _lensVisualizerRadius = MutableStateFlow(16f)
@@ -844,6 +847,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putBoolean("overlay_enabled", enabled) }
         }
+        checkAnyOutputSelected()
     }
 
     val _idleBreathingEnabled = MutableStateFlow(false)
@@ -1125,6 +1129,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         MainActivity.serviceStatic?.setMaxBrightness(if (enabled) _maxBrightness.value else 0)
         AudioCaptureService.requestWidgetRefresh(ctx)
         refreshPresets()
+        checkAnyOutputSelected()
+    }
+
+    private fun checkAnyOutputSelected() {
+        val hasAnyOutput = _glyphsEnabled.value || _hapticMotorEnabled.value || _flashlightEnabled.value || 
+                          _broadcastEnabled.value || _overlayEnabled.value || _edgeVisualizerEnabled.value || 
+                          _lensVisualizerEnabled.value
+        if (!hasAnyOutput) {
+            android.widget.Toast.makeText(ctx, ctx.getString(R.string.toast_no_output), android.widget.Toast.LENGTH_SHORT).show()
+        }
     }
 
     fun setMaxBrightness(value: Int) {
@@ -1153,14 +1167,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val runningState = _runningState.asStateFlow()
 
     fun setRunning(running: Boolean) {
-        _runningState.value = running
         if (running) {
+            val hasAnyOutput = _glyphsEnabled.value || _hapticMotorEnabled.value || _flashlightEnabled.value || 
+                              _broadcastEnabled.value || _overlayEnabled.value || _edgeVisualizerEnabled.value || 
+                              _lensVisualizerEnabled.value
+            
+            if (!hasAnyOutput) {
+                android.widget.Toast.makeText(ctx, ctx.getString(R.string.toast_no_output), android.widget.Toast.LENGTH_SHORT).show()
+            }
+            
+            _runningState.value = running
             viewModelScope.launch {
                 MainActivity.serviceStatic?.getConnectedClientsFlow()?.collect {
                     _connectedClients.value = it
                 }
             }
         } else {
+            _runningState.value = running
             _connectedClients.value = emptyMap()
             saveStatsLocally()
         }
@@ -1225,6 +1248,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 .edit { putBoolean("haptic_motor_enabled", enabled) }
         }
         MainActivity.serviceStatic?.setHapticMotorEnabled(enabled)
+        checkAnyOutputSelected()
     }
 
     fun setHapticMode(mode: HapticMode) {
@@ -1347,6 +1371,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 .edit { putBoolean("flashlight_enabled", enabled) }
         }
         MainActivity.serviceStatic?.setFlashlightEnabled(enabled)
+        checkAnyOutputSelected()
     }
 
     fun setFlashlightMode(mode: TorchMode) {

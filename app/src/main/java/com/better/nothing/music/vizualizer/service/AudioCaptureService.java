@@ -788,10 +788,22 @@ public class AudioCaptureService extends Service {
     public void setOverlaySensitivityBottom(float s) { mOverlaySensitivityBottom = s; if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setBottomSensitivity(s)); }
 
     public void setEdgeVisualizerEnabled(boolean enabled) { mEdgeVisualizerEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); requestWidgetRefresh(); }
-    public void setEdgeThickness(int thickness) { mEdgeThickness = thickness; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setThickness(thickness)); }
+    public void setEdgeThickness(int thickness) {
+        mEdgeThickness = thickness;
+        if (mEdgeVisualizerView != null) {
+            float density = getResources().getDisplayMetrics().density;
+            mMainHandler.post(() -> mEdgeVisualizerView.setThickness((int) (thickness * density)));
+        }
+    }
     public void setEdgeSensitivity(float sensitivity) { mEdgeSensitivity = sensitivity; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setSensitivity(sensitivity)); }
     public void setEdgeBarCounts(int horiz, int vert) { mEdgeBarCountHoriz = horiz; mEdgeBarCountVert = vert; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setBarCounts(horiz, vert)); }
-    public void setEdgeCornerRadius(float radius) { mEdgeCornerRadius = radius; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setScreenRadius(radius * 4)); }
+    public void setEdgeCornerRadius(float radius) {
+        mEdgeCornerRadius = radius;
+        if (mEdgeVisualizerView != null) {
+            float density = getResources().getDisplayMetrics().density;
+            mMainHandler.post(() -> mEdgeVisualizerView.setScreenRadius(radius * density));
+        }
+    }
     public void setEdgeTopEnabled(boolean enabled) { mEdgeTopEnabled = enabled; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setTopEnabled(enabled)); }
     public void setEdgeBottomEnabled(boolean enabled) { mEdgeBottomEnabled = enabled; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setBottomEnabled(enabled)); }
 
@@ -1297,29 +1309,78 @@ public class AudioCaptureService extends Service {
     private void updateOverlayVisibility() {
         mMainHandler.post(() -> {
             if (mWindowManager == null) mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+            
+            float density = getResources().getDisplayMetrics().density;
+
             if (mEdgeVisualizerEnabled && mCapturing) {
                 if (mEdgeVisualizerView == null) {
                     mEdgeVisualizerView = new EdgeVisualizerView(this);
-                    WindowManager.LayoutParams params = new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, PixelFormat.TRANSLUCENT);
+                    WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                            WindowManager.LayoutParams.MATCH_PARENT,
+                            WindowManager.LayoutParams.MATCH_PARENT,
+                            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
+                                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE |
+                                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN |
+                                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                            PixelFormat.TRANSLUCENT
+                    );
                     params.gravity = Gravity.TOP | Gravity.START;
-                    if (Build.VERSION.SDK_INT >= 28) params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+                    if (Build.VERSION.SDK_INT >= 28) {
+                        params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+                    }
                     try { mWindowManager.addView(mEdgeVisualizerView, params); } catch (Exception ignored) {}
                 }
-                mEdgeVisualizerView.setThickness(mEdgeThickness); mEdgeVisualizerView.setSensitivity(mEdgeSensitivity); mEdgeVisualizerView.setBarCounts(mEdgeBarCountHoriz, mEdgeBarCountVert); mEdgeVisualizerView.setTopEnabled(mEdgeTopEnabled); mEdgeVisualizerView.setBottomEnabled(mEdgeBottomEnabled); mEdgeVisualizerView.setScreenRadius(mEdgeCornerRadius * 4);
-            } else if (mEdgeVisualizerView != null) { try { mWindowManager.removeView(mEdgeVisualizerView); } catch (Exception ignored) {} mEdgeVisualizerView = null; }
+                mEdgeVisualizerView.setThickness((int) (mEdgeThickness * density));
+                mEdgeVisualizerView.setSensitivity(mEdgeSensitivity);
+                mEdgeVisualizerView.setBarCounts(mEdgeBarCountHoriz, mEdgeBarCountVert);
+                mEdgeVisualizerView.setTopEnabled(mEdgeTopEnabled);
+                mEdgeVisualizerView.setBottomEnabled(mEdgeBottomEnabled);
+                mEdgeVisualizerView.setScreenRadius(mEdgeCornerRadius * density);
+            } else if (mEdgeVisualizerView != null) {
+                try { mWindowManager.removeView(mEdgeVisualizerView); } catch (Exception ignored) {}
+                mEdgeVisualizerView = null;
+            }
+
             if (mOverlayEnabled && mCapturing) {
+                int wPx = (int) (mOverlayWidth * density);
+                int hTotalPx = (int) ((mOverlayHeight + mOverlayHeightBottom) * density);
+                int yOffPx = (int) (mOverlayYOffset * density);
+
                 if (mOverlayView == null) {
                     mOverlayView = new VisualizerOverlayView(this);
-                    WindowManager.LayoutParams params = new WindowManager.LayoutParams(mOverlayWidth * 4, (mOverlayHeight + mOverlayHeightBottom) * 4, WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, PixelFormat.TRANSLUCENT);
-                    params.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL; params.y = mOverlayYOffset * 4;
+                    WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                            wPx,
+                            hTotalPx,
+                            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
+                                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE |
+                                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN |
+                                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                            PixelFormat.TRANSLUCENT
+                    );
+                    params.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+                    params.y = yOffPx;
+                    if (Build.VERSION.SDK_INT >= 28) {
+                        params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+                    }
                     try { mWindowManager.addView(mOverlayView, params); } catch (Exception ignored) {}
                 } else {
                     WindowManager.LayoutParams params = (WindowManager.LayoutParams) mOverlayView.getLayoutParams();
-                    params.width = mOverlayWidth * 4; params.height = (mOverlayHeight + mOverlayHeightBottom) * 4; params.y = mOverlayYOffset * 4;
+                    params.width = wPx;
+                    params.height = hTotalPx;
+                    params.y = yOffPx;
                     try { mWindowManager.updateViewLayout(mOverlayView, params); } catch (Exception ignored) {}
                 }
-                mOverlayView.setTopEnabled(mOverlayTopEnabled); mOverlayView.setBottomEnabled(mOverlayBottomEnabled); mOverlayView.setHeights(mOverlayHeight, mOverlayHeightBottom); mOverlayView.setTopSensitivity(mOverlaySensitivity); mOverlayView.setBottomSensitivity(mOverlaySensitivityBottom);
-            } else if (mOverlayView != null) { try { mWindowManager.removeView(mOverlayView); } catch (Exception ignored) {} mOverlayView = null; }
+                mOverlayView.setTopEnabled(mOverlayTopEnabled);
+                mOverlayView.setBottomEnabled(mOverlayBottomEnabled);
+                mOverlayView.setHeights((int) (mOverlayHeight * density), (int) (mOverlayHeightBottom * density));
+                mOverlayView.setTopSensitivity(mOverlaySensitivity);
+                mOverlayView.setBottomSensitivity(mOverlaySensitivityBottom);
+            } else if (mOverlayView != null) {
+                try { mWindowManager.removeView(mOverlayView); } catch (Exception ignored) {}
+                mOverlayView = null;
+            }
             updateVisualizerService();
         });
     }

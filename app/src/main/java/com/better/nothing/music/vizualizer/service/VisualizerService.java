@@ -23,11 +23,11 @@ public class VisualizerService extends Service {
                 mVisualizerView.updateMagnitudes(magnitudes);
                 
                 // Update properties from service instance
-                mVisualizerView.setRadius(AudioCaptureService.sInstance.mLensVisualizerRadius * 4);
+                mVisualizerView.setRadius(AudioCaptureService.sInstance.mLensVisualizerRadius);
                 mVisualizerView.setXPosition(AudioCaptureService.sInstance.mLensVisualizerX);
                 mVisualizerView.setYPosition(AudioCaptureService.sInstance.mLensVisualizerY);
-                mVisualizerView.setBarWidth(AudioCaptureService.sInstance.mLensVisualizerBarWidth * 4);
-                mVisualizerView.setMaxHeight(AudioCaptureService.sInstance.mLensVisualizerMaxHeight * 4);
+                mVisualizerView.setBarWidth(AudioCaptureService.sInstance.mLensVisualizerBarWidth);
+                mVisualizerView.setMaxHeight(AudioCaptureService.sInstance.mLensVisualizerMaxHeight);
                 mVisualizerView.setBarCount(AudioCaptureService.sInstance.mLensVisualizerBarCount);
                 mVisualizerView.setSensitivity(AudioCaptureService.sInstance.mLensVisualizerSensitivity);
             }
@@ -53,6 +53,11 @@ public class VisualizerService extends Service {
         );
 
         params.gravity = Gravity.TOP | Gravity.START;
+        
+        if (android.os.Build.VERSION.SDK_INT >= 28) {
+            params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+        }
+
         mWindowManager.addView(mVisualizerView, params);
         mHandler.post(mUpdateRunnable);
     }

@@ -47,7 +47,15 @@ import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
 import kotlin.math.pow
 
 
-@OptIn(ExperimentalLayoutApi::class)
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
+import com.better.nothing.music.vizualizer.ui.NTypeFontFamily
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 internal fun GlyphsScreen(
     gammaValue: Float,
@@ -72,6 +80,90 @@ internal fun GlyphsScreen(
         presets.firstOrNull { it.key == selectedPreset } ?: presets.firstOrNull()
     }
 
+    var showEasterEggPopup by remember { mutableStateOf(false) }
+
+    if (showEasterEggPopup) {
+        BasicAlertDialog(
+            onDismissRequest = { showEasterEggPopup = false },
+            modifier = Modifier.fillMaxWidth().padding(16.dp)
+        ) {
+            Surface(
+                shape = RoundedCornerShape(28.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 6.dp
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.easter_egg_glyph_popup_title),
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    AsyncImage(
+                        model = "https://github.com/Aleks-Levet/better-nothing-music-visualizer/blob/main/Docs/app-icon-by-burgerkingfootlettuce-novolume-dev.jpg?raw=true",
+                        contentDescription = "Easter Egg Image",
+                        modifier = Modifier
+                            .sizeIn(maxWidth = 400.dp, maxHeight = 400.dp)
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(16.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+
+                    Text(
+                        text = stringResource(R.string.easter_egg_glyph_popup_body),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Text(
+                        text = stringResource(R.string.easter_egg_glyph_popup_quote),
+                        style = TextStyle(
+                            fontFamily = NTypeFontFamily,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Medium,
+                            lineHeight = 28.sp
+                        ),
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = { showEasterEggPopup = false },
+                            modifier = Modifier.weight(5f),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.i_dont_give_a_fuck),
+                                maxLines = 1
+                            )
+                        }
+
+                        Button(
+                            onClick = { showEasterEggPopup = false },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Text(stringResource(R.string.ok))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     Column(
         modifier = Modifier
@@ -83,9 +175,8 @@ internal fun GlyphsScreen(
     ) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
         ScreenTitle(
-            text = stringResource(
-                R.string.glyph_controls
-            )
+            text = stringResource(R.string.glyph_controls),
+            onClick = { showEasterEggPopup = true }
         )
 
         val DEFAULT_BR = 4095

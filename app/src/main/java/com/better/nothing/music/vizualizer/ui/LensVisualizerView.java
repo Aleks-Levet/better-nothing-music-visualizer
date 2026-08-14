@@ -43,18 +43,30 @@ public class LensVisualizerView extends View {
         this.mFftRaw = fftraw;
         if (mSmoothedMagnitudes.length != mBarCount) mSmoothedMagnitudes = new float[mBarCount];
 
+        // Focus on the lower to mid-high frequencies (up to ~8kHz if fftraw is 512 bins for 16kHz)
         int focusBins = (int)(fftraw.length * 0.75f);
-        int binsPerBar = Math.max(1, focusBins / mBarCount);
-
+        
         for (int i = 0; i < mBarCount; i++) {
+            // Use logarithmic-ish distribution for bars
+            float t = (float) i / mBarCount;
+            int startBin = (int) (Math.pow(t, 1.5) * focusBins);
+            int endBin = (int) (Math.pow((float) (i + 1) / mBarCount, 1.5) * focusBins);
+            if (endBin <= startBin) endBin = startBin + 1;
+
             int maxVal = 0;
-            int startBin = i * binsPerBar;
-            for (int j = startBin; j < startBin + binsPerBar && j < fftraw.length; j++) {
+            for (int j = startBin; j < endBin && j < fftraw.length; j++) {
                 if (fftraw[j] > maxVal) maxVal = fftraw[j];
             }
+            
             float val = maxVal / 4095f;
             float current = val * 1.5f * mSensitivity;
-            mSmoothedMagnitudes[i] = mSmoothedMagnitudes[i] * 0.8f + current * 0.2f;
+            
+            // Smoothing: attack is fast, decay is slower
+            if (current > mSmoothedMagnitudes[i]) {
+                mSmoothedMagnitudes[i] = mSmoothedMagnitudes[i] * 0.4f + current * 0.6f;
+            } else {
+                mSmoothedMagnitudes[i] = mSmoothedMagnitudes[i] * 0.8f + current * 0.2f;
+            }
         }
         postInvalidateOnAnimation();
     }

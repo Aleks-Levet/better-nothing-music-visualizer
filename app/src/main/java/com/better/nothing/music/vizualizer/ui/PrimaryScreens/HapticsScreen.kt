@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -33,6 +34,12 @@ import com.better.nothing.music.vizualizer.ui.MorphingPolygon
 import com.better.nothing.music.vizualizer.ui.ScreenTitle
 import com.better.nothing.music.vizualizer.ui.invLerpLog
 import com.better.nothing.music.vizualizer.ui.lerpLog
+
+import android.content.Context
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import android.os.Build
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,6 +73,17 @@ fun HapticsScreen(
 ) {
     val scrollState = rememberScrollState()
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val vibrator = remember(context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vibratorManager.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,7 +94,18 @@ fun HapticsScreen(
     ) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
 
-        ScreenTitle(text = stringResource(R.string.haptics_header))
+        ScreenTitle(
+            text = stringResource(R.string.haptics_header),
+            onClick = {
+                android.widget.Toast.makeText(context, context.getString(R.string.toast_haptics_title_tap), android.widget.Toast.LENGTH_SHORT).show()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator.vibrate(VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE))
+                } else {
+                    @Suppress("DEPRECATION")
+                    vibrator.vibrate(1000)
+                }
+            }
+        )
 
         Column(
             modifier = Modifier.fillMaxWidth(),

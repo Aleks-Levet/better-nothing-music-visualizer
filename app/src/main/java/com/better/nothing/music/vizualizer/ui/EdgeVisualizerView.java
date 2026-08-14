@@ -92,35 +92,52 @@ public class EdgeVisualizerView extends View {
         if (fftraw == null || fftraw.length == 0) return;
         this.mFftRaw = fftraw;
         
+        int focusBins = (int)(fftraw.length * 0.75f);
+        
         for (int i = 0; i < mBarCountHoriz; i++) {
             float center = (mBarCountHoriz - 1) / 2.0f;
             float normDist = Math.abs(i - center) / (mBarCountHoriz / 2f);
-            float val = getMagnitudeAt(fftraw, normDist) / 4095f;
+            
+            // Log-ish sampling
+            int binIdx = (int) (Math.pow(normDist, 1.5) * focusBins);
+            float val = fftraw[Math.min(fftraw.length - 1, binIdx)] / 4095f;
+            
             float current = val * 1.5f * mSensitivity;
-            mSmoothedTop[i] = mSmoothedTop[i] * 0.7f + current * 0.3f;
-            mSmoothedBottom[i] = mSmoothedBottom[i] * 0.7f + current * 0.3f;
+            if (current > mSmoothedTop[i]) {
+                mSmoothedTop[i] = mSmoothedTop[i] * 0.4f + current * 0.6f;
+            } else {
+                mSmoothedTop[i] = mSmoothedTop[i] * 0.7f + current * 0.3f;
+            }
+            mSmoothedBottom[i] = mSmoothedTop[i];
         }
 
         for (int i = 0; i < mBarCountVert; i++) {
             float normPos = 1.0f - ((float) i / (mBarCountVert - 1));
-            float val = getMagnitudeAt(fftraw, normPos) / 4095f;
+            int binIdx = (int) (Math.pow(normPos, 1.5) * focusBins);
+            float val = fftraw[Math.min(fftraw.length - 1, binIdx)] / 4095f;
+            
             float current = val * 1.5f * mSensitivity;
-            mSmoothedRight[i] = mSmoothedRight[i] * 0.7f + current * 0.3f;
+            if (current > mSmoothedRight[i]) {
+                mSmoothedRight[i] = mSmoothedRight[i] * 0.4f + current * 0.6f;
+            } else {
+                mSmoothedRight[i] = mSmoothedRight[i] * 0.7f + current * 0.3f;
+            }
         }
 
         for (int i = 0; i < mBarCountVert; i++) {
             float normPos = (float) i / (mBarCountVert - 1);
-            float val = getMagnitudeAt(fftraw, normPos) / 4095f;
+            int binIdx = (int) (Math.pow(normPos, 1.5) * focusBins);
+            float val = fftraw[Math.min(fftraw.length - 1, binIdx)] / 4095f;
+            
             float current = val * 1.5f * mSensitivity;
-            mSmoothedLeft[i] = mSmoothedLeft[i] * 0.7f + current * 0.3f;
+            if (current > mSmoothedLeft[i]) {
+                mSmoothedLeft[i] = mSmoothedLeft[i] * 0.4f + current * 0.6f;
+            } else {
+                mSmoothedLeft[i] = mSmoothedLeft[i] * 0.7f + current * 0.3f;
+            }
         }
         
         postInvalidateOnAnimation();
-    }
-
-    private int getMagnitudeAt(int[] fftraw, float normalizedIndex) {
-        int idx = (int) (normalizedIndex * (fftraw.length - 1));
-        return fftraw[Math.max(0, Math.min(fftraw.length - 1, idx))];
     }
 
     @Override

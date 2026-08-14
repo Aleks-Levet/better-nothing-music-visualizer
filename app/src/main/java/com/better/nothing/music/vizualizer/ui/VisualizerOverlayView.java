@@ -65,22 +65,36 @@ public class VisualizerOverlayView extends View {
         if (fftraw == null || fftraw.length == 0) return;
         this.mFftRaw = fftraw;
         
-        int binsPerBar = fftraw.length / NUM_BARS;
+        // Focus on audible range (up to ~8kHz)
+        int focusBins = (int) (fftraw.length * 0.75f);
 
         for (int i = 0; i < NUM_BARS; i++) {
+            float t = (float) i / NUM_BARS;
+            int startBin = (int) (Math.pow(t, 1.5) * focusBins);
+            int endBin = (int) (Math.pow((float) (i + 1) / NUM_BARS, 1.5) * focusBins);
+            if (endBin <= startBin) endBin = startBin + 1;
+
             int maxInBar = 0;
-            for (int j = i * binsPerBar; j < (i + 1) * binsPerBar && j < fftraw.length; j++) {
+            for (int j = startBin; j < endBin && j < fftraw.length; j++) {
                 if (fftraw[j] > maxInBar) maxInBar = fftraw[j];
             }
             
             float val = maxInBar / 4095f;
             if (mTopEnabled) {
                 float currentTop = val * 1.5f * mTopSensitivity;
-                mSmoothedMagnitudesTop[i] = mSmoothedMagnitudesTop[i] * 0.7f + currentTop * 0.3f;
+                if (currentTop > mSmoothedMagnitudesTop[i]) {
+                    mSmoothedMagnitudesTop[i] = mSmoothedMagnitudesTop[i] * 0.4f + currentTop * 0.6f;
+                } else {
+                    mSmoothedMagnitudesTop[i] = mSmoothedMagnitudesTop[i] * 0.7f + currentTop * 0.3f;
+                }
             }
             if (mBottomEnabled) {
                 float currentBottom = val * 1.5f * mBottomSensitivity;
-                mSmoothedMagnitudesBottom[i] = mSmoothedMagnitudesBottom[i] * 0.7f + currentBottom * 0.3f;
+                if (currentBottom > mSmoothedMagnitudesBottom[i]) {
+                    mSmoothedMagnitudesBottom[i] = mSmoothedMagnitudesBottom[i] * 0.4f + currentBottom * 0.6f;
+                } else {
+                    mSmoothedMagnitudesBottom[i] = mSmoothedMagnitudesBottom[i] * 0.7f + currentBottom * 0.3f;
+                }
             }
         }
         postInvalidateOnAnimation();

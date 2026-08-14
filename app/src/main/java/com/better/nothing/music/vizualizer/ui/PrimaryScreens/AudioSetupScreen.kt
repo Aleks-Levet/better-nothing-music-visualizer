@@ -199,6 +199,10 @@ fun AudioScreen(
         }
     }
 
+    var isTitleToggled by remember { mutableStateOf(false) }
+    val fullTitle = stringResource(R.string.audio_screen_title)
+    val shortTitle = stringResource(R.string.app_name)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -210,9 +214,13 @@ fun AudioScreen(
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
 
         ScreenTitle(
-            text = stringResource(
-                R.string.audio_screen_title
-            )
+            text = if (isTitleToggled) shortTitle else fullTitle,
+            onClick = {
+                android.widget.Toast.makeText(context, context.getString(R.string.toast_audio_title_tap), android.widget.Toast.LENGTH_SHORT).show()
+            },
+            onLongPress = {
+                isTitleToggled = !isTitleToggled
+            }
         )
 
         val headerSpacerHeight by animateDpAsState(
