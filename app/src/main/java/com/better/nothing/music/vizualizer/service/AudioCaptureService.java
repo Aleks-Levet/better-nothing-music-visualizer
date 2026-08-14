@@ -115,8 +115,6 @@ public class AudioCaptureService extends Service {
     public static final String ACTION_TOGGLE_LENS = "com.better.nothing.music.vizualizer.action.TOGGLE_LENS";
     public static final String ACTION_SET_SOURCE = "com.better.nothing.music.vizualizer.action.SET_SOURCE";
     public static final String ACTION_REFRESH_SETTINGS = "com.better.nothing.music.vizualizer.action.REFRESH_SETTINGS";
-    public static final String ACTION_PREV_PRESET = "com.better.nothing.music.vizualizer.action.PREV_PRESET";
-    public static final String ACTION_NEXT_PRESET = "com.better.nothing.music.vizualizer.action.NEXT_PRESET";
     public static final String ACTION_SET_PRESET = "com.better.nothing.music.vizualizer.action.SET_PRESET";
 
     public static final String EXTRA_SOURCE = "extra_source";
@@ -625,18 +623,6 @@ public class AudioCaptureService extends Service {
                 if (presetKey != null) {
                     setPreset(presetKey);
                     getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putString("selected_preset", presetKey).apply();
-                }
-            }
-            else if (ACTION_NEXT_PRESET.equals(intentAction)) {
-                if (!mAvailablePresetKeys.isEmpty()) {
-                    int idx = (mAvailablePresetKeys.indexOf(mPresetKey) + 1) % mAvailablePresetKeys.size();
-                    setPreset(mAvailablePresetKeys.get(idx));
-                }
-            }
-            else if (ACTION_PREV_PRESET.equals(intentAction)) {
-                if (!mAvailablePresetKeys.isEmpty()) {
-                    int idx = (mAvailablePresetKeys.indexOf(mPresetKey) - 1 + mAvailablePresetKeys.size()) % mAvailablePresetKeys.size();
-                    setPreset(mAvailablePresetKeys.get(idx));
                 }
             }
         }
@@ -1263,8 +1249,6 @@ public class AudioCaptureService extends Service {
 
     private Notification buildNotification() {
         ensureNotificationChannel();
-        SharedPreferences appPrefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE);
-        String buttonSet = mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN ? "controls" : appPrefs.getString("notification_button_set", "presets");
         
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         String content = (mMaxBrightness > 0 && mVisualizerConfig != null ? mVisualizerConfig.description + " • " : "") + formatDuration(getCaptureDurationMs());
@@ -1280,29 +1264,24 @@ public class AudioCaptureService extends Service {
             .setOngoing(true)
             .setSilent(true);
             
-        if ("controls".equals(buttonSet)) {
-            int addedButtons = 0;
-            if (mSelectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
-                builder.addAction(0, mMaxBrightness > 0 ? getString(R.string.notification_action_glyphs_on) : getString(R.string.notification_action_glyphs_off), PendingIntent.getService(this, 10, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_GLYPHS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
-                addedButtons++;
-            }
-            if (hasHapticMotor(this)) {
-                builder.addAction(0, mHapticEnabled ? getString(R.string.notification_action_haptics_on) : getString(R.string.notification_action_haptics_off), PendingIntent.getService(this, 11, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_HAPTICS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
-                addedButtons++;
-            }
-            if (hasFlashlight(this)) {
-                builder.addAction(0, mFlashlightEnabled ? getString(R.string.notification_action_flash_on) : getString(R.string.notification_action_flash_off), PendingIntent.getService(this, 12, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_TORCH), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
-                addedButtons++;
-            }
-            
-            if (addedButtons <= 2) {
-                builder.addAction(android.R.drawable.ic_media_pause, getString(R.string.notification_action_stop), PendingIntent.getService(this, 1, createStopIntent(this), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
-            }
-        } else {
-            builder.addAction(android.R.drawable.ic_media_previous, getString(R.string.notification_action_prev), PendingIntent.getService(this, 2, new Intent(this, AudioCaptureService.class).setAction(ACTION_PREV_PRESET), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
-            builder.addAction(android.R.drawable.ic_media_pause, getString(R.string.notification_action_stop), PendingIntent.getService(this, 1, createStopIntent(this), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
-            builder.addAction(android.R.drawable.ic_media_next, getString(R.string.notification_action_next), PendingIntent.getService(this, 3, new Intent(this, AudioCaptureService.class).setAction(ACTION_NEXT_PRESET), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
+        int addedButtons = 0;
+        if (mSelectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
+            builder.addAction(0, mMaxBrightness > 0 ? getString(R.string.notification_action_glyphs_on) : getString(R.string.notification_action_glyphs_off), PendingIntent.getService(this, 10, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_GLYPHS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
+            addedButtons++;
         }
+        if (hasHapticMotor(this)) {
+            builder.addAction(0, mHapticEnabled ? getString(R.string.notification_action_haptics_on) : getString(R.string.notification_action_haptics_off), PendingIntent.getService(this, 11, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_HAPTICS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
+            addedButtons++;
+        }
+        if (hasFlashlight(this)) {
+            builder.addAction(0, mFlashlightEnabled ? getString(R.string.notification_action_flash_on) : getString(R.string.notification_action_flash_off), PendingIntent.getService(this, 12, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_TORCH), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
+            addedButtons++;
+        }
+        
+        if (addedButtons <= 2) {
+            builder.addAction(android.R.drawable.ic_media_pause, getString(R.string.notification_action_stop), PendingIntent.getService(this, 1, createStopIntent(this), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
+        }
+
         return builder.build();
     }
 

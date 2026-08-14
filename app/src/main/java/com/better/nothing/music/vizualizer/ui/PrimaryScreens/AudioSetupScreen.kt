@@ -55,6 +55,7 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.filled.Vibration
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -252,6 +253,7 @@ fun AudioScreen(
                     }
                 } else if (source == AudioCaptureService.CaptureSource.NETWORK) {
                     onCaptureSourceChanged(source)
+                    viewModel.showHostPicker()
                 } else {
                     onCaptureSourceChanged(source)
                 }
@@ -668,6 +670,7 @@ fun LatencyCard(
     val haptics = LocalHapticFeedback.current
     val view = LocalView.current
     var draggingIndex by remember { mutableIntStateOf(-1) }
+    var isExpanded by remember { mutableStateOf(false) }
 
     val visualOrder = remember(latencyPresets) {
         latencyPresets.mapIndexed { i, v -> i to v }
@@ -704,17 +707,19 @@ fun LatencyCard(
         }
     }
 
-    ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-        CardHeader(
-            title = stringResource(
-                R.string.latency_compensation
-            ), trailingContent = {
-                Text(
-                    text = "${latencyMs}ms",
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
-                )
-            })
+    ExpandableExpressiveCard(
+        title = stringResource(R.string.latency_compensation),
+        icon = Icons.Default.Timer,
+        expanded = isExpanded,
+        onExpandedChange = { isExpanded = it },
+        trailingContent = {
+            Text(
+                text = "${latencyMs}ms",
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    ) {
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()

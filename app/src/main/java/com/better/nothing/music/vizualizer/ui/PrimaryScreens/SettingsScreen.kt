@@ -412,103 +412,54 @@ internal fun SettingsScreen(
             expanded = expandedCardId == "experimental",
             onExpandedChange = { expandedCardId = if (it) "experimental" else null }
         ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+            val alternateGlyphVizEnabled by viewModel.alternateGlyphVizEnabled.collectAsStateWithLifecycle()
+            val onScreenVisualizersEnabled by viewModel.onScreenVisualizersEnabled.collectAsStateWithLifecycle()
+
+            FlowRow(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                maxItemsInEachRow = 2,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    maxItemsInEachRow = 2,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OptionTile(
-                        label = stringResource(R.string.sync_ui_to_beat),
-                        icon = Icons.Default.SyncAlt,
-                        isSelected = uiAmplitudeSyncEnabled,
-                        onClick = { viewModel.setUiAmplitudeSyncEnabled(!uiAmplitudeSyncEnabled) }
-                    )
-
-
-                    if (selectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
-                        OptionTile(
-                            label = stringResource(R.string.disable_glyphs_when_silent_title),
-                            icon = Icons.AutoMirrored.Filled.VolumeOff,
-                            isSelected = disableGlyphsWhenSilent,
-                            onClick = { onDisableGlyphsWhenSilentChanged(!disableGlyphsWhenSilent) }
-                        )
-
-                        val alternateGlyphVizEnabled by viewModel.alternateGlyphVizEnabled.collectAsStateWithLifecycle()
-                        OptionTile(
-                            label = stringResource(R.string.alternate_glyph_viz),
-                            icon = Icons.Default.Bolt,
-                            isSelected = alternateGlyphVizEnabled,
-                            onClick = { viewModel.setAlternateGlyphVizEnabled(!alternateGlyphVizEnabled) }
-                        )
-                    }
-                }
-
-                // Notification Button Set
-                if (selectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = stringResource(R.string.notification_controls_title),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    val currentNotifSet by viewModel.notificationButtonSet.collectAsStateWithLifecycle()
-                    ExpressiveSplitButton(
-                        items = listOf("presets", "controls"),
-                        selectedItem = currentNotifSet,
-                        onItemSelection = { viewModel.setNotificationButtonSet(it) },
-                        labelProvider = {
-                            if (it == "presets") stringResource(R.string.notification_button_set_presets)
-                            else stringResource(R.string.notification_button_set_quick_controls)
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    BodyText(
-                        text = stringResource(R.string.notification_controls_desc),
-                        size = 12.sp
-                    )
-                }
-
-                // ── UI Amplitude Sync & Visual Toggles (Moved from AudioSetupScreen) ───────────
-                Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Text(
-                    text = stringResource(R.string.on_screen_vizualizers),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary
+                OptionTile(
+                    label = stringResource(R.string.sync_ui_to_beat),
+                    icon = Icons.Default.SyncAlt,
+                    isSelected = uiAmplitudeSyncEnabled,
+                    onClick = { viewModel.setUiAmplitudeSyncEnabled(!uiAmplitudeSyncEnabled) }
                 )
 
-                val onScreenVisualizersEnabled by viewModel.onScreenVisualizersEnabled.collectAsStateWithLifecycle()
-                val flashlightMultiIntensityForced by viewModel.flashlightMultiIntensityForced.collectAsStateWithLifecycle()
-
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    maxItemsInEachRow = 2,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                if (selectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
                     OptionTile(
-                        label = stringResource(R.string.enable_on_screen_visualizers),
-                        icon = Icons.Default.Layers,
-                        isSelected = onScreenVisualizersEnabled,
-                        onClick = {
-                            viewModel.setOnScreenVisualizersEnabled(!onScreenVisualizersEnabled, context, onOverlayPermissionRequest)
-                        }
+                        label = stringResource(R.string.disable_glyphs_when_silent_title),
+                        icon = Icons.AutoMirrored.Filled.VolumeOff,
+                        isSelected = disableGlyphsWhenSilent,
+                        onClick = { onDisableGlyphsWhenSilentChanged(!disableGlyphsWhenSilent) }
                     )
-                    
-                    if (viewModel.hasFlashlight) {
-                        OptionTile(
-                            label = stringResource(R.string.flashlight_multi_intensity_forced_title),
-                            icon = Icons.Default.FlashlightOn,
-                            isSelected = flashlightMultiIntensityForced,
-                            onClick = { viewModel.setFlashlightMultiIntensityForced(!flashlightMultiIntensityForced) }
-                        )
+
+                    OptionTile(
+                        label = stringResource(R.string.alternate_glyph_viz),
+                        icon = Icons.Default.Bolt,
+                        isSelected = alternateGlyphVizEnabled,
+                        onClick = { viewModel.setAlternateGlyphVizEnabled(!alternateGlyphVizEnabled) }
+                    )
+                }
+
+                OptionTile(
+                    label = stringResource(R.string.enable_on_screen_visualizers),
+                    icon = Icons.Default.Layers,
+                    isSelected = onScreenVisualizersEnabled,
+                    onClick = {
+                        viewModel.setOnScreenVisualizersEnabled(!onScreenVisualizersEnabled, context, onOverlayPermissionRequest)
                     }
+                )
+
+                if (viewModel.hasFlashlight) {
+                    OptionTile(
+                        label = stringResource(R.string.flashlight_multi_intensity_forced_title),
+                        icon = Icons.Default.FlashlightOn,
+                        isSelected = flashlightMultiIntensityForced,
+                        onClick = { viewModel.setFlashlightMultiIntensityForced(!flashlightMultiIntensityForced) }
+                    )
                 }
             }
         }

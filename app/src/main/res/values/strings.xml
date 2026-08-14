@@ -170,11 +170,6 @@
     <string name="flashlight_multi_intensity_forced_title">Flashlight Multi-Intensity</string>
     <string name="flashlight_multi_intensity_forced_desc">Forces the flashlight to use multiple brightness levels even if not officially supported by the hardware. (Experimental)</string>
 
-    <string name="notification_controls_title">Notification Controls</string>
-    <string name="notification_controls_desc">Choose which buttons appear in the persistent notification.</string>
-    <string name="notification_button_set_presets">Presets</string>
-    <string name="notification_button_set_quick_controls">Quick Controls</string>
-
     <!-- Auth -->
     <string name="default_web_client_id" translatable="false">252304807982-ubtpig2ddtukmjfa7cp21lj1mjgnr968.apps.googleusercontent.com</string>
 
@@ -267,7 +262,6 @@
 
     <!-- Settings Extra -->
     <string name="vizualizer_stats">Vizualizer Stats</string>
-    <string name="on_screen_vizualizers">On screen vizualizers</string>
     <string name="tablet_width_title">Tablet Tab Width</string>
     <string name="fill_screen">Fill the entire screen</string>
 
@@ -280,9 +274,7 @@
     <string name="notification_action_haptics_off">haptics</string>
     <string name="notification_action_flash_on">FLASH</string>
     <string name="notification_action_flash_off">flash</string>
-    <string name="notification_action_prev">Prev</string>
     <string name="notification_action_stop">Stop</string>
-    <string name="notification_action_next">Next</string>
 
     <!-- Device Names -->
     <string name="device_np1" translatable="false">Nothing Phone (1)</string>

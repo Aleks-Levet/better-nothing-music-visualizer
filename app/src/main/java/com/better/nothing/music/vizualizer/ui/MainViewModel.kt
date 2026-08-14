@@ -922,18 +922,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val _notificationButtonSet = MutableStateFlow("presets")
-    val notificationButtonSet = _notificationButtonSet.asStateFlow()
-
-    fun setNotificationButtonSet(set: String) {
-        _notificationButtonSet.value = set
-        viewModelScope.launch(Dispatchers.IO) {
-            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putString("notification_button_set", set) }
-        }
-        MainActivity.serviceStatic?.reloadConfig()
-    }
-
     val _favoritePresets = MutableStateFlow<Set<String>>(emptySet())
     val favoritePresets = _favoritePresets.asStateFlow()
 
@@ -1713,7 +1701,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _selectedPreset.value = prefs.getString("selected_preset", "Default") ?: "Default"
         _selectedTheme.value = prefs.getString("selected_theme", "Default") ?: "Default"
         _selectedFont.value = prefs.getString("selected_font", "NDot") ?: "NDot"
-        _notificationButtonSet.value = prefs.getString("notification_button_set", "presets") ?: "presets"
         _broadcastEnabled.value = prefs.getBoolean("broadcast_enabled", false)
 
         // Haptics settings
