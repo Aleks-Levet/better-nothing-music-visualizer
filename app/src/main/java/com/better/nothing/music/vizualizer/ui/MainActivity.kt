@@ -29,6 +29,7 @@ import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -41,10 +42,16 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -54,13 +61,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -114,12 +130,32 @@ class MainActivity : AppCompatActivity() {
             serviceStatic = service
             bound = true
 
+            service?.setAppInForeground(true)
             applyServiceSettings()
 
             lifecycleScope.launch {
-                service?.isRunningFlow()?.collect { running ->
-                    viewModel.setRunning(running)
-                }
+                service?.isRunningFlow()?.collect { viewModel.setRunning(it) }
+            }
+            lifecycleScope.launch {
+                service?.hapticEnabledFlow()?.collect { viewModel.setHapticMotorEnabled(it, fromService = true) }
+            }
+            lifecycleScope.launch {
+                service?.flashlightEnabledFlow()?.collect { viewModel.setFlashlightEnabled(it, fromService = true) }
+            }
+            lifecycleScope.launch {
+                service?.glyphsEnabledFlow()?.collect { viewModel.setGlyphsEnabled(it, fromService = true) }
+            }
+            lifecycleScope.launch {
+                service?.broadcastEnabledFlow()?.collect { viewModel.setBroadcastEnabled(it, fromService = true) }
+            }
+            lifecycleScope.launch {
+                service?.overlayEnabledFlow()?.collect { viewModel.setOverlayEnabled(it, fromService = true) }
+            }
+            lifecycleScope.launch {
+                service?.edgeEnabledFlow()?.collect { viewModel.setEdgeVisualizerEnabled(it, fromService = true) }
+            }
+            lifecycleScope.launch {
+                service?.lensEnabledFlow()?.collect { viewModel.setLensVisualizerEnabled(it, fromService = true) }
             }
 
             if (pendingVisualizerStart) {
@@ -458,7 +494,6 @@ class MainActivity : AppCompatActivity() {
             viewModel.setFlashlightIntensityLevels(it.flashlightIntensityLevels)
             it.setIdleBreathingEnabled(viewModel.idleBreathingEnabled.value)
             it.setIdlePattern(viewModel.idlePattern.value)
-            it.setDisableGlyphsWhenSilent(viewModel.disableGlyphsWhenSilent.value)
             it.setLensVisualizerEnabled(viewModel.onScreenVisualizersEnabled.value && viewModel.lensVisualizerEnabled.value)
             it.setLensVisualizerRadius(viewModel.lensVisualizerRadius.value)
             it.setLensVisualizerX(viewModel.lensVisualizerX.value)
@@ -467,6 +502,7 @@ class MainActivity : AppCompatActivity() {
             it.setLensVisualizerMaxHeight(viewModel.lensVisualizerMaxHeight.value)
             it.setLensVisualizerBarCount(viewModel.lensVisualizerBarCount.value)
             it.setLensVisualizerSensitivity(viewModel.lensVisualizerSensitivity.value)
+            it.setLensColor(viewModel.lensColor.value.toArgb())
             
             it.setOverlayEnabled(viewModel.onScreenVisualizersEnabled.value && viewModel.overlayEnabled.value)
             it.setOverlayTopEnabled(viewModel.overlayTopEnabled.value)
@@ -477,12 +513,14 @@ class MainActivity : AppCompatActivity() {
             it.setOverlayYOffset(viewModel.overlayYOffset.value)
             it.setOverlaySensitivity(viewModel.overlaySensitivity.value)
             it.setOverlaySensitivityBottom(viewModel.overlaySensitivityBottom.value)
+            it.setOverlayColor(viewModel.overlayColor.value.toArgb())
             
             it.setEdgeVisualizerEnabled(viewModel.onScreenVisualizersEnabled.value && viewModel.edgeVisualizerEnabled.value)
             it.setEdgeThickness(viewModel.edgeThickness.value)
             it.setEdgeSensitivity(viewModel.edgeSensitivity.value)
             it.setEdgeBarCounts(viewModel.edgeBarCountHoriz.value, viewModel.edgeBarCountVert.value)
             it.setEdgeCornerRadius(viewModel.edgeCornerRadius.value)
+            it.setEdgeColor(viewModel.edgeColor.value.toArgb())
             it.setEdgeTopEnabled(viewModel.edgeTopEnabled.value)
             it.setEdgeBottomEnabled(viewModel.edgeBottomEnabled.value)
         }
@@ -536,6 +574,16 @@ class MainActivity : AppCompatActivity() {
                 pendingVisualizerStart = true
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        service?.setAppInForeground(true)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        service?.setAppInForeground(false)
     }
 
     override fun onDestroy() {
@@ -600,6 +648,49 @@ internal fun BetterVizApp(
     val lensEnabled by viewModel.lensVisualizerEnabled.collectAsStateWithLifecycle()
     val flashlightEnabled by viewModel.flashlightEnabled.collectAsStateWithLifecycle()
     val onScreenVisualizersEnabled by viewModel.onScreenVisualizersEnabled.collectAsStateWithLifecycle()
+    val isFirstTime by viewModel.isFirstTime.collectAsStateWithLifecycle()
+
+    if (isFirstTime) {
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissFirstTime() },
+            title = { Text(text = stringResource(id = R.string.first_time_help_title)) },
+            text = {
+                val fullText = stringResource(id = R.string.first_time_help_msg)
+                val parts = fullText.split("[info]")
+                if (parts.size > 1) {
+                    val inlineContent = mapOf(
+                        "info_icon" to InlineTextContent(
+                            Placeholder(
+                                width = 20.sp,
+                                height = 20.sp,
+                                placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    )
+                    val annotatedString = buildAnnotatedString {
+                        append(parts[0])
+                        appendInlineContent("info_icon", "[info]")
+                        append(parts[1])
+                    }
+                    Text(text = annotatedString, inlineContent = inlineContent)
+                } else {
+                    Text(text = fullText)
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { viewModel.dismissFirstTime() }) {
+                    Text(text = stringResource(id = R.string.ok))
+                }
+            }
+        )
+    }
 
     val config = LocalConfiguration.current
     val isTablet = config.smallestScreenWidthDp >= 600 && config.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
@@ -999,7 +1090,6 @@ private fun TabContent(
         Tab.Settings -> {
             val idleBreathingEnabled by viewModel.idleBreathingEnabled.collectAsStateWithLifecycle()
             val idlePattern by viewModel.idlePattern.collectAsStateWithLifecycle()
-            val disableGlyphsWhenSilent by viewModel.disableGlyphsWhenSilent.collectAsStateWithLifecycle()
 
             SettingsScreen(
                 viewModel = viewModel,
@@ -1011,12 +1101,6 @@ private fun TabContent(
                 },
                 idlePattern = idlePattern,
                 onIdlePatternChanged = { viewModel.setIdlePattern(it) },
-                disableGlyphsWhenSilent = disableGlyphsWhenSilent,
-                onDisableGlyphsWhenSilentChanged = {
-                    viewModel.setDisableGlyphsWhenSilent(
-                        it
-                    )
-                },
                 onOverlayPermissionRequest = onOverlayPermissionRequest,
                 padding = padding,
                 isTablet = isTablet

@@ -21,6 +21,7 @@ import com.better.nothing.music.vizualizer.logic.*
 import com.better.nothing.music.vizualizer.model.*
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.palette.graphics.Palette
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
@@ -155,6 +156,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
     fun hideLicense() { _isShowingLicense.value = false }
 
+    private val _isFirstTime = MutableStateFlow(false)
+    val isFirstTime = _isFirstTime.asStateFlow()
+    fun dismissFirstTime() {
+        _isFirstTime.value = false
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("first_time_v2", false) }
+        }
+    }
+
     fun fetchLicense() {
         viewModelScope.launch(Dispatchers.IO) {
             _licenseStatus.value = LicenseStatus.Loading
@@ -179,19 +190,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val _flashlightMultiIntensityForced = MutableStateFlow(false)
-    val flashlightMultiIntensityForced = _flashlightMultiIntensityForced.asStateFlow()
-    fun setFlashlightMultiIntensityForced(forced: Boolean) {
-        _flashlightMultiIntensityForced.value = forced
-        MainActivity.serviceStatic?.setFlashlightMultiIntensityForced(forced)
-        MainActivity.serviceStatic?.let {
-            setFlashlightIntensityLevels(it.flashlightIntensityLevels)
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putBoolean("flashlight_multi_intensity_forced", forced) }
-        }
-    }
 
     private val _m3eEnabled = MutableStateFlow(true)
     val m3eEnabled = _m3eEnabled.asStateFlow()
@@ -219,12 +217,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _connectedClients = MutableStateFlow<Map<InetAddress, Int?>>(emptyMap())
     val connectedClients = _connectedClients.asStateFlow()
 
-    fun setBroadcastEnabled(enabled: Boolean) {
+    fun setBroadcastEnabled(enabled: Boolean, fromService: Boolean = false) {
+        if (_broadcastEnabled.value == enabled) return
         _broadcastEnabled.value = enabled
-        MainActivity.serviceStatic?.setBroadcastEnabled(enabled)
-        viewModelScope.launch(Dispatchers.IO) {
-            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putBoolean("broadcast_enabled", enabled) }
+        if (!fromService) {
+            MainActivity.serviceStatic?.setBroadcastEnabled(enabled)
+            viewModelScope.launch(Dispatchers.IO) {
+                ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                    .edit { putBoolean("broadcast_enabled", enabled) }
+            }
         }
         checkAnyOutputSelected()
     }
@@ -384,11 +385,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val _overlayColor = MutableStateFlow(Color.White)
+    val overlayColor = _overlayColor.asStateFlow()
+    fun setOverlayColor(color: Color) {
+        _overlayColor.value = color
+        MainActivity.serviceStatic?.setOverlayColor(color.toArgb())
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putInt("overlay_color", color.toArgb()) }
+        }
+    }
+
     private val _edgeVisualizerEnabled = MutableStateFlow(false)
     val edgeVisualizerEnabled = _edgeVisualizerEnabled.asStateFlow()
-    fun setEdgeVisualizerEnabled(enabled: Boolean) {
+    fun setEdgeVisualizerEnabled(enabled: Boolean, fromService: Boolean = false) {
+        if (_edgeVisualizerEnabled.value == enabled) return
         _edgeVisualizerEnabled.value = enabled
-        if (_onScreenVisualizersEnabled.value) {
+        if (_onScreenVisualizersEnabled.value && !fromService) {
             MainActivity.serviceStatic?.setEdgeVisualizerEnabled(enabled)
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -442,6 +455,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun setEdgeBarCount(count: Int) {
+        _edgeBarCountHoriz.value = count
+        _edgeBarCountVert.value = count
+        MainActivity.serviceStatic?.setEdgeBarCounts(count, count)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit {
+                    putInt("edge_bar_count_horiz", count)
+                    putInt("edge_bar_count_vert", count)
+                }
+        }
+    }
+
     private val _edgeCornerRadius = MutableStateFlow(2f)
     val edgeCornerRadius = _edgeCornerRadius.asStateFlow()
     fun setEdgeCornerRadius(radius: Float) {
@@ -475,11 +501,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val _edgeColor = MutableStateFlow(Color.White)
+    val edgeColor = _edgeColor.asStateFlow()
+    fun setEdgeColor(color: Color) {
+        _edgeColor.value = color
+        MainActivity.serviceStatic?.setEdgeColor(color.toArgb())
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putInt("edge_color", color.toArgb()) }
+        }
+    }
+
     private val _lensVisualizerEnabled = MutableStateFlow(false)
     val lensVisualizerEnabled = _lensVisualizerEnabled.asStateFlow()
-    fun setLensVisualizerEnabled(enabled: Boolean) {
+    fun setLensVisualizerEnabled(enabled: Boolean, fromService: Boolean = false) {
+        if (_lensVisualizerEnabled.value == enabled) return
         _lensVisualizerEnabled.value = enabled
-        if (_onScreenVisualizersEnabled.value) {
+        if (_onScreenVisualizersEnabled.value && !fromService) {
             MainActivity.serviceStatic?.setLensVisualizerEnabled(enabled)
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -563,6 +601,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putFloat("lens_visualizer_sensitivity", sensitivity) }
+        }
+    }
+
+    private val _lensColor = MutableStateFlow(Color.White)
+    val lensColor = _lensColor.asStateFlow()
+    fun setLensColor(color: Color) {
+        _lensColor.value = color
+        MainActivity.serviceStatic?.setLensColor(color.toArgb())
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putInt("lens_color", color.toArgb()) }
         }
     }
 
@@ -838,9 +887,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _overlayEnabled = MutableStateFlow(false)
     val overlayEnabled = _overlayEnabled.asStateFlow()
 
-    fun setOverlayEnabled(enabled: Boolean) {
+    fun setOverlayEnabled(enabled: Boolean, fromService: Boolean = false) {
+        if (_overlayEnabled.value == enabled) return
         _overlayEnabled.value = enabled
-        if (_onScreenVisualizersEnabled.value) {
+        if (_onScreenVisualizersEnabled.value && !fromService) {
             MainActivity.serviceStatic?.setOverlayEnabled(enabled)
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -874,17 +924,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val _disableGlyphsWhenSilent = MutableStateFlow(false)
-    val disableGlyphsWhenSilent = _disableGlyphsWhenSilent.asStateFlow()
-
-    fun setDisableGlyphsWhenSilent(enabled: Boolean) {
-        _disableGlyphsWhenSilent.value = enabled
-        MainActivity.serviceStatic?.setDisableGlyphsWhenSilent(enabled)
-        viewModelScope.launch(Dispatchers.IO) {
-            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putBoolean("disable_glyphs_when_silent", enabled) }
-        }
-    }
 
     val _musicThemeColor = MutableStateFlow(Color(0xFFD71921))
     val musicThemeColor = _musicThemeColor.asStateFlow()
@@ -1107,14 +1146,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _glyphsEnabled = MutableStateFlow(true)
     val glyphsEnabled = _glyphsEnabled.asStateFlow()
 
-    fun setGlyphsEnabled(enabled: Boolean) {
+    fun setGlyphsEnabled(enabled: Boolean, fromService: Boolean = false) {
         if (selectedDevice.value == DeviceProfile.DEVICE_UNKNOWN && enabled) return
+        if (_glyphsEnabled.value == enabled) return
         _glyphsEnabled.value = enabled
-        viewModelScope.launch(Dispatchers.IO) {
-            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putBoolean("glyphs_enabled", enabled) }
+        if (!fromService) {
+            viewModelScope.launch(Dispatchers.IO) {
+                ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                    .edit { putBoolean("glyphs_enabled", enabled) }
+            }
+            MainActivity.serviceStatic?.setMaxBrightness(if (enabled) _maxBrightness.value else 0)
         }
-        MainActivity.serviceStatic?.setMaxBrightness(if (enabled) _maxBrightness.value else 0)
         AudioCaptureService.requestWidgetRefresh(ctx)
         refreshPresets()
         checkAnyOutputSelected()
@@ -1142,15 +1184,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _alternateGlyphVizEnabled = MutableStateFlow(false)
     val alternateGlyphVizEnabled = _alternateGlyphVizEnabled.asStateFlow()
 
-    private val _dualFftEnabled = MutableStateFlow(false)
-    val dualFftEnabled = _dualFftEnabled.asStateFlow()
+    private val _highQualityAnalysis = MutableStateFlow(false)
+    val highQualityAnalysis = _highQualityAnalysis.asStateFlow()
 
-    fun setDualFftEnabled(enabled: Boolean) {
-        _dualFftEnabled.value = enabled
-        MainActivity.serviceStatic?.setDualFftEnabled(enabled)
+    fun setHighQualityAnalysis(enabled: Boolean) {
+        _highQualityAnalysis.value = enabled
+        MainActivity.serviceStatic?.setHighQualityAnalysis(enabled)
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putBoolean("dual_fft_enabled", enabled) }
+                .edit { putBoolean("high_quality_analysis", enabled) }
         }
     }
 
@@ -1241,13 +1283,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _hapticPulseDurationMs = MutableStateFlow(40)
     val hapticPulseDurationMs = _hapticPulseDurationMs.asStateFlow()
 
-    fun setHapticMotorEnabled(enabled: Boolean) {
+    fun setHapticMotorEnabled(enabled: Boolean, fromService: Boolean = false) {
+        if (_hapticMotorEnabled.value == enabled) return
         _hapticMotorEnabled.value = enabled
-        viewModelScope.launch(Dispatchers.IO) {
-            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putBoolean("haptic_motor_enabled", enabled) }
+        if (!fromService) {
+            viewModelScope.launch(Dispatchers.IO) {
+                ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                    .edit { putBoolean("haptic_motor_enabled", enabled) }
+            }
+            MainActivity.serviceStatic?.setHapticMotorEnabled(enabled)
         }
-        MainActivity.serviceStatic?.setHapticMotorEnabled(enabled)
         checkAnyOutputSelected()
     }
 
@@ -1364,13 +1409,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _flashlightPulseDurationMs = MutableStateFlow(40)
     val flashlightPulseDurationMs = _flashlightPulseDurationMs.asStateFlow()
 
-    fun setFlashlightEnabled(enabled: Boolean) {
+    fun setFlashlightEnabled(enabled: Boolean, fromService: Boolean = false) {
+        if (_flashlightEnabled.value == enabled) return
         _flashlightEnabled.value = enabled
-        viewModelScope.launch(Dispatchers.IO) {
-            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putBoolean("flashlight_enabled", enabled) }
+        if (!fromService) {
+            viewModelScope.launch(Dispatchers.IO) {
+                ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                    .edit { putBoolean("flashlight_enabled", enabled) }
+            }
+            MainActivity.serviceStatic?.setFlashlightEnabled(enabled)
         }
-        MainActivity.serviceStatic?.setFlashlightEnabled(enabled)
         checkAnyOutputSelected()
     }
 
@@ -1543,7 +1591,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (service != null) {
             val uiPeak = service.latestUiPeak
             val target = 1.0f + (uiPeak * 0.25f)
-            _uiAmplitude.value = if (_uiAmplitudeSyncEnabled.value) target.coerceIn(1.0f, 1.25f) else 1.0f
+            
+            val current = _uiAmplitude.value
+            val next = if (_uiAmplitudeSyncEnabled.value) target.coerceIn(1.0f, 1.25f) else 1.0f
+            
+            if (next > current) {
+                // Instant rise
+                _uiAmplitude.value = next
+            } else {
+                // Downward smoothing
+                _uiAmplitude.value = current * 0.88f + next * 0.12f
+            }
         }
     }
 
@@ -1745,7 +1803,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         // Overlay and other visual settings
         _idleBreathingEnabled.value = prefs.getBoolean("idle_breathing_enabled", false)
         _idlePattern.value = prefs.getString("idle_pattern", "pulse") ?: "pulse"
-        _disableGlyphsWhenSilent.value = prefs.getBoolean("disable_glyphs_when_silent", false)
         _overlayEnabled.value = prefs.getBoolean("overlay_enabled", false)
         _overlayTopEnabled.value = prefs.getBoolean("overlay_top_enabled", true)
         _overlayBottomEnabled.value = prefs.getBoolean("overlay_bottom_enabled", false)
@@ -1756,6 +1813,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _overlayYOffset.value = prefs.getInt("overlay_y_offset", 2)
         _overlaySensitivity.value = prefs.getFloat("overlay_sensitivity", 1.0f)
         _overlaySensitivityBottom.value = prefs.getFloat("overlay_sensitivity_bottom", 1.0f)
+        _overlayColor.value = Color(prefs.getInt("overlay_color", Color.White.toArgb()))
         _edgeVisualizerEnabled.value = prefs.getBoolean("edge_visualizer_enabled", false)
         _edgeThickness.value = prefs.getInt("edge_thickness", 12)
         _edgeSensitivity.value = prefs.getFloat("edge_sensitivity", 1.0f)
@@ -1764,6 +1822,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _edgeCornerRadius.value = prefs.getFloat("edge_corner_radius", 2f)
         _edgeTopEnabled.value = prefs.getBoolean("edge_top_enabled", true)
         _edgeBottomEnabled.value = prefs.getBoolean("edge_bottom_enabled", true)
+        _edgeColor.value = Color(prefs.getInt("edge_color", Color.White.toArgb()))
 
         _lensVisualizerEnabled.value = prefs.getBoolean("lens_visualizer_enabled", false)
         _lensVisualizerRadius.value = prefs.getFloat("lens_visualizer_radius", 16f)
@@ -1773,10 +1832,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _lensVisualizerMaxHeight.value = prefs.getFloat("lens_visualizer_max_height", 5f)
         _lensVisualizerBarCount.value = prefs.getInt("lens_visualizer_bar_count", 35)
         _lensVisualizerSensitivity.value = prefs.getFloat("lens_visualizer_sensitivity", 0.32f)
+        _lensColor.value = Color(prefs.getInt("lens_color", Color.White.toArgb()))
 
         _alternateGlyphVizEnabled.value = prefs.getBoolean("alternate_glyph_viz_enabled", false)
-        _dualFftEnabled.value = prefs.getBoolean("dual_fft_enabled", false)
+        _highQualityAnalysis.value = prefs.getBoolean("high_quality_analysis", false)
         _onScreenVisualizersEnabled.value = prefs.getBoolean("on_screen_visualizers_enabled", false)
+
+        _isFirstTime.value = prefs.getBoolean("first_time_v2", true)
 
         // Launch background tasks
         viewModelScope.launch {
