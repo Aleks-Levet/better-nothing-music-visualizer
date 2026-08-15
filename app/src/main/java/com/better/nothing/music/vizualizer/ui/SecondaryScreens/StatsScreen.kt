@@ -67,7 +67,8 @@ internal fun StatsScreen(
                 label = stringResource(R.string.total_visualization_time),
                 value = formatTime(totalTime),
                 icon = Icons.Default.Timer,
-                color = MaterialTheme.colorScheme.primary
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             )
 
             // Engagement Section
@@ -137,12 +138,13 @@ private fun HeroStatCard(
     label: String,
     value: String,
     icon: ImageVector,
-    color: Color
+    containerColor: Color,
+    contentColor: Color
 ) {
     Surface(
         shape = RoundedCornerShape(32.dp),
-        color = color,
-        contentColor = Color.Black,
+        color = containerColor,
+        contentColor = contentColor,
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -158,9 +160,9 @@ private fun HeroStatCard(
                     text = label,
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black.copy(alpha = 0.7f)
+                    color = contentColor.copy(alpha = 0.7f)
                 )
-                Icon(icon, null, modifier = Modifier.size(28.dp), tint = Color.Black.copy(alpha = 0.7f))
+                Icon(icon, null, modifier = Modifier.size(28.dp), tint = contentColor.copy(alpha = 0.7f))
             }
             Text(
                 text = value,
