@@ -59,7 +59,6 @@
     <string name="flashlight_beat_sensitivity_label">Sensibilité du rythme : %.1f</string>
     <string name="flashlight_beat_sensitivity_desc">Les valeurs élevées ignorent les signaux les plus faibles.</string>
     <string name="flashlight_speed_label">Vitesse : %.0f ms</string>
-    <string name="flashlight_speed_desc">Plus la valeur est basse, plus le flash est rapide. La limite est de 40 ms.</string>
     <string name="flashlight_monitor_label">Moniteur Flash</string>
 
     <string name="experimental_features">Fonctionnalités expérimentales</string>
@@ -70,8 +69,6 @@
     <string name="spoof_locale_description">Force l\'application à utiliser une langue spécifique pour les tests.</string>
     <string name="idle_breathing_title">Respiration au repos</string>
     <string name="idle_breathing_desc">Les Glyphs pulsent subtilement lorsque le visualiseur est actif mais qu\'aucun son n\'est détecté.</string>
-    <string name="disable_glyphs_when_silent_title">Désactiver si silencieux</string>
-    <string name="disable_glyphs_when_silent_desc">Éteint complètement les Glyphs et libère la session lorsqu\'aucun son n\'est détecté.</string>
     <string name="start_visualizer">Démarrer</string>
     <string name="stop_visualizer">Arrêter</string>
     <string name="glyph_no_config">Aucune configuration chargée. Vérifiez les mises à jour dans les paramètres pour télécharger les derniers préréglages.</string>

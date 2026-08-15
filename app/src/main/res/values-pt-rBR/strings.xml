@@ -57,8 +57,6 @@
     <string name="spoof_device_description">Força o app a se comportar como se estivesse rodando no dispositivo selecionado.</string>
     <string name="idle_breathing_title">Respiração Ociosa</string>
     <string name="idle_breathing_desc">Os Glyphs pulsam sutilmente quando o visualizador está ativo, mas nenhum áudio está sendo reproduzido.</string>
-    <string name="disable_glyphs_when_silent_title">Desativar Glyphs em silêncio</string>
-    <string name="disable_glyphs_when_silent_desc">Desliga completamente os Glyphs e libera a sessão quando nenhum áudio é detectado.</string>
     <string name="start_visualizer">Iniciar</string>
     <string name="stop_visualizer">Parar</string>
     <string name="glyph_no_config">Nenhuma configuração carregada. Verifique se há atualizações nas Configurações para baixar as predefinições mais recentes do visualizador.</string>

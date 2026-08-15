@@ -56,8 +56,6 @@
     <string name="spoof_device">伪装设备</string>
     <string name="spoof_device_description">强制应用表现得像是在所选设备上运行一样。</string>
     <string name="idle_breathing_title">空闲呼吸灯</string>
-    <string name="disable_glyphs_when_silent_title">静音时禁用 Glyph</string>
-    <string name="disable_glyphs_when_silent_desc">当检测不到音频时，完全关闭 Glyph 并释放会话。</string>
     <string name="start_visualizer">开始</string>
     <string name="stop_visualizer">停止</string>
     <string name="glyph_no_config">未加载配置。请检查设置中的更新以下载最新的可视化器预设。</string>

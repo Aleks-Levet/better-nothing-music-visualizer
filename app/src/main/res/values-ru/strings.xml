@@ -4,7 +4,9 @@
     <string name="app_name_caps">BETTER NOTHING MUSIC VISUALIZER</string>
     <string name="app_theme">Темки и стиль</string>
     <string name="audio_permission_required">Дай доступ к ушам телефона (аудио)</string>
+    <string name="audio_screen_title">Better Nothing\nMusic Visualizer</string>
     <string name="audio_warning_vizualizer">Предупреждение: этот источник использует дефолтный аудиопоток Андроида. Качество там ублюдское и работать всё будет... ну о-о-очень хуево.</string>
+    <string name="auto_memorize_device">Запоминать устройство</string>
     <string name="back">Свалить назад</string>
     <string name="cancel">Забудь</string>
     <string name="capture_media_projection">Media Projection\n(по умолчанию, самый чёткий)</string>
@@ -28,7 +30,6 @@
     <string name="credit_sebiai_role">Главный по модам и мучению глифов</string>
     <string name="credits">Кто всё это заварил</string>
     <string name="developer_mode">Режим Хакера</string>
-    <string name="disable_glyphs_when_silent_title">Спать, когда музыка не играет</string>
     <string name="discord_server">Наш Дискорд-сервер</string>
     <string name="download">Качнуть</string>
     <string name="downloading_update">Качаем обнову...</string>
@@ -86,10 +87,12 @@
     <string name="overlay_height">Высота оверлея</string>
     <string name="overlay_permission_denied">В разрешении на оверлей отказано (ну и сиди без красоты)</string>
     <string name="overlay_width">Ширина оверлея</string>
+    <string name="output_selection">2. Выберите устройства вывода визуализации</string>
     <string name="preset_by_author">от %1$s • %2$s</string>
     <string name="read_license">Прочитать лицензию ПО</string>
     <string name="saving_latency_for">Запоминаем задержку для: %s</string>
     <string name="screen_capture_denied">Ты зажал доступ к экрану, визуализатор обиделся</string>
+    <string name="select_capture_source">1. Выберите источник входящего аудиосигнала</string>
     <string name="settings_title">Крутилки и гайки</string>
     <string name="spoof_device">Притвориться другим девайсом</string>
     <string name="spoof_device_description">Заставляет приложение думать, что оно работает на совсем другом смартфона.</string>

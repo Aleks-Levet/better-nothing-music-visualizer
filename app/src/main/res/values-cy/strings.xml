@@ -53,8 +53,6 @@
     <string name="spoof_locale_description">Gorfodi\'r ap i ddefnyddio iaith benodol ar gyfer profi.</string>
     <string name="idle_breathing_title">Anadlu Segur</string>
     <string name="idle_breathing_desc">Mae Glyphs yn bylsio\'n gynnil pan fydd y delweddydd yn weithredol ond nid oes sain yn chwarae.</string>
-    <string name="disable_glyphs_when_silent_title">Analluogi Glyphs pan fydd yn ddistaw</string>
-    <string name="disable_glyphs_when_silent_desc">Diffodd Glyphs yn gyfan gwbl a rhyddhau\'r sesiwn pan na ganfyddir sain.</string>
     <string name="start_visualizer">Dechrau</string>
     <string name="stop_visualizer">Stopio</string>
     <string name="glyph_no_config">Dim ffurfweddiad wedi\'i lwytho. Gwiriwch am ddiweddariadau yn y Gosodiadau i lawrlwytho\'r rhagosodiadau delweddydd diweddaraf.</string>

@@ -52,8 +52,6 @@
     <string name="spoof_device_description">ऐप को यह व्यवहार करने के लिए मजबूर करता है जैसे कि यह चयनित डिवाइस पर चल रहा हो।</string>
     <string name="idle_breathing_title">आइडल ब्रीदिंग</string>
     <string name="idle_breathing_desc">जब विज़ुअलाइज़र सक्रिय होता है लेकिन कोई ऑडियो नहीं चल रहा होता है तो ग्लिफ़ सूक्ष्म रूप से पल्स करते हैं।</string>
-    <string name="disable_glyphs_when_silent_title">शांत होने पर ग्लिफ़ अक्षम करें</string>
-    <string name="disable_glyphs_when_silent_desc">जब कोई ऑडियो नहीं मिलता है तो ग्लिफ़ को पूरी तरह से बंद कर दें और सत्र को जारी करें।</string>
     <string name="start_visualizer">प्रारंभ</string>
     <string name="stop_visualizer">रोकें</string>
     <string name="glyph_no_config">कोई कॉन्फ़िगरेशन लोड नहीं हुआ। नवीनतम विज़ुअलाइज़र प्रीसेट डाउनलोड करने के लिए कृपया सेटिंग्स में अपडेट की जांच करें।</string>

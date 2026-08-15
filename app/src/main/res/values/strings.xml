@@ -57,9 +57,9 @@
     <string name="beat_engine_short" translatable="false">Short Pulse</string>
 
     <!-- Audio Processing -->
-    <string name="audio_pipeline_title">Audio Pipeline</string>
+    <string name="audio_pipeline_title">Audio Pipeline (Expert)</string>
     <string name="freq_detection_method">Frequency Range Detection</string>
-    <string name="freq_detection_desc">Determines how a frequency range (e.g. Bass) is calculated from the 512 centralized FFT bins.\n\nMAX: Highest bin value (Responsive).\nMEAN: Average of all bins (Stable).\nRMS: Root Mean Square (Accurate Energy).</string>
+    <string name="freq_detection_desc">MAX: Highest bin value (Responsive).\nMEAN: Average of all bins (Stable).\nRMS: Root Mean Square (Accurate Energy).</string>
 
     <!-- Flashlight Screen -->
     <string name="flashlight_title">Flashlight</string>
@@ -76,7 +76,6 @@
     <string name="flashlight_beat_sensitivity_label">Beat Sensitivity: %.1f</string>
     <string name="flashlight_beat_sensitivity_desc">Higher values ignore weaker transients.</string>
     <string name="flashlight_speed_label">Speed: %.0f ms</string>
-    <string name="flashlight_speed_desc">Lower values flash faster. 40 ms is the fastest supported limit.</string>
     <string name="flashlight_monitor_label">Flashlight Monitor</string>
     <string name="flashlight_duration_label" translatable="false">Duration: %d ms</string>
     <string name="flashlight_duration_desc" translatable="false">Duration of the pulse in milliseconds.</string>
@@ -88,8 +87,6 @@
     <string name="spoof_locale">Spoof Locale</string>
     <string name="spoof_locale_description">Changes the application\'s language for localization testing.</string>
     <string name="idle_breathing_title">Idle Breathing</string>
-    <string name="disable_glyphs_when_silent_title">Disable Glyphs when silent</string>
-    <string name="disable_glyphs_when_silent_desc">Completely turn off Glyphs and release the session when no audio is detected.</string>
     <string name="start_visualizer">Start</string>
     <string name="stop_visualizer">Stop</string>
     <string name="glyph_no_config">No configuration loaded. Please check for updates in Settings to download the latest visualizer presets.</string>
@@ -148,7 +145,7 @@
     <string name="alternate_glyph_viz_desc">Uses audio frame difference as input for glyphs. Provides a more reactive and sharp look. (Experimental)</string>
     <string name="nav_overlay">Nav Overlay</string>
     <string name="enable_on_screen_visualizers">Enable on-screen visualizers</string>
-    <string name="dual_fft">Dual FFT (Better quality)</string>
+    <string name="higher_quality_audio_analysis">Higher quality audio analysis</string>
 
 
     <string name="lens_visualizer">Lens Visualizer</string>
@@ -168,8 +165,6 @@
     <string name="overlay_bottom_segment">Bottom Segment</string>
     <string name="vertical_position">Vertical Position</string>
     <string name="dynamic_gain">Dynamic Gain</string>
-    <string name="flashlight_multi_intensity_forced_title">Flashlight Multi-Intensity</string>
-    <string name="flashlight_multi_intensity_forced_desc">Forces the flashlight to use multiple brightness levels even if not officially supported by the hardware. (Experimental)</string>
 
     <!-- Auth -->
     <string name="default_web_client_id" translatable="false">252304807982-ubtpig2ddtukmjfa7cp21lj1mjgnr968.apps.googleusercontent.com</string>
@@ -355,6 +350,11 @@
     <!-- Widget -->
     <string name="widget_start_bnmv" translatable="false">START BNMV</string>
     <string name="widget_stop_bnmv" translatable="false">STOP BNMV</string>
+
+    <!-- First Time Help -->
+    <string name="first_time_help_title" translatable="false">Quick Tip</string>
+    <string name="first_time_help_msg" translatable="false">Click on the [info] buttons whenever you need help!</string>
+
     <!-- Easter Eggs -->
     <string name="toast_no_output">You didn\'t enable any output, so BNMV does NOTHING 😆</string>
     <string name="toast_audio_title_tap">Why are you clicking here? It does NOTHING! 😆</string>

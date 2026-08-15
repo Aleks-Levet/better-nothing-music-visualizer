@@ -58,7 +58,6 @@
     <string name="flashlight_beat_sensitivity_label">حساسية الإيقاع: %.1f</string>
     <string name="flashlight_beat_sensitivity_desc">القيم الأعلى تتجاهل الإشارات الانتقالية الأضعف.</string>
     <string name="flashlight_speed_label">السرعة: %.0f ms</string>
-    <string name="flashlight_speed_desc">القيم الأدنى تجعل الوميض أسرع. 40 مللي ثانية هو أسرع حد مدعوم.</string>
     <string name="flashlight_monitor_label">مراقبة الكشاف</string>
 
     <string name="experimental_features">ميزات تجريبية</string>
@@ -68,8 +67,6 @@
     <string name="spoof_locale">محاكاة اللغة</string>
     <string name="spoof_locale_description">إجبار التطبيق على استخدام لغة معينة لأغراض الاختبار.</string>
     <string name="idle_breathing_title">التنفّس عند الخمول</string>
-    <string name="disable_glyphs_when_silent_title">تعطيل Glyph عند الصمت</string>
-    <string name="disable_glyphs_when_silent_desc">إيقاف تشغيل Glyph تمامًا وإنهاء الجلسة عند عدم اكتشاف أي صوت.</string>
     <string name="start_visualizer">بدء</string>
     <string name="stop_visualizer">إيقاف</string>
     <string name="glyph_no_config">لم يتم تحميل أي إعداد. يُرجى التحقق من التحديثات في الإعدادات لتنزيل أحدث الإعدادات المسبقة للمصور المرئي.</string>
@@ -138,13 +135,6 @@
     <string name="overlay_sensitivity">حساسية التراكب</string>
     <string name="vertical_position">الموضع الرأسي</string>
     <string name="dynamic_gain">الكسب الديناميكي</string>
-    <string name="flashlight_multi_intensity_forced_title">تعدد شدة الكشاف</string>
-    <string name="flashlight_multi_intensity_forced_desc">يجبر الكشاف على استخدام مستويات سطوع متعددة حتى لو لم يكن ذلك مدعومًا رسميًا من العتاد. (تجريبي)</string>
-
-    <string name="notification_controls_title">عناصر تحكم الإشعارات</string>
-    <string name="notification_controls_desc">اختر الأزرار التي تظهر في الإشعار الدائم.</string>
-    <string name="notification_button_set_presets">الإعدادات المسبقة</string>
-    <string name="notification_button_set_quick_controls">عناصر التحكم السريع</string>
 
     <!-- Auth -->
 
