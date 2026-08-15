@@ -185,7 +185,11 @@ public class GlyphRenderer {
         if (mBreathingEnvelope > 0.01f) {
             int zoneCount = state.length;
             for (int i = 0; i < zoneCount; i++) {
-                float intensity = getIdleIntensity(i, zoneCount, nowMs);
+                int effectiveIndex = i;
+                if (mDeviceType == DeviceProfile.DEVICE_NP3A && i >= 19 && i <= 29) {
+                    effectiveIndex = 29 - (i - 19);
+                }
+                float intensity = getIdleIntensity(effectiveIndex, zoneCount, nowMs);
                 float breathVal = (0.02f + intensity * 0.48f) * mBreathingEnvelope;
                 if (state[i] < breathVal) state[i] = breathVal;
             }
