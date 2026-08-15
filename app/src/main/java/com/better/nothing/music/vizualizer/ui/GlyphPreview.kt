@@ -258,10 +258,13 @@ fun GlyphPreviewContent(
             .padding(horizontal = 4.dp)
             .clip(RoundedCornerShape(if (device == DeviceProfile.DEVICE_NP4A || device == DeviceProfile.DEVICE_NP4B) 16.dp else 40.dp))
             .background(Color(0xFF0A0A0A))
-            // 1. Reduced inner padding for 4b / 4z
+            // 1. Reduced inner padding for 4b / 4z / Phone (1)
             .padding(
-                if (device == DeviceProfile.DEVICE_NP4A || device == DeviceProfile.DEVICE_NP4B) 2.dp
-                else 24.dp
+                when (device) {
+                    DeviceProfile.DEVICE_NP4A, DeviceProfile.DEVICE_NP4B -> 2.dp
+                    DeviceProfile.DEVICE_NP1 -> 12.dp
+                    else -> 24.dp
+                }
             ),
         contentAlignment = Alignment.Center
     ) {
@@ -270,7 +273,7 @@ fun GlyphPreviewContent(
             val viewBoxW = when (device) {
                 DeviceProfile.DEVICE_NP3,
                 DeviceProfile.DEVICE_NP4APRO -> 512f
-                DeviceProfile.DEVICE_NP1 -> 382f
+                DeviceProfile.DEVICE_NP1 -> 182f
                 DeviceProfile.DEVICE_NP4A,
                 DeviceProfile.DEVICE_NP4B -> 80f
                 else -> 182f
@@ -290,8 +293,8 @@ fun GlyphPreviewContent(
             val vbCenter = Offset(viewBoxW / 2f, viewBoxH / 2f)
 
             // Calculate the horizontal centering offset for legacy models in square viewbox
-            // Phone width was 182, ViewBoxW is 382. (382 - 182) / 2 = 100
-            val centeringOffset = if (device == DeviceProfile.DEVICE_NP1) 100f else 0f
+            // Phone width was 182.
+            val centeringOffset = 0f
 
             fun getA(idx: Int): Float {
                 val value = vizState.getOrElse(idx) { 0f }
