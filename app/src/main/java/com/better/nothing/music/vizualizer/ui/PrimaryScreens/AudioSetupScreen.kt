@@ -118,6 +118,8 @@ import com.better.nothing.music.vizualizer.ui.ExpandableExpressiveCard
 import com.better.nothing.music.vizualizer.ui.BodyText
 import com.better.nothing.music.vizualizer.ui.CardHeader
 import com.better.nothing.music.vizualizer.ui.ExpressiveSlider
+import com.better.nothing.music.vizualizer.ui.FineTuneButton
+import com.better.nothing.music.vizualizer.ui.ExpressiveSwitch
 import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
 import com.better.nothing.music.vizualizer.ui.MainViewModel
 import kotlinx.coroutines.delay
@@ -786,9 +788,8 @@ fun LatencyCard(
         ) {
             listOf(-10, -1, 1, 10).forEach { amount ->
                 FineTuneButton(
-                    amount = amount,
+                    label = if (amount > 0) "+$amount" else "$amount",
                     onClick = {
-                        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
                         updateLatency(latencyMs + amount)
                     }
                 )
@@ -825,13 +826,9 @@ fun LatencyCard(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
-                Switch(
+                ExpressiveSwitch(
                     checked = autoDeviceEnabled,
-                    onCheckedChange = onAutoDeviceToggle,
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                        checkedTrackColor = MaterialTheme.colorScheme.primary
-                    )
+                    onCheckedChange = onAutoDeviceToggle
                 )
             }
         }
@@ -1011,53 +1008,3 @@ private fun HelpItem(title: String, description: String) {
 }
 
 private fun Int.divideBy(divisor: Int): Float = this.toFloat() / divisor.toFloat()
-
-@Composable
-fun RowScope.FineTuneButton(
-    amount: Int,
-    onClick: () -> Unit
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    var isAnimating by remember { mutableStateOf(false) }
-
-    LaunchedEffect(interactionSource) {
-        interactionSource.interactions.collectLatest { interaction ->
-            when (interaction) {
-                is PressInteraction.Press -> isAnimating = true
-                is PressInteraction.Release, is PressInteraction.Cancel -> {
-                    delay(100.milliseconds)
-                    isAnimating = false
-                }
-            }
-        }
-    }
-
-    val animatedWeight by animateFloatAsState(
-        targetValue = if (isAnimating) 1.2f else 1.0f,
-        animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessMedium),
-        label = "weight"
-    )
-
-    val containerColor by animateColorAsState(
-        targetValue = if (isAnimating) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-    )
-
-    Surface(
-        onClick = onClick,
-        interactionSource = interactionSource,
-        shape = MaterialTheme.shapes.medium,
-        color = containerColor,
-        modifier = Modifier
-            .weight(animatedWeight)
-            .fillMaxHeight()
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(
-                text = if (amount > 0) "+$amount" else "$amount",
-                style = MaterialTheme.typography.labelMedium,
-                color = if (isAnimating) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
