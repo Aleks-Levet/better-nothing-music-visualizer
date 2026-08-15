@@ -21,7 +21,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.ui.ExpandableExpressiveCard
 import com.better.nothing.music.vizualizer.ui.ExpressiveCard
+import com.better.nothing.music.vizualizer.ui.ExpressiveSwitch
+import com.better.nothing.music.vizualizer.ui.ExpressiveColorPicker
 import com.better.nothing.music.vizualizer.ui.ExpressiveSlider
+import com.better.nothing.music.vizualizer.ui.FineTuneButton
 import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
 import com.better.nothing.music.vizualizer.ui.MainViewModel
 import com.better.nothing.music.vizualizer.ui.ScreenTitle
@@ -42,6 +45,7 @@ fun VisualsScreen(
     val overlaySensitivityBottom by viewModel.overlaySensitivityBottom.collectAsStateWithLifecycle()
     val overlayTopEnabled by viewModel.overlayTopEnabled.collectAsStateWithLifecycle()
     val overlayBottomEnabled by viewModel.overlayBottomEnabled.collectAsStateWithLifecycle()
+    val overlayColor by viewModel.overlayColor.collectAsStateWithLifecycle()
     
     val edgeVisualizerEnabled by viewModel.edgeVisualizerEnabled.collectAsStateWithLifecycle()
     val edgeThickness by viewModel.edgeThickness.collectAsStateWithLifecycle()
@@ -51,6 +55,7 @@ fun VisualsScreen(
     val edgeCornerRadius by viewModel.edgeCornerRadius.collectAsStateWithLifecycle()
     val edgeTopEnabled by viewModel.edgeTopEnabled.collectAsStateWithLifecycle()
     val edgeBottomEnabled by viewModel.edgeBottomEnabled.collectAsStateWithLifecycle()
+    val edgeColor by viewModel.edgeColor.collectAsStateWithLifecycle()
     
     val lensEnabled by viewModel.lensVisualizerEnabled.collectAsStateWithLifecycle()
     val lensRadius by viewModel.lensVisualizerRadius.collectAsStateWithLifecycle()
@@ -60,6 +65,7 @@ fun VisualsScreen(
     val lensMaxHeight by viewModel.lensVisualizerMaxHeight.collectAsStateWithLifecycle()
     val lensBarCount by viewModel.lensVisualizerBarCount.collectAsStateWithLifecycle()
     val lensSensitivity by viewModel.lensVisualizerSensitivity.collectAsStateWithLifecycle()
+    val lensColor by viewModel.lensColor.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
     val scrollState = rememberScrollState()
@@ -87,14 +93,9 @@ fun VisualsScreen(
             expanded = overlayExpanded,
             onExpandedChange = { overlayExpanded = it },
             trailingContent = {
-                Switch(
+                ExpressiveSwitch(
                     checked = overlayEnabled,
-                    onCheckedChange = onOverlayEnabledChanged,
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.size(height = 24.dp, width = 48.dp)
+                    onCheckedChange = onOverlayEnabledChanged
                 )
             }
         ) {
@@ -118,7 +119,7 @@ fun VisualsScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    ExpressiveSlider(
+                    VisualSlider(
                         value = overlayWidth.toFloat(),
                         onValueChange = { viewModel.setOverlayWidth(it.toInt()) },
                         valueRange = 40f..600f,
@@ -142,11 +143,21 @@ fun VisualsScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    ExpressiveSlider(
+                    VisualSlider(
                         value = overlayYOffset.toFloat(),
                         onValueChange = { viewModel.setOverlayYOffset(it.toInt()) },
                         valueRange = -300f..300f,
                         modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Text(
+                        text = "Visualizer Color",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    ExpressiveColorPicker(
+                        selectedColor = overlayColor,
+                        onColorSelected = { viewModel.setOverlayColor(it) }
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant)
@@ -186,7 +197,7 @@ fun VisualsScreen(
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                        ExpressiveSlider(
+                        VisualSlider(
                             value = overlayHeight.toFloat(),
                             onValueChange = { viewModel.setOverlayHeight(it.toInt()) },
                             valueRange = 1f..128f,
@@ -210,10 +221,11 @@ fun VisualsScreen(
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                        ExpressiveSlider(
+                        VisualSlider(
                             value = overlaySensitivity,
                             onValueChange = { viewModel.setOverlaySensitivity(it) },
                             valueRange = 0.01f..1.0f,
+                            fineTuneStep = 0.01f,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -255,7 +267,7 @@ fun VisualsScreen(
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                        ExpressiveSlider(
+                        VisualSlider(
                             value = overlayHeightBottom.toFloat(),
                             onValueChange = { viewModel.setOverlayHeightBottom(it.toInt()) },
                             valueRange = 1f..128f,
@@ -279,10 +291,11 @@ fun VisualsScreen(
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                        ExpressiveSlider(
+                        VisualSlider(
                             value = overlaySensitivityBottom,
                             onValueChange = { viewModel.setOverlaySensitivityBottom(it) },
                             valueRange = 0.01f..1.0f,
+                            fineTuneStep = 0.01f,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -297,14 +310,9 @@ fun VisualsScreen(
             expanded = edgeExpanded,
             onExpandedChange = { edgeExpanded = it },
             trailingContent = {
-                Switch(
+                ExpressiveSwitch(
                     checked = edgeVisualizerEnabled,
-                    onCheckedChange = { viewModel.setEdgeVisualizerEnabled(it) },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.size(height = 24.dp, width = 48.dp)
+                    onCheckedChange = { viewModel.setEdgeVisualizerEnabled(it) }
                 )
             }
         ) {
@@ -327,7 +335,7 @@ fun VisualsScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    ExpressiveSlider(
+                    VisualSlider(
                         value = edgeThickness.toFloat(),
                         onValueChange = { viewModel.setEdgeThickness(it.toInt()) },
                         valueRange = 1f..128f,
@@ -382,7 +390,7 @@ fun VisualsScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    ExpressiveSlider(
+                    VisualSlider(
                         value = edgeCornerRadius,
                         onValueChange = { viewModel.setEdgeCornerRadius(it) },
                         valueRange = 0f..60f,
@@ -395,7 +403,7 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = stringResource(R.string.horizontal_bar_count),
+                            text = stringResource(R.string.lens_bar_count),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -405,32 +413,9 @@ fun VisualsScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    ExpressiveSlider(
+                    VisualSlider(
                         value = edgeBarCountHoriz.toFloat(),
-                        onValueChange = { viewModel.setEdgeBarCountHoriz(it.toInt()) },
-                        valueRange = 4f..100f,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.vertical_bar_count),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "$edgeBarCountVert",
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    ExpressiveSlider(
-                        value = edgeBarCountVert.toFloat(),
-                        onValueChange = { viewModel.setEdgeBarCountVert(it.toInt()) },
+                        onValueChange = { viewModel.setEdgeBarCount(it.toInt()) },
                         valueRange = 4f..100f,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -451,11 +436,22 @@ fun VisualsScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    ExpressiveSlider(
+                    VisualSlider(
                         value = edgeSensitivity,
                         onValueChange = { viewModel.setEdgeSensitivity(it) },
                         valueRange = 0.01f..1.0f,
+                        fineTuneStep = 0.01f,
                         modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Text(
+                        text = "Visualizer Color",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    ExpressiveColorPicker(
+                        selectedColor = edgeColor,
+                        onColorSelected = { viewModel.setEdgeColor(it) }
                     )
                 }
             }
@@ -468,14 +464,9 @@ fun VisualsScreen(
             expanded = lensExpanded,
             onExpandedChange = { lensExpanded = it },
             trailingContent = {
-                Switch(
+                ExpressiveSwitch(
                     checked = lensEnabled,
-                    onCheckedChange = { viewModel.setLensVisualizerEnabled(it) },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.size(height = 24.dp, width = 48.dp)
+                    onCheckedChange = { viewModel.setLensVisualizerEnabled(it) }
                 )
             }
         ) {
@@ -498,7 +489,7 @@ fun VisualsScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    ExpressiveSlider(
+                    VisualSlider(
                         value = lensRadius,
                         onValueChange = { viewModel.setLensVisualizerRadius(it) },
                         valueRange = 2f..20f,
@@ -516,15 +507,16 @@ fun VisualsScreen(
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = String.format("%.2f", lensX),
+                            text = "${(lensX * 100).toInt()}%",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    ExpressiveSlider(
+                    VisualSlider(
                         value = lensX,
                         onValueChange = { viewModel.setLensVisualizerX(it) },
                         valueRange = 0f..1f,
+                        fineTuneStep = 0.01f,
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -539,15 +531,16 @@ fun VisualsScreen(
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = String.format("%.2f", lensY),
+                            text = "${(lensY * 100).toInt()}%",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    ExpressiveSlider(
+                    VisualSlider(
                         value = lensY,
                         onValueChange = { viewModel.setLensVisualizerY(it) },
                         valueRange = -0.1f..1.1f,
+                        fineTuneStep = 0.01f,
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -567,7 +560,7 @@ fun VisualsScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    ExpressiveSlider(
+                    VisualSlider(
                         value = lensBarWidth,
                         onValueChange = { viewModel.setLensVisualizerBarWidth(it) },
                         valueRange = 1f..10f,
@@ -590,7 +583,7 @@ fun VisualsScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    ExpressiveSlider(
+                    VisualSlider(
                         value = lensMaxHeight,
                         onValueChange = { viewModel.setLensVisualizerMaxHeight(it) },
                         valueRange = 5f..100f,
@@ -613,7 +606,7 @@ fun VisualsScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    ExpressiveSlider(
+                    VisualSlider(
                         value = lensBarCount.divideByToOne(),
                         onValueChange = { viewModel.setLensVisualizerBarCount(it.toInt()) },
                         valueRange = 8f..48f,
@@ -636,11 +629,22 @@ fun VisualsScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    ExpressiveSlider(
+                    VisualSlider(
                         value = lensSensitivity,
                         onValueChange = { viewModel.setLensVisualizerSensitivity(it) },
                         valueRange = 0.01f..1.0f,
+                        fineTuneStep = 0.01f,
                         modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Text(
+                        text = "Visualizer Color",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    ExpressiveColorPicker(
+                        selectedColor = lensColor,
+                        onColorSelected = { viewModel.setLensColor(it) }
                     )
                 }
             }
@@ -651,3 +655,33 @@ fun VisualsScreen(
 }
 
 private fun Int.divideByToOne(): Float = this.toFloat()
+
+@Composable
+private fun VisualSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    valueRange: ClosedFloatingPointRange<Float>,
+    fineTuneStep: Float = 1f,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        FineTuneButton(
+            label = if (fineTuneStep < 0.1f) "-1%" else if (fineTuneStep < 1f) "-$fineTuneStep" else "-${fineTuneStep.toInt()}",
+            onClick = { onValueChange((value - fineTuneStep).coerceIn(valueRange)) }
+        )
+        ExpressiveSlider(
+            value = value,
+            onValueChange = onValueChange,
+            valueRange = valueRange,
+            modifier = Modifier.weight(1f)
+        )
+        FineTuneButton(
+            label = if (fineTuneStep < 0.1f) "+1%" else if (fineTuneStep < 1f) "+$fineTuneStep" else "+${fineTuneStep.toInt()}",
+            onClick = { onValueChange((value + fineTuneStep).coerceIn(valueRange)) }
+        )
+    }
+}
