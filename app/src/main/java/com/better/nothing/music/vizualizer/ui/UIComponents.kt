@@ -48,6 +48,7 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
+import androidx.compose.foundation.border
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -82,6 +83,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.animation.core.EaseOutCubic
@@ -447,7 +449,7 @@ fun ScreenTitle(
     val configuration = LocalConfiguration.current
     val isRestrictedLocale = remember(configuration) {
         val currentLocale = configuration.locales.get(0).language
-        listOf("hi", "ar", "ja", "ru", "zh").contains(currentLocale)
+        listOf("hi", "ar", "ja", "zh").contains(currentLocale)
     }
 
     Column(
@@ -529,7 +531,7 @@ fun LinkCard(
             .heightIn(min = 72.dp),
         shape = RoundedCornerShape(24.dp),
         color = if (isPressed) {
-            MaterialTheme.colorScheme.surfaceBright
+            MaterialTheme.colorScheme.surfaceVariant
         } else {
             MaterialTheme.colorScheme.surface
         },
@@ -553,7 +555,7 @@ fun LinkCard(
             ) {
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.surfaceBright,
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                     contentColor = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(40.dp)
                 ) {
@@ -577,7 +579,9 @@ fun LinkCard(
                         text = title,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                     if (subtitle != null) {
                         Spacer(modifier = Modifier.height(2.dp))
@@ -645,7 +649,7 @@ fun ExpandableExpressiveCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isPressed) MaterialTheme.colorScheme.surfaceBright else MaterialTheme.colorScheme.surface
+            containerColor = if (isPressed) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
         )
     ) {
         Column(
@@ -672,7 +676,7 @@ fun ExpandableExpressiveCard(
                 ) {
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.surfaceBright,
+                        color = MaterialTheme.colorScheme.surfaceVariant,
                         contentColor = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(40.dp)
                     ) {
@@ -696,7 +700,9 @@ fun ExpandableExpressiveCard(
                             text = title,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
                         if (subtitle != null) {
                             Spacer(modifier = Modifier.height(2.dp))
@@ -835,10 +841,12 @@ fun CardHeader(
     ) {
         Text(
             text = title,
-            modifier = Modifier.padding(7.dp),
+            modifier = Modifier.padding(7.dp).weight(1f),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
         )
         if (trailingContent != null) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -858,7 +866,9 @@ fun SectionHeader(
         text = text,
         style = MaterialTheme.typography.headlineMedium,
         color = MaterialTheme.colorScheme.onBackground,
-        modifier = modifier.padding(vertical = 8.dp)
+        modifier = modifier.padding(vertical = 8.dp),
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis
     )
 }
 
@@ -935,10 +945,10 @@ fun StartStopButton(
                 onClick()
             },
             interactionSource = interactionSource,
-            shape = RoundedCornerShape((18 + (uiAmp - 1) * 50).dp),
+            shape = RoundedCornerShape((18 + (uiAmp - 1) * 20).dp),
             modifier = Modifier
-                .height((60 + (uiAmp - 1) * 50).dp)
-                .widthIn(min = (130 + (uiAmp - 1) * 50).dp),
+                .height((60 + (uiAmp - 1) * 10).dp)
+                .widthIn(min = (130 + (uiAmp - 1) * 20).dp),
             containerColor = containerColor,
             contentColor = contentColor,
             elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp)
@@ -980,6 +990,64 @@ fun StartStopButton(
 }
 
 @Composable
+fun ExpressiveSwitch(
+    checked: Boolean,
+    onCheckedChange: ((Boolean) -> Unit)?,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    val view = LocalView.current
+    val uiAmp = LocalUIAmplitude.current
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val scale by animateFloatAsState(
+        targetValue = (if (isPressed) 0.9f else 1.0f) * uiAmp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "switchScale"
+    )
+
+    Switch(
+        checked = checked,
+        onCheckedChange = {
+            view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
+            onCheckedChange?.invoke(it)
+        },
+        modifier = modifier
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            },
+        enabled = enabled,
+        interactionSource = interactionSource,
+        colors = SwitchDefaults.colors(
+            checkedThumbColor = Color.White,
+            checkedTrackColor = MaterialTheme.colorScheme.primary,
+            checkedBorderColor = Color.Transparent,
+            checkedIconColor = MaterialTheme.colorScheme.primary,
+
+            uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+            uncheckedTrackColor = Color.Transparent,
+            uncheckedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+            uncheckedIconColor = Color.Transparent
+        ),
+        thumbContent = if (checked) {
+            {
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = null,
+                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                )
+            }
+        } else null
+    )
+}
+
+@Composable
 fun NativeBottomBar(
     selectedTab: Tab,
     visibleTabs: List<Tab>,
@@ -1002,7 +1070,7 @@ fun NativeBottomBar(
 
             // 1. Animate the weight: high bounce on entry, 400ms EaseOutCubic on exit
             val animatedWeight by animateFloatAsState(
-                targetValue = if (isVisible) 1f else 0.0001f,
+                targetValue = if (isVisible) 1f else 0.00000001f,
                 animationSpec = if (isVisible) {
                     spring(
                         dampingRatio = Spring.DampingRatioHighBouncy,
@@ -1031,7 +1099,7 @@ fun NativeBottomBar(
             )
 
             // Render tab only if it has a noticeable weight
-            if (animatedWeight > 0.0005f) {
+            if (animatedWeight > 0.000005f) {
                 NavigationBarItem(
                     modifier = Modifier
                         .weight(animatedWeight)
@@ -1532,6 +1600,125 @@ fun DisabledFeaturePlaceholder(
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
         )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun ExpressiveColorPicker(
+    selectedColor: Color,
+    onColorSelected: (Color) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colors = listOf(
+        Color.White,
+        Color(0xFFD71921), // Nothing Red
+        Color(0xFF4CAF50), // Green
+        Color(0xFF2196F3), // Blue
+        Color(0xFFFFC107), // Amber
+        Color(0xFF9C27B0), // Purple
+        Color(0xFFE91E63), // Pink
+        Color(0xFF00BCD4), // Cyan
+        Color(0xFFFF5722), // Deep Orange
+        Color(0xFF607D8B), // Blue Grey
+    )
+
+    androidx.compose.foundation.layout.FlowRow(
+        modifier = modifier.fillMaxWidth().padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        colors.forEach { color ->
+            val isSelected = color == selectedColor
+            val animatedScale by animateFloatAsState(
+                targetValue = if (isSelected) 1.15f else 1f,
+                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+                label = "color_scale"
+            )
+            
+            val view = LocalView.current
+
+            Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .graphicsLayer {
+                        scaleX = animatedScale
+                        scaleY = animatedScale
+                    }
+                    .background(color, RoundedCornerShape(21.dp))
+                    .then(
+                        if (isSelected) Modifier.border(
+                            width = 3.dp,
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = RoundedCornerShape(21.dp)
+                        ) else Modifier.border(
+                            width = 1.dp,
+                            color = Color.Gray.copy(alpha = 0.3f),
+                            shape = RoundedCornerShape(21.dp)
+                        )
+                    )
+                    .clickable {
+                        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
+                        onColorSelected(color)
+                    }
+            )
+        }
+    }
+}
+
+@Composable
+fun RowScope.FineTuneButton(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    var isAnimating by remember { mutableStateOf(false) }
+    val view = LocalView.current
+
+    LaunchedEffect(interactionSource) {
+        interactionSource.interactions.collectLatest { interaction ->
+            when (interaction) {
+                is PressInteraction.Press -> isAnimating = true
+                is PressInteraction.Release, is PressInteraction.Cancel -> {
+                    delay(100.milliseconds)
+                    isAnimating = false
+                }
+            }
+        }
+    }
+
+    val animatedWeight by animateFloatAsState(
+        targetValue = if (isAnimating) 1.25f else 1.0f,
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessMedium),
+        label = "weight"
+    )
+
+    val containerColor by animateColorAsState(
+        targetValue = if (isAnimating) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        label = "color"
+    )
+
+    Surface(
+        onClick = {
+            view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
+            onClick()
+        },
+        interactionSource = interactionSource,
+        shape = RoundedCornerShape(16.dp),
+        color = containerColor,
+        modifier = modifier
+            .weight(animatedWeight)
+            .height(48.dp)
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                color = if (isAnimating) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
 
