@@ -34,6 +34,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
 import android.view.HapticFeedbackConstants
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -156,7 +157,7 @@ fun FlashlightScreen(
                 )
             }
 
-            if (flashlightMode == TorchMode.AMPLITUDE) {
+            AnimatedVisibility(flashlightMode == TorchMode.AMPLITUDE) {
                 ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
                     CardHeader(
                         title = stringResource(
@@ -177,7 +178,7 @@ fun FlashlightScreen(
                 }
             }
 
-            if (flashlightMode == TorchMode.BEAT_DETECTION) {
+            AnimatedVisibility(flashlightMode == TorchMode.BEAT_DETECTION) {
                 if (flashlightIntensityLevels > 1) {
                     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
                         CardHeader(title = stringResource(R.string.beat_engine_mode_label))
@@ -218,7 +219,7 @@ fun FlashlightScreen(
                 }
             }
 
-            if (flashlightMode == TorchMode.BEAT_DETECTION) {
+            AnimatedVisibility (flashlightMode == TorchMode.BEAT_DETECTION) {
                 if (flashlightBeatEngineMode == BeatEngineMode.SHORT_PULSE || flashlightIntensityLevels <= 1) {
                     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
                         CardHeader(
@@ -238,7 +239,8 @@ fun FlashlightScreen(
                             size = 12.sp
                         )
                     }
-                } else {
+                }
+                AnimatedVisibility (flashlightMode != TorchMode.BEAT_DETECTION) {
                     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
                         CardHeader(
                             title = stringResource(
@@ -252,17 +254,13 @@ fun FlashlightScreen(
                             valueRange = 40f..150f,
                             modifier = Modifier.fillMaxWidth()
                         )
-                        BodyText(
-                            text = stringResource(R.string.flashlight_speed_desc),
-                            size = 12.sp
-                        )
                     }
                 }
             }
 
             ExpressiveCard(
                 modifier = Modifier.fillMaxWidth(),
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 1f)
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
             ) {
                 CardHeader(title = stringResource(R.string.flashlight_monitor_label))
 
@@ -281,16 +279,7 @@ fun FlashlightScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp)
-                        .background(
-                            brush = Brush.radialGradient(
-                                colors = listOf(
-                                    flashColor.copy(alpha = 0.15f * flashlightAmplitude),
-                                    Color.Transparent
-                                ),
-                                radius = 350f
-                            )
-                        ),
+                        .height(200.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
@@ -313,7 +302,7 @@ fun FlashlightScreen(
                         val dotAlphaTarget = 0.2f + (motorIntensity * 0.8f)
 
                         val isBinary = flashlightIntensityLevels <= 1
-                        
+
                         val dotScale by animateFloatAsState(
                             targetValue = dotScaleTarget,
                             animationSpec = if (isBinary) snap() else androidx.compose.animation.core.spring(stiffness = Spring.StiffnessMedium),
@@ -334,7 +323,7 @@ fun FlashlightScreen(
                             // Glow effect
                             drawCircle(
                                 brush = Brush.radialGradient(
-                                    0f to Color.White.copy(alpha = 0.4f * dotAlpha),
+                                    0f to Color.White.copy(alpha = 1f * dotAlpha),
                                     1f to Color.Transparent
                                 ),
                                 radius = (size.minDimension / 1.2f) * dotScale
