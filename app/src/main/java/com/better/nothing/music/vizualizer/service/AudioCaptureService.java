@@ -139,6 +139,13 @@ public class AudioCaptureService extends Service {
 
     private static volatile boolean sIsRunning = false;
     private static final MutableStateFlow<Boolean> sIsRunningFlow = StateFlowKt.MutableStateFlow(false);
+    private static final MutableStateFlow<Boolean> sHapticEnabledFlow = StateFlowKt.MutableStateFlow(false);
+    private static final MutableStateFlow<Boolean> sFlashlightEnabledFlow = StateFlowKt.MutableStateFlow(false);
+    private static final MutableStateFlow<Boolean> sGlyphsEnabledFlow = StateFlowKt.MutableStateFlow(true);
+    private static final MutableStateFlow<Boolean> sBroadcastEnabledFlow = StateFlowKt.MutableStateFlow(false);
+    private static final MutableStateFlow<Boolean> sOverlayEnabledFlow = StateFlowKt.MutableStateFlow(false);
+    private static final MutableStateFlow<Boolean> sEdgeEnabledFlow = StateFlowKt.MutableStateFlow(false);
+    private static final MutableStateFlow<Boolean> sLensEnabledFlow = StateFlowKt.MutableStateFlow(false);
     private static final MutableStateFlow<Float> sHapticMotorIntensityFlow = StateFlowKt.MutableStateFlow(0f);
     private static final MutableStateFlow<Float> sFlashlightMotorIntensityFlow = StateFlowKt.MutableStateFlow(0f);
     private static final MutableStateFlow<Float> sHapticRawPeakFlow = StateFlowKt.MutableStateFlow(0f);
@@ -147,6 +154,13 @@ public class AudioCaptureService extends Service {
     private static final MutableStateFlow<Boolean> sFlashlightBeatFlow = StateFlowKt.MutableStateFlow(false);
 
     public StateFlow<Boolean> isRunningFlow() { return sIsRunningFlow; }
+    public StateFlow<Boolean> hapticEnabledFlow() { return sHapticEnabledFlow; }
+    public StateFlow<Boolean> flashlightEnabledFlow() { return sFlashlightEnabledFlow; }
+    public StateFlow<Boolean> glyphsEnabledFlow() { return sGlyphsEnabledFlow; }
+    public StateFlow<Boolean> broadcastEnabledFlow() { return sBroadcastEnabledFlow; }
+    public StateFlow<Boolean> overlayEnabledFlow() { return sOverlayEnabledFlow; }
+    public StateFlow<Boolean> edgeEnabledFlow() { return sEdgeEnabledFlow; }
+    public StateFlow<Boolean> lensEnabledFlow() { return sLensEnabledFlow; }
     public static StateFlow<Float> hapticMotorIntensityFlow() { return sHapticMotorIntensityFlow; }
     public static StateFlow<Float> flashlightMotorIntensityFlow() { return sFlashlightMotorIntensityFlow; }
     public static StateFlow<Float> hapticRawPeakFlow() { return sHapticRawPeakFlow; }
@@ -251,7 +265,6 @@ public class AudioCaptureService extends Service {
     private volatile int mMaxBrightness = 4095;
 
     private boolean mIdleBreathingEnabled = false;
-    private boolean mDisableGlyphsWhenSilent = false;
     private boolean mOverlayEnabled = false;
     private boolean mEdgeVisualizerEnabled = false;
     private boolean mLensVisualizerEnabled = false;
@@ -262,8 +275,14 @@ public class AudioCaptureService extends Service {
     public volatile float mLensVisualizerMaxHeight = 20f;
     public volatile int mLensVisualizerBarCount = 24;
     public volatile float mLensVisualizerSensitivity = 1.0f;
+    public volatile int mLensColor = android.graphics.Color.WHITE;
 
-    public void setLensVisualizerEnabled(boolean enabled) { mLensVisualizerEnabled = enabled; updateOverlayVisibility(); requestWidgetRefresh(); }
+    public void setLensVisualizerEnabled(boolean enabled) {
+        mLensVisualizerEnabled = enabled;
+        sLensEnabledFlow.setValue(enabled);
+        updateOverlayVisibility();
+        requestWidgetRefresh();
+    }
     public void setLensVisualizerRadius(float r) { mLensVisualizerRadius = r; }
     public void setLensVisualizerX(float x) { mLensVisualizerX = x; }
     public void setLensVisualizerY(float y) { mLensVisualizerY = y; }
@@ -271,6 +290,7 @@ public class AudioCaptureService extends Service {
     public void setLensVisualizerMaxHeight(float h) { mLensVisualizerMaxHeight = h; }
     public void setLensVisualizerBarCount(int c) { mLensVisualizerBarCount = c; }
     public void setLensVisualizerSensitivity(float s) { mLensVisualizerSensitivity = s; }
+    public void setLensColor(int color) { mLensColor = color; }
     
     private int mOverlayWidth = 120;
     private int mOverlayHeight = 12;
@@ -289,6 +309,7 @@ public class AudioCaptureService extends Service {
     private float mEdgeCornerRadius = 2f;
     private boolean mEdgeTopEnabled = true;
     private boolean mEdgeBottomEnabled = true;
+    private int mEdgeColor = android.graphics.Color.WHITE;
     private EdgeVisualizerView mEdgeVisualizerView;
 
     private WindowManager mWindowManager;
@@ -329,6 +350,8 @@ public class AudioCaptureService extends Service {
     private long mLastSendMs = 0L;
     private long mCaptureStartTimeMs = 0L;
     private volatile int[] mLatestRawFFT = new int[512];
+    private int[] mPreviousRawFFT = new int[512];
+    private volatile float mLatestUiPeakDiff = 0f;
     private final Object mFftLock = new Object();
 
     public int[] getLatestRawFFT() { synchronized (mFftLock) { return mLatestRawFFT; } }
@@ -340,6 +363,18 @@ public class AudioCaptureService extends Service {
     }
     public boolean isVisualizerRunning() { return sIsRunning; }
 
+    private boolean mIsAppInForeground = false;
+    public void setAppInForeground(boolean foreground) {
+        mIsAppInForeground = foreground;
+        if (mWorkerHandler != null) {
+            mWorkerHandler.post(() -> {
+                if (foreground) {
+                    if (!mSessionOpen && mMaxBrightness > 0) ensureGlyphSession();
+                }
+            });
+        }
+    }
+
     public float getLatestHapticPeak() {
         int[] fft = getLatestRawFFT();
         if (mHapticRange == null) return 0f;
@@ -349,13 +384,7 @@ public class AudioCaptureService extends Service {
     }
 
     public float getLatestUiPeak() {
-        int[] fft = getLatestRawFFT();
-        if (mUiRange == null) return 0f;
-        int max = 0;
-        for (int i = mUiRange.logBinLo; i <= mUiRange.logBinHi && i < fft.length; i++) {
-            if (fft[i] > max) max = fft[i];
-        }
-        return max / 4095f;
+        return mLatestUiPeakDiff;
     }
 
     public float getLatestFlashlightPeak() {
@@ -367,7 +396,6 @@ public class AudioCaptureService extends Service {
     }
 
     public long getCaptureDurationMs() { if (!sIsRunning || mCaptureStartTimeMs == 0) return 0; return SystemClock.elapsedRealtime() - mCaptureStartTimeMs; }
-    private long mLastAudioActivityMs = 0L;
     private long mLastNotifUpdateMs = 0L;
     private final Handler mMainHandler = new Handler(android.os.Looper.getMainLooper());
     private final Runnable mIdlePulseRunnable = new Runnable() {
@@ -473,8 +501,6 @@ public class AudioCaptureService extends Service {
         }
         mIdleBreathingEnabled = appPrefs.getBoolean("idle_breathing_enabled", false);
         if (mGlyphRenderer != null) mGlyphRenderer.setAlternateMode(appPrefs.getBoolean("alternate_glyph_viz_enabled", false));
-        mDisableGlyphsWhenSilent = appPrefs.getBoolean("disable_glyphs_when_silent", false);
-        if (mGlyphRenderer != null) mGlyphRenderer.setAlternateMode(appPrefs.getBoolean("alternate_glyph_viz_enabled", false));
         mBroadcastEnabled = appPrefs.getBoolean("broadcast_enabled", false);
         mOverlayEnabled = appPrefs.getBoolean("overlay_enabled", false);
         mOverlayWidth = appPrefs.getInt("overlay_width", 120);
@@ -524,18 +550,19 @@ public class AudioCaptureService extends Service {
         setFlashlightEnabled(appPrefs.getBoolean("flashlight_enabled", false));
         
         mIdleBreathingEnabled = appPrefs.getBoolean("idle_breathing_enabled", false);
-        if (mGlyphRenderer != null) mGlyphRenderer.setAlternateMode(appPrefs.getBoolean("alternate_glyph_viz_enabled", false));
-        if (mGlyphRenderer != null) mGlyphRenderer.setIdleBreathingEnabled(mIdleBreathingEnabled);
-        
-        mDisableGlyphsWhenSilent = appPrefs.getBoolean("disable_glyphs_when_silent", false);
-        if (mGlyphRenderer != null) mGlyphRenderer.setAlternateMode(appPrefs.getBoolean("alternate_glyph_viz_enabled", false));
-        setDualFftEnabled(appPrefs.getBoolean("dual_fft_enabled", false));
+        if (mGlyphRenderer != null) {
+            mGlyphRenderer.setAlternateMode(appPrefs.getBoolean("alternate_glyph_viz_enabled", false));
+            mGlyphRenderer.setIdleBreathingEnabled(mIdleBreathingEnabled);
+        }
+        setHighQualityAnalysis(appPrefs.getBoolean("high_quality_analysis", false));
         setBroadcastEnabled(appPrefs.getBoolean("broadcast_enabled", false));
         
-        mOverlayEnabled = appPrefs.getBoolean("overlay_enabled", false);
-        mEdgeVisualizerEnabled = appPrefs.getBoolean("edge_visualizer_enabled", false);
-        mLensVisualizerEnabled = appPrefs.getBoolean("lens_visualizer_enabled", false);
-        updateOverlayVisibility();
+        setOverlayEnabled(appPrefs.getBoolean("overlay_enabled", false));
+        mOverlayColor = appPrefs.getInt("overlay_color", android.graphics.Color.WHITE);
+        setEdgeVisualizerEnabled(appPrefs.getBoolean("edge_visualizer_enabled", false));
+        mEdgeColor = appPrefs.getInt("edge_color", android.graphics.Color.WHITE);
+        setLensVisualizerEnabled(appPrefs.getBoolean("lens_visualizer_enabled", false));
+        mLensColor = appPrefs.getInt("lens_color", android.graphics.Color.WHITE);
     }
 
     @Override public IBinder onBind(Intent intent) { return mBinder; }
@@ -710,6 +737,7 @@ public class AudioCaptureService extends Service {
         final int targetBrightness = clamped;
         final boolean reopeningAfterEnable = mMaxBrightness <= 0 && targetBrightness > 0;
         mMaxBrightness = clamped;
+        sGlyphsEnabledFlow.setValue(clamped > 0);
         if (mWorkerHandler == null) return;
         mWorkerHandler.post(() -> {
             applyEffectiveMaxBrightness();
@@ -727,13 +755,10 @@ public class AudioCaptureService extends Service {
     }
 
     public void setIdlePattern(String pattern) { if (mGlyphRenderer != null) mGlyphRenderer.setIdlePattern(pattern); }
-    public void setDisableGlyphsWhenSilent(boolean enabled) {
-        mDisableGlyphsWhenSilent = enabled;
-        if (!enabled && !mSessionOpen && mGM != null) mWorkerHandler.post(this::ensureGlyphSession);
-    }
 
     public void setBroadcastEnabled(boolean enabled) {
         mBroadcastEnabled = enabled;
+        sBroadcastEnabledFlow.setValue(enabled);
         if (enabled) {
             mUdpSync.startBroadcasting(Build.MODEL); // Or any device name
         } else {
@@ -765,7 +790,12 @@ public class AudioCaptureService extends Service {
         mUdpSync.discoverHosts(callback);
     }
 
-    public void setOverlayEnabled(boolean enabled) { mOverlayEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); requestWidgetRefresh(); }
+    public void setOverlayEnabled(boolean enabled) {
+        mOverlayEnabled = enabled;
+        sOverlayEnabledFlow.setValue(enabled);
+        if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility);
+        requestWidgetRefresh();
+    }
     public void setOverlayTopEnabled(boolean enabled) { mOverlayTopEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); requestWidgetRefresh(); }
     public void setOverlayBottomEnabled(boolean enabled) { mOverlayBottomEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); requestWidgetRefresh(); }
     public void setOverlayWidth(int width) { mOverlayWidth = width; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); }
@@ -775,7 +805,12 @@ public class AudioCaptureService extends Service {
     public void setOverlaySensitivity(float s) { mOverlaySensitivity = s; if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setTopSensitivity(s)); }
     public void setOverlaySensitivityBottom(float s) { mOverlaySensitivityBottom = s; if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setBottomSensitivity(s)); }
 
-    public void setEdgeVisualizerEnabled(boolean enabled) { mEdgeVisualizerEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); requestWidgetRefresh(); }
+    public void setEdgeVisualizerEnabled(boolean enabled) {
+        mEdgeVisualizerEnabled = enabled;
+        sEdgeEnabledFlow.setValue(enabled);
+        if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility);
+        requestWidgetRefresh();
+    }
     public void setEdgeThickness(int thickness) {
         mEdgeThickness = thickness;
         if (mEdgeVisualizerView != null) {
@@ -792,6 +827,7 @@ public class AudioCaptureService extends Service {
             mMainHandler.post(() -> mEdgeVisualizerView.setScreenRadius(radius * density));
         }
     }
+    public void setEdgeColor(int color) { mEdgeColor = color; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setColor(color)); }
     public void setEdgeTopEnabled(boolean enabled) { mEdgeTopEnabled = enabled; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setTopEnabled(enabled)); }
     public void setEdgeBottomEnabled(boolean enabled) { mEdgeBottomEnabled = enabled; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setBottomEnabled(enabled)); }
 
@@ -813,6 +849,7 @@ public class AudioCaptureService extends Service {
 
     public void setHapticEnabled(boolean enabled) {
         mHapticEnabled = hasHapticMotor(this) && enabled;
+        sHapticEnabledFlow.setValue(mHapticEnabled);
         if (!mHapticEnabled) { if (mContinuousHapticEngine != null) mContinuousHapticEngine.stopHaptics(); if (mBeatDetectionEngine != null) mBeatDetectionEngine.stopHaptics(); }
         requestTileRefresh(); requestWidgetRefresh(); refreshNotification();
     }
@@ -824,7 +861,12 @@ public class AudioCaptureService extends Service {
     public void setHapticBeatSensitivity(float s) { mHapticBeatSensitivity = s; if (mBeatDetectionEngine != null) mBeatDetectionEngine.setHapticSensitivity(s); }
     public void setHapticBeatGamma(float g) { mHapticBeatGamma = g; if (mBeatDetectionEngine != null) mBeatDetectionEngine.setHapticGamma(g); }
 
-    public void setFlashlightEnabled(boolean enabled) { mFlashlightEnabled = hasFlashlight(this) && enabled; if (!mFlashlightEnabled && mFlashlightEngine != null) mFlashlightEngine.stopFlashlight(); requestWidgetRefresh(); refreshNotification(); }
+    public void setFlashlightEnabled(boolean enabled) {
+        mFlashlightEnabled = hasFlashlight(this) && enabled;
+        sFlashlightEnabledFlow.setValue(mFlashlightEnabled);
+        if (!mFlashlightEnabled && mFlashlightEngine != null) mFlashlightEngine.stopFlashlight();
+        requestWidgetRefresh(); refreshNotification();
+    }
     public void setFlashlightFreqRange(float min, float max) { mFlashlightMinHz = min; mFlashlightMaxHz = max; }
     public void setFlashlightThreshold(float t) { mFlashlightThreshold = t; if (mFlashlightEngine != null) mFlashlightEngine.setFlashlightThreshold(t); }
     public void setFlashlightMode(TorchMode m) { mFlashlightMode = m; if (mFlashlightEngine != null) mFlashlightEngine.setTorchMode(m); }
@@ -833,7 +875,6 @@ public class AudioCaptureService extends Service {
     public void setFlashlightBeatSensitivity(float s) { mFlashlightBeatSensitivity = s; if (mFlashlightEngine != null) mFlashlightEngine.setFlashlightBeatSensitivity(s); }
     public void setFlashlightSpeedMs(float s) { mFlashlightSpeedMs = s; if (mFlashlightEngine != null) mFlashlightEngine.setFlashlightSpeedMs(s); }
 
-    public void setFlashlightMultiIntensityForced(boolean forced) { if (mFlashlightEngine != null) { mFlashlightEngine.setForceMultiIntensity(forced); mFlashlightIntensityLevels = mFlashlightEngine.getTorchIntensityLevels(); } }
     public int getFlashlightIntensityLevels() { return mFlashlightEngine != null ? mFlashlightEngine.getTorchIntensityLevels() : (mFlashlightIntensityLevels > 0 ? mFlashlightIntensityLevels : 1); }
     public int getFlashlightCurrentLevel() { return mFlashlightEngine != null ? mFlashlightEngine.getCurrentLevel() : 0; }
 
@@ -1022,6 +1063,9 @@ public class AudioCaptureService extends Service {
         mCapturing = false;
         releaseVisualizer();
         if (mUdpSync != null) mUdpSync.stopListening();
+        if (mFlashlightEngine != null) mFlashlightEngine.stopFlashlight();
+        if (mContinuousHapticEngine != null) mContinuousHapticEngine.stopHaptics();
+        if (mBeatDetectionEngine != null) mBeatDetectionEngine.stopHaptics();
 
         synchronized (mFftLock) {
             mLatestRawFFT = EMPTY_FFT;
@@ -1060,9 +1104,9 @@ public class AudioCaptureService extends Service {
         if (mGlyphRenderer != null) mGlyphRenderer.setAlternateMode(enabled);
     }
 
-    public void setDualFftEnabled(boolean enabled) {
+    public void setHighQualityAnalysis(boolean enabled) {
         if (mAudioProcessor != null) {
-            mAudioProcessor.setDualFftEnabled(enabled);
+            mAudioProcessor.setHighQualityAnalysis(enabled);
         }
     }
 
@@ -1081,11 +1125,13 @@ public class AudioCaptureService extends Service {
             
             // Only interact with Glyph library if output is enabled (brightness > 0)
             if (mMaxBrightness > 0) {
-                if (hasActivity || mIdleBreathingEnabled) { 
-                    mLastAudioActivityMs = now; 
+                // Determine if we should maintain the glyph session.
+                // We keep it open if there's audio activity, or the app is in foreground, 
+                // or if idle breathing is enabled.
+                boolean shouldMaintain = hasActivity || mIsAppInForeground || mIdleBreathingEnabled;
+                
+                if (shouldMaintain) { 
                     if (!mSessionOpen) ensureGlyphSession(); 
-                } else if (mDisableGlyphsWhenSilent && mSessionOpen && (now - mLastAudioActivityMs > 3000)) {
-                    clearGlyphSession();
                 }
 
                 if (mSessionOpen && (now - mLastSendMs >= MIN_SEND_INTERVAL_MS)) {
@@ -1117,7 +1163,17 @@ public class AudioCaptureService extends Service {
         if (latestDueFrame != null) {
             try {
                 synchronized (mFftLock) {
+                    mPreviousRawFFT = mLatestRawFFT.clone();
                     mLatestRawFFT = latestDueFrame.fftraw;
+                }
+
+                if (mUiRange != null) {
+                    int maxDiff = 0;
+                    for (int i = mUiRange.logBinLo; i <= mUiRange.logBinHi && i < mLatestRawFFT.length; i++) {
+                        int diff = Math.max(0, mLatestRawFFT[i] - mPreviousRawFFT[i]);
+                        if (diff > maxDiff) maxDiff = diff;
+                    }
+                    mLatestUiPeakDiff = maxDiff / 2047f; // Use 2047 for diff scaling similar to GlyphRenderer
                 }
 
                 if (mOverlayView != null) mOverlayView.updateMagnitudes(mLatestRawFFT);
@@ -1128,7 +1184,7 @@ public class AudioCaptureService extends Service {
                 sHapticRawPeakFlow.setValue(hRawPeak);
                 sFlashlightRawPeakFlow.setValue(fRawPeak);
 
-                if (mHapticEnabled) {
+                if (mCapturing && mHapticEnabled) {
                     if (mHapticMode == HapticMode.BASS_TO_AMPLITUDE) {
                         if (mContinuousHapticEngine != null) {
                             float intensity = mContinuousHapticEngine.performHapticFeedback(hRawPeak, latestDueFrame.config);
@@ -1145,7 +1201,7 @@ public class AudioCaptureService extends Service {
                     sHapticBeatFlow.setValue(false);
                 }
 
-                if (mFlashlightEnabled && mFlashlightEngine != null) {
+                if (mCapturing && mFlashlightEnabled && mFlashlightEngine != null) {
                     mFlashlightEngine.performFlashlightFeedback(fRawPeak, latestDueFrame.config, mLatestRawFFT, mFlashlightRange != null ? mFlashlightRange.logBinLo : 0, mFlashlightRange != null ? mFlashlightRange.logBinHi : 0);
                     int levels = mFlashlightEngine.getTorchIntensityLevels();
                     float intensity = (levels > 1) ? (float) mFlashlightEngine.getCurrentLevel() / levels : (mFlashlightEngine.getCurrentLevel() > 0 ? 1f : 0f);
@@ -1327,6 +1383,7 @@ public class AudioCaptureService extends Service {
                 mEdgeVisualizerView.setTopEnabled(mEdgeTopEnabled);
                 mEdgeVisualizerView.setBottomEnabled(mEdgeBottomEnabled);
                 mEdgeVisualizerView.setScreenRadius(mEdgeCornerRadius * density);
+                mEdgeVisualizerView.setColor(mEdgeColor);
             } else if (mEdgeVisualizerView != null) {
                 try { mWindowManager.removeView(mEdgeVisualizerView); } catch (Exception ignored) {}
                 mEdgeVisualizerView = null;
@@ -1367,6 +1424,7 @@ public class AudioCaptureService extends Service {
                 mOverlayView.setHeights((int) (mOverlayHeight * density), (int) (mOverlayHeightBottom * density));
                 mOverlayView.setTopSensitivity(mOverlaySensitivity);
                 mOverlayView.setBottomSensitivity(mOverlaySensitivityBottom);
+                mOverlayView.setColor(mOverlayColor);
             } else if (mOverlayView != null) {
                 try { mWindowManager.removeView(mOverlayView); } catch (Exception ignored) {}
                 mOverlayView = null;
