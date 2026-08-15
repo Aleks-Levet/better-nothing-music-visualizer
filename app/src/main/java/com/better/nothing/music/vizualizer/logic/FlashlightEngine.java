@@ -29,8 +29,6 @@ public final class FlashlightEngine {
     private String cameraId;
     private boolean hasTorchStrength;
     private int maxTorchStrength = 1;
-    private int detectedMaxTorchStrength = 1;
-    private boolean forceMultiIntensity = false;
 
     private TorchMode torchMode = TorchMode.AMPLITUDE;
     private BeatEngineMode beatEngineMode = BeatEngineMode.SMOOTH;
@@ -77,23 +75,13 @@ public final class FlashlightEngine {
     }
 
     public synchronized int getTorchIntensityLevels() {
-        return (hasTorchStrength || forceMultiIntensity) ? Math.max(1, maxTorchStrength) : 1;
+        return hasTorchStrength ? Math.max(1, maxTorchStrength) : 1;
     }
 
     public synchronized int getCurrentLevel() { return lastLevel; }
 
     public synchronized boolean hasVariableTorchStrength() {
-        return (hasTorchStrength || forceMultiIntensity) && maxTorchStrength > 1;
-    }
-
-    public synchronized void setForceMultiIntensity(boolean force) {
-        this.forceMultiIntensity = force;
-        if (force) {
-            if (maxTorchStrength <= 1) maxTorchStrength = 255;
-        } else {
-            maxTorchStrength = detectedMaxTorchStrength;
-            hasTorchStrength = detectedMaxTorchStrength > 1;
-        }
+        return hasTorchStrength && maxTorchStrength > 1;
     }
 
     private void initCamera() {
@@ -112,7 +100,6 @@ public final class FlashlightEngine {
             }
             if (bestCameraId != null) {
                 cameraId = bestCameraId;
-                detectedMaxTorchStrength = bestMaxStrength;
                 if (bestMaxStrength > 1) {
                     hasTorchStrength = true;
                     maxTorchStrength = bestMaxStrength;
@@ -134,12 +121,19 @@ public final class FlashlightEngine {
     @SuppressWarnings("unchecked")
     private static int readTorchStrengthLevel(@Nullable CameraCharacteristics chars) {
         if (chars == null) return 1;
+        // Use reflection to access flashlight strength keys to avoid compilation errors on various SDKs.
+        // FLASH_INFO_STRENGTH_MAX_LEVEL was introduced in API 33 (Tiramisu).
         try {
-            Object field = CameraCharacteristics.class.getField("FLASH_INFO_STRENGTH_MAX_LEVEL").get(null);
-            if (field instanceof CameraCharacteristics.Key) {
-                CameraCharacteristics.Key<Integer> key = (CameraCharacteristics.Key<Integer>) field;
-                Integer max = chars.get(key);
-                if (max != null && max > 0) return max;
+            String[] keys = {"FLASH_TORCH_STRENGTH_MAX_LEVEL", "FLASH_INFO_STRENGTH_MAX_LEVEL", "FLASH_INFO_STRENGTH_MAXIMUM_LEVEL"};
+            for (String keyName : keys) {
+                try {
+                    Object field = CameraCharacteristics.class.getField(keyName).get(null);
+                    if (field instanceof CameraCharacteristics.Key) {
+                        CameraCharacteristics.Key<Integer> key = (CameraCharacteristics.Key<Integer>) field;
+                        Integer max = chars.get(key);
+                        if (max != null && max > 0) return max;
+                    }
+                } catch (NoSuchFieldException ignored) {}
             }
         } catch (Throwable ignored) {}
         return 1;
@@ -293,10 +287,13 @@ public final class FlashlightEngine {
         if (torchActive && !intervalPassed && !significantChange) return;
         try {
             if (hasVariableTorchStrength()) {
-                if (Build.VERSION.SDK_INT >= 33) {
-                    try { cameraManager.turnOnTorchWithStrengthLevel(cameraId, Math.max(1, level)); }
-                    catch (IllegalArgumentException e) {
-                        if (forceMultiIntensity && level > 1) maxTorchStrength = Math.max(1, level - 1);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    try {
+                        cameraManager.turnOnTorchWithStrengthLevel(cameraId, Math.max(1, level));
+                    } catch (IllegalArgumentException e) {
+                        Log.e(TAG, "Failed to set torch strength, falling back to binary", e);
+                        hasTorchStrength = false;
+                        maxTorchStrength = 1;
                         cameraManager.setTorchMode(cameraId, true);
                     }
                 } else cameraManager.setTorchMode(cameraId, true);
@@ -307,8 +304,11 @@ public final class FlashlightEngine {
         } catch (CameraAccessException | SecurityException e) {
             torchActive = false;
         } catch (Throwable t) {
-            try { cameraManager.setTorchMode(cameraId, true); torchActive = true; }
-            catch (Exception ignored) {}
+            try {
+                cameraManager.setTorchMode(cameraId, true);
+                torchActive = true;
+            } catch (Exception ignored) {
+            }
         }
     }
 
