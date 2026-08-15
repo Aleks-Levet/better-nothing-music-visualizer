@@ -30,6 +30,7 @@ public class VisualizerService extends Service {
                 mVisualizerView.setMaxHeight(AudioCaptureService.sInstance.mLensVisualizerMaxHeight);
                 mVisualizerView.setBarCount(AudioCaptureService.sInstance.mLensVisualizerBarCount);
                 mVisualizerView.setSensitivity(AudioCaptureService.sInstance.mLensVisualizerSensitivity);
+                mVisualizerView.setColor(AudioCaptureService.sInstance.mLensColor);
             }
             mHandler.postDelayed(this, 16); // ~60 FPS
         }

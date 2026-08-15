@@ -17,6 +17,7 @@ public class LensVisualizerView extends View {
     private float mMaxHeight = 20f;
     private int mBarCount = 24;
     private float mSensitivity = 1.0f;
+    private int mColor = Color.WHITE;
     
     private float[] mSmoothedMagnitudes = new float[0];
 
@@ -37,6 +38,7 @@ public class LensVisualizerView extends View {
     public void setMaxHeight(float height) { this.mMaxHeight = height; }
     public void setBarCount(int count) { this.mBarCount = count; }
     public void setSensitivity(float sensitivity) { this.mSensitivity = sensitivity; }
+    public void setColor(int color) { this.mColor = color; mPaint.setColor(color); invalidate(); }
 
     public void updateMagnitudes(int[] fftraw) {
         if (fftraw == null || fftraw.length == 0) return;
