@@ -41,6 +41,7 @@ import com.better.nothing.music.vizualizer.logic.AudioProcessor
 import com.better.nothing.music.vizualizer.ui.BodyText
 import com.better.nothing.music.vizualizer.ui.ExpandableExpressiveCard
 import com.better.nothing.music.vizualizer.ui.ExpressiveCard
+import com.better.nothing.music.vizualizer.ui.ExpressiveSwitch
 import com.better.nothing.music.vizualizer.ui.ExpressiveSplitButton
 import com.better.nothing.music.vizualizer.ui.LinkCard
 import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
@@ -56,14 +57,11 @@ internal fun SettingsScreen(
     onIdleBreathingEnabledChanged: (Boolean) -> Unit,
     idlePattern: String,
     onIdlePatternChanged: (String) -> Unit,
-    disableGlyphsWhenSilent: Boolean,
-    onDisableGlyphsWhenSilentChanged: (Boolean) -> Unit,
     onOverlayPermissionRequest: () -> Unit,
     padding: PaddingValues = PaddingValues(),
     isTablet: Boolean = false,
 ) {
     val uiAmplitudeSyncEnabled by viewModel.uiAmplitudeSyncEnabled.collectAsStateWithLifecycle()
-    val flashlightMultiIntensityForced by viewModel.flashlightMultiIntensityForced.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
 
     val selectedTheme by viewModel.selectedTheme.collectAsStateWithLifecycle()
@@ -220,14 +218,9 @@ internal fun SettingsScreen(
                 expanded = expandedCardId == "idle",
                 onExpandedChange = { expandedCardId = if (it) "idle" else null },
                 trailingContent = {
-                    Switch(
+                    ExpressiveSwitch(
                         checked = idleBreathingEnabled,
-                        onCheckedChange = onIdleBreathingEnabledChanged,
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.White,
-                            checkedTrackColor = MaterialTheme.colorScheme.primary
-                        ),
-                        modifier = Modifier.size(height = 24.dp, width = 48.dp)
+                        onCheckedChange = onIdleBreathingEnabledChanged
                     )
                 }
             ) {
@@ -340,19 +333,20 @@ internal fun SettingsScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 val locales = listOf(
-                    "en" to "English",
-                    "fr" to "Français",
-                    "it" to "Italiano",
-                    "de" to "DE",
-                    "es" to "Espanol",
-                    "ru" to "RU",
-                    "tr" to "TR",
-                    "pt-BR" to "PT-BR",
-                    "zh-CN" to "ZH-CN",
-                    "ja" to "JA",
-                    "hi" to "HI",
-                    "cy" to "CY",
-                    null to stringResource(R.string.system_language)
+                    "en" to "🇺🇸 English",
+                    "fr" to "🇫🇷 Français",
+                    "it" to "🇮🇹 Italiano",
+                    "de" to "🇩🇪 Deutsch",
+                    "es" to "🇪🇸 Español",
+                    "ru" to "🇷🇺 Русский",
+                    "tr" to "🇹🇷 Türkçe",
+                    "pt-BR" to "🇧🇷 Português",
+                    "zh-CN" to "🇨🇳 中文",
+                    "ja" to "🇯🇵 日本語",
+                    "hi" to "🇮🇳 हिन्दी",
+                    "cy" to "🏴󠁧󠁢󠁷󠁬󠁳󠁿 Cymraeg",
+                    "ar" to "🇸🇦 العربية",
+                    null to "🌐 " + stringResource(R.string.system_language)
                 )
 
                 ExpressiveSplitButton(
@@ -363,7 +357,7 @@ internal fun SettingsScreen(
                         locales.firstOrNull { it.first == tag }?.second.orEmpty()
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    maxButtonsPerRow = 4
+                    maxButtonsPerRow = 3
                 )
                 BodyText(
                     text = stringResource(R.string.spoof_locale_description),
@@ -413,7 +407,7 @@ internal fun SettingsScreen(
             onExpandedChange = { expandedCardId = if (it) "experimental" else null }
         ) {
             val alternateGlyphVizEnabled by viewModel.alternateGlyphVizEnabled.collectAsStateWithLifecycle()
-            val dualFftEnabled by viewModel.dualFftEnabled.collectAsStateWithLifecycle()
+            val highQualityAnalysis by viewModel.highQualityAnalysis.collectAsStateWithLifecycle()
             val onScreenVisualizersEnabled by viewModel.onScreenVisualizersEnabled.collectAsStateWithLifecycle()
 
             FlowRow(
@@ -430,20 +424,13 @@ internal fun SettingsScreen(
                 )
 
                 OptionTile(
-                    label = stringResource(R.string.dual_fft),
-                    icon = Icons.Default.GraphicEq,
-                    isSelected = dualFftEnabled,
-                    onClick = { viewModel.setDualFftEnabled(!dualFftEnabled) }
+                    label = stringResource(R.string.higher_quality_audio_analysis),
+                    icon = Icons.Default.HighQuality,
+                    isSelected = highQualityAnalysis,
+                    onClick = { viewModel.setHighQualityAnalysis(!highQualityAnalysis) }
                 )
 
                 if (selectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
-                    OptionTile(
-                        label = stringResource(R.string.disable_glyphs_when_silent_title),
-                        icon = Icons.AutoMirrored.Filled.VolumeOff,
-                        isSelected = disableGlyphsWhenSilent,
-                        onClick = { onDisableGlyphsWhenSilentChanged(!disableGlyphsWhenSilent) }
-                    )
-
                     OptionTile(
                         label = stringResource(R.string.alternate_glyph_viz),
                         icon = Icons.Default.Bolt,
@@ -461,14 +448,6 @@ internal fun SettingsScreen(
                     }
                 )
 
-                if (viewModel.hasFlashlight) {
-                    OptionTile(
-                        label = stringResource(R.string.flashlight_multi_intensity_forced_title),
-                        icon = Icons.Default.FlashlightOn,
-                        isSelected = flashlightMultiIntensityForced,
-                        onClick = { viewModel.setFlashlightMultiIntensityForced(!flashlightMultiIntensityForced) }
-                    )
-                }
             }
         }
 
