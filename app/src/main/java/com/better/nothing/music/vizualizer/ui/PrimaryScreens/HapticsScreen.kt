@@ -42,6 +42,7 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.os.Build
+import androidx.compose.animation.AnimatedVisibility
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -187,7 +188,7 @@ fun HapticsScreen(
                 )
             }
 
-            if (hapticMode == HapticMode.BASS_TO_AMPLITUDE) {
+            AnimatedVisibility(hapticMode == HapticMode.BASS_TO_AMPLITUDE) {
                 ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
                     CardHeader(
                         title = stringResource(
@@ -219,7 +220,7 @@ fun HapticsScreen(
                 }
             }
 
-            if (hapticMode == HapticMode.BEAT_DETECTION) {
+            AnimatedVisibility (hapticMode == HapticMode.BEAT_DETECTION) {
                 if (hasAmplitudeControl) {
                     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
                         CardHeader(title = stringResource(R.string.beat_engine_mode_label))
@@ -255,7 +256,7 @@ fun HapticsScreen(
                     )
                 }
 
-                if (hapticBeatEngineMode == BeatEngineMode.SMOOTH && hasAmplitudeControl) {
+                AnimatedVisibility (hapticBeatEngineMode == BeatEngineMode.SMOOTH && hasAmplitudeControl) {
                     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
                         CardHeader(
                             title = stringResource(
@@ -270,7 +271,8 @@ fun HapticsScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
-                } else {
+                }
+                AnimatedVisibility (!(hapticBeatEngineMode == BeatEngineMode.SMOOTH && hasAmplitudeControl)) {
                     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
                         CardHeader(
                             title = stringResource(
@@ -314,16 +316,7 @@ fun HapticsScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(220.dp)
-                        .background(
-                            brush = Brush.radialGradient(
-                                colors = listOf(
-                                    flashColor.copy(alpha = 0.1f * hapticAmplitude),
-                                    Color.Transparent
-                                ),
-                                radius = 300f
-                            )
-                        ),
+                        .height(220.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
@@ -365,7 +358,7 @@ fun HapticSquigglyLine(
         initialValue = 0f,
         targetValue = 2f * Math.PI.toFloat(),
         animationSpec = infiniteRepeatable(
-            animation = tween(400, easing = LinearEasing),
+            animation = tween(380, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
         ),
         label = "phase"
@@ -373,9 +366,9 @@ fun HapticSquigglyLine(
 
     androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
         val width = size.width
-        val height = size.height * (1f - (amplitude * 0.2f))
+        val height = size.height * (1f - (amplitude * 0.25f))
         val yOffset = (size.height - height) / 2f
-        val points = 50
+        val points = 45
         val path = androidx.compose.ui.graphics.Path()
 
         val maxSquiggleWidth = width * 0.8f
@@ -393,7 +386,7 @@ fun HapticSquigglyLine(
             path = path,
             color = color,
             style = androidx.compose.ui.graphics.drawscope.Stroke(
-                width = 6.dp.toPx(),
+                width = (5+(amplitude*4)).dp.toPx(),
                 cap = androidx.compose.ui.graphics.StrokeCap.Round,
                 join = androidx.compose.ui.graphics.StrokeJoin.Round
             )
