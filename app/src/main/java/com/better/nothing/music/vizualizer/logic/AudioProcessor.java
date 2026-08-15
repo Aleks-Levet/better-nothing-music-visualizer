@@ -24,16 +24,10 @@ public class AudioProcessor {
 
     private int sampleRate = 44100;
     private int fftSize;
-    private int analysisWindow;
+    private int analysisWindow = 2048; // Fixed window for low latency
     private float hzPerBin;
 
-    private boolean mDualFftEnabled = false;
-    private int lowFftSize, highFftSize;
-    private DoubleFFT_1D fftLow, fftHigh;
-    private double[] mFftBufferLow, mFftBufferHigh;
-    private float[] magnitudeLow, magnitudeHigh;
-    private float[] hannLow, hannHigh;
-    private float hzPerBinLow, hzPerBinHigh;
+    private boolean mHighQualityAnalysis = false;
 
     private float[] ring;
     private int ringPosition = 0;
@@ -45,7 +39,6 @@ public class AudioProcessor {
     private DoubleFFT_1D fft;
 
     private final int[] mRawFFT = new int[512];
-    int[][] mLogBinToLinearRange = new int[512][2];
 
     // 512 logarithmic bins from 30Hz to 16kHz
     public static final float[][] FFT_FREQ_RANGES = new float[512][2];
@@ -59,7 +52,6 @@ public class AudioProcessor {
     }
 
     // 3-Band Auto-Gain State (Bass, Mids, Highs)
-    // 0: Bass (30-250Hz), 1: Mids (250-4000Hz), 2: Highs (4000-16000Hz)
     private final float[] mRunningMax = {0.01f, 0.01f, 0.01f};
     private final float[] mBandGain = {1.0f, 1.0f, 1.0f};
     private float mManualGain = 4.0f;
@@ -81,168 +73,115 @@ public class AudioProcessor {
         this.mManualGain = gain;
     }
 
-    public void setDualFftEnabled(boolean enabled) {
-        if (this.mDualFftEnabled != enabled) {
-            this.mDualFftEnabled = enabled;
+    public void setHighQualityAnalysis(boolean enabled) {
+        if (this.mHighQualityAnalysis != enabled) {
+            this.mHighQualityAnalysis = enabled;
             updateFFTSize(this.sampleRate);
         }
     }
 
     public void updateFFTSize(int sampleRate) {
-        int newFftSize = 2048; 
-        if (!mDualFftEnabled && this.fftSize == newFftSize && this.fft != null && this.sampleRate == sampleRate) return;
-        if (mDualFftEnabled && this.sampleRate == sampleRate && fftLow != null) return;
+        int newFftSize = mHighQualityAnalysis ? 8192 : 2048; 
+        if (this.fftSize == newFftSize && this.fft != null && this.sampleRate == sampleRate) return;
 
         this.sampleRate = sampleRate;
         this.fftSize = newFftSize;
-        this.analysisWindow = fftSize;
+        // The analysis window stays at 2048 for temporal precision, 
+        // while the fftSize expands for spectral precision (Zero Padding).
         this.hzPerBin = (float) sampleRate / (float) fftSize;
-
-        if (mDualFftEnabled) {
-            this.lowFftSize = (int) (sampleRate * 0.021);
-            this.highFftSize = (int) (sampleRate * 0.017);
-            
-            this.fftLow = new DoubleFFT_1D(lowFftSize);
-            this.mFftBufferLow = new double[lowFftSize * 2];
-            this.magnitudeLow = new float[lowFftSize / 2 + 1];
-            this.hannLow = buildHannWindow(lowFftSize);
-            this.hzPerBinLow = (float) sampleRate / (float) lowFftSize;
-
-            this.fftHigh = new DoubleFFT_1D(highFftSize);
-            this.mFftBufferHigh = new double[highFftSize * 2];
-            this.magnitudeHigh = new float[highFftSize / 2 + 1];
-            this.hannHigh = buildHannWindow(highFftSize);
-            this.hzPerBinHigh = (float) sampleRate / (float) highFftSize;
-        }
 
         this.fft = new DoubleFFT_1D(fftSize);
         this.mFftBuffer = new double[fftSize * 2];
         this.magnitude = new float[fftSize / 2 + 1];
-        this.hann = buildHannWindow(fftSize);
+        
+        // Hann window must match the actual audio window, not the padded FFT size
+        this.hann = buildHannWindow(analysisWindow);
+        
         this.ring = new float[analysisWindow];
         this.ringPosition = 0;
         this.filled = 0;
-        
-        for (int i = 0; i < 512; i++) {
-            float fStart = FFT_FREQ_RANGES[i][0];
-            float fEnd = FFT_FREQ_RANGES[i][1];
-            mLogBinToLinearRange[i][0] = Math.max(0, (int) Math.floor(fStart / hzPerBin));
-            mLogBinToLinearRange[i][1] = Math.max(mLogBinToLinearRange[i][0], (int) Math.floor(fEnd / hzPerBin));
-        }
     }
 
     public AudioFrameResult processAudioFrame(short[] hopBuffer, SourceType sourceType, float decayFactor) {
-        if (hopBuffer == null || ring == null) return null;
+        if (hopBuffer == null || ring == null || hann == null || mFftBuffer == null) return null;
 
         for (short value : hopBuffer) {
             ring[ringPosition] = value / 32768f;
             ringPosition = (ringPosition + 1) % analysisWindow;
             filled = Math.min(filled + 1, analysisWindow);
         }
-        if (filled < (mDualFftEnabled ? Math.max(lowFftSize, highFftSize) : fftSize)) return null;
+        if (filled < analysisWindow) return null;
 
-        if (mDualFftEnabled) {
-            // Process Low FFT (21ms)
-            for (int i = 0; i < lowFftSize; i++) {
-                mFftBufferLow[i] = ring[(ringPosition - lowFftSize + i + analysisWindow) % analysisWindow] * hannLow[i];
-            }
-            try {
-                fftLow.realForwardFull(mFftBufferLow);
-                int halfLow = lowFftSize / 2;
-                for (int i = 0; i <= halfLow; i++) {
-                    double re = mFftBufferLow[2 * i];
-                    double im = mFftBufferLow[2 * i + 1];
-                    float mag = (float) (Math.hypot(re, im) / (lowFftSize / 2.0));
-                    float freq = i * hzPerBinLow;
-                    float boost = 1f + (freq / 10000f) * 4f;
-                    magnitudeLow[i] = mag * boost;
-                }
-            } catch (Exception ignored) {}
+        // Reset buffer (important for Zero Padding)
+        for (int i = 0; i < mFftBuffer.length; i++) mFftBuffer[i] = 0.0;
 
-            // Process High FFT (17ms)
-            for (int i = 0; i < highFftSize; i++) {
-                mFftBufferHigh[i] = ring[(ringPosition - highFftSize + i + analysisWindow) % analysisWindow] * hannHigh[i];
-            }
-            try {
-                fftHigh.realForwardFull(mFftBufferHigh);
-                int halfHigh = highFftSize / 2;
-                for (int i = 0; i <= halfHigh; i++) {
-                    double re = mFftBufferHigh[2 * i];
-                    double im = mFftBufferHigh[2 * i + 1];
-                    float mag = (float) (Math.hypot(re, im) / (highFftSize / 2.0));
-                    float freq = i * hzPerBinHigh;
-                    float boost = 1f + (freq / 10000f) * 4f;
-                    magnitudeHigh[i] = mag * boost;
-                }
-            } catch (Exception ignored) {}
-        } else {
-            for (int i = 0; i < fftSize; i++) {
-                mFftBuffer[i] = ring[(ringPosition + i) % analysisWindow] * hann[i];
-            }
-            try {
-                fft.realForwardFull(mFftBuffer);
-                int halfFftSize = fftSize / 2;
-                for (int i = 0; i <= halfFftSize; i++) {
-                    double re = mFftBuffer[2 * i];
-                    double im = mFftBuffer[2 * i + 1];
-                    float mag = (float) (Math.hypot(re, im) / (fftSize / 2.0));
-                    float freq = i * hzPerBin;
-                    float boost = 1f + (freq / 10000f) * 4f;
-                    magnitude[i] = mag * boost;
-                }
-            } catch (Exception ignored) {}
+        // Fill buffer with audio data * Hann window
+        for (int i = 0; i < analysisWindow; i++) {
+            mFftBuffer[i] = ring[(ringPosition + i) % analysisWindow] * hann[i];
+        }
+
+        try {
+            fft.realForwardFull(mFftBuffer);
+        } catch (Exception e) {
+            return null;
         }
         
+        int halfFftSize = fftSize / 2;
         float[] bandMax = {0f, 0f, 0f};
-        float crossoverFreq = 400f; // Crossover point between low and high FFTs
 
-        // Log pivots for easy 3-band transition
-        double p0 = Math.log10(86.6);
-        double p1 = Math.log10(1000.0);
-        double p2 = Math.log10(8000.0);
-
-        // Pre-calculate bandMax for AGC
-        if (mDualFftEnabled) {
-            for (int i = 0; i < magnitudeLow.length; i++) {
-                float freq = i * hzPerBinLow;
-                if (freq < 250f) bandMax[0] = Math.max(bandMax[0], magnitudeLow[i]);
-            }
-            for (int i = 0; i < magnitudeHigh.length; i++) {
-                float freq = i * hzPerBinHigh;
-                if (freq >= 250f && freq < 4000f) bandMax[1] = Math.max(bandMax[1], magnitudeHigh[i]);
-                else if (freq >= 4000f && freq <= 16000f) bandMax[2] = Math.max(bandMax[2], magnitudeHigh[i]);
-            }
-        } else {
-            for (int i = 0; i < magnitude.length; i++) {
-                float freq = i * hzPerBin;
-                if (freq < 250f) bandMax[0] = Math.max(bandMax[0], magnitude[i]);
-                else if (freq < 4000f) bandMax[1] = Math.max(bandMax[1], magnitude[i]);
-                else if (freq <= 16000f) bandMax[2] = Math.max(bandMax[2], magnitude[i]);
+        for (int i = 0; i <= halfFftSize; i++) {
+            if (2 * i + 1 >= mFftBuffer.length) break;
+            double re = mFftBuffer[2 * i];
+            double im = mFftBuffer[2 * i + 1];
+            float mag = (float) (Math.hypot(re, im) / (analysisWindow / 2.0));
+            float freq = i * hzPerBin;
+            
+            float boost = 1f + (freq / 10000f) * 4f;
+            float rawMag = mag * boost;
+            
+            if (i < magnitude.length) {
+                magnitude[i] = rawMag;
+                if (freq < 250f) bandMax[0] = Math.max(bandMax[0], rawMag);
+                else if (freq < 4000f) bandMax[1] = Math.max(bandMax[1], rawMag);
+                else if (freq <= 16000f) bandMax[2] = Math.max(bandMax[2], rawMag);
             }
         }
 
-        // Compute band-specific gains (same as before)
+        // AGC Logic...
         for (int i = 0; i < 3; i++) {
             float decay = bandMax[i] > mRunningMax[i] ? 0.7f : DECAY_SLOW;
             mRunningMax[i] = Math.max(mRunningMax[i] * decay, bandMax[i]);
             float effectiveMax = Math.max(mRunningMax[i], 0.001f);
             float target = TARGET_PEAK;
-            float desiredGain = target / effectiveMax;
+            float desiredGain;
             
-            if (sourceType == SourceType.NETWORK) desiredGain = 1.0f;
-            else if (sourceType == SourceType.INTERNAL) desiredGain = Math.max(0.7f, Math.min(1.4f, desiredGain));
-            else if (sourceType == SourceType.VIZUALIZER) desiredGain = Math.max(0.1f, Math.min(20.0f, desiredGain));
-            else desiredGain = Math.max(0.1f, Math.min(200.0f, desiredGain));
+            if (sourceType == SourceType.NETWORK) {
+                desiredGain = 1.0f;
+            } else {
+                desiredGain = target / effectiveMax;
+                if (sourceType == SourceType.INTERNAL) {
+                    desiredGain = Math.max(0.7f, Math.min(1.4f, desiredGain));
+                } else if (sourceType == SourceType.VIZUALIZER) {
+                    desiredGain = Math.max(0.1f, Math.min(20.0f, desiredGain));
+                } else {
+                    desiredGain = Math.max(0.1f, Math.min(200.0f, desiredGain));
+                }
+            }
             
             float smoothing = desiredGain < mBandGain[i] ? GAIN_SMOOTHING_ATTACK : GAIN_SMOOTHING_DECAY;
-            if (sourceType == SourceType.NETWORK) mBandGain[i] = 1.0f;
-            else if (sourceType == SourceType.INTERNAL || sourceType == SourceType.VIZUALIZER) {
+            if (sourceType == SourceType.NETWORK) {
+                mBandGain[i] = 1.0f;
+            } else if (sourceType == SourceType.INTERNAL || sourceType == SourceType.VIZUALIZER) {
                 float internalSmoothing = smoothing * 0.1f;
                 mBandGain[i] = (mBandGain[i] * (1f - internalSmoothing)) + (desiredGain * internalSmoothing);
             } else {
                 mBandGain[i] = (mBandGain[i] * (1f - smoothing)) + (desiredGain * smoothing);
             }
         }
+
+        double p0 = Math.log10(86.6);
+        double p1 = Math.log10(1000.0);
+        double p2 = Math.log10(8000.0);
 
         for (int i = 0; i < 512; i++) {
             float fCenter = (FFT_FREQ_RANGES[i][0] + FFT_FREQ_RANGES[i][1]) / 2f;
@@ -259,31 +198,15 @@ public class AudioProcessor {
             } else interpolatedGain = mBandGain[2];
             
             float gain = interpolatedGain * mManualGain;
-            float logMag;
 
-            if (mDualFftEnabled) {
-                if (fCenter < crossoverFreq) {
-                    float continuousBin = fCenter / hzPerBinLow;
-                    int b0 = (int) continuousBin;
-                    int b1 = Math.min(b0 + 1, magnitudeLow.length - 1);
-                    float t = continuousBin - b0;
-                    logMag = magnitudeLow[b0] * (1f - t) + magnitudeLow[b1] * t;
-                } else {
-                    float continuousBin = fCenter / hzPerBinHigh;
-                    int b0 = (int) continuousBin;
-                    int b1 = Math.min(b0 + 1, magnitudeHigh.length - 1);
-                    float t = continuousBin - b0;
-                    logMag = magnitudeHigh[b0] * (1f - t) + magnitudeHigh[b1] * t;
-                }
-            } else {
-                float continuousBin = fCenter / hzPerBin;
-                int b0 = (int) continuousBin;
-                int b1 = Math.min(b0 + 1, magnitude.length - 1);
-                float t = continuousBin - b0;
-                logMag = magnitude[b0] * (1f - t) + magnitude[b1] * t;
-            }
+            float continuousBin = fCenter / hzPerBin;
+            int b0 = (int) continuousBin;
+            int b1 = Math.min(b0 + 1, magnitude.length - 1);
+            float t = continuousBin - b0;
+            float logMag = magnitude[b0] * (1f - t) + magnitude[b1] * t;
             
-            mRawFFT[i] = (int) Math.min(4095, logMag * 4095f * gain);
+            int rawVal = (int) Math.min(4095, logMag * 4095f * gain);
+            mRawFFT[i] = rawVal;
         }
 
         return new AudioFrameResult(mRawFFT.clone());
