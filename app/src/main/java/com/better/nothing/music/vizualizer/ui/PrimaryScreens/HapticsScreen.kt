@@ -102,11 +102,30 @@ fun HapticsScreen(
             text = stringResource(R.string.haptics_header),
             onClick = {
                 android.widget.Toast.makeText(context, context.getString(R.string.toast_haptics_title_tap), android.widget.Toast.LENGTH_SHORT).show()
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE))
+                val effect = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE)
                 } else {
-                    @Suppress("DEPRECATION")
-                    vibrator.vibrate(1000)
+                    null
+                }
+                
+                if (Build.VERSION.SDK_INT >= 33) {
+                    val attr = android.os.VibrationAttributes.Builder()
+                        .setUsage(android.os.VibrationAttributes.USAGE_MEDIA)
+                        .build()
+                    if (effect != null) {
+                        vibrator.vibrate(effect, attr)
+                    }
+                } else {
+                    val audioAttr = android.media.AudioAttributes.Builder()
+                        .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                    if (effect != null) {
+                        vibrator.vibrate(effect, audioAttr)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        vibrator.vibrate(1000)
+                    }
                 }
             },
             onLongPress = {

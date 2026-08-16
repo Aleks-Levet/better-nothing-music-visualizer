@@ -106,11 +106,18 @@ class VisualizerWidget : AppWidgetProvider() {
         }
 
         if (vibrator.hasVibrator()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK))
+            val effect = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK)
             } else {
-                vibrator.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE))
+                VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE)
             }
+
+            val audioAttr = android.media.AudioAttributes.Builder()
+                .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build()
+
+            vibrator.vibrate(effect, audioAttr)
         }
     }
 

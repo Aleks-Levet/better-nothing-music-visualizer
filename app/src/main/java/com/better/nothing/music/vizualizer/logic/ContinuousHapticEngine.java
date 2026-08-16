@@ -1,8 +1,10 @@
 package com.better.nothing.music.vizualizer.logic;
 
 import android.content.Context;
+import android.media.AudioAttributes;
 import android.os.Build;
 import android.os.SystemClock;
+import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.os.VibratorManager;
@@ -75,7 +77,17 @@ public final class ContinuousHapticEngine {
     private void submitOneShot(int amplitude) {
         try {
             VibrationEffect effect = VibrationEffect.createOneShot(HAPTIC_DURATION_MS, amplitude);
-            vibrator.vibrate(effect);
+            if (Build.VERSION.SDK_INT >= 33) {
+                vibrator.vibrate(effect, new VibrationAttributes.Builder()
+                        .setUsage(VibrationAttributes.USAGE_MEDIA)
+                        .build());
+            } else {
+                AudioAttributes attributes = new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build();
+                vibrator.vibrate(effect, attributes);
+            }
             lastAmplitude = amplitude;
             lastSubmitMs = SystemClock.elapsedRealtime();
         } catch (RuntimeException e) {

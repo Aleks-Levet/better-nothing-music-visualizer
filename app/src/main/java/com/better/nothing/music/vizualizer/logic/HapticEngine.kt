@@ -1,6 +1,7 @@
 package com.better.nothing.music.vizualizer.logic
 
 import android.content.Context
+import android.media.AudioAttributes
 import android.os.*
 import android.util.Log
 import com.better.nothing.music.vizualizer.model.BeatEngineMode
@@ -127,12 +128,30 @@ class BeatDetectionHapticEngine(context: Context) {
     }
 
     private fun vibrate(effect: VibrationEffect) {
-        if (vibrator != null) {
-            vibrator.vibrate(effect)
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            vibratorManager?.vibrate(
-                CombinedVibration.createParallel(effect)
-            )
+        if (Build.VERSION.SDK_INT >= 33) {
+            val attr = VibrationAttributes.Builder()
+                .setUsage(VibrationAttributes.USAGE_MEDIA)
+                .build()
+            if (vibrator != null) {
+                vibrator.vibrate(effect, attr)
+            } else {
+                vibratorManager?.vibrate(CombinedVibration.createParallel(effect), attr)
+            }
+        } else {
+            val audioAttr = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build()
+            if (vibrator != null) {
+                vibrator.vibrate(effect, audioAttr)
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                vibratorManager?.vibrate(
+                    CombinedVibration.createParallel(effect),
+                    VibrationAttributes.Builder()
+                        .setUsage(VibrationAttributes.USAGE_ALARM)
+                        .build()
+                )
+            }
         }
     }
 
