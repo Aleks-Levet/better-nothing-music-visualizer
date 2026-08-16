@@ -94,16 +94,7 @@
     <string name="capture_vizualizer">المصور المرئي المدمج في Android</string>
     <string name="update_available">تحديث متاح: %s</string>
     <string name="update_now">التحديث الآن</string>
-    <string name="credit_alekslevet_role">المؤسس والمنسّق وصاحب الفكرة الرئيسية والمالك</string>
-    <string name="credit_rkyzen_role">مطوّر تطبيق Android (بث الموسيقى الفوري)</string>
-    <string name="credit_oliver_role">مطوّر مشارك لهذا التطبيق الرائع</string>
-    <string name="credit_nicouschulas_role">تحسينات ملف Readme والـwiki</string>
-    <string name="credit_sebiai_role">تعديل ودعم Glyph</string>
-    <string name="credit_earnedel_role">تحسينات ملف Readme</string>
-    <string name="credit_ake_role">مطوّر يعمل على تطبيق موسيقى متوافق</string>
-    <string name="credit_interlastic_role">روبوت Discord لاختبار نص الأوامر (لا يعمل حاليًا)</string>
 
-    <string name="music_theme_notification_access">يتطلب مظهر الموسيقى الوصول إلى الإشعارات. يُرجى تفعيله لهذا التطبيق.</string>
     <string name="idle_pattern">نمط الخمول</string>
     <string name="idle_pattern_pulse">نبض</string>
     <string name="idle_pattern_wave">موجة</string>
@@ -151,8 +142,6 @@
     <string name="download">تنزيل</string>
     <string name="not_now">ليس الآن</string>
     <string name="downloading_update">جارٍ تنزيل التحديث...</string>
-
-    <string name="app_name_caps">BETTER NOTHING MUSIC VISUALIZER</string>
 
     <string name="mediaprojection_permission">إذن MediaProjection</string>
     <string name="mediaprojection_description">يتيح هذا الإذن للتطبيق الوصول إلى البث الصوتي للجهاز عبر نظام الالتقاط الخاص بـAndroid، لكي يستجيب مصور Glyph المرئي في الوقت الفعلي. لا يتم تخزين أي تسجيلات غير ضرورية، ولا يحفظ التطبيق وسائطك أو بياناتك الخاصة.</string>

@@ -81,16 +81,7 @@
     <string name="capture_vizualizer">Android 内置可视化器</string>
     <string name="update_available">有可用更新： %s</string>
     <string name="update_now">立即更新</string>
-    <string name="credit_alekslevet_role">创始人、协调人、主创、所有者</string>
-    <string name="credit_rkyzen_role">Android 应用开发者（实时音乐流）</string>
-    <string name="credit_oliver_role">此出色应用的共同开发者</string>
-    <string name="credit_nicouschulas_role">Readme 和 Wiki 增强</string>
-    <string name="credit_sebiai_role">Glyph 模组和支持</string>
-    <string name="credit_earnedel_role">Readme 增强</string>
-    <string name="credit_ake_role">致力于集成音乐应用的开发者</string>
-    <string name="credit_interlastic_role">用于测试脚本的 Discord 机器人（已弃用）</string>
 
-    <string name="music_theme_notification_access">音乐主题需要通知访问权限。请为该应用启用它。</string>
     <string name="idle_pattern">空闲模式</string>
     <string name="idle_pattern_pulse">脉冲</string>
     <string name="idle_pattern_wave">波形</string>
@@ -118,8 +109,6 @@
     <string name="download">下载</string>
     <string name="not_now">暂不更新</string>
     <string name="downloading_update">正在下载更新…</string>
-
-    <string name="app_name_caps">BETTER NOTHING 音乐可视化工具</string>
 
     <string name="mediaprojection_permission">MediaProjection 权限</string>
     <string name="mediaprojection_description">此权限允许应用通过 Android 的采集系统访问设备音频流，以便 Glyph 可视化器能够实时做出响应。不会存储不必要的录音，应用也不会保存您的媒体或隐私数据。</string>

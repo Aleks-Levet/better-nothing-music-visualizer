@@ -82,16 +82,7 @@
     <string name="capture_vizualizer">Android\'in Yerleşik Görselleştiricisi</string>
     <string name="update_available">Güncelleme mevcut: %s</string>
     <string name="update_now">Şimdi Güncelle</string>
-    <string name="credit_alekslevet_role">Kurucu, koordinatör, ana fikir, sahip</string>
-    <string name="credit_rkyzen_role">Android uygulama geliştiricisi (gerçek zamanlı müzik akışı)</string>
-    <string name="credit_oliver_role">Bu harika uygulamanın yardımcı geliştiricisi</string>
-    <string name="credit_nicouschulas_role">README ve Wiki geliştirmeleri</string>
-    <string name="credit_sebiai_role">Glyph modlamaları ve destek</string>
-    <string name="credit_earnedel_role">README geliştirmeleri</string>
-    <string name="credit_ake_role">Entegrasyonlu bir müzik uygulaması üzerinde çalışan geliştirici</string>
-    <string name="credit_interlastic_role">Script testleri için Discord botu (Tarih oldu)</string>
 
-    <string name="music_theme_notification_access">Müzik teması Bildirim Erişimi gerektirir. Lütfen bu uygulama için gerekli izinleri verin.</string>
     <string name="idle_pattern">Boşta Deseni</string>
     <string name="idle_pattern_pulse">Nabız</string>
     <string name="idle_pattern_wave">Dalga</string>
@@ -120,8 +111,6 @@
     <string name="download">İndir</string>
     <string name="not_now">Şimdi değil</string>
     <string name="downloading_update">Güncelleme İndiriliyor…</string>
-
-    <string name="app_name_caps">BETTER NOTHING MUSIC VISUALIZER</string>
 
     <string name="mediaprojection_permission">MediaProjection izni</string>
     <string name="mediaprojection_description">Bu izin, Glyph görselleştiricinin gerçek zamanlı olarak tepki verebilmesi için uygulamanın Android\'in yakalama sistemi aracılığıyla cihazın ses akışına erişmesine olanak tanır. Gereksiz kayıtlar saklanmaz ve uygulama medyanızı veya özel verilerinizi kaydetmez.</string>

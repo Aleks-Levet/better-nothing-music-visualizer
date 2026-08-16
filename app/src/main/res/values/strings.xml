@@ -124,16 +124,7 @@
     <string name="capture_vizualizer">Android built-in vizualizer</string>
     <string name="update_available">Update available: %s</string>
     <string name="update_now">Update Now</string>
-    <string name="credit_alekslevet_role">Founder, coordinator, main idea, owner</string>
-    <string name="credit_rkyzen_role">Android app developer (real-time music stream)</string>
-    <string name="credit_oliver_role">Co-developer of this amazing app</string>
-    <string name="credit_nicouschulas_role">Readme &amp; Wiki enhancements</string>
-    <string name="credit_sebiai_role">Glyph modding and support</string>
-    <string name="credit_earnedel_role">Readme enhancements</string>
-    <string name="credit_ake_role">Developer working on a music app with integration</string>
-    <string name="credit_interlastic_role">Discord bot for testing the script (deprecated)</string>
 
-    <string name="music_theme_notification_access">Music theme requires Notification Access. Please enable it for this app.</string>
     <string name="idle_pattern">Idle Pattern</string>
     <string name="idle_pattern_pulse">Pulse</string>
     <string name="idle_pattern_wave">Wave</string>
@@ -154,7 +145,6 @@
     <string name="clear">Clear</string>
     <string name="sync_ui_to_beat">Sync UI to the beat</string>
     <string name="alternate_glyph_viz">Alternate Glyph Visualizer</string>
-    <string name="alternate_glyph_viz_desc">Uses audio frame difference as input for glyphs. Provides a more reactive and sharp look. (Experimental)</string>
     <string name="nav_overlay">Nav bar</string>
     <string name="enable_on_screen_visualizers">Enable on-screen visualizers</string>
     <string name="higher_quality_audio_analysis">Higher quality audio analysis</string>
@@ -206,7 +196,7 @@
     <string name="not_now">Not now</string>
     <string name="downloading_update">Downloading Update...</string>
 
-    <string name="app_name_caps">BETTER NOTHING MUSIC VISUALIZER</string>
+    <string name="app_name_caps" translatable="false">BETTER NOTHING MUSIC VISUALIZER</string>
 
     <string name="mediaprojection_permission">MediaProjection permission</string>
     <string name="mediaprojection_description">This permission lets the app access the device audio stream through Android\'s capture system so the Glyph visualizer can react in real time. No unnecessary recordings are stored, and the app does not save your media or private data.</string>
@@ -374,7 +364,7 @@
     <!-- Easter Eggs -->
     <string name="toast_no_output">All outputs are disabled, so BNMV will do NOTHING 😆</string>
     <string name="toast_audio_title_tap">Why are you clicking here? It does NOTHING! 😆</string>
-    <string name="toast_haptics_title_tap">Haptics go brrrr</string>
+    <string name="toast_haptics_title_tap" translatable="false">Haptics go brrrr</string>
     <string name="easter_egg_glyph_popup_title" translatable="false">Glyphs go brrr</string>
     <string name="easter_egg_glyph_popup_body">This app icon concept was made by the developer of the biggest app that was made by the Nothing Community, NoVolume. It\'s an amazing app and you definitely need to check it out on the play store.\n\nThis is what he said:</string>
     <string name="easter_egg_glyph_popup_quote">\"I think that this app icon would suit the app much more and more people would install the app.\"</string>

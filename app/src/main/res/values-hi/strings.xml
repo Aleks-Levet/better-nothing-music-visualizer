@@ -77,16 +77,7 @@
     <string name="capture_vizualizer">एंड्रॉइड इन-बिल्ट विज़ुअलाइज़र</string>
     <string name="update_available">अपडेट उपलब्ध: %s</string>
     <string name="update_now">अभी अपडेट करें</string>
-    <string name="credit_alekslevet_role">संस्थापक, समन्वयक, मुख्य विचार, मालिक</string>
-    <string name="credit_rkyzen_role">एंड्रॉइड ऐप डेवलपर (रीयल-टाइम म्यूजिक स्ट्रीम)</string>
-    <string name="credit_oliver_role">इस अद्भुत ऐप के सह-डेवलपर</string>
-    <string name="credit_nicouschulas_role">Readme और Wiki सुधार</string>
-    <string name="credit_sebiai_role">ग्लिफ़ मॉडिंग और समर्थन</string>
-    <string name="credit_earnedel_role">Readme सुधार</string>
-    <string name="credit_ake_role">एकीकरण के साथ एक संगीत ऐप पर काम करने वाले डेवलपर</string>
-    <string name="credit_interlastic_role">स्क्रिप्ट के परीक्षण के लिए डिस्कॉर्ड बॉट (अस्वीकृत)</string>
 
-    <string name="music_theme_notification_access">संगीत थीम के लिए नोटिफिकेशन एक्सेस की आवश्यकता है। कृपया इसे इस ऐप के लिए सक्षम करें।</string>
     <string name="idle_pattern">आइडल पैटर्न</string>
     <string name="idle_pattern_pulse">पल्स</string>
     <string name="idle_pattern_wave">वेव</string>
@@ -116,8 +107,6 @@
     <string name="download">डाउनलोड करें</string>
     <string name="not_now">अभी नहीं</string>
     <string name="downloading_update">अपडेट डाउनलोड किया जा रहा है…</string>
-
-    <string name="app_name_caps">बेटर नथिंग म्यूजिक विज़ुअलाइज़र</string>
 
     <string name="mediaprojection_permission">MediaProjection अनुमति</string>
     <string name="mediaprojection_description">यह अनुमति ऐप को एंड्रॉइड कैप्चर सिस्टम के माध्यम से डिवाइस ऑडियो स्ट्रीम तक पहुंचने देती है ताकि ग्लिफ़ विज़ुअलाइज़र वास्तविक समय में प्रतिक्रिया कर सके। कोई अनावश्यक रिकॉर्डिंग सहेजी नहीं जाती है, और ऐप आपके मीडिया या निजी डेटा को सहेजता नहीं है।</string>

@@ -82,16 +82,7 @@
     <string name="capture_vizualizer">Integrierter Android-Visualisierer</string>
     <string name="update_available">Update verfügbar: %s</string>
     <string name="update_now">Jetzt aktualisieren</string>
-    <string name="credit_alekslevet_role">Gründer, Koordinator, Hauptidee, Inhaber</string>
-    <string name="credit_rkyzen_role">Android-App-Entwickler (Echtzeit-Musikstream)</string>
-    <string name="credit_oliver_role">Mitentwickler dieser erstaunlichen App</string>
-    <string name="credit_nicouschulas_role">Readme- &amp; Wiki-Verbesserungen</string>
-    <string name="credit_sebiai_role">Glyph-Modding und Support</string>
-    <string name="credit_earnedel_role">Readme-Verbesserungen</string>
-    <string name="credit_ake_role">Entwickler, der an einer Musik-App mit Integration arbeitet</string>
-    <string name="credit_interlastic_role">Discord-Bot zum Testen des Skripts (veraltet)</string>
 
-    <string name="music_theme_notification_access">Musik-Design erfordert Benachrichtigungszugriff. Bitte aktiviere ihn für diese App.</string>
     <string name="idle_pattern">Ruhemuster</string>
     <string name="idle_pattern_pulse">Puls</string>
     <string name="idle_pattern_wave">Welle</string>
@@ -126,8 +117,6 @@
     <string name="download">Herunterladen</string>
     <string name="not_now">Nicht jetzt</string>
     <string name="downloading_update">Update wird heruntergeladen…</string>
-
-    <string name="app_name_caps">BETTER NOTHING MUSIK VISUALISIERER</string>
 
     <string name="mediaprojection_permission">MediaProjection-Berechtigung</string>
     <string name="mediaprojection_description">Diese Berechtigung ermöglicht der App den Zugriff auf den Audiostream des Geräts über das Erfassungssystem von Android, damit der Glyph-Visualisierer in Echtzeit reagieren kann. Es werden keine unnötigen Aufzeichnungen gespeichert und die App speichert keine Medien oder privaten Daten.</string>

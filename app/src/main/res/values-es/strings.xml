@@ -82,16 +82,7 @@
     <string name="capture_vizualizer">Visualizador integrado de Android</string>
     <string name="update_available">Actualización disponible: %s</string>
     <string name="update_now">Actualizar ahora</string>
-    <string name="credit_alekslevet_role">Fundador, coordinador, idea principal, propietario</string>
-    <string name="credit_rkyzen_role">Desarrollador de la aplicación Android (flujo de música en tiempo real)</string>
-    <string name="credit_oliver_role">Codesarrollador de esta increíble aplicación</string>
-    <string name="credit_nicouschulas_role">Mejoras en el Readme y la Wiki</string>
-    <string name="credit_sebiai_role">Modding de Glyph y soporte</string>
-    <string name="credit_earnedel_role">Mejoras en el Readme</string>
-    <string name="credit_ake_role">Desarrollador trabajando en una aplicación de música con integración</string>
-    <string name="credit_interlastic_role">Bot de Discord para probar el script (obsoleto)</string>
 
-    <string name="music_theme_notification_access">El tema de música requiere acceso a las notificaciones. Habilítalo para esta aplicación.</string>
     <string name="idle_pattern">Patrón en reposo</string>
     <string name="idle_pattern_pulse">Pulso</string>
     <string name="idle_pattern_wave">Onda</string>
@@ -126,8 +117,6 @@
     <string name="download">Descargar</string>
     <string name="not_now">Ahora no</string>
     <string name="downloading_update">Descargando actualización…</string>
-
-    <string name="app_name_caps">VISUALIZADOR DE MÚSICA BETTER NOTHING</string>
 
     <string name="mediaprojection_permission">Permiso de MediaProjection</string>
     <string name="mediaprojection_description">Este permiso permite que la aplicación acceda al flujo de audio del dispositivo a través del sistema de captura de Android para que el visualizador Glyph pueda reaccionar en tiempo real. No se almacenan grabaciones innecesarias y la aplicación no guarda tu contenido multimedia ni tus datos privados.</string>

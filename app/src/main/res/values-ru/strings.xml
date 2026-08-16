@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="about_title">Инфа и обновы</string>
-    <string name="app_name_caps">BETTER NOTHING MUSIC VISUALIZER</string>
     <string name="app_theme">Темки и стиль</string>
     <string name="audio_permission_required">Дай доступ к ушам телефона (аудио)</string>
     <string name="audio_screen_title">Better Nothing\nMusic Visualizer</string>
@@ -20,14 +19,6 @@
     <string name="config_import_success">zones.config успешно залетел</string>
     <string name="config_update_success">zones.config успешно обновился</string>
     <string name="continue_label">Погнали дальше</string>
-    <string name="credit_ake_role">Разраб, пилящий интеграции и музыку</string>
-    <string name="credit_alekslevet_role">Основатель, главный суетолог, плейбой, миллиардер, филантроп</string>
-    <string name="credit_earnedel_role">Причесал Readme, чтобы смотрелось красиво</string>
-    <string name="credit_interlastic_role">Discord-бот для тестов (безбожно сдох)</string>
-    <string name="credit_nicouschulas_role">Гуру Readme и Wiki</string>
-    <string name="credit_oliver_role">Соавтор этого дикого приложения</string>
-    <string name="credit_rkyzen_role">Гений Android-кода (музыкальный реалтайм поток)</string>
-    <string name="credit_sebiai_role">Главный по модам и мучению глифов</string>
     <string name="credits">Кто всё это заварил</string>
     <string name="developer_mode">Режим Хакера</string>
     <string name="discord_server">Наш Дискорд-сервер</string>
@@ -76,7 +67,6 @@
     <string name="manual_mode_global_latency">Ручной режим (глобальный пинг)</string>
     <string name="mediaprojection_description">Это разрешение нужно, чтобы приложение слышало звук через систему Android и глифы мигали в такт. Мы за тобой не следим, твои личные файлы и экраны нам нафиг не сдались.</string>
     <string name="mediaprojection_permission">Разрешение MediaProjection</string>
-    <string name="music_theme_notification_access">Музыкальной теме нужен доступ к уведомлениям. Включи его, не жадничай.</string>
     <string name="enable_on_screen_visualizers">Включить экранные визуализаторы</string>
     <string name="no_changelog">Патчноут съела собака.</string>
     <string name="no_presets_found">Тут пусто, как в карманах к концу месяца. Будь первым, закинь пресет!</string>

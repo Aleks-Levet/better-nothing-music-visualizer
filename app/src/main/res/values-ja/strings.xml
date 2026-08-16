@@ -82,16 +82,7 @@
     <string name="capture_vizualizer">Android内蔵ビジュアライザー</string>
     <string name="update_available">アップデートがあります： %s</string>
     <string name="update_now">今すぐアップデート</string>
-    <string name="credit_alekslevet_role">創設者、コーディネーター、メインアイデア、オーナー</string>
-    <string name="credit_rkyzen_role">Androidアプリ開発者（リアルタイム・ミュージックストリーム）</string>
-    <string name="credit_oliver_role">この素晴らしいアプリの共同開発者</string>
-    <string name="credit_nicouschulas_role">ReadmeおよびWikiの強化</string>
-    <string name="credit_sebiai_role">Glyphモディングおよびサポート</string>
-    <string name="credit_earnedel_role">Readmeの強化</string>
-    <string name="credit_ake_role">統合機能を持つ音楽アプリの開発者</string>
-    <string name="credit_interlastic_role">スクリプトテスト用Discordボット（非推奨）</string>
 
-    <string name="music_theme_notification_access">ミュージックテーマには通知へのアクセスが必要です。このアプリに対して有効にしてください。</string>
     <string name="idle_pattern">待機時パターン</string>
     <string name="idle_pattern_pulse">パルス</string>
     <string name="idle_pattern_wave">ウェーブ</string>
@@ -119,8 +110,6 @@
     <string name="download">ダウンロード</string>
     <string name="not_now">後で</string>
     <string name="downloading_update">アップデートをダウンロード中…</string>
-
-    <string name="app_name_caps">BETTER NOTHING 音楽ビジュアライザー</string>
 
     <string name="mediaprojection_permission">MediaProjectionの権限</string>
     <string name="mediaprojection_description">この権限により、アプリはAndroidのキャプチャシステムを介してデバイスのオーディオストリームにアクセスでき、Glyphビジュアライザーがリアルタイムで反応できるようになります。不要な録画は保存されず、アプリがメディアやプライベートデータを保存することはありません。</string>

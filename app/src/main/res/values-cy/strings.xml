@@ -78,16 +78,7 @@
     <string name="capture_vizualizer">Delweddydd adeiledig Android</string>
     <string name="update_available">Diweddariad ar gael: %s</string>
     <string name="update_now">Diweddaru Nawr</string>
-    <string name="credit_alekslevet_role">Sylfaenydd, cydlynydd, prif syniad, perchennog</string>
-    <string name="credit_rkyzen_role">Datblygwr ap Android (ffrwd gerddoriaeth amser real)</string>
-    <string name="credit_oliver_role">Cyd-ddatblygwr yr ap anhygoel hwn</string>
-    <string name="credit_nicouschulas_role">Gwelliannau Readme &amp; Wiki</string>
-    <string name="credit_sebiai_role">Moddio Glyph a chefnogaeth</string>
-    <string name="credit_earnedel_role">Gwelliannau Readme</string>
-    <string name="credit_ake_role">Datblygwr sy\'n gweithio ar ap cerddoriaeth gydag integreiddiad</string>
-    <string name="credit_interlastic_role">Bot Discord ar gyfer profi\'r sgript (wedi darfod)</string>
 
-    <string name="music_theme_notification_access">Mae thema cerddoriaeth angen Mynediad i Hysbysiadau. Galluogwch ef ar gyfer yr ap hwn.</string>
     <string name="idle_pattern">Patrwm Segur</string>
     <string name="idle_pattern_pulse">Pwls</string>
     <string name="idle_pattern_wave">Ton</string>
@@ -115,8 +106,6 @@
     <string name="download">Lawrlwytho</string>
     <string name="not_now">Nid nawr</string>
     <string name="downloading_update">Wrthi\'n Lawrlwytho Diweddariad…</string>
-
-    <string name="app_name_caps">DELWEDDYDD CERDDORIAETH BETTER NOTHING</string>
 
     <string name="mediaprojection_permission">Caniatâd MediaProjection</string>
     <string name="mediaprojection_description">Mae\'r caniatâd hwn yn gadael i\'r ap gael mynediad i ffrwd sain y ddyfais trwy system ddal Android fel y gall y delweddydd Glyph ymateb mewn amser real. Ni storir unrhyw recordiadau diangen, ac nid yw\'r ap yn cadw eich cyfryngau na\'ch data preifat.</string>
