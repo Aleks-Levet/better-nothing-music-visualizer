@@ -22,6 +22,7 @@ import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.ui.ExpandableExpressiveCard
 import com.better.nothing.music.vizualizer.ui.ExpressiveCard
 import com.better.nothing.music.vizualizer.ui.ExpressiveSwitch
+import com.better.nothing.music.vizualizer.ui.ExpressiveSplitButton
 import com.better.nothing.music.vizualizer.ui.ExpressiveColorPicker
 import com.better.nothing.music.vizualizer.ui.ExpressiveSlider
 import com.better.nothing.music.vizualizer.ui.FineTuneButton
@@ -548,7 +549,7 @@ fun VisualsScreen(
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "${(lensX * 100).toInt()}%",
+                            text = "${lensX.toInt()}dp",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -556,8 +557,8 @@ fun VisualsScreen(
                     VisualSlider(
                         value = lensX,
                         onValueChange = { viewModel.setLensVisualizerX(it) },
-                        valueRange = 0f..1f,
-                        fineTuneStep = 0.01f,
+                        valueRange = 0f..500f,
+                        fineTuneStep = 1f,
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -572,7 +573,7 @@ fun VisualsScreen(
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "${(lensY * 100).toInt()}%",
+                            text = "${lensY.toInt()}dp",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -580,8 +581,8 @@ fun VisualsScreen(
                     VisualSlider(
                         value = lensY,
                         onValueChange = { viewModel.setLensVisualizerY(it) },
-                        valueRange = -0.1f..1.1f,
-                        fineTuneStep = 0.01f,
+                        valueRange = -100f..1000f,
+                        fineTuneStep = 1f,
                         modifier = Modifier.fillMaxWidth()
                     )
 

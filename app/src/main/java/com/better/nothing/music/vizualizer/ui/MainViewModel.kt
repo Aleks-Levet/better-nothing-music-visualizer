@@ -596,25 +596,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val _lensVisualizerX = MutableStateFlow(0.50f)
+    private val _lensVisualizerX = MutableStateFlow(180f)
     val lensVisualizerX = _lensVisualizerX.asStateFlow()
     fun setLensVisualizerX(x: Float) {
         _lensVisualizerX.value = x
         MainActivity.serviceStatic?.setLensVisualizerX(x)
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putFloat("lens_visualizer_x", x) }
+                .edit { putFloat("lens_visualizer_x_dp", x) }
         }
     }
 
-    private val _lensVisualizerY = MutableStateFlow(0.03f)
+    private val _lensVisualizerY = MutableStateFlow(24f)
     val lensVisualizerY = _lensVisualizerY.asStateFlow()
     fun setLensVisualizerY(y: Float) {
         _lensVisualizerY.value = y
         MainActivity.serviceStatic?.setLensVisualizerY(y)
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putFloat("lens_visualizer_y", y) }
+                .edit { putFloat("lens_visualizer_y_dp", y) }
         }
     }
 
@@ -1946,8 +1946,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         _lensVisualizerEnabled.value = prefs.getBoolean("lens_visualizer_enabled", false)
         _lensVisualizerRadius.value = prefs.getFloat("lens_visualizer_radius", 16f)
-        _lensVisualizerX.value = prefs.getFloat("lens_visualizer_x", 0.50f)
-        _lensVisualizerY.value = prefs.getFloat("lens_visualizer_y", 0.03f)
+        _lensVisualizerX.value = prefs.getFloat("lens_visualizer_x_dp", 180f)
+        _lensVisualizerY.value = prefs.getFloat("lens_visualizer_y_dp", 24f)
         _lensVisualizerBarWidth.value = prefs.getFloat("lens_visualizer_bar_width", 1f)
         _lensVisualizerMaxHeight.value = prefs.getFloat("lens_visualizer_max_height", 5f)
         _lensVisualizerBarCount.value = prefs.getInt("lens_visualizer_bar_count", 35)

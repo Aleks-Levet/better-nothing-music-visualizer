@@ -59,6 +59,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 import com.better.nothing.music.vizualizer.ui.MainViewModel;
+import com.better.nothing.music.vizualizer.ui.VisualizerStyle;
 import com.better.nothing.music.vizualizer.ui.VisualizerOverlayView;
 import com.better.nothing.music.vizualizer.ui.EdgeVisualizerView;
 import com.better.nothing.music.vizualizer.ui.LensVisualizerView;
@@ -274,8 +275,8 @@ public class AudioCaptureService extends Service {
     private boolean mEdgeVisualizerEnabled = false;
     private boolean mLensVisualizerEnabled = false;
     public volatile float mLensVisualizerRadius = 40f;
-    public volatile float mLensVisualizerX = 0.5f;
-    public volatile float mLensVisualizerY = 0.05f;
+    public volatile float mLensVisualizerX = 180f;
+    public volatile float mLensVisualizerY = 24f;
     public volatile float mLensVisualizerBarWidth = 3f;
     public volatile float mLensVisualizerMaxHeight = 20f;
     public volatile int mLensVisualizerBarCount = 24;

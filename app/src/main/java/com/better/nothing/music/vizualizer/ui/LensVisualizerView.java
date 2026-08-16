@@ -13,8 +13,8 @@ public class LensVisualizerView extends View {
     private final Paint mPaint = new Paint();
     
     private float mRadius = 40f;
-    private float mXPos = 0.5f;
-    private float mYPos = 0.05f;
+    private float mXPos = 180f;
+    private float mYPos = 24f;
     private float mBarWidth = 3f;
     private float mMaxHeight = 20f;
     private int mBarCount = 24;
@@ -89,8 +89,8 @@ public class LensVisualizerView extends View {
         int height = getHeight();
         float density = getResources().getDisplayMetrics().density;
         
-        float centerX = width * mXPos;
-        float centerY = height * mYPos;
+        float centerX = mXPos * density;
+        float centerY = mYPos * density;
         float radius = mRadius * density;
         
         if (mStyle == VisualizerStyle.GLOW) {
