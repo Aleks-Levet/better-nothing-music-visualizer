@@ -51,7 +51,6 @@ fun VisualsScreen(
     val edgeThickness by viewModel.edgeThickness.collectAsStateWithLifecycle()
     val edgeSensitivity by viewModel.edgeSensitivity.collectAsStateWithLifecycle()
     val edgeBarCountHoriz by viewModel.edgeBarCountHoriz.collectAsStateWithLifecycle()
-    val edgeBarCountVert by viewModel.edgeBarCountVert.collectAsStateWithLifecycle()
     val edgeCornerRadius by viewModel.edgeCornerRadius.collectAsStateWithLifecycle()
     val edgeTopEnabled by viewModel.edgeTopEnabled.collectAsStateWithLifecycle()
     val edgeBottomEnabled by viewModel.edgeBottomEnabled.collectAsStateWithLifecycle()
@@ -67,7 +66,7 @@ fun VisualsScreen(
     val lensSensitivity by viewModel.lensVisualizerSensitivity.collectAsStateWithLifecycle()
     val lensColor by viewModel.lensColor.collectAsStateWithLifecycle()
 
-    val context = LocalContext.current
+
     val scrollState = rememberScrollState()
 
     Column(
@@ -677,7 +676,7 @@ private fun VisualSlider(
             value = value,
             onValueChange = onValueChange,
             valueRange = valueRange,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(3f)
         )
         FineTuneButton(
             label = if (fineTuneStep < 0.1f) "+1%" else if (fineTuneStep < 1f) "+$fineTuneStep" else "+${fineTuneStep.toInt()}",
