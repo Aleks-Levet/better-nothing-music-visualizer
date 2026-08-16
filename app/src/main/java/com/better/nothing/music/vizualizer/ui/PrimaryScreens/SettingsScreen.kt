@@ -1,48 +1,35 @@
 package com.better.nothing.music.vizualizer.ui.PrimaryScreens
 
-import com.better.nothing.music.vizualizer.R
-import com.better.nothing.music.vizualizer.model.DeviceProfile
+import android.view.HapticFeedbackConstants
 import androidx.compose.animation.*
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalConfiguration
-import android.view.HapticFeedbackConstants
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.VolumeOff
-import androidx.compose.material.icons.filled.*
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
+import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.logic.AudioProcessor
+import com.better.nothing.music.vizualizer.model.DeviceProfile
+import com.better.nothing.music.vizualizer.ui.ExpressiveSlider
 import com.better.nothing.music.vizualizer.ui.BodyText
 import com.better.nothing.music.vizualizer.ui.ExpandableExpressiveCard
-import com.better.nothing.music.vizualizer.ui.ExpressiveCard
-import com.better.nothing.music.vizualizer.ui.ExpressiveSwitch
 import com.better.nothing.music.vizualizer.ui.ExpressiveSplitButton
+import com.better.nothing.music.vizualizer.ui.ExpressiveSwitch
 import com.better.nothing.music.vizualizer.ui.LinkCard
 import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
 import com.better.nothing.music.vizualizer.ui.MainViewModel
@@ -267,7 +254,7 @@ internal fun SettingsScreen(
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    Slider(
+                    ExpressiveSlider(
                         value = idleBrightness,
                         onValueChange = { viewModel.setIdleBrightness(it) },
                         valueRange = 0.05f..1.0f,
@@ -279,10 +266,10 @@ internal fun SettingsScreen(
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    Slider(
+                    ExpressiveSlider(
                         value = idleBackgroundBrightness,
                         onValueChange = { viewModel.setIdleBackgroundBrightness(it) },
-                        valueRange = 0.0f..0.2f,
+                        valueRange = 0.0f..0.15f,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -393,72 +380,7 @@ internal fun SettingsScreen(
             }
         }
 
-        // ── Device Capabilities ───────────────────────────────────────────
-        val flashlightIntensityLevels by viewModel.flashlightIntensityLevels.collectAsStateWithLifecycle()
 
-        ExpandableExpressiveCard(
-            title = stringResource(R.string.device_features),
-            icon = Icons.Default.DeveloperBoard,
-            expanded = expandedCardId == "device_features",
-            onExpandedChange = { expandedCardId = if (it) "device_features" else null }
-        ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.feature_flashlight_levels),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = if (flashlightIntensityLevels > 1)
-                            stringResource(R.string.feature_supported_n, flashlightIntensityLevels)
-                        else stringResource(R.string.feature_basic),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-        }
-
-        // ── Audio Processing ────────────────────────────────────────────────
-        val fftReadMethod by viewModel.fftReadMethod.collectAsStateWithLifecycle()
-
-        ExpandableExpressiveCard(
-            title = stringResource(R.string.audio_pipeline_title),
-            icon = Icons.Default.GraphicEq,
-            expanded = expandedCardId == "processing",
-            onExpandedChange = { expandedCardId = if (it) "processing" else null }
-        ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.freq_detection_method),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                ExpressiveSplitButton(
-                    items = AudioProcessor.ReadMethod.entries,
-                    selectedItem = fftReadMethod,
-                    onItemSelection = { viewModel.setFftReadMethod(it) },
-                    labelProvider = { it.name },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                BodyText(
-                    text = stringResource(R.string.freq_detection_desc),
-                    size = 12.sp
-                )
-            }
-        }
 
         // ── Experimental Features ───────────────────────────────────────────
         ExpandableExpressiveCard(
@@ -509,14 +431,44 @@ internal fun SettingsScreen(
                     }
                 )
             }
+            val fftReadMethod by viewModel.fftReadMethod.collectAsStateWithLifecycle()
+
+            ExpandableExpressiveCard(
+                title = stringResource(R.string.audio_pipeline_title),
+                icon = Icons.Default.GraphicEq,
+                expanded = expandedCardId == "processing",
+                onExpandedChange = { expandedCardId = if (it) "processing" else null }
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.freq_detection_method),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    ExpressiveSplitButton(
+                        items = AudioProcessor.ReadMethod.entries,
+                        selectedItem = fftReadMethod,
+                        onItemSelection = { viewModel.setFftReadMethod(it) },
+                        labelProvider = { it.name },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    BodyText(
+                        text = stringResource(R.string.freq_detection_desc),
+                        size = 12.sp
+                    )
+                }
+            }
         }
 
         // ── Links & Info ────────────────────────────────────────────────────
 
-
         LinkCard(
             title = stringResource(R.string.discord_server),
-            icon = Icons.Default.Public,
+            icon = ImageVector.vectorResource(id = R.drawable.ic_discord),
             onClick = { uriHandler.openUri("https://discord.gg/h7DYNttc8K") }
         )
 

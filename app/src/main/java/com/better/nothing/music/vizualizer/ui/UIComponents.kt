@@ -516,7 +516,7 @@ fun LinkCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
-    trailingContent: @Composable (RowScope.() -> Unit)? = null
+    trailingContent: (RowScope.() -> Unit)? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val haptics = LocalHapticFeedback.current
