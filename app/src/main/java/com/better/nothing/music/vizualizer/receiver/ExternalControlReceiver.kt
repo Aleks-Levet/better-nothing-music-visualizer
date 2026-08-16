@@ -74,6 +74,7 @@ class ExternalControlReceiver : BroadcastReceiver() {
         if (AudioCaptureService.isRunning()) return
         
         val intent = Intent(context, TrampolineActivity::class.java).apply {
+            putExtra(AudioCaptureService.EXTRA_START_SOURCE, "viz_started_external")
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NO_ANIMATION)
         }
         context.startActivity(intent)

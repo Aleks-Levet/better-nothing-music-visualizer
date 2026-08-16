@@ -172,9 +172,9 @@ internal fun AboutScreen(
                 )
             }
 
-            SectionHeader(text = "Made by Aleks Levet with love!")
+            SectionHeader(text = stringResource(R.string.made_by_aleks))
             Text(
-                "I am not the only one who contributed to making this amazing project, check the github page for full credits! This took years to make!",
+                stringResource(R.string.credits_extended),
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold

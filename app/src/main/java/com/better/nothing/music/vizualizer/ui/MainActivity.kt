@@ -382,6 +382,9 @@ class MainActivity : AppCompatActivity() {
     private fun toggleVisualizer(forceStart: Boolean = false, skipNotificationCheck: Boolean = false) {
         val s = service ?: return
         val isTrampoline = intent.getBooleanExtra(EXTRA_REQUEST_START, false)
+        val startSourceExtra = intent.getStringExtra(AudioCaptureService.EXTRA_START_SOURCE)
+        val effectiveStartSource = startSourceExtra ?: "viz_started_in_app"
+
         if (s.isVisualizerRunning && !forceStart) {
             s.stopVisualizer()
             if (isTrampoline) finish()
@@ -408,13 +411,21 @@ class MainActivity : AppCompatActivity() {
 
             when (source) {
                 AudioCaptureService.CaptureSource.INTERNAL -> {
-                    startForegroundService(Intent(this, AudioCaptureService::class.java))
+                    val startIntent = Intent(this, AudioCaptureService::class.java).apply {
+                        action = AudioCaptureService.ACTION_START
+                        putExtra(AudioCaptureService.EXTRA_START_SOURCE, effectiveStartSource)
+                    }
+                    startForegroundService(startIntent)
                     launchProjection()
                 }
 
                 AudioCaptureService.CaptureSource.MIC -> {
                     if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-                        startForegroundService(Intent(this, AudioCaptureService::class.java))
+                        val startIntent = Intent(this, AudioCaptureService::class.java).apply {
+                            action = AudioCaptureService.ACTION_START
+                            putExtra(AudioCaptureService.EXTRA_START_SOURCE, effectiveStartSource)
+                        }
+                        startForegroundService(startIntent)
                         s.startVisualizer()
                         if (isTrampoline) finish()
                     } else {
@@ -423,7 +434,11 @@ class MainActivity : AppCompatActivity() {
                 }
                 AudioCaptureService.CaptureSource.VIZUALIZER -> {
                     if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-                        startForegroundService(Intent(this, AudioCaptureService::class.java))
+                        val startIntent = Intent(this, AudioCaptureService::class.java).apply {
+                            action = AudioCaptureService.ACTION_START
+                            putExtra(AudioCaptureService.EXTRA_START_SOURCE, effectiveStartSource)
+                        }
+                        startForegroundService(startIntent)
                         s.startVisualizer()
                         if (isTrampoline) finish()
                     } else {
@@ -435,7 +450,11 @@ class MainActivity : AppCompatActivity() {
                     if (!isTrampoline && !forceStart) {
                         viewModel.showHostPicker()
                     } else {
-                        startForegroundService(Intent(this, AudioCaptureService::class.java))
+                        val startIntent = Intent(this, AudioCaptureService::class.java).apply {
+                            action = AudioCaptureService.ACTION_START
+                            putExtra(AudioCaptureService.EXTRA_START_SOURCE, effectiveStartSource)
+                        }
+                        startForegroundService(startIntent)
                         s.startVisualizer()
                         if (isTrampoline) finish()
                     }
@@ -915,12 +934,12 @@ internal fun BetterVizApp(
                                 val absOffset = pageOffset.coerceIn(-1f, 1f).let { kotlin.math.abs(it) }
                                 val fraction = 1f - absOffset
 
-                                val scale = 0.85f + (1f - 0.85f) * fraction
+                                val scale = 0.9f + (1f - 0.9f) * fraction
                                 scaleX = scale
                                 scaleY = scale
                                 alpha = fraction
 
-                                val maxRotation = 8f
+                                val maxRotation = 3f
                                 val rotationAmount = maxRotation * (1f - fraction)
 
                                 rotationZ = if (pageOffset > 0) -rotationAmount else rotationAmount
@@ -1000,6 +1019,8 @@ private fun TabContent(
         }
         Tab.Glyphs -> {
             val gammaValue by viewModel.gammaValue.collectAsStateWithLifecycle()
+            val thresholdValue by viewModel.glyphThreshold.collectAsStateWithLifecycle()
+            val speedValue by viewModel.glyphDecaySpeed.collectAsStateWithLifecycle()
             val maxBrightness by viewModel.maxBrightness.collectAsStateWithLifecycle()
             val presets by viewModel.presetInfos.collectAsStateWithLifecycle()
             val selectedPreset by viewModel.selectedPreset.collectAsStateWithLifecycle()
@@ -1011,6 +1032,10 @@ private fun TabContent(
                     it
                 )
                 },
+                thresholdValue = thresholdValue,
+                onThresholdChanged = { viewModel.setGlyphThreshold(it) },
+                speedValue = speedValue,
+                onSpeedChanged = { viewModel.setGlyphDecaySpeed(it) },
                 maxBrightness = maxBrightness,
                 onMaxBrightnessChanged = { viewModel.setMaxBrightness(it) },
                 presets = presets,
@@ -1045,6 +1070,7 @@ private fun TabContent(
             val hapticAmplitude by viewModel.hapticAmplitude.collectAsStateWithLifecycle()
 
             HapticsScreen(
+                viewModel = viewModel,
                 hapticMotorEnabled = hapticMotorEnabled,
                 onHapticMotorEnabledChanged = {
                     viewModel.setHapticMotorEnabled(

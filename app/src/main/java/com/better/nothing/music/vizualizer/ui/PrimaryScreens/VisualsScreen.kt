@@ -166,7 +166,7 @@ fun VisualsScreen(
                     )
 
                     Text(
-                        text = "Visualizer Color",
+                        text = stringResource(R.string.visualizer_color),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -473,7 +473,7 @@ fun VisualsScreen(
                     )
 
                     Text(
-                        text = "Visualizer Color",
+                        text = stringResource(R.string.visualizer_color),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -660,7 +660,7 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Sensitivity",
+                            text = stringResource(R.string.sensitivity),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -679,7 +679,7 @@ fun VisualsScreen(
                     )
 
                     Text(
-                        text = "Visualizer Color",
+                        text = stringResource(R.string.visualizer_color),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )

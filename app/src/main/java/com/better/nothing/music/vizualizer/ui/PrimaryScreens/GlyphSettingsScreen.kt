@@ -48,6 +48,7 @@ import com.better.nothing.music.vizualizer.ui.CardHeader
 import com.better.nothing.music.vizualizer.ui.ExpressiveCard
 import com.better.nothing.music.vizualizer.ui.ExpressiveSplitButton
 import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
+import com.better.nothing.music.vizualizer.ui.IndicatorPill
 import kotlin.math.pow
 
 
@@ -64,6 +65,10 @@ import androidx.compose.ui.draw.clip
 internal fun GlyphsScreen(
     gammaValue: Float,
     onGammaChanged: (Float) -> Unit,
+    thresholdValue: Float,
+    onThresholdChanged: (Float) -> Unit,
+    speedValue: Float,
+    onSpeedChanged: (Float) -> Unit,
     maxBrightness: Int,
     onMaxBrightnessChanged: (Int) -> Unit,
     presets: List<AudioCaptureService.PresetInfo>,
@@ -187,7 +192,10 @@ internal fun GlyphsScreen(
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
         ScreenTitle(
             text = stringResource(R.string.glyph_controls),
-            onClick = { showEasterEggPopup = true }
+            onClick = {
+                viewModel.logEasterEggEvent("easter_egg_glyphs_go_brrr")
+                showEasterEggPopup = true
+            }
         )
 
         val DEFAULT_BR = 4095
@@ -203,7 +211,11 @@ internal fun GlyphsScreen(
             onLastNonZeroChanged = { v -> lastNonZero.intValue = v },
             onMaxBrightnessChanged = onMaxBrightnessChanged,
             gammaValue = gammaValue,
-            onGammaChanged = onGammaChanged
+            onGammaChanged = onGammaChanged,
+            thresholdValue = thresholdValue,
+            onThresholdChanged = onThresholdChanged,
+            speedValue = speedValue,
+            onSpeedChanged = onSpeedChanged
         )
 
         val isSlimDevice = selectedDevice == com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4A ||
@@ -441,6 +453,10 @@ fun BrightnessCard(
     onMaxBrightnessChanged: (Int) -> Unit,
     gammaValue: Float,
     onGammaChanged: (Float) -> Unit,
+    thresholdValue: Float,
+    onThresholdChanged: (Float) -> Unit,
+    speedValue: Float,
+    onSpeedChanged: (Float) -> Unit
 ) {
     val haptics = LocalHapticFeedback.current
     val view = LocalView.current
@@ -448,7 +464,10 @@ fun BrightnessCard(
     val MIN_BRIGHTNESS = 50
     val MAX_BRIGHTNESS = 5000
 
+    var isMoreSlidersExpanded by remember { mutableStateOf(false) }
+    var isThresholdExpanded by remember { mutableStateOf(false) }
     var isGammaExpanded by remember { mutableStateOf(false) }
+    var isSpeedExpanded by remember { mutableStateOf(false) }
 
     // Quadratic mapping: slider position (0..1) -> value = min + (max-min) * pos^2
     fun linearToPos(linear: Int): Float {
@@ -494,33 +513,69 @@ fun BrightnessCard(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        GammaSlider(
-            gammaValue = gammaValue,
-            onGammaChanged = onGammaChanged,
-            isExpanded = isGammaExpanded,
-            onToggleExpand = { isGammaExpanded = !isGammaExpanded }
+        CardHeader(
+            title = stringResource(R.string.show_more_sliders),
+            trailingContent = {
+                IndicatorPill(
+                    isExpanded = isMoreSlidersExpanded,
+                    onClick = { isMoreSlidersExpanded = !isMoreSlidersExpanded }
+                )
+            }
         )
 
         AnimatedVisibility(
-            visible = isGammaExpanded,
+            visible = isMoreSlidersExpanded,
             enter = expandVertically() + fadeIn(),
             exit = shrinkVertically() + fadeOut()
         ) {
             Column {
+                ThresholdSlider(
+                    thresholdValue = thresholdValue,
+                    onThresholdChanged = onThresholdChanged,
+                    isExpanded = isThresholdExpanded,
+                    onToggleExpand = { isThresholdExpanded = !isThresholdExpanded }
+                )
+
                 Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(14.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+
+                GammaSlider(
+                    gammaValue = gammaValue,
+                    onGammaChanged = onGammaChanged,
+                    isExpanded = isGammaExpanded,
+                    onToggleExpand = { isGammaExpanded = !isGammaExpanded }
+                )
+
+                AnimatedVisibility(
+                    visible = isGammaExpanded,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut()
                 ) {
-                    GammaPreviewCard(gammaValue = gammaValue)
-                    BodyText(
-                        text = stringResource(R.string.gamma_description),
-                        modifier = Modifier.weight(1f),
-                        size = 14.sp,
-                        lineHeight = 22.sp,
-                    )
+                    Column {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            GammaPreviewCard(gammaValue = gammaValue)
+                            BodyText(
+                                text = stringResource(R.string.gamma_description),
+                                modifier = Modifier.weight(1f),
+                                size = 14.sp,
+                                lineHeight = 22.sp,
+                            )
+                        }
+                    }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                SpeedSlider(
+                    speedValue = speedValue,
+                    onSpeedChanged = onSpeedChanged,
+                    isExpanded = isSpeedExpanded,
+                    onToggleExpand = { isSpeedExpanded = !isSpeedExpanded }
+                )
             }
         }
     }
@@ -566,6 +621,130 @@ fun GammaSlider(
                 imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.Info,
                 contentDescription = stringResource(R.string.show_gamma_info),
                 tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+            )
+        }
+    }
+}
+
+@SuppressLint("DefaultLocale")
+@Composable
+fun ThresholdSlider(
+    thresholdValue: Float,
+    onThresholdChanged: (Float) -> Unit,
+    isExpanded: Boolean,
+    onToggleExpand: () -> Unit
+) {
+    val view = LocalView.current
+    CardHeader(
+        title = stringResource(R.string.threshold_label),
+        trailingContent = {
+            Text(
+                text = if (thresholdValue < 0.001f) stringResource(R.string.disabled) else String.format("%d%%", (thresholdValue * 100).toInt()),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        })
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ExpressiveSlider(
+            value = thresholdValue,
+            onValueChange = onThresholdChanged,
+            valueRange = 0f..1f,
+            modifier = Modifier.weight(1f),
+        )
+
+        IconButton(onClick = {
+            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+            onToggleExpand()
+        }) {
+            Icon(
+                imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.Info,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+            )
+        }
+    }
+
+    AnimatedVisibility(
+        visible = isExpanded,
+        enter = expandVertically() + fadeIn(),
+        exit = shrinkVertically() + fadeOut()
+    ) {
+        Column {
+            Spacer(modifier = Modifier.height(12.dp))
+            BodyText(
+                text = stringResource(R.string.threshold_description),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                size = 14.sp,
+                lineHeight = 22.sp,
+            )
+        }
+    }
+}
+
+@SuppressLint("DefaultLocale")
+@Composable
+fun SpeedSlider(
+    speedValue: Float,
+    onSpeedChanged: (Float) -> Unit,
+    isExpanded: Boolean,
+    onToggleExpand: () -> Unit
+) {
+    val view = LocalView.current
+    // 1.2f is low speed (left), 0.4f is high speed (right)
+    val sliderPos = (1.2f - speedValue) / 0.8f
+
+    CardHeader(
+        title = stringResource(R.string.speed_label),
+        trailingContent = {
+            Text(
+                text = String.format("%.2fx", 0.75f / speedValue), // Relative to default
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        })
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ExpressiveSlider(
+            value = sliderPos.coerceIn(0f, 1f),
+            onValueChange = { pos ->
+                val newSpeed = 1.2f - pos * 0.8f
+                onSpeedChanged(newSpeed)
+            },
+            valueRange = 0f..1f,
+            modifier = Modifier.weight(1f),
+        )
+
+        IconButton(onClick = {
+            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+            onToggleExpand()
+        }) {
+            Icon(
+                imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.Info,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+            )
+        }
+    }
+
+    AnimatedVisibility(
+        visible = isExpanded,
+        enter = expandVertically() + fadeIn(),
+        exit = shrinkVertically() + fadeOut()
+    ) {
+        Column {
+            Spacer(modifier = Modifier.height(12.dp))
+            BodyText(
+                text = stringResource(R.string.speed_description),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                size = 14.sp,
+                lineHeight = 22.sp,
             )
         }
     }

@@ -169,11 +169,15 @@ class VisualizerWidgetM3 : AppWidgetProvider() {
             if (currentSource == AudioCaptureService.CaptureSource.INTERNAL.name) {
                 val startIntent = Intent(context, MainActivity::class.java).apply {
                     putExtra("request_start", true)
+                    putExtra(AudioCaptureService.EXTRA_START_SOURCE, "viz_started_widget")
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 }
                 PendingIntent.getActivity(context, 120, startIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             } else {
-                val startIntent = Intent(context, AudioCaptureService::class.java).apply { action = AudioCaptureService.ACTION_START }
+                val startIntent = Intent(context, AudioCaptureService::class.java).apply {
+                    action = AudioCaptureService.ACTION_START
+                    putExtra(AudioCaptureService.EXTRA_START_SOURCE, "viz_started_widget")
+                }
                 PendingIntent.getForegroundService(context, 120, startIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             }
         }

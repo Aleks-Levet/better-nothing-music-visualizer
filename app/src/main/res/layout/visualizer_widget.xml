@@ -10,7 +10,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SOURCE"
+        android:text="@string/label_source"
         android:textColor="#888888"
         android:textSize="11sp"
         android:layout_marginStart="4dp"
@@ -32,7 +32,7 @@
             android:src="@drawable/ic_phone"
             android:scaleType="centerInside"
             android:padding="8dp"
-            android:contentDescription="Internal Source" />
+            android:contentDescription="@string/content_desc_internal_source" />
 
         <ImageButton
             android:id="@+id/btn_source_mic"
@@ -44,7 +44,7 @@
             android:src="@drawable/ic_mic"
             android:scaleType="centerInside"
             android:padding="8dp"
-            android:contentDescription="Mic Source" />
+            android:contentDescription="@string/content_desc_mic_source" />
 
         <ImageButton
             android:id="@+id/btn_source_viz"
@@ -56,14 +56,14 @@
             android:src="@drawable/ic_graphic_eq"
             android:scaleType="centerInside"
             android:padding="8dp"
-            android:contentDescription="Visualizer Source" />
+            android:contentDescription="@string/content_desc_visualizer_source" />
     </LinearLayout>
 
     <!-- Output Row -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="OUTPUT"
+        android:text="@string/label_output"
         android:textColor="#888888"
         android:textSize="11sp"
         android:layout_marginStart="4dp"
@@ -86,7 +86,7 @@
             android:src="@drawable/ic_vibration"
             android:scaleType="centerInside"
             android:padding="8dp"
-            android:contentDescription="Toggle Haptics" />
+            android:contentDescription="@string/content_desc_toggle_haptics" />
 
         <ImageButton
             android:id="@+id/btn_viz_glyphs"
@@ -98,7 +98,7 @@
             android:src="@drawable/ic_nav_glyphs"
             android:scaleType="centerInside"
             android:padding="8dp"
-            android:contentDescription="Toggle Glyphs" />
+            android:contentDescription="@string/content_desc_toggle_glyphs" />
 
         <ImageButton
             android:id="@+id/btn_viz_torch"
@@ -110,7 +110,7 @@
             android:src="@drawable/ic_flashlight"
             android:scaleType="centerInside"
             android:padding="8dp"
-            android:contentDescription="Toggle Torch" />
+            android:contentDescription="@string/content_desc_toggle_torch" />
     </LinearLayout>
 
     <!-- Start/Stop Button -->
@@ -123,6 +123,6 @@
         android:background="@drawable/widget_button_bg"
         android:src="@drawable/ic_play"
         android:scaleType="centerInside"
-        android:contentDescription="Start/Stop Visualizer" />
+        android:contentDescription="@string/content_desc_start_stop" />
 
 </LinearLayout>

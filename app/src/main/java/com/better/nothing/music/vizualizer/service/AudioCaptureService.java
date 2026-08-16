@@ -53,6 +53,8 @@ import android.view.Gravity;
 import android.view.WindowManager;
 import android.graphics.PixelFormat;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
@@ -123,8 +125,10 @@ public class AudioCaptureService extends Service {
     public static final String EXTRA_ENABLED = "enabled";
     public static final String EXTRA_RESULT_CODE = "result_code";
     public static final String EXTRA_DATA = "data";
+    public static final String EXTRA_START_SOURCE = "start_source";
     public static final float DEFAULT_GAMMA = 2.2f;
-    private static final float DECAY_MULTIPLIER = 0.75f;
+    private volatile float mGlyphThreshold = 0.0f;
+    private volatile float mGlyphDecaySpeed = 0.75f;
 
     private static final String PREFS_NAME = "glyph_visualizer_prefs";
     private static final String APP_PREFS_NAME = "viz_prefs";
@@ -499,6 +503,8 @@ public class AudioCaptureService extends Service {
         mGamma = loadGamma(this);
         SharedPreferences appPrefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE);
         mMaxBrightness = clampGlyphBrightness(appPrefs.getInt("max_brightness", MAX_GLYPH_BRIGHTNESS));
+        mGlyphThreshold = appPrefs.getFloat("glyph_threshold", 0.0f);
+        mGlyphDecaySpeed = appPrefs.getFloat("glyph_decay_speed", 0.75f);
         try {
             mCaptureSource = CaptureSource.valueOf(appPrefs.getString("capture_source", CaptureSource.INTERNAL.name()));
         } catch (Exception e) {
@@ -561,6 +567,8 @@ public class AudioCaptureService extends Service {
         } catch (Exception ignored) {}
 
         setMaxBrightness(appPrefs.getInt("max_brightness", MAX_GLYPH_BRIGHTNESS));
+        mGlyphThreshold = appPrefs.getFloat("glyph_threshold", 0.0f);
+        mGlyphDecaySpeed = appPrefs.getFloat("glyph_decay_speed", 0.75f);
         setHapticMotorEnabled(appPrefs.getBoolean("haptic_motor_enabled", false));
         setFlashlightEnabled(appPrefs.getBoolean("flashlight_enabled", false));
         
@@ -600,7 +608,15 @@ public class AudioCaptureService extends Service {
         if (intent != null) {
             String intentAction = intent.getAction();
             if (ACTION_STOP.equals(intentAction)) { stopCapture(); stopSelf(); return START_NOT_STICKY; }
-            else if (ACTION_START.equals(intentAction)) startVisualizer();
+            else if (ACTION_START.equals(intentAction)) {
+                String startSource = intent.getStringExtra(EXTRA_START_SOURCE);
+                if (startSource != null) {
+                    try {
+                        FirebaseAnalytics.getInstance(this).logEvent(startSource, null);
+                    } catch (Exception ignored) {}
+                }
+                startVisualizer();
+            }
             else if (ACTION_REFRESH_SETTINGS.equals(intentAction)) refreshSettingsFromPrefs();
             else if (ACTION_SET_SOURCE.equals(intentAction)) {
                 String sourceName = intent.getStringExtra(EXTRA_SOURCE);
@@ -708,16 +724,15 @@ public class AudioCaptureService extends Service {
     }
 
     public void setDevice(int device) {
-        if (mSelectedDevice != device) {
-            mSelectedDevice = device;
-            if (mGlyphRenderer != null) mGlyphRenderer.setDeviceType(device);
-            if (device != DeviceProfile.DEVICE_UNKNOWN && Build.VERSION.SDK_INT >= 31) ensureGlyphManagerInitialized();
-            registerGlyphManager();
-            registerGlyphMatrixManager();
-            setLatencyCompensationMs(loadLatencyCompensationMs(this, device));
-            reloadConfig();
-            if (sIsRunning) restartCapture();
-        }
+        boolean changed = (mSelectedDevice != device);
+        mSelectedDevice = device;
+        if (mGlyphRenderer != null) mGlyphRenderer.setDeviceType(device);
+        if (device != DeviceProfile.DEVICE_UNKNOWN && Build.VERSION.SDK_INT >= 31) ensureGlyphManagerInitialized();
+        registerGlyphManager();
+        registerGlyphMatrixManager();
+        setLatencyCompensationMs(loadLatencyCompensationMs(this, device));
+        reloadConfig();
+        if (sIsRunning && changed) restartCapture();
     }
 
     private void ensureGlyphManagerInitialized() {
@@ -739,6 +754,13 @@ public class AudioCaptureService extends Service {
     public void setReadMethod(AudioProcessor.ReadMethod method) { }
     public void setLatencyCompensationMs(int latencyMs) { if (mLatencyCompensationMs != latencyMs) { mLatencyCompensationMs = latencyMs; mPresetConfigVersion.incrementAndGet(); } }
     public void setGamma(float gamma) { mGamma = gamma; if (mGlyphRenderer != null) mGlyphRenderer.setGamma(gamma); }
+    public void setGlyphThreshold(float threshold) { mGlyphThreshold = threshold; }
+    public void setGlyphDecaySpeed(float speed) { 
+        if (mGlyphDecaySpeed != speed) {
+            mGlyphDecaySpeed = speed; 
+            reloadConfig();
+        }
+    }
     public void setSpectrumGain(float gain) { if (mAudioProcessor != null) mAudioProcessor.setManualGain(gain); }
     public void setSelectedPreset(String presetKey) { applyPresetSelection(presetKey); }
     public void setHapticMotorEnabled(boolean enabled) { setHapticEnabled(enabled); }
@@ -853,6 +875,9 @@ public class AudioCaptureService extends Service {
             mWorkerHandler.post(() -> {
                 try {
                     refreshPresetCatalog();
+                    if (!mAvailablePresetKeys.isEmpty() && !mAvailablePresetKeys.contains(mPresetKey)) {
+                        mPresetKey = chooseDefaultPresetKey(phoneModelForDevice(mSelectedDevice), mAvailablePresetKeys);
+                    }
                     mVisualizerConfig = loadVisualizerConfig(mPresetKey, mCurrentSampleRate);
                     mPresetConfigVersion.incrementAndGet();
                     resetVisualizerState();
@@ -1167,6 +1192,16 @@ public class AudioCaptureService extends Service {
             
             // Only interact with Glyph library if output is enabled (brightness > 0)
             if (mMaxBrightness > 0) {
+                // Apply threshold
+                int[] processedFft = fftraw;
+                if (mGlyphThreshold > 0.001f) {
+                    int thresholdFft = (int) (mGlyphThreshold * 4095f);
+                    processedFft = fftraw.clone();
+                    for (int i = 0; i < processedFft.length; i++) {
+                        if (processedFft[i] < thresholdFft) processedFft[i] = 0;
+                    }
+                }
+
                 // Determine if we should maintain the glyph session.
                 // We keep it open if there's audio activity, or the app is in foreground, 
                 // or if idle breathing is enabled.
@@ -1177,7 +1212,7 @@ public class AudioCaptureService extends Service {
                 }
 
                 if (mSessionOpen && (now - mLastSendMs >= MIN_SEND_INTERVAL_MS)) {
-                    int[] frameColors = mGlyphRenderer.processFrame(fftraw, config, now);
+                    int[] frameColors = mGlyphRenderer.processFrame(processedFft, config, now);
                     if (frameColors != null) {
                         try {
                             if (DeviceProfile.getMatrixWidth(mSelectedDevice) > 0) {
@@ -1507,7 +1542,7 @@ public class AudioCaptureService extends Service {
         if (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN || mMaxBrightness <= 0) return null;
         JSONObject root = loadZonesConfigRoot(this); JSONObject p = root.optJSONObject(presetKey); if (p == null) throw new JSONException("Preset not found"); JSONArray za = p.optJSONArray("zones"); if (za == null || za.length() == 0) throw new JSONException("No zones");
         double da = p.has("decay-alpha") ? p.optDouble("decay-alpha", 0.8) : root.optDouble("decay-alpha", 0.8);
-        da *= DECAY_MULTIPLIER;
+        da *= mGlyphDecaySpeed;
         AudioProcessor.ZoneSpec[] zs = parseZoneSpecs(za); return buildVisualizerConfig(presetKey, p.optString("description", presetKey), da, zs);
     }
 

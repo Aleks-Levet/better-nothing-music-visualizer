@@ -1747,12 +1747,13 @@ fun ExpressiveColorPicker(
 ) {
     val colors = listOf(
         Color.White,
-        Color(0xFFD71921), // Nothing Red
+        Color(0xFFC8102E), // Nothing Red
         Color(0xFF4CAF50), // Green
         Color(0xFF00FF00), // Pure Green
-        Color(0xFF2196F3), // Blue
+        Color(0xFF002F6C), // Nothing Blue
         Color(0xFFFF5722), // Deep Orange
         Color(0xFFFFAA00), // Amber
+        Color(0xFFFFC700), // Nothing Yellow
         Color(0xFFFFFF00), // Pure Yellow
         Color(0xFF9C27B0), // Purple
         Color(0xFFFF00FC), // Pink

@@ -15,6 +15,12 @@
     <!-- Glyph Screen -->
     <string name="glyph_controls">Glyph controls</string>
     <string name="glyph_brightness">Glyph brightness:</string>
+    <string name="threshold_label">Threshold:</string>
+    <string name="speed_label">Speed:</string>
+    <string name="disabled">disabled</string>
+    <string name="threshold_description">Sets a minimum audio level required to trigger the Glyphs. Higher values result in a cleaner look by ignoring background noise.</string>
+    <string name="speed_description">Controls how quickly the Glyphs fade out after an audio peak. Higher speed results in a more reactive and sharp visualization.</string>
+    <string name="show_more_sliders">Show more sliders…</string>
     <string name="gamma_control">Gamma control</string>
     <string name="gamma_description">A higher gamma value gives a more punchy look, but with less subtle details and overall brightness. A lower one is brighter but less punchy.</string>
     <string name="light_gamma">Light Gamma:</string>
@@ -51,10 +57,10 @@
     <string name="haptics_motor_multiplier_desc">Global motor output strength multiplier.</string>
     <string name="haptics_decay_instant">No smoothing (Instant)</string>
     <string name="haptics_decay_smooth">Smoothing active</string>
-    <string name="haptics_duration_label" translatable="false">Duration: %d ms</string>
-    <string name="beat_engine_mode_label" translatable="false">Engine Response</string>
-    <string name="beat_engine_smooth" translatable="false">Smooth Falloff</string>
-    <string name="beat_engine_short" translatable="false">Short Pulse</string>
+    <string name="haptics_duration_label">Duration: %d ms</string>
+    <string name="beat_engine_mode_label">Engine Response</string>
+    <string name="beat_engine_smooth">Smooth Falloff</string>
+    <string name="beat_engine_short">Short Pulse</string>
 
     <!-- Audio Processing -->
     <string name="audio_pipeline_title">Audio Pipeline (Expert)</string>
@@ -77,8 +83,8 @@
     <string name="flashlight_beat_sensitivity_desc">Higher values ignore weaker transients.</string>
     <string name="flashlight_speed_label">Speed: %.0f ms</string>
     <string name="flashlight_monitor_label">Flashlight Monitor</string>
-    <string name="flashlight_duration_label" translatable="false">Duration: %d ms</string>
-    <string name="flashlight_duration_desc" translatable="false">Duration of the pulse in milliseconds.</string>
+    <string name="flashlight_duration_label">Duration: %d ms</string>
+    <string name="flashlight_duration_desc">Duration of the pulse in milliseconds.</string>
 
     <string name="experimental_features">Experimental Features</string>
     <string name="device_features">Device Capabilities</string>
@@ -374,5 +380,24 @@
     <string name="easter_egg_glyph_popup_quote">\"I think that this app icon would suit the app much more and more people would install the app.\"</string>
     <string name="ok" translatable="false">OK</string>
     <string name="i_dont_give_a_fuck">I don\'t give a fuck</string>
+
+    <!-- Visualizer Color & Accessibility -->
+    <string name="visualizer_color">Visualizer Color</string>
+    <string name="broadcast_clients">Broadcast Clients</string>
+    <string name="connected_count">%d Connected</string>
+    <string name="waiting_for_devices">Waiting for devices...</string>
+    <string name="made_by_aleks">Made by Aleks Levet with love!</string>
+    <string name="credits_extended">I am not the only one who contributed to making this amazing project, check the github page for full credits! This took years to make!</string>
+    <string name="content_desc_internal_source">Internal Source</string>
+    <string name="content_desc_mic_source">Mic Source</string>
+    <string name="content_desc_visualizer_source">Visualizer Source</string>
+    <string name="content_desc_toggle_haptics">Toggle Haptics</string>
+    <string name="content_desc_toggle_glyphs">Toggle Glyphs</string>
+    <string name="content_desc_toggle_torch">Toggle Torch</string>
+    <string name="content_desc_start_stop">Start/Stop Visualizer</string>
+    <string name="label_source">SOURCE</string>
+    <string name="label_output">OUTPUT</string>
+    <string name="help_show">Show help</string>
+
 
 </resources>

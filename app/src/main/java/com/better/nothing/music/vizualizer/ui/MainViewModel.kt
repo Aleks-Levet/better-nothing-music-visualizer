@@ -24,6 +24,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.palette.graphics.Palette
 import androidx.core.content.FileProvider
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -102,6 +105,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val hasFlashlight: Boolean by lazy {
         ctx.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)
+    }
+
+    fun logEasterEggEvent(eventName: String) {
+        Firebase.analytics.logEvent(eventName, null)
     }
 
     val _flashlightIntensityLevels = MutableStateFlow(1)
@@ -1191,6 +1198,30 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         MainActivity.serviceStatic?.setGamma(value)
     }
 
+    val _glyphThreshold = MutableStateFlow(0.0f)
+    val glyphThreshold = _glyphThreshold.asStateFlow()
+
+    fun setGlyphThreshold(value: Float) {
+        _glyphThreshold.value = value
+        MainActivity.serviceStatic?.setGlyphThreshold(value)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("glyph_threshold", value) }
+        }
+    }
+
+    val _glyphDecaySpeed = MutableStateFlow(0.75f)
+    val glyphDecaySpeed = _glyphDecaySpeed.asStateFlow()
+
+    fun setGlyphDecaySpeed(value: Float) {
+        _glyphDecaySpeed.value = value
+        MainActivity.serviceStatic?.setGlyphDecaySpeed(value)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("glyph_decay_speed", value) }
+        }
+    }
+
     val _spectrumGain = MutableStateFlow(4.0f)
     val spectrumGain = _spectrumGain.asStateFlow()
 
@@ -1637,8 +1668,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 if (fVal > manualDecayFft[i]) {
                     manualDecayFft[i] = fVal
                 } else {
-                    // Faster manual decay for UI (0.04f per frame)
-                    manualDecayFft[i] = (manualDecayFft[i] - 0.04f).coerceAtLeast(fVal)
+                    // Exponential manual decay for UI
+                    manualDecayFft[i] = (manualDecayFft[i] * 0.94f).coerceAtLeast(fVal)
                 }
             }
             _fftState.value = manualDecayFft.copyOf()
@@ -1730,6 +1761,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 refreshPresetsInternal()
+                val current = _selectedPreset.value
+                val validKeys = _presetInfos.value.map { it.key }
+                if (validKeys.isNotEmpty() && !validKeys.contains(current)) {
+                    val defaultKey = validKeys.firstOrNull()
+                    if (defaultKey != null) {
+                        withContext(Dispatchers.Main) {
+                            setSelectedPreset(defaultKey)
+                        }
+                    }
+                }
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Presets refresh failed, pulling from remote", e)
                 if (_configUpdateStatus.value !is ConfigUpdateStatus.Updating) {
@@ -1839,6 +1880,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _autoDeviceMemorize.value = prefs.getBoolean("auto_device_memorize", true)
         _m3eEnabled.value = prefs.getBoolean("m3e_enabled", true)
         _gammaValue.value = prefs.getFloat("gamma_value", 2.2f)
+        _glyphThreshold.value = prefs.getFloat("glyph_threshold", 0.0f)
+        _glyphDecaySpeed.value = prefs.getFloat("glyph_decay_speed", 0.75f)
         _spectrumGain.value = prefs.getFloat("spectrum_gain", 4.0f)
         _maxBrightness.value = prefs.getInt("max_brightness", 4095).coerceIn(50, 5000)
         _fftReadMethod.value = safeValueOf(prefs.getString("fft_read_method", null), AudioProcessor.ReadMethod.MAX)

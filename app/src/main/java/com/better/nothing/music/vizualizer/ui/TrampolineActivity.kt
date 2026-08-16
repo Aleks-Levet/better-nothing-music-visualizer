@@ -25,6 +25,7 @@ class TrampolineActivity : Activity() {
         val sourceStr = prefs.getString("capture_source", "INTERNAL")
         val needsMic = "MIC" == sourceStr || "VIZUALIZER" == sourceStr
         val hasMicPerm = checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        val startSource = intent.getStringExtra(AudioCaptureService.EXTRA_START_SOURCE)
         
         // Notification permission is optional, only redirect to MainActivity if we haven't asked yet
         val needsNotifPrompt = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -44,6 +45,7 @@ class TrampolineActivity : Activity() {
             // Need MainActivity for projection prompt or permission request
             val intentToMain = Intent(this, MainActivity::class.java).apply {
                 putExtra(MainActivity.EXTRA_REQUEST_START, true)
+                putExtra(AudioCaptureService.EXTRA_START_SOURCE, startSource)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             }
             startActivity(intentToMain)
@@ -53,6 +55,7 @@ class TrampolineActivity : Activity() {
             // Start the service directly from here (foreground) to satisfy Android 14 requirements
             val startIntent = Intent(this, AudioCaptureService::class.java).apply {
                 action = AudioCaptureService.ACTION_START
+                putExtra(AudioCaptureService.EXTRA_START_SOURCE, startSource)
             }
             startForegroundService(startIntent)
             

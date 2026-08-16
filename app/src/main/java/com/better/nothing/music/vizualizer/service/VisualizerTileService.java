@@ -30,6 +30,7 @@ public class VisualizerTileService extends TileService {
             if (needsTrampoline) {
                 unlockAndRun(() -> {
                     Intent i = new Intent(this, TrampolineActivity.class);
+                    i.putExtra(AudioCaptureService.EXTRA_START_SOURCE, "viz_started_qs_tile");
                     i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_ANIMATION);
                     PendingIntent pendingIntent = PendingIntent.getActivity(
                             this,
@@ -46,6 +47,7 @@ public class VisualizerTileService extends TileService {
             } else {
                 Intent startIntent = new Intent(this, AudioCaptureService.class);
                 startIntent.setAction(AudioCaptureService.ACTION_START);
+                startIntent.putExtra(AudioCaptureService.EXTRA_START_SOURCE, "viz_started_qs_tile");
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     startForegroundService(startIntent);
                 } else {

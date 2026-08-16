@@ -224,9 +224,11 @@ fun AudioScreen(
         ScreenTitle(
             text = if (isTitleToggled) shortTitle else fullTitle,
             onClick = {
+                viewModel.logEasterEggEvent("easter_egg_bnmv_toast")
                 android.widget.Toast.makeText(context, context.getString(R.string.toast_audio_title_tap), android.widget.Toast.LENGTH_SHORT).show()
             },
             onLongPress = {
+                viewModel.logEasterEggEvent("easter_egg_bnmv_long_press")
                 view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
                 isTitleToggled = !isTitleToggled
             }
@@ -424,7 +426,7 @@ fun OutputSelectionCard(
                 IconButton(onClick = { isHelpExpanded = !isHelpExpanded }) {
                     Icon(
                         imageVector = if (isHelpExpanded) Icons.Default.ExpandLess else Icons.Default.Info,
-                        contentDescription = "Show help",
+                        contentDescription = stringResource(R.string.help_show),
                         tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
                     )
                 }
@@ -491,7 +493,7 @@ fun OutputSelectionCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Broadcast Clients",
+                        text = stringResource(R.string.broadcast_clients),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -501,7 +503,7 @@ fun OutputSelectionCard(
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text(
-                            text = "${connectedClients.size} Connected",
+                            text = stringResource(R.string.connected_count, connectedClients.size),
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
@@ -525,7 +527,7 @@ fun OutputSelectionCard(
                 } else {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Waiting for devices...",
+                        text = stringResource(R.string.waiting_for_devices),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
@@ -551,7 +553,7 @@ fun CaptureSourceCard(
                 IconButton(onClick = { isHelpExpanded = !isHelpExpanded }) {
                     Icon(
                         imageVector = if (isHelpExpanded) Icons.Default.ExpandLess else Icons.Default.Info,
-                        contentDescription = "Show help",
+                        contentDescription = stringResource(R.string.help_show),
                         tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
                     )
                 }
@@ -637,7 +639,7 @@ fun CaptureSourceCard(
             }
 
             OptionTile(
-                label = "Another device or app...",
+                label = stringResource(R.string.help_source_network_title),
                 icon = Icons.Default.Wifi,
                 isSelected = selectedSource == AudioCaptureService.CaptureSource.NETWORK,
                 enabled = true,
