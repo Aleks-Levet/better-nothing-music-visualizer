@@ -508,7 +508,6 @@ internal fun SettingsScreen(
                         viewModel.setOnScreenVisualizersEnabled(!onScreenVisualizersEnabled, context, onOverlayPermissionRequest)
                     }
                 )
-
             }
         }
 

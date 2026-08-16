@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.View;
 
+import com.better.nothing.music.vizualizer.ui.MainViewModel;
+
 public class VisualizerOverlayView extends View {
     private int[] mFftRaw;
     private final Paint mPaint = new Paint();
@@ -20,6 +22,8 @@ public class VisualizerOverlayView extends View {
     private float mBottomSensitivity = 1.0f;
     private int mTopHeightPx = 0;
     private int mBottomHeightPx = 0;
+    private boolean mRoundedBarsEnabled = false;
+    private VisualizerStyle mStyle = VisualizerStyle.BARS;
 
     public VisualizerOverlayView(Context context) {
         super(context);
@@ -58,6 +62,16 @@ public class VisualizerOverlayView extends View {
     public void setHeights(int topPx, int bottomPx) {
         this.mTopHeightPx = topPx;
         this.mBottomHeightPx = bottomPx;
+        invalidate();
+    }
+
+    public void setRoundedBarsEnabled(boolean enabled) {
+        this.mRoundedBarsEnabled = enabled;
+        invalidate();
+    }
+
+    public void setStyle(VisualizerStyle style) {
+        this.mStyle = style;
         invalidate();
     }
 
@@ -108,9 +122,23 @@ public class VisualizerOverlayView extends View {
         int width = getWidth();
         float barWidth = (float) width / NUM_BARS;
         float spacing = 1.5f;
-        float cornerRadius = 2f;
 
         float baselineY = mTopEnabled ? mTopHeightPx : 0;
+
+        if (mStyle == VisualizerStyle.GLOW) {
+            float totalMag = 0;
+            for (int i = 0; i < NUM_BARS; i++) {
+                totalMag += (mTopEnabled ? mSmoothedMagnitudesTop[i] : 0) + (mBottomEnabled ? mSmoothedMagnitudesBottom[i] : 0);
+            }
+            float avgMag = totalMag / (NUM_BARS * (mTopEnabled && mBottomEnabled ? 2 : 1));
+            
+            mPaint.setAlpha((int) (Math.min(avgMag * 0.8f, 1.0f) * 255));
+            canvas.drawRect(0, 0, width, getHeight(), mPaint);
+            mPaint.setAlpha(255);
+            return;
+        }
+
+        float cornerRadius = (mStyle == VisualizerStyle.ROUNDED_BARS || mRoundedBarsEnabled) ? barWidth / 2f : 2f;
 
         for (int i = 0; i < NUM_BARS; i++) {
             float left = i * barWidth + spacing;

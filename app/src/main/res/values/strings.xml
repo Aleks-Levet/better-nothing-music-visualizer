@@ -152,6 +152,11 @@
     <string name="nav_overlay">Nav bar</string>
     <string name="enable_on_screen_visualizers">Enable on-screen visualizers</string>
     <string name="higher_quality_audio_analysis">Higher quality audio analysis</string>
+    <string name="rounded_bars">Rounded bars</string>
+    <string name="style_bars">Bars</string>
+    <string name="style_rounded_bars">Rounded</string>
+    <string name="style_glow">Glow</string>
+    <string name="visualizer_style">Style</string>
 
 
     <string name="lens_visualizer">Front Camera</string>

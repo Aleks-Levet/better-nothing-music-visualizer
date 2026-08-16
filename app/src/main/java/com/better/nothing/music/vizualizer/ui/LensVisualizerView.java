@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.View;
 
+import com.better.nothing.music.vizualizer.ui.MainViewModel;
+
 public class LensVisualizerView extends View {
     private int[] mFftRaw;
     private final Paint mPaint = new Paint();
@@ -18,6 +20,8 @@ public class LensVisualizerView extends View {
     private int mBarCount = 24;
     private float mSensitivity = 1.0f;
     private int mColor = Color.WHITE;
+    private boolean mRoundedBarsEnabled = false;
+    private VisualizerStyle mStyle = VisualizerStyle.BARS;
     
     private float[] mSmoothedMagnitudes = new float[0];
 
@@ -39,6 +43,8 @@ public class LensVisualizerView extends View {
     public void setBarCount(int count) { this.mBarCount = count; }
     public void setSensitivity(float sensitivity) { this.mSensitivity = sensitivity; }
     public void setColor(int color) { this.mColor = color; mPaint.setColor(color); invalidate(); }
+    public void setRoundedBarsEnabled(boolean enabled) { this.mRoundedBarsEnabled = enabled; invalidate(); }
+    public void setStyle(VisualizerStyle style) { this.mStyle = style; invalidate(); }
 
     public void updateMagnitudes(int[] fftraw) {
         if (fftraw == null || fftraw.length == 0) return;
@@ -87,6 +93,18 @@ public class LensVisualizerView extends View {
         float centerY = height * mYPos;
         float radius = mRadius * density;
         
+        if (mStyle == VisualizerStyle.GLOW) {
+            float totalMag = 0;
+            for (float val : mSmoothedMagnitudes) totalMag += val;
+            float avgMag = totalMag / barCount;
+            
+            mPaint.setStyle(Paint.Style.FILL);
+            mPaint.setAlpha((int) (Math.min(avgMag * 0.8f, 1.0f) * 255));
+            canvas.drawCircle(centerX, centerY, radius * 1.5f, mPaint);
+            mPaint.setAlpha(255);
+            return;
+        }
+
         for (int i = 0; i < barCount; i++) {
             float angle = (float) (i * 2 * Math.PI / barCount);
             float magnitude = mSmoothedMagnitudes[i];
@@ -96,6 +114,7 @@ public class LensVisualizerView extends View {
             float endX = (float) (centerX + (radius + barLen) * Math.cos(angle));
             float endY = (float) (centerY + (radius + barLen) * Math.sin(angle));
             mPaint.setStrokeWidth(mBarWidth * density);
+            mPaint.setStrokeCap((mStyle == VisualizerStyle.ROUNDED_BARS || mRoundedBarsEnabled) ? Paint.Cap.ROUND : Paint.Cap.BUTT);
             canvas.drawLine(startX, startY, endX, endY, mPaint);
         }
     }

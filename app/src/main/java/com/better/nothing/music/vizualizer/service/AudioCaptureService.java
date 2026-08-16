@@ -56,6 +56,7 @@ import android.graphics.PixelFormat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
+import com.better.nothing.music.vizualizer.ui.MainViewModel;
 import com.better.nothing.music.vizualizer.ui.VisualizerOverlayView;
 import com.better.nothing.music.vizualizer.ui.EdgeVisualizerView;
 import com.better.nothing.music.vizualizer.ui.LensVisualizerView;
@@ -301,6 +302,10 @@ public class AudioCaptureService extends Service {
     private boolean mOverlayTopEnabled = true;
     private boolean mOverlayBottomEnabled = false;
     private int mOverlayColor = android.graphics.Color.WHITE;
+    public boolean mRoundedBarsEnabled = false;
+    private VisualizerStyle mOverlayStyle = VisualizerStyle.BARS;
+    private VisualizerStyle mEdgeStyle = VisualizerStyle.BARS;
+    private VisualizerStyle mLensStyle = VisualizerStyle.BARS;
 
     private int mEdgeThickness = 12;
     private float mEdgeSensitivity = 1.0f;
@@ -503,6 +508,16 @@ public class AudioCaptureService extends Service {
         if (mGlyphRenderer != null) mGlyphRenderer.setAlternateMode(appPrefs.getBoolean("alternate_glyph_viz_enabled", false));
         mBroadcastEnabled = appPrefs.getBoolean("broadcast_enabled", false);
         mOverlayEnabled = appPrefs.getBoolean("overlay_enabled", false);
+        mRoundedBarsEnabled = appPrefs.getBoolean("rounded_bars_enabled", false);
+        try {
+            mOverlayStyle = VisualizerStyle.valueOf(appPrefs.getString("overlay_style", VisualizerStyle.BARS.name()));
+            mEdgeStyle = VisualizerStyle.valueOf(appPrefs.getString("edge_style", VisualizerStyle.BARS.name()));
+            mLensStyle = VisualizerStyle.valueOf(appPrefs.getString("lens_style", VisualizerStyle.BARS.name()));
+        } catch (Exception e) {
+            mOverlayStyle = VisualizerStyle.BARS;
+            mEdgeStyle = VisualizerStyle.BARS;
+            mLensStyle = VisualizerStyle.BARS;
+        }
         mOverlayWidth = appPrefs.getInt("overlay_width", 120);
         mOverlayHeight = appPrefs.getInt("overlay_height", 12);
         mOverlayYOffset = appPrefs.getInt("overlay_y_offset", 2);
@@ -847,6 +862,31 @@ public class AudioCaptureService extends Service {
     }
 
     public void setOverlayColor(int color) { mOverlayColor = color; if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setColor(color)); }
+    public void setRoundedBarsEnabled(boolean enabled) {
+        mRoundedBarsEnabled = enabled;
+        if (mWorkerHandler != null) mWorkerHandler.post(() -> {
+            if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setRoundedBarsEnabled(enabled));
+            if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setRoundedBarsEnabled(enabled));
+        });
+    }
+
+    public void setOverlayStyle(VisualizerStyle style) {
+        mOverlayStyle = style;
+        if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setStyle(style));
+    }
+
+    public void setEdgeStyle(VisualizerStyle style) {
+        mEdgeStyle = style;
+        if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setStyle(style));
+    }
+
+    public void setLensStyle(VisualizerStyle style) {
+        mLensStyle = style;
+        updateVisualizerService();
+    }
+
+    public VisualizerStyle getLensStyle() { return mLensStyle; }
+
     private void updateVisualizerService() { Intent intent = new Intent(this, VisualizerService.class); if (mLensVisualizerEnabled && sIsRunning) startService(intent); else stopService(intent); }
 
     public void setHapticEnabled(boolean enabled) {
@@ -1386,6 +1426,8 @@ public class AudioCaptureService extends Service {
                 mEdgeVisualizerView.setBottomEnabled(mEdgeBottomEnabled);
                 mEdgeVisualizerView.setScreenRadius(mEdgeCornerRadius * density);
                 mEdgeVisualizerView.setColor(mEdgeColor);
+                mEdgeVisualizerView.setRoundedBarsEnabled(mRoundedBarsEnabled);
+                mEdgeVisualizerView.setStyle(mEdgeStyle);
             } else if (mEdgeVisualizerView != null) {
                 try { mWindowManager.removeView(mEdgeVisualizerView); } catch (Exception ignored) {}
                 mEdgeVisualizerView = null;
@@ -1427,6 +1469,8 @@ public class AudioCaptureService extends Service {
                 mOverlayView.setTopSensitivity(mOverlaySensitivity);
                 mOverlayView.setBottomSensitivity(mOverlaySensitivityBottom);
                 mOverlayView.setColor(mOverlayColor);
+                mOverlayView.setRoundedBarsEnabled(mRoundedBarsEnabled);
+                mOverlayView.setStyle(mOverlayStyle);
             } else if (mOverlayView != null) {
                 try { mWindowManager.removeView(mOverlayView); } catch (Exception ignored) {}
                 mOverlayView = null;

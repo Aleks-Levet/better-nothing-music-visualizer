@@ -38,6 +38,12 @@ import java.net.InetAddress
 import java.net.URL
 import kotlin.math.pow
 
+enum class VisualizerStyle(val labelRes: Int) {
+    BARS(R.string.style_bars),
+    ROUNDED_BARS(R.string.style_rounded_bars),
+    GLOW(R.string.style_glow)
+}
+
 enum class Tab(val label: String, val labelRes: Int) {
     Audio("Audio", R.string.tab_audio), 
     Glyphs("Glyphs", R.string.tab_glyphs), 
@@ -263,6 +269,51 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _onScreenVisualizersEnabled = MutableStateFlow(false)
     val onScreenVisualizersEnabled = _onScreenVisualizersEnabled.asStateFlow()
+
+    private val _overlayStyle = MutableStateFlow(VisualizerStyle.BARS)
+    val overlayStyle = _overlayStyle.asStateFlow()
+    fun setOverlayStyle(style: VisualizerStyle) {
+        _overlayStyle.value = style
+        MainActivity.serviceStatic?.setOverlayStyle(style)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putString("overlay_style", style.name) }
+        }
+    }
+
+    private val _edgeStyle = MutableStateFlow(VisualizerStyle.BARS)
+    val edgeStyle = _edgeStyle.asStateFlow()
+    fun setEdgeStyle(style: VisualizerStyle) {
+        _edgeStyle.value = style
+        MainActivity.serviceStatic?.setEdgeStyle(style)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putString("edge_style", style.name) }
+        }
+    }
+
+    private val _lensStyle = MutableStateFlow(VisualizerStyle.BARS)
+    val lensStyle = _lensStyle.asStateFlow()
+    fun setLensStyle(style: VisualizerStyle) {
+        _lensStyle.value = style
+        MainActivity.serviceStatic?.setLensStyle(style)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putString("lens_style", style.name) }
+        }
+    }
+
+    private val _roundedBarsEnabled = MutableStateFlow(false)
+    val roundedBarsEnabled = _roundedBarsEnabled.asStateFlow()
+
+    fun setRoundedBarsEnabled(enabled: Boolean) {
+        _roundedBarsEnabled.value = enabled
+        MainActivity.serviceStatic?.setRoundedBarsEnabled(enabled)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("rounded_bars_enabled", enabled) }
+        }
+    }
 
     fun setOnScreenVisualizersEnabled(enabled: Boolean, context: Context, onPermissionRequired: () -> Unit) {
         if (enabled && !android.provider.Settings.canDrawOverlays(context)) {
@@ -1863,6 +1914,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _alternateGlyphVizEnabled.value = prefs.getBoolean("alternate_glyph_viz_enabled", false)
         _highQualityAnalysis.value = prefs.getBoolean("high_quality_analysis", false)
         _onScreenVisualizersEnabled.value = prefs.getBoolean("on_screen_visualizers_enabled", false)
+        _overlayStyle.value = safeValueOf(prefs.getString("overlay_style", null), VisualizerStyle.BARS)
+        _edgeStyle.value = safeValueOf(prefs.getString("edge_style", null), VisualizerStyle.BARS)
+        _lensStyle.value = safeValueOf(prefs.getString("lens_style", null), VisualizerStyle.BARS)
+        _roundedBarsEnabled.value = prefs.getBoolean("rounded_bars_enabled", false)
 
         _isFirstTime.value = prefs.getBoolean("first_time_v2", true)
 

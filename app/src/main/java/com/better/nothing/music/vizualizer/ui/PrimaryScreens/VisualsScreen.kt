@@ -27,6 +27,7 @@ import com.better.nothing.music.vizualizer.ui.ExpressiveSlider
 import com.better.nothing.music.vizualizer.ui.FineTuneButton
 import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
 import com.better.nothing.music.vizualizer.ui.MainViewModel
+import com.better.nothing.music.vizualizer.ui.VisualizerStyle
 import com.better.nothing.music.vizualizer.ui.ScreenTitle
 
 @Composable
@@ -46,6 +47,7 @@ fun VisualsScreen(
     val overlayTopEnabled by viewModel.overlayTopEnabled.collectAsStateWithLifecycle()
     val overlayBottomEnabled by viewModel.overlayBottomEnabled.collectAsStateWithLifecycle()
     val overlayColor by viewModel.overlayColor.collectAsStateWithLifecycle()
+    val overlayStyle by viewModel.overlayStyle.collectAsStateWithLifecycle()
     
     val edgeVisualizerEnabled by viewModel.edgeVisualizerEnabled.collectAsStateWithLifecycle()
     val edgeThickness by viewModel.edgeThickness.collectAsStateWithLifecycle()
@@ -55,6 +57,7 @@ fun VisualsScreen(
     val edgeTopEnabled by viewModel.edgeTopEnabled.collectAsStateWithLifecycle()
     val edgeBottomEnabled by viewModel.edgeBottomEnabled.collectAsStateWithLifecycle()
     val edgeColor by viewModel.edgeColor.collectAsStateWithLifecycle()
+    val edgeStyle by viewModel.edgeStyle.collectAsStateWithLifecycle()
     
     val lensEnabled by viewModel.lensVisualizerEnabled.collectAsStateWithLifecycle()
     val lensRadius by viewModel.lensVisualizerRadius.collectAsStateWithLifecycle()
@@ -65,7 +68,7 @@ fun VisualsScreen(
     val lensBarCount by viewModel.lensVisualizerBarCount.collectAsStateWithLifecycle()
     val lensSensitivity by viewModel.lensVisualizerSensitivity.collectAsStateWithLifecycle()
     val lensColor by viewModel.lensColor.collectAsStateWithLifecycle()
-
+    val lensStyle by viewModel.lensStyle.collectAsStateWithLifecycle()
 
     val scrollState = rememberScrollState()
 
@@ -101,6 +104,19 @@ fun VisualsScreen(
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                    Text(
+                        text = stringResource(R.string.visualizer_style),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    ExpressiveSplitButton(
+                        items = VisualizerStyle.entries.toList(),
+                        selectedItem = overlayStyle,
+                        onItemSelection = { viewModel.setOverlayStyle(it) },
+                        labelProvider = { stringResource(it.labelRes) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
                     // Width Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -318,6 +334,19 @@ fun VisualsScreen(
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                    Text(
+                        text = stringResource(R.string.visualizer_style),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    ExpressiveSplitButton(
+                        items = VisualizerStyle.entries.toList(),
+                        selectedItem = edgeStyle,
+                        onItemSelection = { viewModel.setEdgeStyle(it) },
+                        labelProvider = { stringResource(it.labelRes) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -472,6 +501,19 @@ fun VisualsScreen(
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                    Text(
+                        text = stringResource(R.string.visualizer_style),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    ExpressiveSplitButton(
+                        items = VisualizerStyle.entries.toList(),
+                        selectedItem = lensStyle,
+                        onItemSelection = { viewModel.setLensStyle(it) },
+                        labelProvider = { stringResource(it.labelRes) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,

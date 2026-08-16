@@ -497,6 +497,7 @@ class MainActivity : AppCompatActivity() {
             it.setLensVisualizerBarCount(viewModel.lensVisualizerBarCount.value)
             it.setLensVisualizerSensitivity(viewModel.lensVisualizerSensitivity.value)
             it.setLensColor(viewModel.lensColor.value.toArgb())
+            it.setLensStyle(viewModel.lensStyle.value)
             
             it.setOverlayEnabled(viewModel.onScreenVisualizersEnabled.value && viewModel.overlayEnabled.value)
             it.setOverlayTopEnabled(viewModel.overlayTopEnabled.value)
@@ -508,6 +509,7 @@ class MainActivity : AppCompatActivity() {
             it.setOverlaySensitivity(viewModel.overlaySensitivity.value)
             it.setOverlaySensitivityBottom(viewModel.overlaySensitivityBottom.value)
             it.setOverlayColor(viewModel.overlayColor.value.toArgb())
+            it.setOverlayStyle(viewModel.overlayStyle.value)
             
             it.setEdgeVisualizerEnabled(viewModel.onScreenVisualizersEnabled.value && viewModel.edgeVisualizerEnabled.value)
             it.setEdgeThickness(viewModel.edgeThickness.value)
@@ -517,6 +519,7 @@ class MainActivity : AppCompatActivity() {
             it.setEdgeColor(viewModel.edgeColor.value.toArgb())
             it.setEdgeTopEnabled(viewModel.edgeTopEnabled.value)
             it.setEdgeBottomEnabled(viewModel.edgeBottomEnabled.value)
+            it.setEdgeStyle(viewModel.edgeStyle.value)
         }
     }
 

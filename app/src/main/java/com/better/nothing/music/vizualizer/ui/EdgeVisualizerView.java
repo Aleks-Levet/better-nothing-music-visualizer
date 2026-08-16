@@ -9,6 +9,8 @@ import android.graphics.PathMeasure;
 import android.graphics.RectF;
 import android.view.View;
 
+import com.better.nothing.music.vizualizer.ui.MainViewModel;
+
 public class EdgeVisualizerView extends View {
     private int[] mFftRaw;
     private final Paint mPaint = new Paint();
@@ -28,6 +30,8 @@ public class EdgeVisualizerView extends View {
 
     private boolean mTopEnabled = true;
     private boolean mBottomEnabled = true;
+    private boolean mRoundedBarsEnabled = false;
+    private VisualizerStyle mStyle = VisualizerStyle.BARS;
 
     private final Path mEdgePath = new Path();
     private final PathMeasure mPathMeasure = new PathMeasure();
@@ -74,6 +78,16 @@ public class EdgeVisualizerView extends View {
 
     public void setBottomEnabled(boolean enabled) {
         this.mBottomEnabled = enabled;
+        invalidate();
+    }
+    
+    public void setRoundedBarsEnabled(boolean enabled) {
+        this.mRoundedBarsEnabled = enabled;
+        invalidate();
+    }
+    
+    public void setStyle(VisualizerStyle style) {
+        this.mStyle = style;
         invalidate();
     }
     
@@ -172,6 +186,24 @@ public class EdgeVisualizerView extends View {
         float vertLen = h - 2 * r;
         float arcLen = (float) (Math.PI * r / 2.0);
 
+        if (mStyle == VisualizerStyle.GLOW) {
+            float totalMag = 0;
+            int count = 0;
+            for (float val : mSmoothedTop) { totalMag += val; count++; }
+            for (float val : mSmoothedBottom) { totalMag += val; count++; }
+            for (float val : mSmoothedLeft) { totalMag += val; count++; }
+            for (float val : mSmoothedRight) { totalMag += val; count++; }
+            float avgMag = totalMag / count;
+
+            mPaint.setStyle(Paint.Style.STROKE);
+            mPaint.setStrokeWidth(mBarHeightPx * 2);
+            mPaint.setAlpha((int) (Math.min(avgMag * 0.5f, 1.0f) * 255));
+            canvas.drawPath(mEdgePath, mPaint);
+            mPaint.setStyle(Paint.Style.FILL);
+            mPaint.setAlpha(255);
+            return;
+        }
+
         int totalBars = (mBarCountHoriz + mBarCountVert) * 2;
         float step = totalLength / totalBars;
         float barThickness = step * 0.8f;
@@ -188,7 +220,8 @@ public class EdgeVisualizerView extends View {
             canvas.translate(mPos[0], mPos[1]);
             float angle = (float) Math.toDegrees(Math.atan2(mTan[1], mTan[0]));
             canvas.rotate(angle + 90);
-            canvas.drawRect(0, -barThickness / 2, barHeight, barThickness / 2, mPaint);
+            float cornerRadius = (mStyle == VisualizerStyle.ROUNDED_BARS || mRoundedBarsEnabled) ? barThickness / 2f : 0f;
+            canvas.drawRoundRect(0, -barThickness / 2, barHeight, barThickness / 2, cornerRadius, cornerRadius, mPaint);
             canvas.restore();
         }
     }
