@@ -132,6 +132,8 @@
     <string name="idle_pattern_heartbeat">Heartbeat</string>
     <string name="idle_pattern_orbit">Orbit</string>
     <string name="idle_pattern_rain">Rain</string>
+    <string name="idle_pulse_brightness">Pulse Brightness: %d%%</string>
+    <string name="idle_background_brightness">Background Brightness: %d%%</string>
     <string name="cancel">Cancel</string>
     <string name="back">Back</string>
     <string name="editing_segments_count">Editing %d Segments</string>

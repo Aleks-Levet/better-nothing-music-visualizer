@@ -755,6 +755,8 @@ public class AudioCaptureService extends Service {
     }
 
     public void setIdlePattern(String pattern) { if (mGlyphRenderer != null) mGlyphRenderer.setIdlePattern(pattern); }
+    public void setIdleBrightness(float b) { if (mGlyphRenderer != null) mGlyphRenderer.setIdleBrightness(b); }
+    public void setIdleBackgroundBrightness(float b) { if (mGlyphRenderer != null) mGlyphRenderer.setIdleBackgroundBrightness(b); }
 
     public void setBroadcastEnabled(boolean enabled) {
         mBroadcastEnabled = enabled;

@@ -62,6 +62,8 @@ internal fun SettingsScreen(
     isTablet: Boolean = false,
 ) {
     val uiAmplitudeSyncEnabled by viewModel.uiAmplitudeSyncEnabled.collectAsStateWithLifecycle()
+    val idleBrightness by viewModel.idleBrightness.collectAsStateWithLifecycle()
+    val idleBackgroundBrightness by viewModel.idleBackgroundBrightness.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
 
     val selectedTheme by viewModel.selectedTheme.collectAsStateWithLifecycle()
@@ -255,6 +257,32 @@ internal fun SettingsScreen(
                         labelProvider = { key ->
                             patternOptions.find { it.first == key }?.second ?: key
                         },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = stringResource(R.string.idle_pulse_brightness, (idleBrightness * 100).toInt()),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Slider(
+                        value = idleBrightness,
+                        onValueChange = { viewModel.setIdleBrightness(it) },
+                        valueRange = 0.05f..1.0f,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Text(
+                        text = stringResource(R.string.idle_background_brightness, (idleBackgroundBrightness * 100).toInt()),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Slider(
+                        value = idleBackgroundBrightness,
+                        onValueChange = { viewModel.setIdleBackgroundBrightness(it) },
+                        valueRange = 0.0f..0.2f,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

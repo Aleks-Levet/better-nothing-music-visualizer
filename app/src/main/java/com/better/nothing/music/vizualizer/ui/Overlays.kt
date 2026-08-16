@@ -12,7 +12,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -33,6 +37,20 @@ fun MainOverlays(
     val isShowingAbout by viewModel.isShowingAbout.collectAsStateWithLifecycle()
     val isShowingLicense by viewModel.isShowingLicense.collectAsStateWithLifecycle()
     val isShowingStats by viewModel.isShowingStats.collectAsStateWithLifecycle()
+
+    var backTarget by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(backProgress > 0f) {
+        if (backProgress > 0f && backTarget == null) {
+            backTarget = when {
+                isShowingStats -> "stats"
+                isShowingLicense -> "license"
+                isShowingAbout -> "about"
+                else -> null
+            }
+        } else if (backProgress <= 0f) {
+            backTarget = null
+        }
+    }
 
     val enterTransition = slideInHorizontally(
         initialOffsetX = { it },
@@ -55,10 +73,14 @@ fun MainOverlays(
         AnimatedVisibility(
             visible = isShowingAbout,
             enter = enterTransition,
-            exit = if (backProgress > 0f) fadeOut(animationSpec = tween(500)) else exitTransition,
+            exit = if (backProgress > 0f && backTarget == "about") fadeOut(animationSpec = tween(500)) else exitTransition,
             modifier = overlayModifier.graphicsLayer {
-                if (backProgress > 0f) {
+                if (backProgress > 0f && backTarget == "about") {
                     translationX = size.width * backProgress
+                    val scale = 1f - (backProgress * 0.05f)
+                    scaleX = scale
+                    scaleY = scale
+                    alpha = 1f - (backProgress * 0.2f)
                 }
             }
         ) {
@@ -71,10 +93,14 @@ fun MainOverlays(
         AnimatedVisibility(
             visible = isShowingLicense,
             enter = enterTransition,
-            exit = if (backProgress > 0f) fadeOut(animationSpec = tween(500)) else exitTransition,
+            exit = if (backProgress > 0f && backTarget == "license") fadeOut(animationSpec = tween(500)) else exitTransition,
             modifier = overlayModifier.graphicsLayer {
-                if (backProgress > 0f) {
+                if (backProgress > 0f && backTarget == "license") {
                     translationX = size.width * backProgress
+                    val scale = 1f - (backProgress * 0.05f)
+                    scaleX = scale
+                    scaleY = scale
+                    alpha = 1f - (backProgress * 0.2f)
                 }
             }
         ) {
@@ -87,10 +113,14 @@ fun MainOverlays(
         AnimatedVisibility(
             visible = isShowingStats,
             enter = enterTransition,
-            exit = if (backProgress > 0f) fadeOut(animationSpec = tween(500)) else exitTransition,
+            exit = if (backProgress > 0f && backTarget == "stats") fadeOut(animationSpec = tween(500)) else exitTransition,
             modifier = overlayModifier.graphicsLayer {
-                if (backProgress > 0f) {
+                if (backProgress > 0f && backTarget == "stats") {
                     translationX = size.width * backProgress
+                    val scale = 1f - (backProgress * 0.05f)
+                    scaleX = scale
+                    scaleY = scale
+                    alpha = 1f - (backProgress * 0.2f)
                 }
             }
         ) {

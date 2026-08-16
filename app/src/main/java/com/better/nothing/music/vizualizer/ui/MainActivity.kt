@@ -26,6 +26,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
@@ -315,6 +316,7 @@ class MainActivity : AppCompatActivity() {
                 var backProgress by remember { mutableStateOf(0f) }
 
                 PredictiveBackHandler(enabled = shouldIntercept) { progress ->
+                    backProgress = 0f
                     try {
                         progress.collect { backEvent ->
                             backProgress = backEvent.progress
@@ -327,10 +329,12 @@ class MainActivity : AppCompatActivity() {
                             animate(
                                 initialValue = backProgress,
                                 targetValue = 1f,
-                                animationSpec = tween(durationMillis = 400)
+                                animationSpec = tween(durationMillis = 500, easing = EaseOutCubic)
                             ) { value, _ ->
                                 backProgress = value
                             }
+                            // Keep it off-screen for a moment to let AnimatedVisibility finish its fade out
+                            delay(200)
                         }
                     } catch (e: Exception) {
                         // Gesture canceled
@@ -338,7 +342,7 @@ class MainActivity : AppCompatActivity() {
                             animate(
                                 initialValue = backProgress,
                                 targetValue = 0f,
-                                animationSpec = tween(durationMillis = 400)
+                                animationSpec = tween(durationMillis = 400, easing = EaseOutCubic)
                             ) { value, _ ->
                                 backProgress = value
                             }
@@ -482,6 +486,8 @@ class MainActivity : AppCompatActivity() {
             viewModel.setFlashlightIntensityLevels(it.flashlightIntensityLevels)
             it.setIdleBreathingEnabled(viewModel.idleBreathingEnabled.value)
             it.setIdlePattern(viewModel.idlePattern.value)
+            it.setIdleBrightness(viewModel.idleBrightness.value)
+            it.setIdleBackgroundBrightness(viewModel.idleBackgroundBrightness.value)
             it.setLensVisualizerEnabled(viewModel.onScreenVisualizersEnabled.value && viewModel.lensVisualizerEnabled.value)
             it.setLensVisualizerRadius(viewModel.lensVisualizerRadius.value)
             it.setLensVisualizerX(viewModel.lensVisualizerX.value)
@@ -638,6 +644,14 @@ internal fun BetterVizApp(
     val onScreenVisualizersEnabled by viewModel.onScreenVisualizersEnabled.collectAsStateWithLifecycle()
     val isFirstTime by viewModel.isFirstTime.collectAsStateWithLifecycle()
 
+    val isShowingAbout by viewModel.isShowingAbout.collectAsStateWithLifecycle()
+    val isShowingLicense by viewModel.isShowingLicense.collectAsStateWithLifecycle()
+    val isShowingStats by viewModel.isShowingStats.collectAsStateWithLifecycle()
+    val isShowingHostPicker by viewModel.isShowingHostPicker.collectAsStateWithLifecycle()
+    val isAnyOverlayVisible = isShowingAbout || isShowingLicense || isShowingStats || isShowingHostPicker
+
+    var predictiveBackInitialState by remember { mutableStateOf<Pair<Tab, Boolean>?>(null) }
+
     if (isFirstTime) {
         AlertDialog(
             onDismissRequest = { viewModel.dismissFirstTime() },
@@ -719,13 +733,44 @@ internal fun BetterVizApp(
     val pagerState = rememberPagerState(initialPage = visibleTabs.indexOf(selectedTab).coerceAtLeast(0)) { visibleTabs.size }
     var isProgrammaticScroll by remember { mutableStateOf(false) }
 
+    // Handle predictive back pager animation
+    LaunchedEffect(backProgress) {
+        if (backProgress > 0f) {
+            if (predictiveBackInitialState == null) {
+                predictiveBackInitialState = selectedTab to isAnyOverlayVisible
+            }
+            val (startTab, startedWithOverlay) = predictiveBackInitialState!!
+            if (!startedWithOverlay && startTab != Tab.Audio) {
+                val currentIndex = visibleTabs.indexOf(startTab).coerceAtLeast(0)
+                val targetIndex = 0
+                val targetPageValue = currentIndex + (targetIndex - currentIndex) * backProgress
+                val page = targetPageValue.toInt()
+                val offset = targetPageValue - page
+                pagerState.scrollToPage(page, offset)
+            }
+        } else {
+            if (predictiveBackInitialState != null) {
+                val (startTab, startedWithOverlay) = predictiveBackInitialState!!
+                if (!startedWithOverlay && startTab != Tab.Audio) {
+                    val target = visibleTabs.indexOf(selectedTab).coerceAtLeast(0)
+                    pagerState.scrollToPage(target)
+                }
+                predictiveBackInitialState = null
+            }
+        }
+    }
+
     // Sync pager when selectedTab changes (e.g. from bottom bar)
     LaunchedEffect(selectedTab) {
         val target = visibleTabs.indexOf(selectedTab).coerceAtLeast(0)
         if (pagerState.currentPage != target) {
             isProgrammaticScroll = true
             try {
-                pagerState.animateScrollToPage(target)
+                if (backProgress > 0f) {
+                    pagerState.scrollToPage(target)
+                } else {
+                    pagerState.animateScrollToPage(target)
+                }
             } finally {
                 isProgrammaticScroll = false
             }
@@ -734,7 +779,7 @@ internal fun BetterVizApp(
 
     // Sync selectedTab when pager is scrolled by user
     LaunchedEffect(pagerState.currentPage) {
-        if (!isProgrammaticScroll) {
+        if (!isProgrammaticScroll && backProgress == 0f) {
             val swipedTab = visibleTabs.getOrNull(pagerState.currentPage)
             if (swipedTab != null && swipedTab != selectedTab) {
                 view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)

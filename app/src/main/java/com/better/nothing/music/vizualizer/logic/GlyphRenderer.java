@@ -18,6 +18,8 @@ public class GlyphRenderer {
     private boolean mIdleBreathingEnabled;
     private int mDeviceType;
     private String mIdlePattern = "pulse";
+    private float mIdleBrightness = 0.4f;
+    private float mIdleBackgroundBrightness = 0.02f;
     private boolean mAlternateMode = false;
     private int[] mPreviousFftRaw = null;
 
@@ -39,6 +41,9 @@ public class GlyphRenderer {
     }
 
     public void setIdlePattern(String pattern) { this.mIdlePattern = pattern; }
+
+    public void setIdleBrightness(float brightness) { this.mIdleBrightness = brightness; }
+    public void setIdleBackgroundBrightness(float brightness) { this.mIdleBackgroundBrightness = brightness; }
 
     public void setAlternateMode(boolean enabled) {
         this.mAlternateMode = enabled;
@@ -93,9 +98,6 @@ public class GlyphRenderer {
         }
 
         try {
-            // Update mLastFrameMs
-            mLastFrameMs = nowMs;
-
             int hardwareCount = DeviceProfile.getLedCount(mDeviceType);
             int zoneCount = Math.max(config.zones.length, hardwareCount);
 
@@ -172,7 +174,7 @@ public class GlyphRenderer {
 
         long silenceDuration = (mSilenceStartTimeMs > 0) ? (nowMs - mSilenceStartTimeMs) : 0;
         boolean shouldBreathe = mIdleBreathingEnabled && (silenceDuration > BREATH_DELAY_MS);
-        float targetEnvelope = shouldBreathe ? .4f : 0.0f;
+        float targetEnvelope = shouldBreathe ? 1.0f : 0.0f;
 
         if (mBreathingEnvelope < targetEnvelope) {
             mBreathingEnvelope += (float) deltaMs / 2500f;
@@ -190,7 +192,10 @@ public class GlyphRenderer {
                     effectiveIndex = 29 - (i - 19);
                 }
                 float intensity = getIdleIntensity(effectiveIndex, zoneCount, nowMs);
-                float breathVal = (0.02f + intensity * 0.48f) * mBreathingEnvelope;
+                
+                // Breath value interpolates between background and peak brightness
+                float breathVal = (mIdleBackgroundBrightness + intensity * (mIdleBrightness - mIdleBackgroundBrightness)) * mBreathingEnvelope;
+
                 if (state[i] < breathVal) state[i] = breathVal;
             }
         }
@@ -198,10 +203,14 @@ public class GlyphRenderer {
 
     private float getIdleIntensity(int i, int zoneCount, long nowMs) {
         return switch (mIdlePattern) {
+            case "pulse" -> {
+                double timeProg = (double) (nowMs % 3000L) / 3000L;
+                yield (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * timeProg - Math.PI / 2.0));
+            }
             case "wave" -> {
                 double timeProg = (double) (nowMs % 2000L) / 2000L;
                 float phaseShift = (float) i / zoneCount;
-                yield (float) (0.1 + 0.5 * Math.sin(2.0 * Math.PI * (timeProg - phaseShift)));
+                yield (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * (timeProg - phaseShift)));
             }
             case "scanner" -> {
                 double timeProg = (double) (nowMs % 2500L) / 2500L;
@@ -210,8 +219,8 @@ public class GlyphRenderer {
                 float dist = Math.abs(ledPos - scannerPos);
                 yield (float) Math.exp(-dist * dist * 40.0);
             }
-            case " Zebra" -> {
-                double timeProg = (double) (nowMs % 2500L) / 2500L;
+            case "zebra" -> {
+                double timeProg = (double) (nowMs % 1500L) / 1500L;
                 boolean even = (i % 2 == 0);
                 double sinVal = Math.sin(2.0 * Math.PI * timeProg);
                 yield even ? (float) (0.5 + 0.5 * sinVal) : (float) (0.5 - 0.5 * sinVal);
@@ -222,10 +231,29 @@ public class GlyphRenderer {
                 else if (t > 0.22 && t < 0.34) yield (float) Math.sin(Math.PI * (t - 0.22) / 0.12) * 0.7f;
                 yield 0f;
             }
+            case "orbit" -> {
+                double t = (double) (nowMs % 4000L) / 4000L;
+                float center = (float) (0.5 + 0.4 * Math.sin(2.0 * Math.PI * t));
+                float ledPos = (float) i / zoneCount;
+                float dist = Math.abs(ledPos - center);
+                if (dist > 0.5f) dist = 1.0f - dist;
+                yield (float) Math.exp(-dist * dist * 80.0);
+            }
+            case "rain" -> {
+                // Pseudo-random rain drops based on index and time
+                // Use a slower time base for seed so drops stay for a bit
+                long timeBase = nowMs / 600;
+                float seed = (float) Math.abs(Math.sin(i * 12.432 + timeBase * 0.543));
+                if (seed > 0.7f) {
+                    double dropT = (nowMs % 600L) / 600.0;
+                    yield (float) Math.sin(Math.PI * dropT);
+                }
+                yield 0.0f;
+            }
             default -> {
                 double timeProg = (double) (nowMs % 3000L) / 3000L;
                 float phaseShift = (float) i * 0.02f;
-                yield (float) (0.2 + 0.5 * Math.sin(2.0 * Math.PI * (timeProg + phaseShift) - Math.PI / 2.0));
+                yield (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * (timeProg + phaseShift) - Math.PI / 2.0));
             }
         };
     }

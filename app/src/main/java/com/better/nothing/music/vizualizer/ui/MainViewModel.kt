@@ -924,6 +924,30 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    val _idleBrightness = MutableStateFlow(0.4f)
+    val idleBrightness = _idleBrightness.asStateFlow()
+
+    fun setIdleBrightness(value: Float) {
+        _idleBrightness.value = value
+        MainActivity.serviceStatic?.setIdleBrightness(value)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("idle_brightness", value) }
+        }
+    }
+
+    val _idleBackgroundBrightness = MutableStateFlow(0.02f)
+    val idleBackgroundBrightness = _idleBackgroundBrightness.asStateFlow()
+
+    fun setIdleBackgroundBrightness(value: Float) {
+        _idleBackgroundBrightness.value = value
+        MainActivity.serviceStatic?.setIdleBackgroundBrightness(value)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("idle_background_brightness", value) }
+        }
+    }
+
 
     val _musicThemeColor = MutableStateFlow(Color(0xFFD71921))
     val musicThemeColor = _musicThemeColor.asStateFlow()
@@ -1803,6 +1827,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         // Overlay and other visual settings
         _idleBreathingEnabled.value = prefs.getBoolean("idle_breathing_enabled", false)
         _idlePattern.value = prefs.getString("idle_pattern", "pulse") ?: "pulse"
+        _idleBrightness.value = prefs.getFloat("idle_brightness", 0.4f)
+        _idleBackgroundBrightness.value = prefs.getFloat("idle_background_brightness", 0.02f)
         _overlayEnabled.value = prefs.getBoolean("overlay_enabled", false)
         _overlayTopEnabled.value = prefs.getBoolean("overlay_top_enabled", true)
         _overlayBottomEnabled.value = prefs.getBoolean("overlay_bottom_enabled", false)
