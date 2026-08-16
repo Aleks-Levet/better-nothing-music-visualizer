@@ -1590,10 +1590,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val service = MainActivity.serviceStatic
         if (service != null) {
             val uiPeak = service.latestUiPeak
-            val target = 1.0f + (uiPeak * 0.25f)
+            val target = 0.8f + (uiPeak * 0.45f)
             
             val current = _uiAmplitude.value
-            val next = if (_uiAmplitudeSyncEnabled.value) target.coerceIn(1.0f, 1.25f) else 1.0f
+            val next = if (_uiAmplitudeSyncEnabled.value) target.coerceIn(0.8f, 1.25f) else 1.0f
             
             if (next > current) {
                 // Instant rise

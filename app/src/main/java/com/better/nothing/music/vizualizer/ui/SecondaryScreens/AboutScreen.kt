@@ -2,10 +2,8 @@ package com.better.nothing.music.vizualizer.ui.SecondaryScreens
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -15,9 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -40,17 +36,6 @@ internal fun AboutScreen(
     val scrollState = rememberScrollState()
     val uriHandler = LocalUriHandler.current
     val appUpdateStatus by viewModel.appUpdateStatus.collectAsStateWithLifecycle()
-
-    val credits = listOf(
-        CreditEntry("Aleks Levet", stringResource(R.string.credit_alekslevet_role), "aleks-levet"),
-        CreditEntry("rKyzen", stringResource(R.string.credit_rkyzen_role), "rKyzen"),
-        CreditEntry("Oliver Lebaigue", stringResource(R.string.credit_oliver_role), "oliverlebaigue"),
-        CreditEntry("nicouschulas", stringResource(R.string.credit_nicouschulas_role), "nicouschulas"),
-        CreditEntry("Sebiai", stringResource(R.string.credit_sebiai_role), "Sebiai"),
-        CreditEntry("EarnedEL", stringResource(R.string.credit_earnedel_role), "EarnedEL"),
-        CreditEntry("Ake", stringResource(R.string.credit_ake_role), null),
-        CreditEntry("Interlastic", stringResource(R.string.credit_interlastic_role), "Interlastic")
-    )
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -187,70 +172,15 @@ internal fun AboutScreen(
                 )
             }
 
-            SectionHeader(text = stringResource(R.string.credits))
-            Column(
-                modifier = Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                credits.forEachIndexed { index, credit ->
-                    val isFirst = index == 0
-                    val isLast = index == credits.size - 1
-                    val topRounding =
-                        if (isFirst) MaterialTheme.shapes.large.topStart else CornerSize(6.dp)
-                    val bottomRounding =
-                        if (isLast) MaterialTheme.shapes.large.bottomStart else CornerSize(6.dp)
-
-                    ExpressiveCard(
-                        shape = RoundedCornerShape(
-                            topStart = topRounding,
-                            topEnd = topRounding,
-                            bottomStart = bottomRounding,
-                            bottomEnd = bottomRounding
-                        ),
-                        modifier = Modifier.let { m ->
-                            if (credit.githubUsername != null) {
-                                m.clickable { uriHandler.openUri("https://github.com/${credit.githubUsername}") }
-                            } else m
-                        }
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = credit.name,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = credit.role,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                            if (credit.githubUsername != null) {
-                                Icon(
-                                    imageVector = Icons.Default.Link,
-                                    contentDescription = stringResource(R.string.open_github_profile),
-                                    modifier = Modifier.size(16.dp),
-                                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+            SectionHeader(text = "Made by Aleks Levet with love!")
+            Text(
+                "I am not the only one who contributed to making this amazing project, check the github page for full credits! This took years to make!",
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold
+            )
 
             Spacer(modifier = Modifier.height(100.dp))
         }
     }
 }
-
-private data class CreditEntry(
-    val name: String,
-    val role: String,
-    val githubUsername: String?
-)

@@ -25,7 +25,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
@@ -37,6 +40,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
@@ -329,7 +333,7 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     } catch (e: Exception) {
-                        // Gesture cancelled
+                        // Gesture canceled
                         if (backProgress > 0f) {
                             animate(
                                 initialValue = backProgress,
@@ -344,21 +348,6 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
-                val isOverlayVisible = isShowingAbout || isShowingLicense || isShowingStats || isShowingHostPicker
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .graphicsLayer {
-                            if (backProgress > 0f && !isOverlayVisible) {
-                                val scale = 1f - (backProgress * 0.05f)
-                                scaleX = scale
-                                scaleY = scale
-                                clip = true
-                                shape = RoundedCornerShape((backProgress * 24).dp)
-                            }
-                        }
-                ) {
                     BetterVizApp(
                         viewModel = viewModel,
                         onToggleVisualizer = { toggleVisualizer() },
@@ -368,7 +357,6 @@ class MainActivity : AppCompatActivity() {
                         },
                         backProgress = backProgress
                     )
-                }
 
                 if (isShowingHostPicker) {
                     HostSelectionSheet(
@@ -790,12 +778,20 @@ internal fun BetterVizApp(
         ) { padding ->
             if (isTablet) {
                 val scrollState = rememberScrollState()
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .horizontalScroll(scrollState)
-                ) {
+
+                // 1. Only enable horizontal scrolling if tabletTabWidth is specified
+                val rowModifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .then(
+                        if (tabletTabWidth > 0) {
+                            Modifier.horizontalScroll(scrollState)
+                        } else {
+                            Modifier
+                        }
+                    )
+
+                Row(modifier = rowModifier) {
                     visibleTabs.forEachIndexed { index, tab ->
                         key(tab) {
                             val isTabEnabled = when (tab) {
@@ -805,36 +801,43 @@ internal fun BetterVizApp(
                                 else -> true
                             }
 
-                            val tabModifier = if (tabletTabWidth > 0) {
-                                Modifier.width(tabletTabWidth.dp)
-                            } else {
-                                Modifier.weight(1f).widthIn(min = 500.dp)
-                            }
+                            // 2. Use weight when tabletTabWidth <= 0 so all tabs share the screen space
+                            val tabModifier =  Modifier.width(tabletTabWidth.dp)
 
                             Box(
-                                modifier = tabModifier
+                                modifier = Modifier
                                     .fillMaxHeight()
+                                    .animateContentSize(
+                                        animationSpec = spring(
+                                            dampingRatio = Spring.DampingRatioLowBouncy,
+                                            stiffness = Spring.StiffnessLow
+                                        )
+                                    )
                             ) {
                                 if (isTabEnabled) {
+                                    Box(
+                                        modifier = tabModifier
+                                    ) {
                                     TabContent(
-                                        tab,
-                                        viewModel,
-                                        isRunning,
-                                        totalVisualizedTime,
-                                        developerModeEnabled,
-                                        glyphsEnabled,
-                                        hapticsEnabled,
-                                        flashlightEnabled,
-                                        visualsEnabled,
-                                        onOverlayPermissionRequest,
+                                        tab = tab,
+                                        viewModel = viewModel,
+                                        isRunning = isRunning,
+                                        totalVisualizedTime = totalVisualizedTime,
+                                        developerModeEnabled = developerModeEnabled,
+                                        glyphsEnabled = glyphsEnabled,
+                                        hapticsEnabled = hapticsEnabled,
+                                        flashlightEnabled = flashlightEnabled,
+                                        visualsEnabled = visualsEnabled,
+                                        onOverlayPermissionRequest = onOverlayPermissionRequest,
                                         PaddingValues(0.dp),
                                         isTablet = true
-                                    )
+                                    )}
                                 } else {
                                     DisabledFeaturePlaceholder(tab)
                                 }
                             }
                         }
+
                         if (index < visibleTabs.size - 1) {
                             VerticalDivider(
                                 modifier = Modifier

@@ -2,68 +2,40 @@
 
 package com.better.nothing.music.vizualizer.ui
 
-import android.R.attr.shape
 import android.os.SystemClock
+import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
-import android.annotation.SuppressLint
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material.icons.filled.FlashlightOn
-import androidx.compose.material.icons.filled.Layers
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Vibration
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.lerp
-import kotlin.math.roundToInt
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseInOutCubic
+import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
-import androidx.compose.foundation.border
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
@@ -76,63 +48,93 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.FlashlightOn
+import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.Vibration
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
-import android.view.HapticFeedbackConstants
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
@@ -141,9 +143,9 @@ import androidx.graphics.shapes.toPath
 import com.better.nothing.music.vizualizer.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import kotlin.math.exp
 import kotlin.math.ln
+import kotlin.math.max
 import kotlin.time.Duration.Companion.milliseconds
 import android.graphics.Path as AndroidPath
 
@@ -757,6 +759,8 @@ fun ExpandableExpressiveCard(
     }
 }
 
+
+
 @Composable
 fun IndicatorPill(
     isExpanded: Boolean,
@@ -764,15 +768,33 @@ fun IndicatorPill(
     isLink: Boolean = false,
     onClick: (() -> Unit)? = null
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val haptics = LocalHapticFeedback.current
     val view = LocalView.current
-    val isPressed by interactionSource.collectIsPressedAsState()
+    val interactionSource = remember { MutableInteractionSource() }
 
-    // Trigger light haptic tick immediately when pressed down
-    LaunchedEffect(isPressed) {
-        if (isPressed) {
+    // Raw instant touch state to bypass clickable's scroll-detection delay
+    var isActuallyPressed by remember { mutableStateOf(false) }
+
+    // States for minimum duration logic (100ms)
+    var isVisuallyPressed by remember { mutableStateOf(false) }
+    var pressStartTime by remember { mutableLongStateOf(0L) }
+
+    // Haptics & Minimum Press Duration Handler
+    LaunchedEffect(isActuallyPressed) {
+        if (isActuallyPressed) {
+            // Press Down: Light haptic tick immediately
+            pressStartTime = System.currentTimeMillis()
+            isVisuallyPressed = true
             view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+        } else {
+            // Release: Stronger haptic click
+            view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
+
+            // Ensure the visual press state lasts at least 100ms
+            val elapsed = System.currentTimeMillis() - pressStartTime
+            if (elapsed < 200L) {
+                delay(200L - elapsed)
+            }
+            isVisuallyPressed = false
         }
     }
 
@@ -787,7 +809,7 @@ fun IndicatorPill(
         else -> 66.dp
     }
 
-    val targetWidth = if (isPressed) baseWidth - 10.dp else baseWidth
+    val targetWidth = if (isVisuallyPressed) baseWidth - 10.dp else baseWidth
 
     val width by animateDpAsState(
         targetValue = targetWidth,
@@ -814,7 +836,16 @@ fun IndicatorPill(
         shape = RoundedCornerShape(cornerRadius),
         color = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.onPrimary,
-        modifier = modifier.size(width = width, height = height)
+        modifier = modifier
+            .size(width = width, height = height)
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    awaitFirstDown(requireUnconsumed = false)
+                    isActuallyPressed = true
+                    waitForUpOrCancellation()
+                    isActuallyPressed = false
+                }
+            }
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
@@ -928,15 +959,13 @@ fun StartStopButton(
         label         = "contentColor"
     )
 
-    val outerPadding = (8.dp / uiAmp).coerceAtLeast(1.dp)
-
     Box(
         modifier = modifier
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
             }
-            .padding(outerPadding),
+            .padding(0.dp),
         contentAlignment = Alignment.Center
     ) {
         FloatingActionButton(
@@ -945,16 +974,16 @@ fun StartStopButton(
                 onClick()
             },
             interactionSource = interactionSource,
-            shape = RoundedCornerShape((18 + (uiAmp - 1) * 20).dp),
+            shape = RoundedCornerShape((18 + (uiAmp - 1) * 60).dp),
             modifier = Modifier
-                .height((60 + (uiAmp - 1) * 10).dp)
-                .widthIn(min = (130 + (uiAmp - 1) * 20).dp),
+                .height(60.dp)
+                .widthIn(min = (130*max(uiAmp, 0.9f)).dp),
             containerColor = containerColor,
             contentColor = contentColor,
-            elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp)
+            elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 8.dp)
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 15.dp),
+                modifier = Modifier.padding(horizontal = 15*uiAmp.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
@@ -997,54 +1026,160 @@ fun ExpressiveSwitch(
     enabled: Boolean = true,
 ) {
     val view = LocalView.current
-    val uiAmp = LocalUIAmplitude.current
+    val uiAmp = LocalUIAmplitude.current // E.g., 1.0f base
 
     val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
 
-    val scale by animateFloatAsState(
-        targetValue = (if (isPressed) 0.9f else 1.0f) * uiAmp,
+    // Raw instant touch state to bypass the scroll-detection delay of clickable
+    var isActuallyPressed by remember { mutableStateOf(false) }
+
+    // States for minimum duration logic
+    var isVisuallyPressed by remember { mutableStateOf(false) }
+    var pressStartTime by remember { mutableLongStateOf(0L) }
+
+    // 1. Base Dimensions
+    val trackHeight = 32.dp
+    val baseTrackWidth = 52.dp
+    val thumbSize = 24.dp
+    val thumbPadding = 4.dp
+
+    // Calculate actual physical width dynamically based on uiAmp
+    val dynamicTrackWidth = baseTrackWidth * (1 + ((uiAmp - 1) / 2))
+
+    // 2. Minimum Press Duration & Haptics
+    LaunchedEffect(isActuallyPressed) {
+        if (isActuallyPressed) {
+            // User pressed down
+            pressStartTime = System.currentTimeMillis()
+            isVisuallyPressed = true
+            view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+        } else {
+            // User released. Check how long it's been.
+            val elapsed = System.currentTimeMillis() - pressStartTime
+            if (elapsed < 100L) {
+                // Wait out the remainder of the 100ms before releasing the visual state
+                delay(100L - elapsed)
+            }
+            isVisuallyPressed = false
+        }
+    }
+
+    // 3. Squash and Stretch (Jelly Physics for the whole pill on press)
+    val pressScaleX by animateFloatAsState(
+        targetValue = if (isVisuallyPressed) 1.05f else 1.0f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow
         ),
-        label = "switchScale"
+        label = "pressScaleX"
+    )
+    val pressScaleY by animateFloatAsState(
+        targetValue = if (isVisuallyPressed) 0.85f else 1.0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "pressScaleY"
     )
 
-    Switch(
-        checked = checked,
-        onCheckedChange = {
-            view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
-            onCheckedChange?.invoke(it)
-        },
+    // 4. Color Animations
+    val trackColor by animateColorAsState(
+        targetValue = if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+        label = "trackColor"
+    )
+    val thumbColor by animateColorAsState(
+        targetValue = if (checked) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+        label = "thumbColor"
+    )
+    val iconColor by animateColorAsState(
+        targetValue = if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+        label = "iconColor"
+    )
+
+    // 5. Thumb Position & Icon Animation
+    val thumbOffset by animateDpAsState(
+        targetValue = if (checked) (dynamicTrackWidth - thumbSize - (thumbPadding * 2)) else 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "thumbOffset"
+    )
+    val iconRotation by animateFloatAsState(
+        targetValue = if (checked) 0f else -180f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "iconRotation"
+    )
+    val iconAlphaCheck by animateFloatAsState(targetValue = if (checked) 1f else 0f, label = "alphaCheck")
+    val iconAlphaClose by animateFloatAsState(targetValue = if (checked) 0f else 1f, label = "alphaClose")
+
+    // 6. The Layout
+    Box(
         modifier = modifier
             .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            },
-        enabled = enabled,
-        interactionSource = interactionSource,
-        colors = SwitchDefaults.colors(
-            checkedThumbColor = Color.White,
-            checkedTrackColor = MaterialTheme.colorScheme.primary,
-            checkedBorderColor = Color.Transparent,
-            checkedIconColor = MaterialTheme.colorScheme.primary,
-
-            uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-            uncheckedTrackColor = Color.Transparent,
-            uncheckedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-            uncheckedIconColor = Color.Transparent
-        ),
-        thumbContent = if (checked) {
-            {
+                scaleX = pressScaleX
+                scaleY = pressScaleY
+                transformOrigin = TransformOrigin.Center
+            }
+            .width(dynamicTrackWidth) // ACTUAL width changes here based on uiAmp
+            .height(trackHeight)
+            .clip(CircleShape)
+            .background(trackColor)
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    awaitFirstDown(requireUnconsumed = false)
+                    isActuallyPressed = true
+                    waitForUpOrCancellation()
+                    isActuallyPressed = false
+                }
+            }
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null, // Disable default ripple so custom scale shines
+                enabled = enabled
+            ) {
+                view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
+                onCheckedChange?.invoke(!checked)
+            }
+            .padding(thumbPadding),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        // The Thumb
+        Box(
+            modifier = Modifier
+                .offset(x = thumbOffset)
+                .size(thumbSize)
+                .clip(CircleShape)
+                .background(thumbColor),
+            contentAlignment = Alignment.Center
+        ) {
+            // Container for spinning the icons
+            Box(
+                modifier = Modifier
+                    .size(16.dp)
+                    .graphicsLayer { rotationZ = iconRotation },
+                contentAlignment = Alignment.Center
+            ) {
+                // Check Icon
                 Icon(
                     imageVector = Icons.Filled.Check,
                     contentDescription = null,
-                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                    tint = iconColor,
+                    modifier = Modifier.graphicsLayer { alpha = iconAlphaCheck }
+                )
+                // Close Icon
+                Icon(
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = null,
+                    tint = iconColor,
+                    modifier = Modifier.graphicsLayer { alpha = iconAlphaClose }
                 )
             }
-        } else null
-    )
+        }
+    }
 }
 
 @Composable
@@ -1563,7 +1698,8 @@ fun DisabledFeaturePlaceholder(
 ) {
     Column(
         modifier = modifier
-            .fillMaxSize()
+            .fillMaxHeight() // Changed from fillMaxSize() so it doesn't fight height constraints
+            .fillMaxWidth()  // Allows it to take up all the space assigned by the parent weight
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -1591,9 +1727,9 @@ fun DisabledFeaturePlaceholder(
                 .alpha(0.2f),
             tint = MaterialTheme.colorScheme.onBackground
         )
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         Text(
             text = text,
             style = MaterialTheme.typography.headlineSmall,
@@ -1603,7 +1739,6 @@ fun DisabledFeaturePlaceholder(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ExpressiveColorPicker(
     selectedColor: Color,
@@ -1614,54 +1749,119 @@ fun ExpressiveColorPicker(
         Color.White,
         Color(0xFFD71921), // Nothing Red
         Color(0xFF4CAF50), // Green
+        Color(0xFF00FF00), // Pure Green
         Color(0xFF2196F3), // Blue
-        Color(0xFFFFC107), // Amber
-        Color(0xFF9C27B0), // Purple
-        Color(0xFFE91E63), // Pink
-        Color(0xFF00BCD4), // Cyan
         Color(0xFFFF5722), // Deep Orange
+        Color(0xFFFFAA00), // Amber
+        Color(0xFFFFFF00), // Pure Yellow
+        Color(0xFF9C27B0), // Purple
+        Color(0xFFFF00FC), // Pink
+        Color(0xFF00E3FF), // Cyan
         Color(0xFF607D8B), // Blue Grey
+        Color.Black,
     )
 
-    androidx.compose.foundation.layout.FlowRow(
-        modifier = modifier.fillMaxWidth().padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    val itemsPerRow = (colors.size + 1) / 2
+    val chunkedColors = colors.chunked(itemsPerRow)
+    val uiAmp = LocalUIAmplitude.current // E.g., 1.0f base
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        colors.forEach { color ->
-            val isSelected = color == selectedColor
-            val animatedScale by animateFloatAsState(
-                targetValue = if (isSelected) 1.15f else 1f,
-                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
-                label = "color_scale"
-            )
-            
-            val view = LocalView.current
+        chunkedColors.forEach { rowColors ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                rowColors.forEach { color ->
+                    val isSelected = color == selectedColor
 
-            Box(
-                modifier = Modifier
-                    .size(42.dp)
-                    .graphicsLayer {
-                        scaleX = animatedScale
-                        scaleY = animatedScale
+                    // Replaced interactionSource with our own instant state
+                    var isActuallyPressed by remember { mutableStateOf(false) }
+
+                    var visuallyPressed by remember { mutableStateOf(false) }
+                    var pressStartTime by remember { mutableLongStateOf(0L) }
+
+                    LaunchedEffect(isActuallyPressed) {
+                        if (isActuallyPressed) {
+                            pressStartTime = System.currentTimeMillis()
+                            visuallyPressed = true
+                        } else {
+                            val elapsedTime = System.currentTimeMillis() - pressStartTime
+                            if (elapsedTime < 150L) {
+                                delay(150L - elapsedTime)
+                            }
+                            visuallyPressed = false
+                        }
                     }
-                    .background(color, RoundedCornerShape(21.dp))
-                    .then(
-                        if (isSelected) Modifier.border(
-                            width = 3.dp,
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(21.dp)
-                        ) else Modifier.border(
-                            width = 1.dp,
-                            color = Color.Gray.copy(alpha = 0.3f),
-                            shape = RoundedCornerShape(21.dp)
-                        )
+
+                    // 1. Calculate the base target weight depending on selection and press state
+                    val baseTargetWeight = when {
+                        isSelected && visuallyPressed -> 2.5f
+                        isSelected -> 3.0f
+                        visuallyPressed -> 2.0f
+                        else -> 1.0f
+                    }
+
+                    // 2. Animate just the base state transition with the spring
+                    val animatedBaseWeight by animateFloatAsState(
+                        targetValue = baseTargetWeight,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        ),
+                        label = "color_weight"
                     )
-                    .clickable {
-                        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
-                        onColorSelected(color)
-                    }
-            )
+
+                    // 3. Apply uiAmp dynamically to the final weight
+                    // (Using a baseline of 1.0f so it scales cleanly without lagging behind the spring)
+                    val animatedWeight = 1.0f + (animatedBaseWeight - 1.0f) * uiAmp
+
+                    val view = LocalView.current
+
+                    Box(
+                        modifier = Modifier
+                            .weight(animatedWeight)
+                            .height(42.dp)
+                            .clip(CircleShape)
+                            .background(color, CircleShape)
+                            .then(
+                                if (isSelected) Modifier.border(
+                                    width = 3.dp,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    shape = CircleShape
+                                ) else Modifier.border(
+                                    width = 1.dp,
+                                    color = Color.Gray.copy(alpha = 0.3f),
+                                    shape = CircleShape
+                                )
+                            )
+                            // Use pointerInput instead of clickable for zero-latency touches
+                            .pointerInput(color) {
+                                detectTapGestures(
+                                    onPress = {
+                                        // Instantly true when finger touches screen
+                                        isActuallyPressed = true
+
+                                        // Wait for the finger to lift off or cancel
+                                        val released = tryAwaitRelease()
+
+                                        isActuallyPressed = false
+
+                                        // If it was a proper tap (not dragged away), trigger the selection
+                                        if (released) {
+                                            view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
+                                            onColorSelected(color)
+                                        }
+                                    }
+                                )
+                            }
+                    )
+                }
+            }
         }
     }
 }

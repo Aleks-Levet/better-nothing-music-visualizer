@@ -196,12 +196,11 @@ internal fun SettingsScreen(
                             color = MaterialTheme.colorScheme.primary
                         )
                         ExpressiveSplitButton(
-                            items = listOf(400, 500, 600, 700, 0),
+                            items = listOf(400, 500, 600, 700),
                             selectedItem = tabletTabWidth,
                             onItemSelection = { viewModel.setTabletTabWidth(it) },
                             labelProvider = {
-                                if (it == 0) stringResource(R.string.fill_screen)
-                                else "${it}dp"
+                                "${it}dp"
                             },
                             modifier = Modifier.fillMaxWidth(),
                             maxButtonsPerRow = 4
