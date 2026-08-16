@@ -11,19 +11,6 @@
 ## Aleks' fucking todo
 * Auto update mechanism without scary permissions
 
-
-* enhance the built-in switches by adding an X (cross) or a done (✅) in them, like the battery guru's settings switches, and also with bouncy animations and nice haptics
-
-* M3E split and round config update buttons
-
-* Redesign about page for a proper hierarchical easy M3E design
-
-* Merge Git repo link card with app version card
-
-* Change audio page big texts (such as made by aleks rkysen and oliver thing)
-
-* Add rotary haptic motor mode
-
 * parametric spectrum range preset for all phones
 
 ---
