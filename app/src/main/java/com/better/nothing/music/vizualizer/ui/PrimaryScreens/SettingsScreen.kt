@@ -393,6 +393,40 @@ internal fun SettingsScreen(
             }
         }
 
+        // ── Device Capabilities ───────────────────────────────────────────
+        val flashlightIntensityLevels by viewModel.flashlightIntensityLevels.collectAsStateWithLifecycle()
+
+        ExpandableExpressiveCard(
+            title = stringResource(R.string.device_features),
+            icon = Icons.Default.DeveloperBoard,
+            expanded = expandedCardId == "device_features",
+            onExpandedChange = { expandedCardId = if (it) "device_features" else null }
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.feature_flashlight_levels),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = if (flashlightIntensityLevels > 1)
+                            stringResource(R.string.feature_supported_n, flashlightIntensityLevels)
+                        else stringResource(R.string.feature_basic),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+
         // ── Audio Processing ────────────────────────────────────────────────
         val fftReadMethod by viewModel.fftReadMethod.collectAsStateWithLifecycle()
 

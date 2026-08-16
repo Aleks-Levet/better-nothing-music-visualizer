@@ -64,9 +64,12 @@ public final class FlashlightEngine {
         try {
             for (String id : manager.getCameraIdList()) {
                 CameraCharacteristics chars = manager.getCameraCharacteristics(id);
-                if (!supportsBackTorch(chars)) continue;
-                int max = readTorchStrengthLevel(chars);
-                return Math.max(1, max);
+                Boolean hasFlash = chars.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
+                Integer facing = chars.get(CameraCharacteristics.LENS_FACING);
+                if (Boolean.TRUE.equals(hasFlash) && facing != null && facing == CameraCharacteristics.LENS_FACING_BACK) {
+                    int max = readTorchStrengthLevel(chars);
+                    return Math.max(1, max);
+                }
             }
         } catch (CameraAccessException e) {
             Log.w(TAG, "Failed to detect torch intensity levels", e);
@@ -78,7 +81,14 @@ public final class FlashlightEngine {
         return hasTorchStrength ? Math.max(1, maxTorchStrength) : 1;
     }
 
-    public synchronized int getCurrentLevel() { return lastLevel; }
+    public synchronized int getCurrentLevel() {
+        if (cameraId != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            try {
+                return cameraManager.getTorchStrengthLevel(cameraId);
+            } catch (Exception ignored) {}
+        }
+        return lastLevel;
+    }
 
     public synchronized boolean hasVariableTorchStrength() {
         return hasTorchStrength && maxTorchStrength > 1;
@@ -87,22 +97,19 @@ public final class FlashlightEngine {
     private void initCamera() {
         if (cameraManager == null) return;
         try {
-            String bestCameraId = null;
-            int bestMaxStrength = 1;
             for (String id : cameraManager.getCameraIdList()) {
                 CameraCharacteristics chars = cameraManager.getCameraCharacteristics(id);
-                if (!supportsBackTorch(chars)) continue;
-                int max = readTorchStrengthLevel(chars);
-                if (bestCameraId == null || max > bestMaxStrength) {
-                    bestCameraId = id;
-                    bestMaxStrength = max;
-                }
-            }
-            if (bestCameraId != null) {
-                cameraId = bestCameraId;
-                if (bestMaxStrength > 1) {
-                    hasTorchStrength = true;
-                    maxTorchStrength = bestMaxStrength;
+                Boolean hasFlash = chars.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
+                Integer facing = chars.get(CameraCharacteristics.LENS_FACING);
+
+                if (Boolean.TRUE.equals(hasFlash) && facing != null && facing == CameraCharacteristics.LENS_FACING_BACK) {
+                    cameraId = id;
+                    int max = readTorchStrengthLevel(chars);
+                    if (max > 1) {
+                        hasTorchStrength = true;
+                        maxTorchStrength = max;
+                    }
+                    return;
                 }
             }
         } catch (CameraAccessException e) {
@@ -110,25 +117,24 @@ public final class FlashlightEngine {
         }
     }
 
-    private static boolean supportsBackTorch(@Nullable CameraCharacteristics chars) {
-        if (chars == null) return false;
-        Boolean hasFlash = chars.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
-        Integer facing = chars.get(CameraCharacteristics.LENS_FACING);
-        return Boolean.TRUE.equals(hasFlash) && facing != null &&
-                (facing == CameraCharacteristics.LENS_FACING_BACK || facing == CameraCharacteristics.LENS_FACING_EXTERNAL);
-    }
-
-    @SuppressWarnings("unchecked")
     private static int readTorchStrengthLevel(@Nullable CameraCharacteristics chars) {
         if (chars == null) return 1;
-        // Use reflection to access flashlight strength keys to avoid compilation errors on various SDKs.
-        // FLASH_INFO_STRENGTH_MAX_LEVEL was introduced in API 33 (Tiramisu).
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            try {
+                Integer max = chars.get(CameraCharacteristics.FLASH_INFO_STRENGTH_MAXIMUM_LEVEL);
+                if (max != null && max > 0) return max;
+            } catch (Exception ignored) {}
+        }
+
+        // Reflection fallback for older SDKs or non-standard vendor implementations
         try {
             String[] keys = {"FLASH_TORCH_STRENGTH_MAX_LEVEL", "FLASH_INFO_STRENGTH_MAX_LEVEL", "FLASH_INFO_STRENGTH_MAXIMUM_LEVEL"};
             for (String keyName : keys) {
                 try {
                     Object field = CameraCharacteristics.class.getField(keyName).get(null);
                     if (field instanceof CameraCharacteristics.Key) {
+                        @SuppressWarnings("unchecked")
                         CameraCharacteristics.Key<Integer> key = (CameraCharacteristics.Key<Integer>) field;
                         Integer max = chars.get(key);
                         if (max != null && max > 0) return max;

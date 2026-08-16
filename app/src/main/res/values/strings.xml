@@ -81,6 +81,10 @@
     <string name="flashlight_duration_desc" translatable="false">Duration of the pulse in milliseconds.</string>
 
     <string name="experimental_features">Experimental Features</string>
+    <string name="device_features">Device Capabilities</string>
+    <string name="feature_flashlight_levels">Flashlight intensity levels</string>
+    <string name="feature_supported_n">%d levels supported</string>
+    <string name="feature_basic">Binary (On/Off only)</string>
     <string name="developer_mode">Spoof device...</string>
     <string name="spoof_device">Spoof Device Model</string>
     <string name="spoof_device_description">Forces the app to behave as if it\'s running on the selected device.</string>
