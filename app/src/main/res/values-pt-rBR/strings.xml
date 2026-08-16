@@ -101,7 +101,6 @@
     <string name="idle_pattern_orbit">Órbita</string>
     <string name="idle_pattern_rain">Chuva</string>
     <string name="cancel">Cancelar</string>
-    <string name="nav_overlay">Sobreposição de Navegação</string>
     <string name="overlay_width">Largura da Sobreposição</string>
     <string name="overlay_height">Altura da Sobreposição</string>
     <string name="vertical_position">Posição Vertical</string>

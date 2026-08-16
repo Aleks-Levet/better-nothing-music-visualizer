@@ -101,7 +101,6 @@
     <string name="idle_pattern_orbit">Orbita</string>
     <string name="idle_pattern_rain">Pioggia</string>
     <string name="cancel">Annulla</string>
-    <string name="nav_overlay">Sovrapposizione navigazione</string>
     <string name="overlay_width">Larghezza sovrapposizione</string>
     <string name="overlay_height">Altezza sovrapposizione</string>
     <string name="vertical_position">Posizione verticale</string>

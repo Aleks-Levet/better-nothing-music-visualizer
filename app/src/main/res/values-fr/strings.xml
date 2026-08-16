@@ -120,7 +120,6 @@
     <string name="preset_by_author">par %1$s • %2$s</string>
     <string name="downloads_count">%1$s • %2$d téléchargements</string>
     <string name="clear">Effacer</string>
-    <string name="nav_overlay">Visualiseur barre de nav</string>
     <string name="overlay_width">Largeur</string>
     <string name="overlay_height">Hauteur</string>
     <string name="vertical_position">Position verticale</string>

@@ -101,7 +101,6 @@
     <string name="idle_pattern_orbit">Yörünge</string>
     <string name="idle_pattern_rain">Yağmur</string>
     <string name="cancel">İptal</string>
-    <string name="nav_overlay">NavBar Spektrum</string>
     <string name="enable_on_screen_visualizers">Ekran görselleştiricilerini etkinleştir</string>
     <string name="overlay_width">Spektrum Genişliği</string>
     <string name="overlay_height">Spektrum Yüksekliği</string>
@@ -154,5 +153,4 @@
     <string name="downloads_count">%1$s • %2$d indirme</string>
     <string name="clear">Temizle</string>
     <string name="tablet_width_title">Tablet Sekme Genişliği</string>
-    <string name="fill_screen">Tam ekranı doldur</string>
 </resources>

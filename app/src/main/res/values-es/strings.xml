@@ -108,7 +108,6 @@
     <string name="preset_by_author">por %1$s • %2$s</string>
     <string name="downloads_count">%1$s • %2$d descargas</string>
     <string name="clear">Borrar</string>
-    <string name="nav_overlay">Superposición de navegación</string>
     <string name="overlay_width">Ancho de superposición</string>
     <string name="overlay_height">Alto de superposición</string>
     <string name="vertical_position">Posición vertical</string>

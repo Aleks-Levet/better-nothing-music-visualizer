@@ -101,7 +101,6 @@
     <string name="idle_pattern_orbit">軌道</string>
     <string name="idle_pattern_rain">雨</string>
     <string name="cancel">キャンセル</string>
-    <string name="nav_overlay">ナビゲーション・オーバーレイ</string>
     <string name="overlay_width">オーバーレイの幅</string>
     <string name="overlay_height">オーバーレイの高さ</string>
     <string name="vertical_position">垂直方向の位置</string>

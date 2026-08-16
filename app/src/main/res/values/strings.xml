@@ -143,17 +143,17 @@
     <string name="sync_ui_to_beat">Sync UI to the beat</string>
     <string name="alternate_glyph_viz">Alternate Glyph Visualizer</string>
     <string name="alternate_glyph_viz_desc">Uses audio frame difference as input for glyphs. Provides a more reactive and sharp look. (Experimental)</string>
-    <string name="nav_overlay">Nav Overlay</string>
+    <string name="nav_overlay">Nav bar</string>
     <string name="enable_on_screen_visualizers">Enable on-screen visualizers</string>
     <string name="higher_quality_audio_analysis">Higher quality audio analysis</string>
 
 
-    <string name="lens_visualizer">Lens Visualizer</string>
+    <string name="lens_visualizer">Front Camera</string>
     <string name="lens_radius">Lens Radius</string>
     <string name="lens_bar_width">Bar Width</string>
     <string name="lens_max_height">Max Bar Height</string>
     <string name="lens_bar_count">Bar Count</string>
-    <string name="lens_x_position">Horizontal Position (X)</string>
+    <string name="lens_x_position">Horizontal Position</string>
     <string name="lens_y_position">Vertical Position (Y)</string>
     <string name="lens_sensitivity">Lens Sensitivity</string>
     <string name="overlay_width">Overlay Width</string>
@@ -171,7 +171,7 @@
 
     <string name="tab_audio">BNMV</string>
     <string name="tab_glyphs">Glyphs</string>
-    <string name="tab_visuals">On-screen vizualizers</string>
+    <string name="tab_visuals">Overlays</string>
     <string name="tab_haptics">Haptics</string>
     <string name="tab_flashlight">Flashlight</string>
     <string name="tab_settings">Settings</string>
@@ -243,7 +243,7 @@
     <!-- Visuals Options -->
     <string name="top_edge_overlay">Top Edge Overlay</string>
     <string name="bottom_edge_overlay">Bottom Edge Overlay</string>
-    <string name="edge_visualizer">Edge Visualizer</string>
+    <string name="edge_visualizer">Screen Edges</string>
     <string name="edge_bar_height">Edge Bar Height</string>
     <string name="top_edge_segment">Top Edge Segment</string>
     <string name="bottom_edge_segment">Bottom Edge Segment</string>
@@ -259,18 +259,17 @@
     <!-- Settings Extra -->
     <string name="vizualizer_stats">Vizualizer Stats</string>
     <string name="tablet_width_title">Tablet Tab Width</string>
-    <string name="fill_screen">Fill the entire screen</string>
 
     <!-- Notification Extra -->
-    <string name="notification_channel_name">Glyph Visualizer</string>
-    <string name="notification_title">Glyph Visualizer</string>
+    <string name="notification_channel_name">BNMV Notification</string>
+    <string name="notification_title">Better Nothing Music Visualilzer</string>
     <string name="notification_action_glyphs_on">GLYPHS</string>
     <string name="notification_action_glyphs_off">glyphs</string>
     <string name="notification_action_haptics_on">HAPTICS</string>
     <string name="notification_action_haptics_off">haptics</string>
     <string name="notification_action_flash_on">FLASH</string>
     <string name="notification_action_flash_off">flash</string>
-    <string name="notification_action_stop">Stop</string>
+    <string name="notification_action_stop">Stop BNMV</string>
 
     <!-- Device Names -->
     <string name="device_np1" translatable="false">Nothing Phone (1)</string>
@@ -356,7 +355,7 @@
     <string name="first_time_help_msg" translatable="false">Click on the [info] buttons whenever you need help!</string>
 
     <!-- Easter Eggs -->
-    <string name="toast_no_output">You didn\'t enable any output, so BNMV does NOTHING 😆</string>
+    <string name="toast_no_output">All outputs are disabled, so BNMV will do NOTHING 😆</string>
     <string name="toast_audio_title_tap">Why are you clicking here? It does NOTHING! 😆</string>
     <string name="toast_haptics_title_tap">Haptics go brrrr</string>
     <string name="easter_egg_glyph_popup_title" translatable="false">Glyphs go brrr</string>

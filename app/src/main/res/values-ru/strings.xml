@@ -77,7 +77,6 @@
     <string name="mediaprojection_description">Это разрешение нужно, чтобы приложение слышало звук через систему Android и глифы мигали в такт. Мы за тобой не следим, твои личные файлы и экраны нам нафиг не сдались.</string>
     <string name="mediaprojection_permission">Разрешение MediaProjection</string>
     <string name="music_theme_notification_access">Музыкальной теме нужен доступ к уведомлениям. Включи его, не жадничай.</string>
-    <string name="nav_overlay">Навигационный оверлей</string>
     <string name="enable_on_screen_visualizers">Включить экранные визуализаторы</string>
     <string name="no_changelog">Патчноут съела собака.</string>
     <string name="no_presets_found">Тут пусто, как в карманах к концу месяца. Будь первым, закинь пресет!</string>
@@ -111,5 +110,4 @@
     <string name="vertical_position">Высота полета</string>
     <string name="visualizer_presets">Пресеты светомузыки</string>
     <string name="tablet_width_title">Ширина вкладки планшета</string>
-    <string name="fill_screen">Заполнить весь экран</string>
 </resources>

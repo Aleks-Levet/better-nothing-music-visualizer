@@ -121,7 +121,6 @@
     <string name="downloads_count">%1$s • %2$d تنزيل</string>
     <string name="clear">مسح</string>
     <string name="sync_ui_to_beat">مزامنة الواجهة مع الإيقاع</string>
-    <string name="nav_overlay">تراكب شريط التنقل</string>
     <string name="lens_visualizer">مصور العدسة المرئي</string>
     <string name="lens_radius">نصف قطر العدسة</string>
     <string name="lens_bar_width">عرض الشريط</string>
