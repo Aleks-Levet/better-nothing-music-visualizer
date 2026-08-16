@@ -106,7 +106,7 @@ You can:
 * Disscuss with the developpers
 
 ##  <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f512/512.gif" alt="🔒" width="25" height="25"> Privacy & Security
-- **Privacy**: The app only captures the audio stream to power the visualizer. No audio content or personal media is ever stored or transmitted.
+- **Privacy**: The app only captures the audio stream to power the visualizer. No audio content or personal media is ever stored. The screen is not recorded. It can only be transmitted if you enable the broadcast mode that syncs multiple phones toghether.
 - **Analytics**: This app uses Google Analytics (Firebase) to collect anonymous usage statistics and crash reports. This data helps us understand how the app is used and fix any issues that occur, ultimately improving the experience for everyone.
 
 **The link to the VirusTotal scan can be found here:**  
