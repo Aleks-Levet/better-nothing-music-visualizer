@@ -100,7 +100,6 @@
     <string name="idle_pattern_orbit">轨道</string>
     <string name="idle_pattern_rain">雨</string>
     <string name="cancel">取消</string>
-    <string name="nav_overlay">导航栏覆盖层</string>
     <string name="overlay_width">覆盖层宽度</string>
     <string name="overlay_height">覆盖层高度</string>
     <string name="vertical_position">垂直位置</string>
