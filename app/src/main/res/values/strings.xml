@@ -165,6 +165,7 @@
     <string name="style_rounded_bars">Rounded</string>
     <string name="style_glow">Glow</string>
     <string name="visualizer_style">Style</string>
+    <string name="visualizer_opacity">Opacity</string>
 
 
     <string name="lens_visualizer">Front Camera</string>

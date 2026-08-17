@@ -226,7 +226,7 @@ fun GlyphPreviewContent(
         val centerY = 256f
         val radiusSq = when (device) {
             DeviceProfile.DEVICE_NP3 -> 221f * 221f
-            DeviceProfile.DEVICE_NP4APRO -> 216.1f * 216.1f
+            DeviceProfile.DEVICE_NP4APRO -> 218.8f * 218.8f
             else -> 220f * 220f
         }
 

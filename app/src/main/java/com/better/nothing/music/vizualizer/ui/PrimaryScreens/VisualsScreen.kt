@@ -50,6 +50,7 @@ fun VisualsScreen(
     val overlayBottomEnabled by viewModel.overlayBottomEnabled.collectAsStateWithLifecycle()
     val overlayColor by viewModel.overlayColor.collectAsStateWithLifecycle()
     val overlayStyle by viewModel.overlayStyle.collectAsStateWithLifecycle()
+    val overlayOpacity by viewModel.overlayOpacity.collectAsStateWithLifecycle()
     
     val edgeVisualizerEnabled by viewModel.edgeVisualizerEnabled.collectAsStateWithLifecycle()
     val edgeThickness by viewModel.edgeThickness.collectAsStateWithLifecycle()
@@ -61,6 +62,7 @@ fun VisualsScreen(
     val edgeBottomEnabled by viewModel.edgeBottomEnabled.collectAsStateWithLifecycle()
     val edgeColor by viewModel.edgeColor.collectAsStateWithLifecycle()
     val edgeStyle by viewModel.edgeStyle.collectAsStateWithLifecycle()
+    val edgeOpacity by viewModel.edgeOpacity.collectAsStateWithLifecycle()
     
     val lensEnabled by viewModel.lensVisualizerEnabled.collectAsStateWithLifecycle()
     val lensRadius by viewModel.lensVisualizerRadius.collectAsStateWithLifecycle()
@@ -73,6 +75,7 @@ fun VisualsScreen(
     val lensGlowBlurRadius by viewModel.lensGlowBlurRadius.collectAsStateWithLifecycle()
     val lensColor by viewModel.lensColor.collectAsStateWithLifecycle()
     val lensStyle by viewModel.lensStyle.collectAsStateWithLifecycle()
+    val lensOpacity by viewModel.lensOpacity.collectAsStateWithLifecycle()
 
     val scrollState = rememberScrollState()
 
@@ -118,6 +121,30 @@ fun VisualsScreen(
                         selectedItem = overlayStyle,
                         onItemSelection = { viewModel.setOverlayStyle(it) },
                         labelProvider = { stringResource(it.labelRes) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.visualizer_opacity),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "${(overlayOpacity * 100).toInt()}%",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    VisualSlider(
+                        value = overlayOpacity,
+                        onValueChange = { viewModel.setOverlayOpacity(it) },
+                        valueRange = 0f..1f,
+                        fineTuneStep = 0.05f,
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -335,6 +362,30 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
+                            text = stringResource(R.string.visualizer_opacity),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "${(lensOpacity * 100).toInt()}%",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    VisualSlider(
+                        value = lensOpacity,
+                        onValueChange = { viewModel.setLensOpacity(it) },
+                        valueRange = 0f..1f,
+                        fineTuneStep = 0.05f,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
                             text = stringResource(R.string.edge_bar_height),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
@@ -495,6 +546,30 @@ fun VisualsScreen(
                         selectedItem = lensStyle,
                         onItemSelection = { viewModel.setLensStyle(it) },
                         labelProvider = { stringResource(it.labelRes) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.visualizer_opacity),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "${(lensOpacity * 100).toInt()}%",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    VisualSlider(
+                        value = lensOpacity,
+                        onValueChange = { viewModel.setLensOpacity(it) },
+                        valueRange = 0f..1f,
+                        fineTuneStep = 0.05f,
                         modifier = Modifier.fillMaxWidth()
                     )
 
