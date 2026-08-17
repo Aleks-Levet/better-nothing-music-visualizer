@@ -1756,8 +1756,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     // Instant rise to peak
                     manualDecayFft[i] = fVal
                 } else {
-                    // Smoother exponential decay for UI (approx 0.92f factor)
-                    manualDecayFft[i] = (manualDecayFft[i] * 0.92f).coerceAtLeast(fVal)
+                    // Exponential manual decay for UI
+                    manualDecayFft[i] = (manualDecayFft[i] - 0.05f).coerceAtLeast(fVal)
                 }
             }
             _fftState.value = manualDecayFft.copyOf()

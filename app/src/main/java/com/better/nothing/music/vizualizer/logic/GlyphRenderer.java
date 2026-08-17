@@ -114,7 +114,7 @@ public class GlyphRenderer {
 
             // Exponential blending decay from original Python script:
             // prev = ad * prev + (1 - ad) * current
-            float ad = config.decay - 0.1f; // Calculated in AudioCaptureService as 0.86 + da/10
+            float ad = config.decay; // The value is already pre-calculated in AudioCaptureService
             
             // 1. Calculate and decay unique frequency ranges first
             for (int r = 0; r < config.uniqueRanges.length; r++) {
