@@ -338,7 +338,7 @@ public class GlyphRenderer {
         float low = Math.min(zone.lowPercent, zone.highPercent);
         float high = Math.max(zone.lowPercent, zone.highPercent);
         float percent = normalizedValue * 100f;
-        if (percent <= low) return 0f;
+        if (percent < low) return 0f;
         if (percent >= high || high == low) return 1f;
         return (percent - low) / (high - low);
     }

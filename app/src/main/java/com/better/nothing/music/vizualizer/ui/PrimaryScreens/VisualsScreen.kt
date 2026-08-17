@@ -367,14 +367,14 @@ fun VisualsScreen(
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "${(lensOpacity * 100).toInt()}%",
+                            text = "${(edgeOpacity * 100).toInt()}%",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold
                         )
                     }
                     VisualSlider(
-                        value = lensOpacity,
-                        onValueChange = { viewModel.setLensOpacity(it) },
+                        value = edgeOpacity,
+                        onValueChange = { viewModel.setEdgeOpacity(it) },
                         valueRange = 0f..1f,
                         fineTuneStep = 0.05f,
                         modifier = Modifier.fillMaxWidth()

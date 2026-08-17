@@ -218,17 +218,29 @@ public class AudioCaptureService extends Service {
         @Override public void onStop() { stopCapture(); stopSelf(); }
     };
     private final GlyphManager.Callback mGlyphCallback = new GlyphManager.Callback() {
-        @Override public void onServiceConnected(ComponentName name) { registerGlyphManager(); ensureGlyphSession(); }
-        @Override public void onServiceDisconnected(ComponentName name) { mSessionOpen = false; }
+        @Override public void onServiceConnected(ComponentName name) {
+            mGMConnected = true;
+            registerGlyphManager();
+            ensureGlyphSession();
+        }
+        @Override public void onServiceDisconnected(ComponentName name) {
+            mGMConnected = false;
+            mSessionOpen = false;
+        }
     };
 
     private final GlyphMatrixManager.Callback mGlyphMatrixCallback = new GlyphMatrixManager.Callback() {
-        @Override public void onServiceConnected(ComponentName name) { registerGlyphMatrixManager(); }
-        @Override public void onServiceDisconnected(ComponentName name) {}
+        @Override public void onServiceConnected(ComponentName name) {
+            mGMMConnected = true;
+            registerGlyphMatrixManager();
+        }
+        @Override public void onServiceDisconnected(ComponentName name) {
+            mGMMConnected = false;
+        }
     };
 
     private void registerGlyphManager() {
-        if (mGM == null || mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) return;
+        if (mGM == null || !mGMConnected || mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) return;
         String deviceStr = switch (mSelectedDevice) {
             case DeviceProfile.DEVICE_NP1 -> Glyph.DEVICE_20111;
             case DeviceProfile.DEVICE_NP2 -> Glyph.DEVICE_22111;
@@ -240,13 +252,21 @@ public class AudioCaptureService extends Service {
             case DeviceProfile.DEVICE_NP4B -> "26111";
             default -> Glyph.DEVICE_25111;
         };
-        mGM.register(deviceStr);
+        try {
+            mGM.register(deviceStr);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to register GlyphManager", e);
+        }
     }
 
     private void registerGlyphMatrixManager() {
-        if (mGMM == null || mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) return;
-        if (mSelectedDevice == DeviceProfile.DEVICE_NP3) mGMM.register(Glyph.DEVICE_23112);
-        else if (mSelectedDevice == DeviceProfile.DEVICE_NP4APRO) mGMM.register(Glyph.DEVICE_25111p);
+        if (mGMM == null || !mGMMConnected || mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) return;
+        try {
+            if (mSelectedDevice == DeviceProfile.DEVICE_NP3) mGMM.register(Glyph.DEVICE_23112);
+            else if (mSelectedDevice == DeviceProfile.DEVICE_NP4APRO) mGMM.register(Glyph.DEVICE_25111p);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to register GlyphMatrixManager", e);
+        }
     }
 
     private HandlerThread mWorkerThread;
@@ -254,6 +274,8 @@ public class AudioCaptureService extends Service {
     private AudioManager mAudioManager;
     private GlyphManager mGM;
     private GlyphMatrixManager mGMM;
+    private volatile boolean mGMConnected = false;
+    private volatile boolean mGMMConnected = false;
     private volatile boolean mSessionOpen = false;
     private MediaProjection mProjection;
     private AudioRecord mAudioRecord;
