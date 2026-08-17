@@ -47,6 +47,13 @@ enum class VisualizerStyle(val labelRes: Int) {
     GLOW(R.string.style_glow)
 }
 
+enum class MicrophoneMode(val labelRes: Int, val descriptionRes: Int, val audioSource: Int) {
+    VOICE_COMMUNICATION(R.string.mic_mode_voice_comm, R.string.mic_mode_voice_comm_desc, 7),
+    VOICE_PERFORMANCE(R.string.mic_mode_voice_perf, R.string.mic_mode_voice_perf_desc, 10),
+    UNPROCESSED(R.string.mic_mode_unprocessed, R.string.mic_mode_unprocessed_desc, 9),
+    CAMCORDER(R.string.mic_mode_camcorder, R.string.mic_mode_camcorder_desc, 5)
+}
+
 enum class Tab(val label: String, val labelRes: Int) {
     Audio("Audio", R.string.tab_audio), 
     Glyphs("Glyphs", R.string.tab_glyphs), 
@@ -467,6 +474,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val _overlayOpacity = MutableStateFlow(1.0f)
+    val overlayOpacity = _overlayOpacity.asStateFlow()
+    fun setOverlayOpacity(opacity: Float) {
+        _overlayOpacity.value = opacity
+        MainActivity.serviceStatic?.setOverlayOpacity(opacity)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("overlay_opacity", opacity) }
+        }
+    }
+
     private val _edgeVisualizerEnabled = MutableStateFlow(false)
     val edgeVisualizerEnabled = _edgeVisualizerEnabled.asStateFlow()
     fun setEdgeVisualizerEnabled(enabled: Boolean, fromService: Boolean = false) {
@@ -595,6 +613,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val _edgeOpacity = MutableStateFlow(1.0f)
+    val edgeOpacity = _edgeOpacity.asStateFlow()
+    fun setEdgeOpacity(opacity: Float) {
+        _edgeOpacity.value = opacity
+        MainActivity.serviceStatic?.setEdgeOpacity(opacity)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("edge_opacity", opacity) }
+        }
+    }
+
     private val _lensVisualizerEnabled = MutableStateFlow(false)
     val lensVisualizerEnabled = _lensVisualizerEnabled.asStateFlow()
     fun setLensVisualizerEnabled(enabled: Boolean, fromService: Boolean = false) {
@@ -621,25 +650,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val _lensVisualizerX = MutableStateFlow(180f)
+    private val _lensVisualizerX = MutableStateFlow(540f)
     val lensVisualizerX = _lensVisualizerX.asStateFlow()
     fun setLensVisualizerX(x: Float) {
         _lensVisualizerX.value = x
         MainActivity.serviceStatic?.setLensVisualizerX(x)
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putFloat("lens_visualizer_x_dp", x) }
+                .edit { putFloat("lens_visualizer_x_px", x) }
         }
     }
 
-    private val _lensVisualizerY = MutableStateFlow(24f)
+    private val _lensVisualizerY = MutableStateFlow(72f)
     val lensVisualizerY = _lensVisualizerY.asStateFlow()
     fun setLensVisualizerY(y: Float) {
         _lensVisualizerY.value = y
         MainActivity.serviceStatic?.setLensVisualizerY(y)
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putFloat("lens_visualizer_y_dp", y) }
+                .edit { putFloat("lens_visualizer_y_px", y) }
         }
     }
 
@@ -707,6 +736,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putInt("lens_color", color.toArgb()) }
+        }
+    }
+
+    private val _lensOpacity = MutableStateFlow(1.0f)
+    val lensOpacity = _lensOpacity.asStateFlow()
+    fun setLensOpacity(opacity: Float) {
+        _lensOpacity.value = opacity
+        MainActivity.serviceStatic?.setLensOpacity(opacity)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("lens_opacity", opacity) }
         }
     }
 
@@ -1271,7 +1311,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val _fftReadMethod = MutableStateFlow(AudioProcessor.ReadMethod.MAX)
+    val _fftReadMethod = MutableStateFlow(AudioProcessor.ReadMethod.RMS)
     val fftReadMethod = _fftReadMethod.asStateFlow()
 
     fun setFftReadMethod(method: AudioProcessor.ReadMethod) {
@@ -1280,6 +1320,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putString("fft_read_method", method.name) }
+        }
+    }
+
+    val _microphoneMode = MutableStateFlow(MicrophoneMode.UNPROCESSED)
+    val microphoneMode = _microphoneMode.asStateFlow()
+
+    fun setMicrophoneMode(mode: MicrophoneMode) {
+        _microphoneMode.value = mode
+        MainActivity.serviceStatic?.setMicrophoneMode(mode.audioSource)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putString("microphone_mode", mode.name) }
         }
     }
 
@@ -1638,14 +1690,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun reloadFlashlightSpeedForLevels() {
-        val prefs = ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-        val defaultVal = if (_flashlightIntensityLevels.value > 1) 350f else 80f
-        val saved = prefs.getFloat("flashlight_speed_ms", defaultVal)
+        val currentLevels = _flashlightIntensityLevels.value
+        val currentSpeed = _flashlightSpeedMs.value
+        
+        val defaultVal = if (currentLevels > 1) 350f else 80f
+        
+        val min = if (currentLevels > 1) 150f else 20f
+        val max = if (currentLevels > 1) 700f else 150f
 
-        val min = if (_flashlightIntensityLevels.value > 1) 150f else 20f
-        val max = if (_flashlightIntensityLevels.value > 1) 700f else 150f
-
-        _flashlightSpeedMs.value = saved.coerceIn(min, max)
+        _flashlightSpeedMs.value = currentSpeed.coerceIn(min, max)
     }
 
     fun flashlightSpeedForUi(gamma: Float): Float {
@@ -1888,119 +1941,136 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         val prefs = ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-        
+        val all = prefs.all
+
+        // Helper to safely get values from the 'all' map
+        fun <T> get(key: String, default: T): T {
+            @Suppress("UNCHECKED_CAST")
+            return (all[key] as? T) ?: default
+        }
+
         // Stats and Basic settings
-        _favoritePresets.value = prefs.getStringSet("favorite_presets", emptySet()) ?: emptySet()
-        val savedSource = prefs.getString("capture_source", AudioCaptureService.CaptureSource.INTERNAL.name)
-        _captureSource.value = safeValueOf(savedSource, AudioCaptureService.CaptureSource.INTERNAL)
-        _uiAmplitudeSyncEnabled.value = prefs.getBoolean("ui_amplitude_sync_enabled", true)
-        _totalVisualizedTime.value = prefs.getLong("total_visualized_time", 0L)
-        _totalIdleTime.value = prefs.getLong("total_idle_time", 0L)
-        _totalActiveTime.value = prefs.getLong("total_active_time", 0L)
-        _totalGlyphTime.value = prefs.getLong("total_glyph_time", 0L)
-        _totalHapticTime.value = prefs.getLong("total_haptic_time", 0L)
-        _totalFlashlightTime.value = prefs.getLong("total_flashlight_time", 0L)
-        _spoofLocale.value = prefs.getString("spoof_locale", null)
-        val initialLocales = if (_spoofLocale.value == null) {
+        _favoritePresets.value = get("favorite_presets", emptySet())
+        _captureSource.value = safeValueOf(get("capture_source", ""), AudioCaptureService.CaptureSource.INTERNAL)
+        _uiAmplitudeSyncEnabled.value = get("ui_amplitude_sync_enabled", true)
+        _totalVisualizedTime.value = get("total_visualized_time", 0L)
+        _totalIdleTime.value = get("total_idle_time", 0L)
+        _totalActiveTime.value = get("total_active_time", 0L)
+        _totalGlyphTime.value = get("total_glyph_time", 0L)
+        _totalHapticTime.value = get("total_haptic_time", 0L)
+        _totalFlashlightTime.value = get("total_flashlight_time", 0L)
+        
+        val savedSpoofLocale = get("spoof_locale", null as String?)
+        _spoofLocale.value = savedSpoofLocale
+        val initialLocales = if (savedSpoofLocale == null) {
             androidx.core.os.LocaleListCompat.getEmptyLocaleList()
         } else {
-            androidx.core.os.LocaleListCompat.forLanguageTags(_spoofLocale.value)
+            androidx.core.os.LocaleListCompat.forLanguageTags(savedSpoofLocale)
         }
         androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(initialLocales)
 
         // General settings
-        _developerModeEnabled.value = prefs.getBoolean("developer_mode_v2", false)
-        _spoofedDevice.value = prefs.getInt("spoofed_device", DeviceProfile.DEVICE_NP1)
-        _autoDeviceMemorize.value = prefs.getBoolean("auto_device_memorize", true)
-        _m3eEnabled.value = prefs.getBoolean("m3e_enabled", true)
-        _gammaValue.value = prefs.getFloat("gamma_value", 2.2f)
-        _glyphThreshold.value = prefs.getFloat("glyph_threshold", 0.0f)
-        _glyphDecaySpeed.value = prefs.getFloat("glyph_decay_speed", 0.75f)
-        _spectrumGain.value = prefs.getFloat("spectrum_gain", 4.0f)
-        _maxBrightness.value = prefs.getInt("max_brightness", 4095).coerceIn(50, 5000)
-        _fftReadMethod.value = safeValueOf(prefs.getString("fft_read_method", null), AudioProcessor.ReadMethod.MAX)
-        _glyphsEnabled.value = prefs.getBoolean("glyphs_enabled", true)
-        _selectedPreset.value = prefs.getString("selected_preset", "Default") ?: "Default"
-        _selectedTheme.value = prefs.getString("selected_theme", "Default") ?: "Default"
-        _selectedFont.value = prefs.getString("selected_font", "NDot") ?: "NDot"
-        _broadcastEnabled.value = prefs.getBoolean("broadcast_enabled", false)
+        _developerModeEnabled.value = get("developer_mode_v2", false)
+        _spoofedDevice.value = get("spoofed_device", DeviceProfile.DEVICE_NP1)
+        _autoDeviceMemorize.value = get("auto_device_memorize", true)
+        _m3eEnabled.value = get("m3e_enabled", true)
+        _gammaValue.value = get("gamma_value", 2.2f)
+        _glyphThreshold.value = get("glyph_threshold", 0.0f)
+        _glyphDecaySpeed.value = get("glyph_decay_speed", 0.75f)
+        _spectrumGain.value = get("spectrum_gain", 4.0f)
+        _maxBrightness.value = get("max_brightness", 4095).coerceIn(50, 5000)
+        _fftReadMethod.value = safeValueOf(get("fft_read_method", ""), AudioProcessor.ReadMethod.RMS)
+        _microphoneMode.value = safeValueOf(get("microphone_mode", ""), MicrophoneMode.UNPROCESSED)
+        _glyphsEnabled.value = get("glyphs_enabled", true)
+        _selectedPreset.value = get("selected_preset", "Default")
+        _selectedTheme.value = get("selected_theme", "Default")
+        _selectedFont.value = get("selected_font", "NDot")
+        _broadcastEnabled.value = get("broadcast_enabled", false)
 
         // Haptics settings
-        _hapticMotorEnabled.value = prefs.getBoolean("haptic_motor_enabled", false)
-        _hapticMode.value = safeValueOf(prefs.getString("haptic_mode", null), HapticMode.BASS_TO_AMPLITUDE)
-        _hapticFreqMin.value = prefs.getInt("haptic_freq_min", 20).toFloat()
-        _hapticFreqMax.value = prefs.getInt("haptic_freq_max", 250).toFloat()
-        _hapticMultiplier.value = prefs.getFloat("haptic_multiplier", 1.0f)
-        _hapticAudioGain.value = prefs.getFloat("haptic_audio_gain", 1.0f)
-        _hapticGamma.value = prefs.getFloat("haptic_gamma", 2.0f)
-        _hapticBeatSensitivity.value = prefs.getFloat("haptic_beat_sensitivity", 1.5f)
-        _hapticBeatGamma.value = prefs.getFloat("haptic_beat_gamma", 8.0f)
+        _hapticMotorEnabled.value = get("haptic_motor_enabled", false)
+        _hapticMode.value = safeValueOf(get("haptic_mode", ""), HapticMode.BASS_TO_AMPLITUDE)
+        _hapticFreqMin.value = get("haptic_freq_min", 20).toFloat()
+        _hapticFreqMax.value = get("haptic_freq_max", 250).toFloat()
+        _hapticMultiplier.value = get("haptic_multiplier", 1.0f)
+        _hapticAudioGain.value = get("haptic_audio_gain", 1.0f)
+        _hapticGamma.value = get("haptic_gamma", 2.0f)
+        _hapticBeatSensitivity.value = get("haptic_beat_sensitivity", 1.5f)
+        _hapticBeatGamma.value = get("haptic_beat_gamma", 8.0f)
 
         val defaultHapticEngineMode = if (hasAmplitudeControl) BeatEngineMode.SMOOTH else BeatEngineMode.SHORT_PULSE
-        _hapticBeatEngineMode.value = safeValueOf(prefs.getString("haptic_beat_engine_mode", null), defaultHapticEngineMode)
-        _hapticPulseDurationMs.value = prefs.getInt("haptic_pulse_duration_ms", 40)
+        _hapticBeatEngineMode.value = safeValueOf(get("haptic_beat_engine_mode", ""), defaultHapticEngineMode)
+        _hapticPulseDurationMs.value = get("haptic_pulse_duration_ms", 40)
 
         // Flashlight settings
-        _flashlightEnabled.value = prefs.getBoolean("flashlight_enabled", false)
-        _flashlightMode.value = safeValueOf(prefs.getString("flashlight_mode", null), TorchMode.AMPLITUDE)
-        _flashlightFreqMin.value = prefs.getInt("flashlight_freq_min", 20).toFloat()
-        _flashlightFreqMax.value = prefs.getInt("flashlight_freq_max", 250).toFloat()
-        _flashlightThreshold.value = prefs.getFloat("flashlight_threshold", 0.15f)
-        _flashlightBeatSensitivity.value = prefs.getFloat("flashlight_beat_sensitivity", 1.5f)
+        _flashlightEnabled.value = get("flashlight_enabled", false)
+        _flashlightMode.value = safeValueOf(get("flashlight_mode", ""), TorchMode.AMPLITUDE)
+        _flashlightFreqMin.value = get("flashlight_freq_min", 20).toFloat()
+        _flashlightFreqMax.value = get("flashlight_freq_max", 250).toFloat()
+        _flashlightThreshold.value = get("flashlight_threshold", 0.15f)
+        _flashlightBeatSensitivity.value = get("flashlight_beat_sensitivity", 1.5f)
+        _flashlightSpeedMs.value = get("flashlight_speed_ms", 80f)
         
         val defaultFlashlightEngineMode = if (flashlightIntensityLevels.value > 1) BeatEngineMode.SMOOTH else BeatEngineMode.SHORT_PULSE
-        _flashlightBeatEngineMode.value = safeValueOf(prefs.getString("flashlight_beat_engine_mode", null), defaultFlashlightEngineMode)
-        _flashlightPulseDurationMs.value = prefs.getInt("flashlight_pulse_duration_ms", 40)
+        _flashlightBeatEngineMode.value = safeValueOf(get("flashlight_beat_engine_mode", ""), defaultFlashlightEngineMode)
+        _flashlightPulseDurationMs.value = get("flashlight_pulse_duration_ms", 40)
 
         // Overlay and other visual settings
-        _idleBreathingEnabled.value = prefs.getBoolean("idle_breathing_enabled", false)
-        _idlePattern.value = prefs.getString("idle_pattern", "pulse") ?: "pulse"
-        _idleBrightness.value = prefs.getFloat("idle_brightness", 0.4f)
-        _idleBackgroundBrightness.value = prefs.getFloat("idle_background_brightness", 0.02f)
-        _overlayEnabled.value = prefs.getBoolean("overlay_enabled", false)
-        _overlayTopEnabled.value = prefs.getBoolean("overlay_top_enabled", true)
-        _overlayBottomEnabled.value = prefs.getBoolean("overlay_bottom_enabled", false)
-        _overlayWidth.value = prefs.getInt("overlay_width", 120)
-        _overlayHeight.value = prefs.getInt("overlay_height", 12)
-        _overlayHeightBottom.value = prefs.getInt("overlay_height_bottom", 12)
-        _tabletTabWidth.value = prefs.getInt("tablet_tab_width", 0)
-        _overlayYOffset.value = prefs.getInt("overlay_y_offset", 2)
-        _overlaySensitivity.value = prefs.getFloat("overlay_sensitivity", 1.0f)
-        _overlaySensitivityBottom.value = prefs.getFloat("overlay_sensitivity_bottom", 1.0f)
-        _overlayColor.value = Color(prefs.getInt("overlay_color", Color.White.toArgb()))
-        _edgeVisualizerEnabled.value = prefs.getBoolean("edge_visualizer_enabled", false)
-        _edgeThickness.value = prefs.getInt("edge_thickness", 12)
-        _edgeSensitivity.value = prefs.getFloat("edge_sensitivity", 1.0f)
-        _edgeGlowBlurRadius.value = prefs.getFloat("edge_glow_blur_radius", 24f)
-        _edgeBarCountHoriz.value = prefs.getInt("edge_bar_count_horiz", 20)
-        _edgeBarCountVert.value = prefs.getInt("edge_bar_count_vert", 40)
-        _edgeCornerRadius.value = prefs.getFloat("edge_corner_radius", 2f)
-        _edgeTopEnabled.value = prefs.getBoolean("edge_top_enabled", true)
-        _edgeBottomEnabled.value = prefs.getBoolean("edge_bottom_enabled", true)
-        _edgeColor.value = Color(prefs.getInt("edge_color", Color.White.toArgb()))
+        _idleBreathingEnabled.value = get("idle_breathing_enabled", false)
+        _idlePattern.value = get("idle_pattern", "pulse")
+        _idleBrightness.value = get("idle_brightness", 0.4f)
+        _idleBackgroundBrightness.value = get("idle_background_brightness", 0.02f)
+        _overlayEnabled.value = get("overlay_enabled", false)
+        _overlayTopEnabled.value = get("overlay_top_enabled", true)
+        _overlayBottomEnabled.value = get("overlay_bottom_enabled", false)
+        _overlayWidth.value = get("overlay_width", 120)
+        _overlayHeight.value = get("overlay_height", 12)
+        _overlayHeightBottom.value = get("overlay_height_bottom", 12)
+        _tabletTabWidth.value = get("tablet_tab_width", 0)
+        _overlayYOffset.value = get("overlay_y_offset", 2)
+        _overlaySensitivity.value = get("overlay_sensitivity", 1.0f)
+        _overlaySensitivityBottom.value = get("overlay_sensitivity_bottom", 1.0f)
+        _overlayGlowBlurRadius.value = get("overlay_glow_blur_radius", 24f)
+        _overlayColor.value = Color(get("overlay_color", Color.White.toArgb()))
+        _overlayOpacity.value = get("overlay_opacity", 1.0f)
+        
+        _edgeVisualizerEnabled.value = get("edge_visualizer_enabled", false)
+        _edgeThickness.value = get("edge_thickness", 12)
+        _edgeSensitivity.value = get("edge_sensitivity", 1.0f)
+        _edgeGlowBlurRadius.value = get("edge_glow_blur_radius", 24f)
+        _edgeBarCountHoriz.value = get("edge_bar_count_horiz", 20)
+        _edgeBarCountVert.value = get("edge_bar_count_vert", 40)
+        _edgeCornerRadius.value = get("edge_corner_radius", 2f)
+        _edgeTopEnabled.value = get("edge_top_enabled", true)
+        _edgeBottomEnabled.value = get("edge_bottom_enabled", true)
+        _edgeColor.value = Color(get("edge_color", Color.White.toArgb()))
+        _edgeOpacity.value = get("edge_opacity", 1.0f)
 
-        _lensVisualizerEnabled.value = prefs.getBoolean("lens_visualizer_enabled", false)
-        _lensVisualizerRadius.value = prefs.getFloat("lens_visualizer_radius", 16f)
-        _lensVisualizerX.value = prefs.getFloat("lens_visualizer_x_dp", 180f)
-        _lensVisualizerY.value = prefs.getFloat("lens_visualizer_y_dp", 24f)
-        _lensVisualizerBarWidth.value = prefs.getFloat("lens_visualizer_bar_width", 1f)
-        _lensVisualizerMaxHeight.value = prefs.getFloat("lens_visualizer_max_height", 5f)
-        _lensVisualizerBarCount.value = prefs.getInt("lens_visualizer_bar_count", 35)
-        _lensVisualizerSensitivity.value = prefs.getFloat("lens_visualizer_sensitivity", 0.32f)
-        _lensColor.value = Color(prefs.getInt("lens_color", Color.White.toArgb()))
+        _lensVisualizerEnabled.value = get("lens_visualizer_enabled", false)
+        _lensVisualizerRadius.value = get("lens_visualizer_radius", 16f)
+        _lensVisualizerX.value = get("lens_visualizer_x_px", 540f)
+        _lensVisualizerY.value = get("lens_visualizer_y_px", 72f)
+        _lensVisualizerBarWidth.value = get("lens_visualizer_bar_width", 1f)
+        _lensVisualizerMaxHeight.value = get("lens_visualizer_max_height", 5f)
+        _lensVisualizerBarCount.value = get("lens_visualizer_bar_count", 35)
+        _lensVisualizerSensitivity.value = get("lens_visualizer_sensitivity", 0.32f)
+        _lensGlowBlurRadius.value = get("lens_glow_blur_radius", 24f)
+        _lensColor.value = Color(get("lens_color", Color.White.toArgb()))
+        _lensOpacity.value = get("lens_opacity", 1.0f)
 
-        _alternateGlyphVizEnabled.value = prefs.getBoolean("alternate_glyph_viz_enabled", false)
-        _highQualityAnalysis.value = prefs.getBoolean("high_quality_analysis", false)
-        _onScreenVisualizersEnabled.value = prefs.getBoolean("on_screen_visualizers_enabled", false)
-        _overlayStyle.value = safeValueOf(prefs.getString("overlay_style", null), VisualizerStyle.BARS)
-        _edgeStyle.value = safeValueOf(prefs.getString("edge_style", null), VisualizerStyle.BARS)
-        _lensStyle.value = safeValueOf(prefs.getString("lens_style", null), VisualizerStyle.BARS)
-        _roundedBarsEnabled.value = prefs.getBoolean("rounded_bars_enabled", false)
+        _alternateGlyphVizEnabled.value = get("alternate_glyph_viz_enabled", false)
+        _highQualityAnalysis.value = get("high_quality_analysis", false)
+        _onScreenVisualizersEnabled.value = get("on_screen_visualizers_enabled", false)
+        _overlayStyle.value = safeValueOf(get("overlay_style", ""), VisualizerStyle.BARS)
+        _edgeStyle.value = safeValueOf(get("edge_style", ""), VisualizerStyle.BARS)
+        _lensStyle.value = safeValueOf(get("lens_style", ""), VisualizerStyle.BARS)
+        _roundedBarsEnabled.value = get("rounded_bars_enabled", false)
 
-        _isFirstTime.value = prefs.getBoolean("first_time_v2", true)
+        _isFirstTime.value = get("first_time_v2", true)
 
-        // Launch background tasks
+        // Launch background tasks - deferred slightly to prioritize UI
         viewModelScope.launch {
+            delay(500)
             var lastUpdate = SystemClock.elapsedRealtime()
             while (true) {
                 delay(1000)
@@ -2030,6 +2100,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         viewModelScope.launch {
+            delay(1000)
             if (!hasFlashlight) return@launch
             while (true) {
                 MainActivity.serviceStatic?.let { s ->
@@ -2044,6 +2115,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         reloadFlashlightSpeedForLevels()
         updateSelectedDevice()
         refreshPresets()
+        MainActivity.serviceStatic?.setMicrophoneMode(_microphoneMode.value.audioSource)
     }
 
     override fun onCleared() {
