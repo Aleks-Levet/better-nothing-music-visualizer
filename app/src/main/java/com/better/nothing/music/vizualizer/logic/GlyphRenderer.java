@@ -209,8 +209,14 @@ public class GlyphRenderer {
             int zoneCount = state.length;
             for (int i = 0; i < zoneCount; i++) {
                 int effectiveIndex = i;
-                if (mDeviceType == DeviceProfile.DEVICE_NP3A && i >= 19 && i <= 29) {
-                    effectiveIndex = 29 - (i - 19);
+                if (mDeviceType == DeviceProfile.DEVICE_NP3A) {
+                    if (i >= 20 && i <= 30) {
+                        effectiveIndex = i - 20; // A1-A11 -> 0-10
+                    } else if (i >= 31 && i <= 35) {
+                        effectiveIndex = 11 + (i - 31); // B1-B5 -> 11-15
+                    } else if (i >= 0 && i <= 19) {
+                        effectiveIndex = 16 + i; // C1-C20 -> 16-35
+                    }
                 }
                 float intensity = getIdleIntensity(effectiveIndex, zoneCount, nowMs);
                 
@@ -261,15 +267,43 @@ public class GlyphRenderer {
                 yield (float) Math.exp(-dist * dist * 80.0);
             }
             case "rain" -> {
-                // Pseudo-random rain drops based on index and time
-                // Use a slower time base for seed so drops stay for a bit
-                long timeBase = nowMs / 600;
-                float seed = (float) Math.abs(Math.sin(i * 12.432 + timeBase * 0.543));
-                if (seed > 0.7f) {
-                    double dropT = (nowMs % 600L) / 600.0;
-                    yield (float) Math.sin(Math.PI * dropT);
+                int width = DeviceProfile.getMatrixWidth(mDeviceType);
+                if (width > 0) {
+                    // Matrix Rain Effect (Falling drops)
+                    int height = DeviceProfile.getMatrixHeight(mDeviceType);
+                    int x = i % width;
+                    int y = i / width;
+
+                    // Column-based pseudo-randomness for speed and timing
+                    double colHash = Math.abs(Math.sin(x * 12.9898 + 7.23)) * 43758.5453;
+                    colHash = colHash - (long) colHash;
+
+                    double speed = 0.1 + colHash * 0.2;
+                    double time = nowMs * speed * 0.05;
+                    double dropY = time % (height + 20); // 20 units of padding between drops
+
+                    double dist = y - dropY;
+                    if (dist <= 0 && dist > -8) {
+                        // Head is brightest, 8-pixel tail
+                        yield (float) Math.pow((8.0 + dist) / 8.0, 2.0);
+                    }
+                    yield 0.0f;
+                } else {
+                    // Discrete Glyph Rain (Sparse slow sparkles/raindrops)
+                    double zoneHash = Math.abs(Math.sin(i * 43.123 + 9.87)) * 1234.56;
+                    zoneHash = zoneHash - (long) zoneHash;
+
+                    // Each zone has a different period and offset for natural look
+                    double period = 2500.0 + zoneHash * 4500.0;
+                    double offset = zoneHash * 10000.0;
+                    double t = ((nowMs + offset) % period) / period;
+
+                    // Pulse active during the first 15% of its period
+                    if (t < 0.15) {
+                        yield (float) Math.pow(Math.sin(Math.PI * (t / 0.15)), 3.0);
+                    }
+                    yield 0.0f;
                 }
-                yield 0.0f;
             }
             default -> {
                 double timeProg = (double) (nowMs % 3000L) / 3000L;
