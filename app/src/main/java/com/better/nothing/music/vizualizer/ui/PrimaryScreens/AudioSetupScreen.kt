@@ -262,7 +262,8 @@ fun AudioScreen(
                     onCaptureSourceChanged(source)
                 }
             },
-            developerModeEnabled = developerModeEnabled
+            developerModeEnabled = developerModeEnabled,
+            networkDeviceName = if (captureSource == AudioCaptureService.CaptureSource.NETWORK) connectedDeviceName else null
         )
 
         val header2SpacerHeight by animateDpAsState(
@@ -542,7 +543,8 @@ fun OutputSelectionCard(
 fun CaptureSourceCard(
     selectedSource: AudioCaptureService.CaptureSource,
     onSourceSelected: (AudioCaptureService.CaptureSource) -> Unit,
-    developerModeEnabled: Boolean
+    developerModeEnabled: Boolean,
+    networkDeviceName: String? = null
 ) {
     var isHelpExpanded by remember { mutableStateOf(false) }
 
@@ -639,7 +641,10 @@ fun CaptureSourceCard(
             }
 
             OptionTile(
-                label = stringResource(R.string.help_source_network_title),
+                label = if (selectedSource == AudioCaptureService.CaptureSource.NETWORK && networkDeviceName != null) 
+                    networkDeviceName 
+                else 
+                    stringResource(R.string.help_source_network_title),
                 icon = Icons.Default.Wifi,
                 isSelected = selectedSource == AudioCaptureService.CaptureSource.NETWORK,
                 enabled = true,

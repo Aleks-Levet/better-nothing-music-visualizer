@@ -817,6 +817,16 @@ public class AudioCaptureService extends Service {
             stopCaptureLocked(false);
             startForegroundWithTypes(CaptureSource.NETWORK, false);
             mCapturing = true; setRunning(true); updateOverlayVisibility(); mCaptureStartTimeMs = SystemClock.elapsedRealtime();
+            
+            // Ensure ranges are initialized for networking mode
+            mHapticRange = new AudioProcessor.FrequencyRange(mHapticMinHz, mHapticMaxHz);
+            mFlashlightRange = new AudioProcessor.FrequencyRange(mFlashlightMinHz, mFlashlightMaxHz);
+            
+            // Ensure we have some config, even if it's a default one
+            if (mVisualizerConfig == null) {
+                reloadConfig();
+            }
+
             mUdpSync.startListening(fft -> {
                 if (mCapturing && mCaptureSource == CaptureSource.NETWORK) {
                     PendingFrame frame = new PendingFrame(fft, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
@@ -963,10 +973,10 @@ public class AudioCaptureService extends Service {
             // 1. Explicitly teardown previous audio capture session & projection handle
             stopCaptureLocked(false);
 
-            // Give the system a moment to release the previous audio policy
-            SystemClock.sleep(500);
-
             if (source == CaptureSource.INTERNAL) {
+                // Give the system a moment to release the previous audio policy
+                SystemClock.sleep(500);
+
                 MediaProjectionManager pm = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
                 if (pm == null) return;
 
@@ -994,8 +1004,12 @@ public class AudioCaptureService extends Service {
             ensureCaptureExecutor();
             mCaptureExecutor.execute(() -> {
                 Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
-                // Increased settle delay to ensure native audio policy registration is ready
-                SystemClock.sleep(1500);
+                
+                if (source == CaptureSource.INTERNAL) {
+                    // Increased settle delay to ensure native audio policy registration is ready
+                    SystemClock.sleep(500);
+                }
+                
                 AudioRecord lr = null;
 
                 try {
@@ -1006,53 +1020,50 @@ public class AudioCaptureService extends Service {
 
                     if (source == CaptureSource.INTERNAL) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && mProjection != null) {
-                            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                            AudioPlaybackCaptureConfiguration cfg = new AudioPlaybackCaptureConfiguration.Builder(mProjection)
+                                    .addMatchingUsage(AudioAttributes.USAGE_MEDIA)
+                                    .addMatchingUsage(AudioAttributes.USAGE_GAME)
+                                    .addMatchingUsage(AudioAttributes.USAGE_UNKNOWN)
+                                    .excludeUid(Process.myUid())
+                                    .build();
 
-                                AudioPlaybackCaptureConfiguration cfg = new AudioPlaybackCaptureConfiguration.Builder(mProjection)
-                                        .addMatchingUsage(AudioAttributes.USAGE_MEDIA)
-                                        .addMatchingUsage(AudioAttributes.USAGE_GAME)
-                                        .addMatchingUsage(AudioAttributes.USAGE_UNKNOWN)
-                                        .excludeUid(Process.myUid())
-                                        .build();
+                            AudioFormat format = new AudioFormat.Builder()
+                                    .setSampleRate(csr)
+                                    .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
+                                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                                    .build();
 
-                                AudioFormat format = new AudioFormat.Builder()
-                                        .setSampleRate(csr)
-                                        .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
-                                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                                        .build();
+                            // Retry loop to handle native AudioFlinger registration delays
+                            // Using more attempts and longer backoff
+                            int maxRetries = 5;
+                            for (int i = 0; i < maxRetries; i++) {
+                                try {
+                                    AudioRecord.Builder arb = new AudioRecord.Builder()
+                                            .setAudioPlaybackCaptureConfig(cfg)
+                                            .setAudioFormat(format)
+                                            .setBufferSizeInBytes(bs);
 
-                                // Retry loop to handle native AudioFlinger registration delays
-                                // Using more attempts and longer backoff
-                                int maxRetries = 5;
-                                for (int i = 0; i < maxRetries; i++) {
-                                    try {
-                                        AudioRecord.Builder arb = new AudioRecord.Builder()
-                                                .setAudioPlaybackCaptureConfig(cfg)
-                                                .setAudioFormat(format)
-                                                .setBufferSizeInBytes(bs);
-
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                            arb.setContext(createAttributionContext("AudioVisualizerTag"));
-                                        }
-
-                                        lr = arb.build();
-                                        if (lr != null && lr.getState() == AudioRecord.STATE_INITIALIZED) {
-                                            break; // Success
-                                        }
-
-                                        if (lr != null) {
-                                            lr.release();
-                                            lr = null;
-                                        }
-                                    } catch (UnsupportedOperationException e) {
-                                        Log.w(TAG, "AudioRecord build attempt " + (i + 1) + " failed: " + e.getMessage());
-                                        if (lr != null) {
-                                            lr.release();
-                                            lr = null;
-                                        }
-                                        if (i == maxRetries - 1) throw e;
-                                        SystemClock.sleep(500); // Give AudioFlinger time to release policy state
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                        arb.setContext(createAttributionContext("AudioVisualizerTag"));
                                     }
+
+                                    lr = arb.build();
+                                    if (lr != null && lr.getState() == AudioRecord.STATE_INITIALIZED) {
+                                        break; // Success
+                                    }
+
+                                    if (lr != null) {
+                                        lr.release();
+                                        lr = null;
+                                    }
+                                } catch (UnsupportedOperationException | SecurityException e) {
+                                    Log.w(TAG, "AudioRecord build attempt " + (i + 1) + " failed: " + e.getMessage());
+                                    if (lr != null) {
+                                        lr.release();
+                                        lr = null;
+                                    }
+                                    if (i == maxRetries - 1) throw e;
+                                    SystemClock.sleep(500); // Give AudioFlinger time to release policy state
                                 }
                             }
                         }
@@ -1110,7 +1121,10 @@ public class AudioCaptureService extends Service {
                 if (forceMediaProjection || mProjection != null) {
                     type |= ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION;
                 }
-            } else if (source == CaptureSource.MIC) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                    type |= ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
+                }
+            } else if (source == CaptureSource.MIC || source == CaptureSource.VIZUALIZER) {
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
                     type |= ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
                 }
@@ -1120,10 +1134,15 @@ public class AudioCaptureService extends Service {
             int type = 0;
             if (source == CaptureSource.INTERNAL) {
                 if (forceMediaProjection || mProjection != null) {
-                    type = ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION;
+                    type |= ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION;
                 }
-            } else if (source == CaptureSource.MIC) {
-                type = ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                    type |= ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
+                }
+            } else if (source == CaptureSource.MIC || source == CaptureSource.VIZUALIZER) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                    type |= ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
+                }
             }
             if (type != 0) startForeground(NOTIF_ID, notification, type);
             else startForeground(NOTIF_ID, notification);
@@ -1306,24 +1325,49 @@ public class AudioCaptureService extends Service {
             mAudioProcessor.updateFFTSize();
             mHapticRange = new AudioProcessor.FrequencyRange(mHapticMinHz, mHapticMaxHz);
             mFlashlightRange = new AudioProcessor.FrequencyRange(mFlashlightMinHz, mFlashlightMaxHz);
-            mVisualizer = new Visualizer(0); int captureSize = Math.min(Visualizer.getCaptureSizeRange()[1], 1024); mVisualizer.setCaptureSize(captureSize);
-            mVisualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
-                @Override public void onWaveFormDataCapture(Visualizer v, byte[] w, int sr) { processVisualizerWaveform(w, sr); }
-                @Override public void onFftDataCapture(Visualizer v, byte[] f, int sr) {}
-            }, Visualizer.getMaxCaptureRate(), true, false);
-            mVisualizer.setEnabled(true);
-        } catch (Exception e) { releaseVisualizer(); }
+            
+            Log.d(TAG, "setupVisualizerCapture: initializing Android Visualizer (session 0)");
+            try {
+                mVisualizer = new Visualizer(0);
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to create Visualizer(0), trying again in 500ms", e);
+                SystemClock.sleep(500);
+                mVisualizer = new Visualizer(0);
+            }
+
+            if (mVisualizer != null) {
+                int captureSize = Math.min(Visualizer.getCaptureSizeRange()[1], 1024); 
+                mVisualizer.setCaptureSize(captureSize);
+                
+                int captureRate = Math.min(Visualizer.getMaxCaptureRate(), 50000);
+                mVisualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
+                    @Override public void onWaveFormDataCapture(Visualizer v, byte[] w, int sr) { processVisualizerWaveform(w, sr); }
+                    @Override public void onFftDataCapture(Visualizer v, byte[] f, int sr) {}
+                }, captureRate, true, false);
+                
+                int result = mVisualizer.setEnabled(true);
+                if (result != Visualizer.SUCCESS) {
+                    Log.e(TAG, "setupVisualizerCapture: failed to enable visualizer, error code: " + result);
+                    releaseVisualizer();
+                } else {
+                    Log.d(TAG, "setupVisualizerCapture: visualizer enabled successfully with rate " + captureRate);
+                }
+            }
+        } catch (Exception e) { 
+            Log.e(TAG, "setupVisualizerCapture: exception during initialization", e);
+            releaseVisualizer(); 
+        }
     }
 
     private void processVisualizerWaveform(byte[] waveform, int samplingRate) {
-        if (!mCapturing || mVisualizerConfig == null) return;
+        if (!mCapturing) return;
         // Robust sampling rate detection: handle both Hz (most devices) and mHz (docs)
         int hz = (samplingRate > 1000000) ? (samplingRate / 1000) : samplingRate;
         if (hz < 8000) hz = 44100; // Fallback for invalid values
 
         mAudioProcessor.updateFFTSize(hz);
         short[] hop = new short[waveform.length]; for (int i = 0; i < waveform.length; i++) hop[i] = (short) (((waveform[i] & 0xFF) - 128) << 8);
-        AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, AudioProcessor.SourceType.VIZUALIZER, mVisualizerConfig.decay);
+        AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, AudioProcessor.SourceType.VIZUALIZER, mVisualizerConfig != null ? mVisualizerConfig.decay : 0.85f);
         if (result == null) return;
         PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
         synchronized (mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
@@ -1543,15 +1587,10 @@ public class AudioCaptureService extends Service {
     public static boolean isHapticEnabledGlobal(Context context) { return context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).getBoolean("haptic_motor_enabled", false); }
     public static Intent createStopIntent(Context context) { Intent intent = new Intent(context, AudioCaptureService.class); intent.setAction(ACTION_STOP); return intent; }
     private void refreshPresetCatalog() throws IOException, JSONException {
-        if (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN || mMaxBrightness <= 0) {
-            mAvailablePresetKeys = Collections.emptyList();
-            return;
-        }
         JSONObject root = loadZonesConfigRoot(this); mAvailablePresetKeys = getPresetKeysForPhoneModel(root, phoneModelForDevice(mSelectedDevice)); if (mAvailablePresetKeys.isEmpty()) mAvailablePresetKeys = getAllPresetKeys(root);
     }
 
     private AudioProcessor.VisualizerConfig loadVisualizerConfig(String presetKey, int sampleRate) throws IOException, JSONException {
-        if (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN || mMaxBrightness <= 0) return null;
         JSONObject root = loadZonesConfigRoot(this); JSONObject p = root.optJSONObject(presetKey); if (p == null) throw new JSONException("Preset not found"); JSONArray za = p.optJSONArray("zones"); if (za == null || za.length() == 0) throw new JSONException("No zones");
         double da = p.has("decay-alpha") ? p.optDouble("decay-alpha", 0.8) : root.optDouble("decay-alpha", 0.8);
         da *= mGlyphDecaySpeed;

@@ -987,8 +987,15 @@ private fun TabContent(
             val autoDeviceEnabled by viewModel.autoDeviceMemorize.collectAsStateWithLifecycle()
             val fftRaw by viewModel.fftState.collectAsStateWithLifecycle()
             val captureSource by viewModel.captureSource.collectAsStateWithLifecycle()
+            val selectedHost by viewModel.selectedHost.collectAsStateWithLifecycle()
 
             val connectedClients by viewModel.connectedClients.collectAsStateWithLifecycle()
+
+            val displayDeviceName = if (captureSource == AudioCaptureService.CaptureSource.NETWORK) {
+                selectedHost?.model ?: stringResource(R.string.help_source_network_title)
+            } else {
+                MainActivity.serviceStatic?.getActiveAudioRouteName() ?: stringResource(R.string.audio_route_none)
+            }
 
             AudioScreen(
                 isRunning = isRunning,
@@ -999,8 +1006,7 @@ private fun TabContent(
                 onLatencyPresetsChanged = { viewModel.updateLatencyPresets(it) },
                 autoDeviceEnabled = autoDeviceEnabled,
                 onAutoDeviceToggle = { viewModel.setAutoDeviceMemorize(it) },
-                connectedDeviceName = MainActivity.serviceStatic?.getActiveAudioRouteName()
-                    ?: "Unknown",
+                connectedDeviceName = displayDeviceName,
                 viewModel = viewModel,
                 fftRaw = fftRaw,
                 captureSource = captureSource,

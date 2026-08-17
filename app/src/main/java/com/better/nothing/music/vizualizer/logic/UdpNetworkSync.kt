@@ -89,16 +89,18 @@ class UdpNetworkSync(private val context: Context) {
         acquireMulticastLock()
         startLatencyMeasurement()
         executor.execute {
+            var socket: DatagramSocket? = null
             try {
-                discoverySocket = DatagramSocket(null).apply {
+                socket = DatagramSocket(null).apply {
                     reuseAddress = true
                     broadcast = true
                     bind(java.net.InetSocketAddress(DISCOVERY_PORT))
                 }
+                discoverySocket = socket
                 val buffer = ByteArray(1024)
-                while (isBroadcasting) {
+                while (isBroadcasting && !socket.isClosed) {
                     val packet = DatagramPacket(buffer, buffer.size)
-                    discoverySocket?.receive(packet)
+                    socket.receive(packet)
                     val msg = String(packet.data, 0, packet.length)
                     Log.d(TAG, "Received discovery message: $msg from ${packet.address}")
                     if (msg == DISCOVERY_MSG) {
@@ -110,7 +112,7 @@ class UdpNetworkSync(private val context: Context) {
                             packet.address,
                             packet.port
                         )
-                        discoverySocket?.send(responsePacket)
+                        socket.send(responsePacket)
                         Log.d(TAG, "Sent host info to ${packet.address}")
                         
                         // Add to streaming list if not already there
@@ -123,13 +125,15 @@ class UdpNetworkSync(private val context: Context) {
                     }
                 }
             } catch (e: Exception) {
-                if (isBroadcasting) {
+                if (isBroadcasting && socket != null && !socket.isClosed) {
                     Log.e(TAG, "Broadcasting error", e)
                 }
             } finally {
-                isBroadcasting = false
-                discoverySocket?.close()
-                discoverySocket = null
+                socket?.close()
+                if (discoverySocket == socket) {
+                    discoverySocket = null
+                    isBroadcasting = false
+                }
                 releaseMulticastLock()
             }
         }
@@ -219,15 +223,17 @@ class UdpNetworkSync(private val context: Context) {
         if (isRespondingToPings) return
         isRespondingToPings = true
         executor.execute {
+            var socket: DatagramSocket? = null
             try {
-                pingResponderSocket = DatagramSocket(null).apply {
+                socket = DatagramSocket(null).apply {
                     reuseAddress = true
                     bind(java.net.InetSocketAddress(LATENCY_PORT))
                 }
+                pingResponderSocket = socket
                 val buffer = ByteArray(1024)
-                while (isRespondingToPings) {
+                while (isRespondingToPings && !socket.isClosed) {
                     val packet = DatagramPacket(buffer, buffer.size)
-                    pingResponderSocket?.receive(packet)
+                    socket.receive(packet)
                     val msg = String(packet.data, 0, packet.length)
                     if (msg.startsWith(PING_PREFIX)) {
                         val parts = msg.split(";")
@@ -240,16 +246,20 @@ class UdpNetworkSync(private val context: Context) {
                                 packet.address,
                                 packet.port
                             )
-                            pingResponderSocket?.send(responsePacket)
+                            socket.send(responsePacket)
                         }
                     }
                 }
             } catch (e: Exception) {
-                if (isRespondingToPings) Log.e(TAG, "Ping responder error", e)
+                if (isRespondingToPings && socket != null && !socket.isClosed) {
+                    Log.e(TAG, "Ping responder error", e)
+                }
             } finally {
-                pingResponderSocket?.close()
-                pingResponderSocket = null
-                isRespondingToPings = false
+                socket?.close()
+                if (pingResponderSocket == socket) {
+                    pingResponderSocket = null
+                    isRespondingToPings = false
+                }
             }
         }
     }
@@ -371,15 +381,17 @@ class UdpNetworkSync(private val context: Context) {
         startPingResponder()
         Log.d(TAG, "Starting to listen for FFT on port $STREAMING_PORT")
         executor.execute {
+            var socket: DatagramSocket? = null
             try {
-                listeningSocket = DatagramSocket(null).apply {
+                socket = DatagramSocket(null).apply {
                     reuseAddress = true
                     bind(java.net.InetSocketAddress(STREAMING_PORT))
                 }
+                listeningSocket = socket
                 val buffer = ByteArray(768)
-                while (isListening) {
+                while (isListening && !socket.isClosed) {
                     val packet = DatagramPacket(buffer, buffer.size)
-                    listeningSocket?.receive(packet)
+                    socket.receive(packet)
                     if (packet.length == 768) {
                         val fft = unpackUint12(packet.data)
                         onFftReceived(fft)
@@ -388,13 +400,15 @@ class UdpNetworkSync(private val context: Context) {
                     }
                 }
             } catch (e: Exception) {
-                if (isListening) {
+                if (isListening && socket != null && !socket.isClosed) {
                     Log.e(TAG, "Streaming listen error", e)
                 }
             } finally {
-                listeningSocket?.close()
-                listeningSocket = null
-                isListening = false
+                socket?.close()
+                if (listeningSocket == socket) {
+                    listeningSocket = null
+                    isListening = false
+                }
                 stopPingResponder()
                 releaseMulticastLock()
                 Log.d(TAG, "Stopped listening")

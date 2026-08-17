@@ -162,7 +162,7 @@ public class AudioProcessor {
                 if (sourceType == SourceType.INTERNAL) {
                     desiredGain = Math.max(0.7f, Math.min(1.4f, desiredGain));
                 } else if (sourceType == SourceType.VIZUALIZER) {
-                    desiredGain = Math.max(0.1f, Math.min(20.0f, desiredGain));
+                    desiredGain = Math.max(0.1f, Math.min(100.0f, desiredGain));
                 } else {
                     desiredGain = Math.max(0.1f, Math.min(200.0f, desiredGain));
                 }

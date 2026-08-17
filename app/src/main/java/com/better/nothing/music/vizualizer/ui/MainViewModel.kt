@@ -1688,9 +1688,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _isFlashlightBeatDetected = MutableStateFlow(false)
     val isFlashlightBeatDetected = _isFlashlightBeatDetected.asStateFlow()
 
-    val hapticBeatDetector = BeatDetector()
-    val flashlightBeatDetector = BeatDetector()
-
     var smoothedHapticAmplitude = 0f
 
     val _fftState = MutableStateFlow(floatArrayOf())

@@ -24,6 +24,7 @@ public class GlyphRenderer {
     private int[] mPreviousFftRaw = null;
 
     private float[] mCurrentLightState = new float[0];
+    private float[] mRangeDecayState = new float[0];
     private int mLastHash = Integer.MIN_VALUE;
     private long mSilenceStartTimeMs = 0;
     private long mLastFrameMs = 0;
@@ -72,8 +73,10 @@ public class GlyphRenderer {
     public void resetState(AudioProcessor.VisualizerConfig config) {
         if (config == null) {
             mCurrentLightState = new float[0];
+            mRangeDecayState = new float[0];
         } else {
             mCurrentLightState = new float[config.zones.length];
+            mRangeDecayState = new float[config.uniqueRanges.length];
         }
         mLastHash = Integer.MIN_VALUE;
         mSilenceStartTimeMs = 0;
@@ -105,37 +108,55 @@ public class GlyphRenderer {
                 mCurrentLightState = new float[zoneCount];
             }
 
+            if (mRangeDecayState.length != config.uniqueRanges.length) {
+                mRangeDecayState = new float[config.uniqueRanges.length];
+            }
+
             // Exponential blending decay from original Python script:
             // prev = ad * prev + (1 - ad) * current
             float ad = config.decay - 0.1f; // Calculated in AudioCaptureService as 0.86 + da/10
             
+            // 1. Calculate and decay unique frequency ranges first
+            for (int r = 0; r < config.uniqueRanges.length; r++) {
+                AudioProcessor.FrequencyRange range = config.uniqueRanges[r];
+                float maxVal = 0f;
+                int start = Math.max(0, Math.min(range.logBinLo, 511));
+                int end = Math.max(start, Math.min(range.logBinHi, 511));
+                for (int b = start; b <= end; b++) {
+                    // Apply a 2.2x boost to glyphs to ensure they hit peaks frequently
+                    float val = actualFft[b] * 2.2f;
+                    if (val > maxVal) {
+                        maxVal = val;
+                    }
+                }
+
+                float normalized = Math.min(1.0f, maxVal / 4095f);
+                
+                // Apply decay blending to the frequency range itself
+                if (normalized > mRangeDecayState[r]) {
+                    // Instant rise
+                    mRangeDecayState[r] = normalized;
+                } else {
+                    // Exponential fall
+                    mRangeDecayState[r] = ad * mRangeDecayState[r] + (1f - ad) * normalized;
+                }
+            }
+
+            // 2. Map decayed ranges to zones and apply percent slicing
             for (int i = 0; i < zoneCount; i++) {
-                float targetZoneVal = 0f;
                 if (i < config.zones.length) {
-                    float maxVal = 0f;
-                    AudioProcessor.FrequencyRange range = config.uniqueRanges[config.zoneToRangeIndices[i][0]];
-                    int start = Math.max(0, Math.min(range.logBinLo, 511));
-                    int end = Math.max(start, Math.min(range.logBinHi, 511));
-                    for (int b = start; b <= end; b++) {
-                        // Apply a 2.2x boost to glyphs to ensure they hit peaks frequently
-                        float val = actualFft[b] * 2.2f;
-                        if (val > maxVal) {
-                            maxVal = val;
+                    float maxDecayed = 0f;
+                    for (int rangeIdx : config.zoneToRangeIndices[i]) {
+                        if (mRangeDecayState[rangeIdx] > maxDecayed) {
+                            maxDecayed = mRangeDecayState[rangeIdx];
                         }
                     }
 
-                    float normalized = Math.min(1.0f, maxVal / 4095f);
-                    float mapped = applyPercentSlice(normalized, config.zones[i]);
-                    targetZoneVal = applyGamma(mapped);
-                }
-
-                // Apply decay blending
-                // Instant rise
-                if (targetZoneVal > mCurrentLightState[i]) {
-                    mCurrentLightState[i] = targetZoneVal;
+                    float mapped = applyPercentSlice(maxDecayed, config.zones[i]);
+                    mCurrentLightState[i] = applyGamma(mapped);
                 } else {
-                    // Exponential fall
-                    mCurrentLightState[i] = ad * mCurrentLightState[i] + (1f - ad) * targetZoneVal;
+                    // Decay padding LEDs
+                    mCurrentLightState[i] *= ad;
                 }
             }
 
