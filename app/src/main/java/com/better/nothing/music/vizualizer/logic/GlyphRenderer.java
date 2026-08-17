@@ -161,10 +161,13 @@ public class GlyphRenderer {
             }
 
             applyIdleBreathing(mCurrentLightState, fftraw, nowMs);
-            mPreviousFftRaw = fftraw.clone();
 
             int[] frameColors = buildFrameColors(mCurrentLightState, zoneCount);
             int frameHash = Arrays.hashCode(frameColors);
+            
+            // Clone AFTER everything else is done so the next frame can compare
+            mPreviousFftRaw = fftraw.clone();
+
             if (frameHash == mLastHash) return null;
 
             mLastHash = frameHash;

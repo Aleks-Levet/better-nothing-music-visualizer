@@ -1,6 +1,6 @@
 <img src="/Docs/Banners/Banner4.png" alt="Better Nothing Music Visualizer"/>
 
-🌐 Read this in other languages (not updated):  🇮🇳 [हिन्दी](Docs/README_HI.md), 🇮🇳 [Marathi](Docs/README_MR.md), 🇹🇷 [Türkçe](Docs/README_TR.md), 🇸🇦 [العربية](Docs/README_AR.md)
+🌐 Read this in other languages:  🇮🇳 [हिन्दी](Docs/README-hi.md), 🇮🇳 [Marathi](Docs/README-mr.md), 🇹🇷 [Türkçe](Docs/README_tr.md), 🇸🇦 [العربية](Docs/README-ar.md)
 
 ### An (android) app that not only brings better music visualization on the Glyph interface/matrix of Nothing Phones, but also lets you feel your music through the haptic motor ***AND*** use the flashlight of your phone as a music visualizer!
 
