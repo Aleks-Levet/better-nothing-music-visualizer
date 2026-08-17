@@ -1,6 +1,7 @@
 package com.better.nothing.music.vizualizer.ui;
 
 import android.content.Context;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -11,6 +12,8 @@ import com.better.nothing.music.vizualizer.ui.MainViewModel;
 public class LensVisualizerView extends View {
     private int[] mFftRaw;
     private final Paint mPaint = new Paint();
+    private final Paint mGlowPaint = new Paint();
+    private float mGlowBlurRadius = 24f;
     
     private float mRadius = 40f;
     private float mXPos = 180f;
@@ -30,6 +33,9 @@ public class LensVisualizerView extends View {
         mPaint.setColor(Color.WHITE);
         mPaint.setStyle(Paint.Style.FILL);
         mPaint.setAntiAlias(true);
+        mGlowPaint.setColor(Color.WHITE);
+        mGlowPaint.setStyle(Paint.Style.STROKE);
+        mGlowPaint.setAntiAlias(true);
         setClickable(false);
         setFocusable(false);
         setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
@@ -45,6 +51,7 @@ public class LensVisualizerView extends View {
     public void setColor(int color) { this.mColor = color; mPaint.setColor(color); invalidate(); }
     public void setRoundedBarsEnabled(boolean enabled) { this.mRoundedBarsEnabled = enabled; invalidate(); }
     public void setStyle(VisualizerStyle style) { this.mStyle = style; invalidate(); }
+    public void setGlowBlurRadius(float radius) { this.mGlowBlurRadius = Math.max(0f, radius); invalidate(); }
 
     public void updateMagnitudes(int[] fftraw) {
         if (fftraw == null || fftraw.length == 0) return;
@@ -93,18 +100,6 @@ public class LensVisualizerView extends View {
         float centerY = mYPos * density;
         float radius = mRadius * density;
         
-        if (mStyle == VisualizerStyle.GLOW) {
-            float totalMag = 0;
-            for (float val : mSmoothedMagnitudes) totalMag += val;
-            float avgMag = totalMag / barCount;
-            
-            mPaint.setStyle(Paint.Style.FILL);
-            mPaint.setAlpha((int) (Math.min(avgMag * 0.8f, 1.0f) * 255));
-            canvas.drawCircle(centerX, centerY, radius * 1.5f, mPaint);
-            mPaint.setAlpha(255);
-            return;
-        }
-
         for (int i = 0; i < barCount; i++) {
             float angle = (float) (i * 2 * Math.PI / barCount);
             float magnitude = mSmoothedMagnitudes[i];
@@ -113,8 +108,31 @@ public class LensVisualizerView extends View {
             float startY = (float) (centerY + radius * Math.sin(angle));
             float endX = (float) (centerX + (radius + barLen) * Math.cos(angle));
             float endY = (float) (centerY + (radius + barLen) * Math.sin(angle));
+
+            if (mStyle == VisualizerStyle.GLOW) {
+                float glowLen = barLen * 2.2f;
+                float glowStartX = (float) (centerX + radius * Math.cos(angle));
+                float glowStartY = (float) (centerY + radius * Math.sin(angle));
+                float glowEndX = (float) (centerX + (radius + glowLen) * Math.cos(angle));
+                float glowEndY = (float) (centerY + (radius + glowLen) * Math.sin(angle));
+                float glowWidth = Math.max(16f, mBarWidth * density * 4.5f);
+                mGlowPaint.setColor(mColor);
+                mGlowPaint.setStrokeWidth(glowWidth);
+                mGlowPaint.setStrokeCap(Paint.Cap.ROUND);
+                mGlowPaint.setAlpha(100);
+                mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mGlowBlurRadius), BlurMaskFilter.Blur.NORMAL));
+                canvas.drawLine(glowStartX, glowStartY, glowEndX, glowEndY, mGlowPaint);
+                mGlowPaint.setAlpha(180);
+                mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mGlowBlurRadius * 0.65f), BlurMaskFilter.Blur.NORMAL));
+                canvas.drawLine(startX, startY, endX, endY, mGlowPaint);
+                mGlowPaint.setMaskFilter(null);
+                continue;
+            }
+
             mPaint.setStrokeWidth(mBarWidth * density);
             mPaint.setStrokeCap((mStyle == VisualizerStyle.ROUNDED_BARS || mRoundedBarsEnabled) ? Paint.Cap.ROUND : Paint.Cap.BUTT);
+            mPaint.setAlpha(255);
+            mPaint.setMaskFilter(null);
             canvas.drawLine(startX, startY, endX, endY, mPaint);
         }
     }

@@ -424,22 +424,35 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _overlaySensitivity = MutableStateFlow(1.0f)
     val overlaySensitivity = _overlaySensitivity.asStateFlow()
     fun setOverlaySensitivity(sensitivity: Float) {
-        _overlaySensitivity.value = sensitivity
-        MainActivity.serviceStatic?.setOverlaySensitivity(sensitivity)
+        val fixed = 1.0f
+        _overlaySensitivity.value = fixed
+        MainActivity.serviceStatic?.setOverlaySensitivity(fixed)
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putFloat("overlay_sensitivity", sensitivity) }
+                .edit { putFloat("overlay_sensitivity", fixed) }
         }
     }
 
     private val _overlaySensitivityBottom = MutableStateFlow(1.0f)
     val overlaySensitivityBottom = _overlaySensitivityBottom.asStateFlow()
     fun setOverlaySensitivityBottom(sensitivity: Float) {
-        _overlaySensitivityBottom.value = sensitivity
-        MainActivity.serviceStatic?.setOverlaySensitivityBottom(sensitivity)
+        val fixed = 1.0f
+        _overlaySensitivityBottom.value = fixed
+        MainActivity.serviceStatic?.setOverlaySensitivityBottom(fixed)
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putFloat("overlay_sensitivity_bottom", sensitivity) }
+                .edit { putFloat("overlay_sensitivity_bottom", fixed) }
+        }
+    }
+
+    private val _overlayGlowBlurRadius = MutableStateFlow(24f)
+    val overlayGlowBlurRadius = _overlayGlowBlurRadius.asStateFlow()
+    fun setOverlayGlowBlurRadius(radius: Float) {
+        _overlayGlowBlurRadius.value = radius
+        MainActivity.serviceStatic?.setOverlayGlowBlurRadius(radius)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("overlay_glow_blur_radius", radius) }
         }
     }
 
@@ -483,11 +496,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _edgeSensitivity = MutableStateFlow(1.0f)
     val edgeSensitivity = _edgeSensitivity.asStateFlow()
     fun setEdgeSensitivity(sensitivity: Float) {
-        _edgeSensitivity.value = sensitivity
-        MainActivity.serviceStatic?.setEdgeSensitivity(sensitivity)
+        val fixed = 1.0f
+        _edgeSensitivity.value = fixed
+        MainActivity.serviceStatic?.setEdgeSensitivity(fixed)
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putFloat("edge_sensitivity", sensitivity) }
+                .edit { putFloat("edge_sensitivity", fixed) }
         }
     }
 
@@ -556,6 +570,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putBoolean("edge_bottom_enabled", enabled) }
+        }
+    }
+
+    private val _edgeGlowBlurRadius = MutableStateFlow(24f)
+    val edgeGlowBlurRadius = _edgeGlowBlurRadius.asStateFlow()
+    fun setEdgeGlowBlurRadius(radius: Float) {
+        _edgeGlowBlurRadius.value = radius
+        MainActivity.serviceStatic?.setEdgeGlowBlurRadius(radius)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("edge_glow_blur_radius", radius) }
         }
     }
 
@@ -651,14 +676,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val _lensVisualizerSensitivity = MutableStateFlow(0.32f)
+    private val _lensVisualizerSensitivity = MutableStateFlow(1.0f)
     val lensVisualizerSensitivity = _lensVisualizerSensitivity.asStateFlow()
     fun setLensVisualizerSensitivity(sensitivity: Float) {
-        _lensVisualizerSensitivity.value = sensitivity
-        MainActivity.serviceStatic?.setLensVisualizerSensitivity(sensitivity)
+        val fixed = 1.0f
+        _lensVisualizerSensitivity.value = fixed
+        MainActivity.serviceStatic?.setLensVisualizerSensitivity(fixed)
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putFloat("lens_visualizer_sensitivity", sensitivity) }
+                .edit { putFloat("lens_visualizer_sensitivity", fixed) }
+        }
+    }
+
+    private val _lensGlowBlurRadius = MutableStateFlow(24f)
+    val lensGlowBlurRadius = _lensGlowBlurRadius.asStateFlow()
+    fun setLensGlowBlurRadius(radius: Float) {
+        _lensGlowBlurRadius.value = radius
+        MainActivity.serviceStatic?.setLensGlowBlurRadius(radius)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("lens_glow_blur_radius", radius) }
         }
     }
 
@@ -1669,7 +1706,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     manualDecayFft[i] = fVal
                 } else {
                     // Exponential manual decay for UI
-                    manualDecayFft[i] = (manualDecayFft[i] * 0.94f).coerceAtLeast(fVal)
+                    manualDecayFft[i] = (manualDecayFft[i] - 0.05f).coerceAtLeast(fVal)
                 }
             }
             _fftState.value = manualDecayFft.copyOf()
@@ -1937,6 +1974,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _edgeVisualizerEnabled.value = prefs.getBoolean("edge_visualizer_enabled", false)
         _edgeThickness.value = prefs.getInt("edge_thickness", 12)
         _edgeSensitivity.value = prefs.getFloat("edge_sensitivity", 1.0f)
+        _edgeGlowBlurRadius.value = prefs.getFloat("edge_glow_blur_radius", 24f)
         _edgeBarCountHoriz.value = prefs.getInt("edge_bar_count_horiz", 20)
         _edgeBarCountVert.value = prefs.getInt("edge_bar_count_vert", 40)
         _edgeCornerRadius.value = prefs.getFloat("edge_corner_radius", 2f)

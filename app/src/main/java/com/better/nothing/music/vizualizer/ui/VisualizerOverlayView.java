@@ -1,6 +1,7 @@
 package com.better.nothing.music.vizualizer.ui;
 
 import android.content.Context;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -11,7 +12,9 @@ import com.better.nothing.music.vizualizer.ui.MainViewModel;
 public class VisualizerOverlayView extends View {
     private int[] mFftRaw;
     private final Paint mPaint = new Paint();
+    private final Paint mGlowPaint = new Paint();
     private static final int NUM_BARS = 16;
+    private float mGlowBlurRadius = 24f;
     private final float[] mSmoothedMagnitudesTop = new float[NUM_BARS];
     private final float[] mSmoothedMagnitudesBottom = new float[NUM_BARS];
     private int mColor = Color.WHITE;
@@ -30,6 +33,10 @@ public class VisualizerOverlayView extends View {
         mPaint.setColor(mColor);
         mPaint.setStyle(Paint.Style.FILL);
         mPaint.setAntiAlias(true);
+        mGlowPaint.setColor(mColor);
+        mGlowPaint.setStyle(Paint.Style.FILL);
+        mGlowPaint.setAntiAlias(true);
+        mGlowPaint.setAlpha(90);
         setClickable(false);
         setFocusable(false);
         setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
@@ -72,6 +79,11 @@ public class VisualizerOverlayView extends View {
 
     public void setStyle(VisualizerStyle style) {
         this.mStyle = style;
+        invalidate();
+    }
+
+    public void setGlowBlurRadius(float radius) {
+        this.mGlowBlurRadius = Math.max(0f, radius);
         invalidate();
     }
 
@@ -125,19 +137,6 @@ public class VisualizerOverlayView extends View {
 
         float baselineY = mTopEnabled ? mTopHeightPx : 0;
 
-        if (mStyle == VisualizerStyle.GLOW) {
-            float totalMag = 0;
-            for (int i = 0; i < NUM_BARS; i++) {
-                totalMag += (mTopEnabled ? mSmoothedMagnitudesTop[i] : 0) + (mBottomEnabled ? mSmoothedMagnitudesBottom[i] : 0);
-            }
-            float avgMag = totalMag / (NUM_BARS * (mTopEnabled && mBottomEnabled ? 2 : 1));
-            
-            mPaint.setAlpha((int) (Math.min(avgMag * 0.8f, 1.0f) * 255));
-            canvas.drawRect(0, 0, width, getHeight(), mPaint);
-            mPaint.setAlpha(255);
-            return;
-        }
-
         float cornerRadius = (mStyle == VisualizerStyle.ROUNDED_BARS || mRoundedBarsEnabled) ? barWidth / 2f : 2f;
 
         for (int i = 0; i < NUM_BARS; i++) {
@@ -152,6 +151,25 @@ public class VisualizerOverlayView extends View {
 
                 float top = baselineY - barHeightTop;
                 float bottom = baselineY;
+
+                if (mStyle == VisualizerStyle.GLOW) {
+                    float glowPad = Math.max(18f, barHeightTop * 0.55f);
+                    float glowTop = top - glowPad;
+                    float glowBottom = bottom + glowPad;
+                    float glowCorner = cornerRadius * 2.2f;
+                    mGlowPaint.setColor(mColor);
+                    mGlowPaint.setAlpha(120);
+                    mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mGlowBlurRadius), BlurMaskFilter.Blur.NORMAL));
+                    canvas.drawRoundRect(left - 3f, glowTop, right + 3f, glowBottom, glowCorner, glowCorner, mGlowPaint);
+                    mGlowPaint.setAlpha(180);
+                    mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mGlowBlurRadius * 0.7f), BlurMaskFilter.Blur.NORMAL));
+                    canvas.drawRoundRect(left - 1.5f, top - glowPad * 0.35f, right + 1.5f, bottom + glowPad * 0.35f, glowCorner * 0.9f, glowCorner * 0.9f, mGlowPaint);
+                    mGlowPaint.setMaskFilter(null);
+                    continue;
+                }
+
+                mPaint.setMaskFilter(null);
+                mPaint.setAlpha(255);
                 canvas.drawRoundRect(left, top, right, bottom, cornerRadius, cornerRadius, mPaint);
             }
 
@@ -163,6 +181,25 @@ public class VisualizerOverlayView extends View {
 
                 float top = baselineY;
                 float bottom = baselineY + barHeightBottom;
+
+                if (mStyle == VisualizerStyle.GLOW) {
+                    float glowPad = Math.max(18f, barHeightBottom * 0.55f);
+                    float glowTop = top - glowPad;
+                    float glowBottom = bottom + glowPad;
+                    float glowCorner = cornerRadius * 2.2f;
+                    mGlowPaint.setColor(mColor);
+                    mGlowPaint.setAlpha(120);
+                    mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mGlowBlurRadius), BlurMaskFilter.Blur.NORMAL));
+                    canvas.drawRoundRect(left - 3f, glowTop, right + 3f, glowBottom, glowCorner, glowCorner, mGlowPaint);
+                    mGlowPaint.setAlpha(180);
+                    mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mGlowBlurRadius * 0.7f), BlurMaskFilter.Blur.NORMAL));
+                    canvas.drawRoundRect(left - 1.5f, top - glowPad * 0.35f, right + 1.5f, bottom + glowPad * 0.35f, glowCorner * 0.9f, glowCorner * 0.9f, mGlowPaint);
+                    mGlowPaint.setMaskFilter(null);
+                    continue;
+                }
+
+                mPaint.setMaskFilter(null);
+                mPaint.setAlpha(255);
                 canvas.drawRoundRect(left, top, right, bottom, cornerRadius, cornerRadius, mPaint);
             }
         }

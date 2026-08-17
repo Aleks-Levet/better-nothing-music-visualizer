@@ -30,6 +30,7 @@ public class VisualizerService extends Service {
                 mVisualizerView.setMaxHeight(AudioCaptureService.sInstance.mLensVisualizerMaxHeight);
                 mVisualizerView.setBarCount(AudioCaptureService.sInstance.mLensVisualizerBarCount);
                 mVisualizerView.setSensitivity(AudioCaptureService.sInstance.mLensVisualizerSensitivity);
+                mVisualizerView.setGlowBlurRadius(AudioCaptureService.sInstance.mLensGlowBlurRadius);
                 mVisualizerView.setColor(AudioCaptureService.sInstance.mLensColor);
                 mVisualizerView.setRoundedBarsEnabled(AudioCaptureService.sInstance.mRoundedBarsEnabled);
                 mVisualizerView.setStyle(AudioCaptureService.sInstance.getLensStyle());

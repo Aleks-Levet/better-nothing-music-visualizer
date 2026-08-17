@@ -809,13 +809,17 @@ fun LatencyCard(
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            CardHeader(title = stringResource(R.string.auto_memorize_device))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text =  stringResource(R.string.auto_memorize_device),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                     Text(
                         text = if (autoDeviceEnabled)
                             stringResource(
@@ -897,8 +901,8 @@ fun FFTSpectrumCard(
 
                     val gradient = Brush.verticalGradient(
                         colors = listOf(
-                            primaryColor.copy(alpha = 0.6f),
-                            primaryColor.copy(alpha = 0.02f)
+                            primaryColor.copy(alpha = 0.7f),
+                            primaryColor.copy(alpha = 0.04f)
                         ),
                         startY = 0f,
                         endY = h

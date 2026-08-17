@@ -45,6 +45,7 @@ fun VisualsScreen(
     val overlayYOffset by viewModel.overlayYOffset.collectAsStateWithLifecycle()
     val overlaySensitivity by viewModel.overlaySensitivity.collectAsStateWithLifecycle()
     val overlaySensitivityBottom by viewModel.overlaySensitivityBottom.collectAsStateWithLifecycle()
+    val overlayGlowBlurRadius by viewModel.overlayGlowBlurRadius.collectAsStateWithLifecycle()
     val overlayTopEnabled by viewModel.overlayTopEnabled.collectAsStateWithLifecycle()
     val overlayBottomEnabled by viewModel.overlayBottomEnabled.collectAsStateWithLifecycle()
     val overlayColor by viewModel.overlayColor.collectAsStateWithLifecycle()
@@ -53,6 +54,7 @@ fun VisualsScreen(
     val edgeVisualizerEnabled by viewModel.edgeVisualizerEnabled.collectAsStateWithLifecycle()
     val edgeThickness by viewModel.edgeThickness.collectAsStateWithLifecycle()
     val edgeSensitivity by viewModel.edgeSensitivity.collectAsStateWithLifecycle()
+    val edgeGlowBlurRadius by viewModel.edgeGlowBlurRadius.collectAsStateWithLifecycle()
     val edgeBarCountHoriz by viewModel.edgeBarCountHoriz.collectAsStateWithLifecycle()
     val edgeCornerRadius by viewModel.edgeCornerRadius.collectAsStateWithLifecycle()
     val edgeTopEnabled by viewModel.edgeTopEnabled.collectAsStateWithLifecycle()
@@ -68,6 +70,7 @@ fun VisualsScreen(
     val lensMaxHeight by viewModel.lensVisualizerMaxHeight.collectAsStateWithLifecycle()
     val lensBarCount by viewModel.lensVisualizerBarCount.collectAsStateWithLifecycle()
     val lensSensitivity by viewModel.lensVisualizerSensitivity.collectAsStateWithLifecycle()
+    val lensGlowBlurRadius by viewModel.lensGlowBlurRadius.collectAsStateWithLifecycle()
     val lensColor by viewModel.lensColor.collectAsStateWithLifecycle()
     val lensStyle by viewModel.lensStyle.collectAsStateWithLifecycle()
 
@@ -176,6 +179,32 @@ fun VisualsScreen(
                         onColorSelected = { viewModel.setOverlayColor(it) }
                     )
 
+                    if (overlayStyle == VisualizerStyle.GLOW) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Glow blur",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "${overlayGlowBlurRadius.toInt()}px",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        VisualSlider(
+                            value = overlayGlowBlurRadius,
+                            onValueChange = { viewModel.setOverlayGlowBlurRadius(it) },
+                            valueRange = 0f..60f,
+                            fineTuneStep = 1f,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
                     HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant)
 
                     // Top Segment
@@ -220,30 +249,6 @@ fun VisualsScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
 
-                        // Top Sensitivity Slider
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.sensitivity),
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Text(
-                                text = String.format("%.2fx", overlaySensitivity),
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        VisualSlider(
-                            value = overlaySensitivity,
-                            onValueChange = { viewModel.setOverlaySensitivity(it) },
-                            valueRange = 0.01f..1.0f,
-                            fineTuneStep = 0.01f,
-                            modifier = Modifier.fillMaxWidth()
-                        )
                     }
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant)
@@ -290,30 +295,6 @@ fun VisualsScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
 
-                        // Bottom Sensitivity Slider
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.sensitivity),
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Text(
-                                text = String.format("%.2fx", overlaySensitivityBottom),
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        VisualSlider(
-                            value = overlaySensitivityBottom,
-                            onValueChange = { viewModel.setOverlaySensitivityBottom(it) },
-                            valueRange = 0.01f..1.0f,
-                            fineTuneStep = 0.01f,
-                            modifier = Modifier.fillMaxWidth()
-                        )
                     }
                 }
             }
@@ -449,30 +430,6 @@ fun VisualsScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.edge_sensitivity),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = String.format("%.2fx", edgeSensitivity),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    VisualSlider(
-                        value = edgeSensitivity,
-                        onValueChange = { viewModel.setEdgeSensitivity(it) },
-                        valueRange = 0.01f..1.0f,
-                        fineTuneStep = 0.01f,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
                     Text(
                         text = stringResource(R.string.visualizer_color),
                         style = MaterialTheme.typography.labelLarge,
@@ -482,6 +439,32 @@ fun VisualsScreen(
                         selectedColor = edgeColor,
                         onColorSelected = { viewModel.setEdgeColor(it) }
                     )
+
+                    if (edgeStyle == VisualizerStyle.GLOW) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Glow blur",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "${edgeGlowBlurRadius.toInt()}px",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        VisualSlider(
+                            value = edgeGlowBlurRadius,
+                            onValueChange = { viewModel.setEdgeGlowBlurRadius(it) },
+                            valueRange = 0f..60f,
+                            fineTuneStep = 1f,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
         
@@ -655,30 +638,6 @@ fun VisualsScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.sensitivity),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = String.format("%.2fx", lensSensitivity),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    VisualSlider(
-                        value = lensSensitivity,
-                        onValueChange = { viewModel.setLensVisualizerSensitivity(it) },
-                        valueRange = 0.01f..1.0f,
-                        fineTuneStep = 0.01f,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
                     Text(
                         text = stringResource(R.string.visualizer_color),
                         style = MaterialTheme.typography.labelLarge,
@@ -688,6 +647,32 @@ fun VisualsScreen(
                         selectedColor = lensColor,
                         onColorSelected = { viewModel.setLensColor(it) }
                     )
+
+                    if (lensStyle == VisualizerStyle.GLOW) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Glow blur",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "${lensGlowBlurRadius.toInt()}px",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        VisualSlider(
+                            value = lensGlowBlurRadius,
+                            onValueChange = { viewModel.setLensGlowBlurRadius(it) },
+                            valueRange = 0f..60f,
+                            fineTuneStep = 1f,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
 

@@ -432,19 +432,13 @@ internal fun SettingsScreen(
                 )
             }
             val fftReadMethod by viewModel.fftReadMethod.collectAsStateWithLifecycle()
-
-            ExpandableExpressiveCard(
-                title = stringResource(R.string.audio_pipeline_title),
-                icon = Icons.Default.GraphicEq,
-                expanded = expandedCardId == "processing",
-                onExpandedChange = { expandedCardId = if (it) "processing" else null }
-            ) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    Spacer(modifier = Modifier.height(25.dp))
                     Text(
                         text = stringResource(R.string.freq_detection_method),
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
 
@@ -460,7 +454,6 @@ internal fun SettingsScreen(
                         text = stringResource(R.string.freq_detection_desc),
                         size = 12.sp
                     )
-                }
             }
         }
 

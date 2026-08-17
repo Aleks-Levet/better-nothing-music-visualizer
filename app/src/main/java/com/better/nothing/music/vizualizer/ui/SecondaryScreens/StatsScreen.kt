@@ -254,7 +254,7 @@ private fun formatTime(ms: Long): String {
     val hours = TimeUnit.MILLISECONDS.toHours(ms)
     val minutes = TimeUnit.MILLISECONDS.toMinutes(ms) % 60
     val seconds = TimeUnit.MILLISECONDS.toSeconds(ms) % 60
-    return if (hours > 0) "${hours}h ${minutes}m" 
+    return if (hours > 0) "${hours}h ${minutes}m ${seconds}s"
            else if (minutes > 0) "${minutes}m ${seconds}s"
            else "${seconds}s"
 }

@@ -96,6 +96,7 @@ import com.better.nothing.music.vizualizer.ui.PrimaryScreens.SettingsScreen
 import com.better.nothing.music.vizualizer.ui.PrimaryScreens.VisualsScreen
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
 
 class MainActivity : AppCompatActivity() {
@@ -515,6 +516,7 @@ class MainActivity : AppCompatActivity() {
             it.setLensVisualizerMaxHeight(viewModel.lensVisualizerMaxHeight.value)
             it.setLensVisualizerBarCount(viewModel.lensVisualizerBarCount.value)
             it.setLensVisualizerSensitivity(viewModel.lensVisualizerSensitivity.value)
+            it.setLensGlowBlurRadius(viewModel.lensGlowBlurRadius.value)
             it.setLensColor(viewModel.lensColor.value.toArgb())
             it.setLensStyle(viewModel.lensStyle.value)
             
@@ -527,12 +529,14 @@ class MainActivity : AppCompatActivity() {
             it.setOverlayYOffset(viewModel.overlayYOffset.value)
             it.setOverlaySensitivity(viewModel.overlaySensitivity.value)
             it.setOverlaySensitivityBottom(viewModel.overlaySensitivityBottom.value)
+            it.setOverlayGlowBlurRadius(viewModel.overlayGlowBlurRadius.value)
             it.setOverlayColor(viewModel.overlayColor.value.toArgb())
             it.setOverlayStyle(viewModel.overlayStyle.value)
             
             it.setEdgeVisualizerEnabled(viewModel.onScreenVisualizersEnabled.value && viewModel.edgeVisualizerEnabled.value)
             it.setEdgeThickness(viewModel.edgeThickness.value)
             it.setEdgeSensitivity(viewModel.edgeSensitivity.value)
+            it.setEdgeGlowBlurRadius(viewModel.edgeGlowBlurRadius.value)
             it.setEdgeBarCounts(viewModel.edgeBarCountHoriz.value, viewModel.edgeBarCountVert.value)
             it.setEdgeCornerRadius(viewModel.edgeCornerRadius.value)
             it.setEdgeColor(viewModel.edgeColor.value.toArgb())
@@ -766,7 +770,7 @@ internal fun BetterVizApp(
                 val currentIndex = visibleTabs.indexOf(startTab).coerceAtLeast(0)
                 val targetIndex = 0
                 val targetPageValue = currentIndex + (targetIndex - currentIndex) * backProgress
-                val page = targetPageValue.toInt()
+                val page = targetPageValue.roundToInt()
                 val offset = targetPageValue - page
                 pagerState.scrollToPage(page, offset)
             }

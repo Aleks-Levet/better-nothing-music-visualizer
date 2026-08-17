@@ -1,6 +1,7 @@
 package com.better.nothing.music.vizualizer.ui;
 
 import android.content.Context;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -14,6 +15,8 @@ import com.better.nothing.music.vizualizer.ui.MainViewModel;
 public class EdgeVisualizerView extends View {
     private int[] mFftRaw;
     private final Paint mPaint = new Paint();
+    private final Paint mGlowPaint = new Paint();
+    private float mGlowBlurRadius = 24f;
     
     private int mBarCountHoriz = 20;
     private int mBarCountVert = 40;
@@ -44,6 +47,9 @@ public class EdgeVisualizerView extends View {
         mPaint.setColor(mColor);
         mPaint.setStyle(Paint.Style.FILL);
         mPaint.setAntiAlias(true);
+        mGlowPaint.setColor(mColor);
+        mGlowPaint.setStyle(Paint.Style.FILL);
+        mGlowPaint.setAntiAlias(true);
         setFitsSystemWindows(false);
         setClickable(false);
         setFocusable(false);
@@ -88,6 +94,11 @@ public class EdgeVisualizerView extends View {
     
     public void setStyle(VisualizerStyle style) {
         this.mStyle = style;
+        invalidate();
+    }
+
+    public void setGlowBlurRadius(float radius) {
+        this.mGlowBlurRadius = Math.max(0f, radius);
         invalidate();
     }
     
@@ -186,24 +197,6 @@ public class EdgeVisualizerView extends View {
         float vertLen = h - 2 * r;
         float arcLen = (float) (Math.PI * r / 2.0);
 
-        if (mStyle == VisualizerStyle.GLOW) {
-            float totalMag = 0;
-            int count = 0;
-            for (float val : mSmoothedTop) { totalMag += val; count++; }
-            for (float val : mSmoothedBottom) { totalMag += val; count++; }
-            for (float val : mSmoothedLeft) { totalMag += val; count++; }
-            for (float val : mSmoothedRight) { totalMag += val; count++; }
-            float avgMag = totalMag / count;
-
-            mPaint.setStyle(Paint.Style.STROKE);
-            mPaint.setStrokeWidth(mBarHeightPx * 2);
-            mPaint.setAlpha((int) (Math.min(avgMag * 0.5f, 1.0f) * 255));
-            canvas.drawPath(mEdgePath, mPaint);
-            mPaint.setStyle(Paint.Style.FILL);
-            mPaint.setAlpha(255);
-            return;
-        }
-
         int totalBars = (mBarCountHoriz + mBarCountVert) * 2;
         float step = totalLength / totalBars;
         float barThickness = step * 0.8f;
@@ -221,6 +214,24 @@ public class EdgeVisualizerView extends View {
             float angle = (float) Math.toDegrees(Math.atan2(mTan[1], mTan[0]));
             canvas.rotate(angle + 90);
             float cornerRadius = (mStyle == VisualizerStyle.ROUNDED_BARS || mRoundedBarsEnabled) ? barThickness / 2f : 0f;
+
+            if (mStyle == VisualizerStyle.GLOW) {
+                float glowHeight = barHeight * 2.2f;
+                float glowThickness = barThickness * 3.5f;
+                mGlowPaint.setColor(mColor);
+                mGlowPaint.setAlpha(100);
+                mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mGlowBlurRadius), BlurMaskFilter.Blur.NORMAL));
+                canvas.drawRoundRect(-1.5f, -glowThickness / 2f, glowHeight + 1.5f, glowThickness / 2f, cornerRadius * 2.8f, cornerRadius * 2.8f, mGlowPaint);
+                mGlowPaint.setAlpha(180);
+                mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mGlowBlurRadius * 0.7f), BlurMaskFilter.Blur.NORMAL));
+                canvas.drawRoundRect(0, -glowThickness / 2.5f, glowHeight * 0.95f, glowThickness / 2.5f, cornerRadius * 2f, cornerRadius * 2f, mGlowPaint);
+                mGlowPaint.setMaskFilter(null);
+                canvas.restore();
+                continue;
+            }
+
+            mPaint.setMaskFilter(null);
+            mPaint.setAlpha(255);
             canvas.drawRoundRect(0, -barThickness / 2, barHeight, barThickness / 2, cornerRadius, cornerRadius, mPaint);
             canvas.restore();
         }

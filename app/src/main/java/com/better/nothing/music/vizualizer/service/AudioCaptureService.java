@@ -281,6 +281,7 @@ public class AudioCaptureService extends Service {
     public volatile float mLensVisualizerMaxHeight = 20f;
     public volatile int mLensVisualizerBarCount = 24;
     public volatile float mLensVisualizerSensitivity = 1.0f;
+    public volatile float mLensGlowBlurRadius = 24f;
     public volatile int mLensColor = android.graphics.Color.WHITE;
 
     public void setLensVisualizerEnabled(boolean enabled) {
@@ -296,6 +297,7 @@ public class AudioCaptureService extends Service {
     public void setLensVisualizerMaxHeight(float h) { mLensVisualizerMaxHeight = h; }
     public void setLensVisualizerBarCount(int c) { mLensVisualizerBarCount = c; }
     public void setLensVisualizerSensitivity(float s) { mLensVisualizerSensitivity = s; }
+    public void setLensGlowBlurRadius(float radius) { mLensGlowBlurRadius = radius; }
     public void setLensColor(int color) { mLensColor = color; }
     
     private int mOverlayWidth = 120;
@@ -304,6 +306,7 @@ public class AudioCaptureService extends Service {
     private int mOverlayYOffset = 2;
     private float mOverlaySensitivity = 1.0f;
     private float mOverlaySensitivityBottom = 1.0f;
+    private float mOverlayGlowBlurRadius = 24f;
     private boolean mOverlayTopEnabled = true;
     private boolean mOverlayBottomEnabled = false;
     private int mOverlayColor = android.graphics.Color.WHITE;
@@ -314,6 +317,7 @@ public class AudioCaptureService extends Service {
 
     private int mEdgeThickness = 12;
     private float mEdgeSensitivity = 1.0f;
+    private float mEdgeGlowBlurRadius = 24f;
     private int mEdgeBarCountHoriz = 20;
     private int mEdgeBarCountVert = 40;
     private float mEdgeCornerRadius = 2f;
@@ -844,6 +848,7 @@ public class AudioCaptureService extends Service {
     public void setOverlayYOffset(int offset) { mOverlayYOffset = offset; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); }
     public void setOverlaySensitivity(float s) { mOverlaySensitivity = s; if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setTopSensitivity(s)); }
     public void setOverlaySensitivityBottom(float s) { mOverlaySensitivityBottom = s; if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setBottomSensitivity(s)); }
+    public void setOverlayGlowBlurRadius(float radius) { mOverlayGlowBlurRadius = radius; if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setGlowBlurRadius(radius)); }
 
     public void setEdgeVisualizerEnabled(boolean enabled) {
         mEdgeVisualizerEnabled = enabled;
@@ -859,6 +864,7 @@ public class AudioCaptureService extends Service {
         }
     }
     public void setEdgeSensitivity(float sensitivity) { mEdgeSensitivity = sensitivity; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setSensitivity(sensitivity)); }
+    public void setEdgeGlowBlurRadius(float radius) { mEdgeGlowBlurRadius = radius; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setGlowBlurRadius(radius)); }
     public void setEdgeBarCounts(int horiz, int vert) { mEdgeBarCountHoriz = horiz; mEdgeBarCountVert = vert; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setBarCounts(horiz, vert)); }
     public void setEdgeCornerRadius(float radius) {
         mEdgeCornerRadius = radius;
@@ -1463,6 +1469,7 @@ public class AudioCaptureService extends Service {
                 mEdgeVisualizerView.setScreenRadius(mEdgeCornerRadius * density);
                 mEdgeVisualizerView.setColor(mEdgeColor);
                 mEdgeVisualizerView.setRoundedBarsEnabled(mRoundedBarsEnabled);
+                mEdgeVisualizerView.setGlowBlurRadius(mEdgeGlowBlurRadius);
                 mEdgeVisualizerView.setStyle(mEdgeStyle);
             } else if (mEdgeVisualizerView != null) {
                 try { mWindowManager.removeView(mEdgeVisualizerView); } catch (Exception ignored) {}
@@ -1470,9 +1477,12 @@ public class AudioCaptureService extends Service {
             }
 
             if (mOverlayEnabled && mCapturing) {
-                int wPx = (int) (mOverlayWidth * density);
-                int hTotalPx = (int) ((mOverlayHeight + mOverlayHeightBottom) * density);
-                int yOffPx = (int) (mOverlayYOffset * density);
+                int glowInsetPx = (mOverlayStyle == VisualizerStyle.GLOW)
+                        ? (int) Math.max(64f, mOverlayGlowBlurRadius * 4f)
+                        : 0;
+                int wPx = (int) (mOverlayWidth * density) + glowInsetPx * 2;
+                int hTotalPx = (int) ((mOverlayHeight + mOverlayHeightBottom) * density) + glowInsetPx * 2;
+                int yOffPx = (int) (mOverlayYOffset * density) - glowInsetPx / 2;
 
                 if (mOverlayView == null) {
                     mOverlayView = new VisualizerOverlayView(this);
@@ -1506,6 +1516,7 @@ public class AudioCaptureService extends Service {
                 mOverlayView.setBottomSensitivity(mOverlaySensitivityBottom);
                 mOverlayView.setColor(mOverlayColor);
                 mOverlayView.setRoundedBarsEnabled(mRoundedBarsEnabled);
+                mOverlayView.setGlowBlurRadius(mOverlayGlowBlurRadius);
                 mOverlayView.setStyle(mOverlayStyle);
             } else if (mOverlayView != null) {
                 try { mWindowManager.removeView(mOverlayView); } catch (Exception ignored) {}

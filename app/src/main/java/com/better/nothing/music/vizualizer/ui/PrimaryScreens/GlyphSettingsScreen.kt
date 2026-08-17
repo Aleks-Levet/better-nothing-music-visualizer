@@ -77,17 +77,13 @@ internal fun GlyphsScreen(
     isRunning: Boolean,
     selectedDevice: Int,
     viewModel: com.better.nothing.music.vizualizer.ui.MainViewModel,
-    padding: androidx.compose.foundation.layout.PaddingValues = androidx.compose.foundation.layout.PaddingValues(),
+    padding: PaddingValues = androidx.compose.foundation.layout.PaddingValues(),
 ) {
     val mainScrollState = rememberScrollState()
     val context = LocalContext.current
     val configStatus by viewModel.configUpdateStatus.collectAsStateWithLifecycle()
     val configVersion by viewModel.configVersion.collectAsStateWithLifecycle()
     val remoteVersion by viewModel.remoteConfigVersion.collectAsStateWithLifecycle()
-
-    val selectedInfo = remember(selectedPreset, presets) {
-        presets.firstOrNull { it.key == selectedPreset } ?: presets.firstOrNull()
-    }
 
     var showEasterEggPopup by remember { mutableStateOf(false) }
 
@@ -241,7 +237,7 @@ internal fun GlyphsScreen(
                 }
 
                 if (sortedPresets.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                     ExpressiveSplitButton(
                         items = sortedPresets,
                         selectedItem = sortedPresets.firstOrNull { it.key == selectedPreset }
@@ -367,7 +363,7 @@ internal fun GlyphsScreen(
                 size = 13.sp
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Surface(
                 shape = MaterialTheme.shapes.medium,
@@ -458,8 +454,6 @@ fun BrightnessCard(
     speedValue: Float,
     onSpeedChanged: (Float) -> Unit
 ) {
-    val haptics = LocalHapticFeedback.current
-    val view = LocalView.current
 
     val MIN_BRIGHTNESS = 50
     val MAX_BRIGHTNESS = 5000
@@ -511,7 +505,7 @@ fun BrightnessCard(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(30.dp))
 
         CardHeader(
             title = stringResource(R.string.show_more_sliders),
@@ -565,10 +559,9 @@ fun BrightnessCard(
                                 lineHeight = 22.sp,
                             )
                         }
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
 
                 SpeedSlider(
                     speedValue = speedValue,
@@ -589,7 +582,6 @@ fun GammaSlider(
     isExpanded: Boolean,
     onToggleExpand: () -> Unit
 ) {
-    val haptics = LocalHapticFeedback.current
     val view = LocalView.current
     CardHeader(
         title = stringResource(
