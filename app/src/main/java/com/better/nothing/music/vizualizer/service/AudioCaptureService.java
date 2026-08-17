@@ -464,9 +464,11 @@ public class AudioCaptureService extends Service {
 
     public static final class PresetInfo {
         public final String key;
+        public final String name;
         public final String description;
-        public PresetInfo(String key, String description) {
+        public PresetInfo(String key, String name, String description) {
             this.key = key;
+            this.name = name;
             this.description = description;
         }
     }
@@ -1461,7 +1463,7 @@ public class AudioCaptureService extends Service {
         ensureNotificationChannel();
         
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        String content = (mMaxBrightness > 0 && mVisualizerConfig != null ? mVisualizerConfig.description + " • " : "") + formatDuration(getCaptureDurationMs());
+        String content = (mMaxBrightness > 0 && mVisualizerConfig != null ? mVisualizerConfig.name + " • " : "") + formatDuration(getCaptureDurationMs());
         
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.notification_title))
@@ -1617,17 +1619,17 @@ public class AudioCaptureService extends Service {
         JSONObject root = loadZonesConfigRoot(this); JSONObject p = root.optJSONObject(presetKey); if (p == null) throw new JSONException("Preset not found"); JSONArray za = p.optJSONArray("zones"); if (za == null || za.length() == 0) throw new JSONException("No zones");
         double da = p.has("decay-alpha") ? p.optDouble("decay-alpha", 0.8) : root.optDouble("decay-alpha", 0.8);
         da *= mGlyphDecaySpeed;
-        AudioProcessor.ZoneSpec[] zs = parseZoneSpecs(za); return buildVisualizerConfig(presetKey, p.optString("description", presetKey), da, zs);
+        AudioProcessor.ZoneSpec[] zs = parseZoneSpecs(za); return buildVisualizerConfig(presetKey, p.optString("preset_name", presetKey), p.optString("description", presetKey), da, zs);
     }
 
-    private AudioProcessor.VisualizerConfig buildVisualizerConfig(String pk, String d, double da, AudioProcessor.ZoneSpec[] zs) {
+    private AudioProcessor.VisualizerConfig buildVisualizerConfig(String pk, String name, String d, double da, AudioProcessor.ZoneSpec[] zs) {
         float ad = 0.86f + ((float) da / 10f); List<float[]> up = new ArrayList<>(); Set<String> sp = new HashSet<>();
         for (AudioProcessor.ZoneSpec z : zs) { String key = String.format(Locale.US, "%.4f|%.4f", z.lowHz, z.highHz); if (sp.add(key)) up.add(new float[]{z.lowHz, z.highHz}); }
         up.sort((l, r) -> Float.compare(l[0], r[0])); AudioProcessor.FrequencyRange[] ur = new AudioProcessor.FrequencyRange[up.size()];
         for (int i = 0; i < up.size(); i++) ur[i] = new AudioProcessor.FrequencyRange(up.get(i)[0], up.get(i)[1]);
         int[][] zr = new int[zs.length][];
         for (int z = 0; z < zs.length; z++) { ArrayList<Integer> os = new ArrayList<>(); for (int r = 0; r < ur.length; r++) if (!(ur[r].highHz < zs[z].lowHz || ur[r].lowHz > zs[z].highHz)) os.add(r); int[] m = new int[os.size()]; for (int i = 0; i < os.size(); i++) m[i] = os.get(i); zr[z] = m; }
-        return new AudioProcessor.VisualizerConfig(pk, d, ad, zs, ur, zr);
+        return new AudioProcessor.VisualizerConfig(pk, name, d, ad, zs, ur, zr);
     }
 
     private AudioProcessor.ZoneSpec[] parseZoneSpecs(JSONArray za) throws JSONException {
@@ -1651,7 +1653,7 @@ public class AudioCaptureService extends Service {
     }
     private static String readFully(InputStream is) throws IOException { ByteArrayOutputStream os = new ByteArrayOutputStream(); byte[] buf = new byte[4096]; int r; while ((r = is.read(buf)) != -1) os.write(buf, 0, r); return os.toString("UTF-8"); }
     private static List<String> getAllPresetKeys(JSONObject root) { ArrayList<String> res = new ArrayList<>(); JSONArray names = root.names(); if (names != null) for (int i = 0; i < names.length(); i++) res.add(names.optString(i, "")); Collections.sort(res); return res; }
-    private static List<PresetInfo> buildPresetInfos(JSONObject root, List<String> keys) { ArrayList<PresetInfo> res = new ArrayList<>(); for (String k : keys) { JSONObject p = root.optJSONObject(k); if (p != null) res.add(new PresetInfo(k, p.optString("description", k))); } return res; }
+    private static List<PresetInfo> buildPresetInfos(JSONObject root, List<String> keys) { ArrayList<PresetInfo> res = new ArrayList<>(); for (String k : keys) { JSONObject p = root.optJSONObject(k); if (p != null) res.add(new PresetInfo(k, p.optString("preset_name", k), p.optString("description", k))); } return res; }
     private static List<String> getPresetKeysForPhoneModel(JSONObject root, String pm) { ArrayList<String> res = new ArrayList<>(); if ("UNKNOWN".equals(pm)) return res; JSONArray names = root.names(); if (names != null) for (int i = 0; i < names.length(); i++) { String k = names.optString(i, ""); JSONObject p = root.optJSONObject(k); if (p != null && pm.equalsIgnoreCase(p.optString("phone_model", ""))) res.add(k); } Collections.sort(res); return res; }
     private static float parseOptionalPercent(JSONArray arr, int idx) { if (idx >= arr.length()) return Float.NaN; Object r = arr.opt(idx); if (r == null || r == JSONObject.NULL) return Float.NaN; try { float v; if (r instanceof Number n) v = n.floatValue(); else { String t = String.valueOf(r).trim(); if (t.endsWith("%")) t = t.substring(0, t.length() - 1).trim(); v = Float.parseFloat(t); } if (v >= 0f && v <= 1f) v *= 100f; return v; } catch (Exception ignored) { return Float.NaN; } }
     private AudioRouteInfo mCurrentAudioRoute = null;

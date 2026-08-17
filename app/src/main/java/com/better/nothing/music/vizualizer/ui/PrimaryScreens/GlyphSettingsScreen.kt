@@ -243,7 +243,7 @@ internal fun GlyphsScreen(
                         selectedItem = sortedPresets.firstOrNull { it.key == selectedPreset }
                             ?: sortedPresets.first(),
                         onItemSelection = { preset -> onPresetSelected(preset.key) },
-                        labelProvider = { preset -> preset.key },
+                        labelProvider = { preset -> preset.name },
                         modifier = Modifier.fillMaxWidth(),
                         maxButtonsPerRow = if (isSlimDevice) 2 else 3
                     )
@@ -258,19 +258,29 @@ internal fun GlyphsScreen(
                             .fillMaxWidth()
                             .padding(top = 12.dp)
                     ) { presetKey ->
-                        val description = remember(presetKey, presets) {
-                            presets.firstOrNull { it.key == presetKey }?.description
-                                ?: presets.firstOrNull { it.key == selectedPreset }?.description
-                                ?: presets.firstOrNull()?.description
+                        val preset = remember(presetKey, presets) {
+                            presets.firstOrNull { it.key == presetKey }
+                                ?: presets.firstOrNull { it.key == selectedPreset }
+                                ?: presets.firstOrNull()
                         }
-                        Text(
-                            text = description ?: stringResource(R.string.glyph_no_config),
-                            style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 22.sp),
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 4.dp),
-                        )
+                        Column {
+                            if (preset != null && preset.description != preset.key) {
+                                Text(
+                                    text = stringResource(R.string.preset_description),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                            }
+                            Text(
+                                text = preset?.description ?: stringResource(R.string.glyph_no_config),
+                                style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 22.sp),
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 4.dp),
+                            )
+                        }
                     }
                 } else {
                     Box(

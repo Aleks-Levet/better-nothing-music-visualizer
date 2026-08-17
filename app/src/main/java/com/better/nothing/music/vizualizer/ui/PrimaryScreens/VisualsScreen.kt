@@ -532,16 +532,15 @@ fun VisualsScreen(
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "${lensX.toInt()}dp",
+                            text = "${lensX.toInt()}px",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    VisualSlider(
+                    VisualSliderWithFineTune(
                         value = lensX,
                         onValueChange = { viewModel.setLensVisualizerX(it) },
-                        valueRange = 0f..500f,
-                        fineTuneStep = 1f,
+                        valueRange = 0f..2000f,
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -556,16 +555,15 @@ fun VisualsScreen(
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "${lensY.toInt()}dp",
+                            text = "${lensY.toInt()}px",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    VisualSlider(
+                    VisualSliderWithFineTune(
                         value = lensY,
                         onValueChange = { viewModel.setLensVisualizerY(it) },
-                        valueRange = -100f..1000f,
-                        fineTuneStep = 1f,
+                        valueRange = -500f..3500f,
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -682,6 +680,37 @@ fun VisualsScreen(
 }
 
 private fun Int.divideByToOne(): Float = this.toFloat()
+
+@Composable
+private fun VisualSliderWithFineTune(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    valueRange: ClosedFloatingPointRange<Float>,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        ExpressiveSlider(
+            value = value,
+            onValueChange = onValueChange,
+            valueRange = valueRange,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            listOf(-10, -1, 1, 10).forEach { amount ->
+                FineTuneButton(
+                    label = if (amount > 0) "+$amount" else "$amount",
+                    onClick = { onValueChange((value + amount).coerceIn(valueRange)) }
+                )
+            }
+        }
+    }
+}
 
 @Composable
 private fun VisualSlider(

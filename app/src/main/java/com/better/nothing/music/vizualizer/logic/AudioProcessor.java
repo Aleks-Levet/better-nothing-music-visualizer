@@ -241,14 +241,16 @@ public class AudioProcessor {
     // Boilerplate inner classes...
     public static final class VisualizerConfig {
         public final String presetKey;
+        public final String name;
         public final String description;
         public final float decay;
         public final ZoneSpec[] zones;
         public final FrequencyRange[] uniqueRanges;
         public final int[][] zoneToRangeIndices;
 
-        public VisualizerConfig(String presetKey, String description, float decay, ZoneSpec[] zones, FrequencyRange[] uniqueRanges, int[][] zoneToRangeIndices) {
+        public VisualizerConfig(String presetKey, String name, String description, float decay, ZoneSpec[] zones, FrequencyRange[] uniqueRanges, int[][] zoneToRangeIndices) {
             this.presetKey = presetKey;
+            this.name = name;
             this.description = description;
             this.decay = decay;
             this.zones = zones;
