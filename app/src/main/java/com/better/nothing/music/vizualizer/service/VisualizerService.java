@@ -34,6 +34,7 @@ public class VisualizerService extends Service {
                 mVisualizerView.setColor(AudioCaptureService.sInstance.mLensColor);
                 mVisualizerView.setRoundedBarsEnabled(AudioCaptureService.sInstance.mRoundedBarsEnabled);
                 mVisualizerView.setStyle(AudioCaptureService.sInstance.getLensStyle());
+                mVisualizerView.setOpacity(AudioCaptureService.sInstance.mLensOpacity);
             }
             mHandler.postDelayed(this, 16); // ~60 FPS
         }

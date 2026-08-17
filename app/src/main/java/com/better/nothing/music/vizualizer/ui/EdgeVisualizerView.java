@@ -35,6 +35,7 @@ public class EdgeVisualizerView extends View {
     private boolean mBottomEnabled = true;
     private boolean mRoundedBarsEnabled = false;
     private VisualizerStyle mStyle = VisualizerStyle.BARS;
+    private float mOpacity = 1.0f;
 
     private final Path mEdgePath = new Path();
     private final PathMeasure mPathMeasure = new PathMeasure();
@@ -94,6 +95,11 @@ public class EdgeVisualizerView extends View {
     
     public void setStyle(VisualizerStyle style) {
         this.mStyle = style;
+        invalidate();
+    }
+
+    public void setOpacity(float opacity) {
+        this.mOpacity = Math.max(0f, Math.min(1f, opacity));
         invalidate();
     }
 
@@ -219,10 +225,10 @@ public class EdgeVisualizerView extends View {
                 float glowHeight = barHeight * 2.2f;
                 float glowThickness = barThickness * 3.5f;
                 mGlowPaint.setColor(mColor);
-                mGlowPaint.setAlpha(100);
+                mGlowPaint.setAlpha((int) (100 * mOpacity));
                 mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mGlowBlurRadius), BlurMaskFilter.Blur.NORMAL));
                 canvas.drawRoundRect(-1.5f, -glowThickness / 2f, glowHeight + 1.5f, glowThickness / 2f, cornerRadius * 2.8f, cornerRadius * 2.8f, mGlowPaint);
-                mGlowPaint.setAlpha(180);
+                mGlowPaint.setAlpha((int) (180 * mOpacity));
                 mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mGlowBlurRadius * 0.7f), BlurMaskFilter.Blur.NORMAL));
                 canvas.drawRoundRect(0, -glowThickness / 2.5f, glowHeight * 0.95f, glowThickness / 2.5f, cornerRadius * 2f, cornerRadius * 2f, mGlowPaint);
                 mGlowPaint.setMaskFilter(null);
@@ -231,7 +237,7 @@ public class EdgeVisualizerView extends View {
             }
 
             mPaint.setMaskFilter(null);
-            mPaint.setAlpha(255);
+            mPaint.setAlpha((int) (255 * mOpacity));
             canvas.drawRoundRect(0, -barThickness / 2, barHeight, barThickness / 2, cornerRadius, cornerRadius, mPaint);
             canvas.restore();
         }

@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.better.nothing.music.vizualizer.R
-import com.better.nothing.music.vizualizer.logic.AudioProcessor
+import com.better.nothing.music.vizualizer.ui.MicrophoneMode
 import com.better.nothing.music.vizualizer.model.DeviceProfile
 import com.better.nothing.music.vizualizer.ui.ExpressiveSlider
 import com.better.nothing.music.vizualizer.ui.BodyText
@@ -431,29 +431,30 @@ internal fun SettingsScreen(
                     }
                 )
             }
-            val fftReadMethod by viewModel.fftReadMethod.collectAsStateWithLifecycle()
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Spacer(modifier = Modifier.height(25.dp))
-                    Text(
-                        text = stringResource(R.string.freq_detection_method),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+            val microphoneMode by viewModel.microphoneMode.collectAsStateWithLifecycle()
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Spacer(modifier = Modifier.height(25.dp))
+                Text(
+                    text = stringResource(R.string.microphone_mode),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
 
-                    ExpressiveSplitButton(
-                        items = AudioProcessor.ReadMethod.entries,
-                        selectedItem = fftReadMethod,
-                        onItemSelection = { viewModel.setFftReadMethod(it) },
-                        labelProvider = { it.name },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                ExpressiveSplitButton(
+                    items = MicrophoneMode.entries,
+                    selectedItem = microphoneMode,
+                    onItemSelection = { viewModel.setMicrophoneMode(it) },
+                    labelProvider = { stringResource(it.labelRes) },
+                    maxButtonsPerRow = 2,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                    BodyText(
-                        text = stringResource(R.string.freq_detection_desc),
-                        size = 12.sp
-                    )
+                BodyText(
+                    text = stringResource(microphoneMode.descriptionRes),
+                    size = 12.sp
+                )
             }
         }
 

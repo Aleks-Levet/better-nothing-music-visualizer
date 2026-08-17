@@ -924,7 +924,7 @@ internal fun BetterVizApp(
                 HorizontalPager(
                     state = pagerState,
                     modifier = Modifier.fillMaxSize(),
-                    beyondViewportPageCount = 6,
+                    beyondViewportPageCount = visibleTabs.size,
                     userScrollEnabled = true,
                     key = { page -> if (page < visibleTabs.size) visibleTabs[page].name else page }
                 ) { page ->
@@ -979,6 +979,28 @@ private fun TabContent(
     padding: PaddingValues,
     isTablet: Boolean = false
 ) {
+    val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
+    var hasBeenVisible by remember { mutableStateOf(false) }
+    
+    // Immediately show if it's the current tab, otherwise defer slightly to keep startup fast
+    if (selectedTab == tab) {
+        hasBeenVisible = true
+    }
+
+    LaunchedEffect(Unit) {
+        if (!hasBeenVisible) {
+            // Tiny delay for non-active tabs to let the main UI render first
+            delay(100)
+            hasBeenVisible = true
+        }
+    }
+
+    if (!hasBeenVisible) {
+        // Show a lightweight placeholder or empty box during the first few ms of startup
+        Box(modifier = Modifier.fillMaxSize().padding(padding))
+        return
+    }
+
     val selectedDevice by viewModel.selectedDevice.collectAsStateWithLifecycle()
     when (tab) {
         Tab.Audio -> {

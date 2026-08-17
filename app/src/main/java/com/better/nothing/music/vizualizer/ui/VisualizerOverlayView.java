@@ -27,6 +27,8 @@ public class VisualizerOverlayView extends View {
     private int mBottomHeightPx = 0;
     private boolean mRoundedBarsEnabled = false;
     private VisualizerStyle mStyle = VisualizerStyle.BARS;
+    private float mOpacity = 1.0f;
+    private int mPaddingPx = 0;
 
     public VisualizerOverlayView(Context context) {
         super(context);
@@ -82,6 +84,16 @@ public class VisualizerOverlayView extends View {
         invalidate();
     }
 
+    public void setOpacity(float opacity) {
+        this.mOpacity = Math.max(0f, Math.min(1f, opacity));
+        invalidate();
+    }
+
+    public void setPadding(int paddingPx) {
+        this.mPaddingPx = paddingPx;
+        invalidate();
+    }
+
     public void setGlowBlurRadius(float radius) {
         this.mGlowBlurRadius = Math.max(0f, radius);
         invalidate();
@@ -131,17 +143,17 @@ public class VisualizerOverlayView extends View {
         super.onDraw(canvas);
         if (mFftRaw == null) return;
 
-        int width = getWidth();
+        int width = getWidth() - 2 * mPaddingPx;
         float barWidth = (float) width / NUM_BARS;
         float spacing = 1.5f;
 
-        float baselineY = mTopEnabled ? mTopHeightPx : 0;
+        float baselineY = (mTopEnabled ? mTopHeightPx : 0) + mPaddingPx;
 
         float cornerRadius = (mStyle == VisualizerStyle.ROUNDED_BARS || mRoundedBarsEnabled) ? barWidth / 2f : 2f;
 
         for (int i = 0; i < NUM_BARS; i++) {
-            float left = i * barWidth + spacing;
-            float right = (i + 1) * barWidth - spacing;
+            float left = i * barWidth + spacing + mPaddingPx;
+            float right = (i + 1) * barWidth - spacing + mPaddingPx;
 
             if (mTopEnabled) {
                 float valTop = mSmoothedMagnitudesTop[i];
@@ -158,10 +170,10 @@ public class VisualizerOverlayView extends View {
                     float glowBottom = bottom + glowPad;
                     float glowCorner = cornerRadius * 2.2f;
                     mGlowPaint.setColor(mColor);
-                    mGlowPaint.setAlpha(120);
+                    mGlowPaint.setAlpha((int) (120 * mOpacity));
                     mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mGlowBlurRadius), BlurMaskFilter.Blur.NORMAL));
                     canvas.drawRoundRect(left - 3f, glowTop, right + 3f, glowBottom, glowCorner, glowCorner, mGlowPaint);
-                    mGlowPaint.setAlpha(180);
+                    mGlowPaint.setAlpha((int) (180 * mOpacity));
                     mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mGlowBlurRadius * 0.7f), BlurMaskFilter.Blur.NORMAL));
                     canvas.drawRoundRect(left - 1.5f, top - glowPad * 0.35f, right + 1.5f, bottom + glowPad * 0.35f, glowCorner * 0.9f, glowCorner * 0.9f, mGlowPaint);
                     mGlowPaint.setMaskFilter(null);
@@ -169,7 +181,7 @@ public class VisualizerOverlayView extends View {
                 }
 
                 mPaint.setMaskFilter(null);
-                mPaint.setAlpha(255);
+                mPaint.setAlpha((int) (255 * mOpacity));
                 canvas.drawRoundRect(left, top, right, bottom, cornerRadius, cornerRadius, mPaint);
             }
 
@@ -188,10 +200,10 @@ public class VisualizerOverlayView extends View {
                     float glowBottom = bottom + glowPad;
                     float glowCorner = cornerRadius * 2.2f;
                     mGlowPaint.setColor(mColor);
-                    mGlowPaint.setAlpha(120);
+                    mGlowPaint.setAlpha((int) (120 * mOpacity));
                     mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mGlowBlurRadius), BlurMaskFilter.Blur.NORMAL));
                     canvas.drawRoundRect(left - 3f, glowTop, right + 3f, glowBottom, glowCorner, glowCorner, mGlowPaint);
-                    mGlowPaint.setAlpha(180);
+                    mGlowPaint.setAlpha((int) (180 * mOpacity));
                     mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mGlowBlurRadius * 0.7f), BlurMaskFilter.Blur.NORMAL));
                     canvas.drawRoundRect(left - 1.5f, top - glowPad * 0.35f, right + 1.5f, bottom + glowPad * 0.35f, glowCorner * 0.9f, glowCorner * 0.9f, mGlowPaint);
                     mGlowPaint.setMaskFilter(null);
@@ -199,7 +211,7 @@ public class VisualizerOverlayView extends View {
                 }
 
                 mPaint.setMaskFilter(null);
-                mPaint.setAlpha(255);
+                mPaint.setAlpha((int) (255 * mOpacity));
                 canvas.drawRoundRect(left, top, right, bottom, cornerRadius, cornerRadius, mPaint);
             }
         }

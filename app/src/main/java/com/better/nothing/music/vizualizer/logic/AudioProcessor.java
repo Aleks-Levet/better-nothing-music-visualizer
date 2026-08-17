@@ -149,29 +149,37 @@ public class AudioProcessor {
 
         // AGC Logic...
         for (int i = 0; i < 3; i++) {
-            float decay = bandMax[i] > mRunningMax[i] ? 0.7f : DECAY_SLOW;
+            float slowDecay = (sourceType == SourceType.MIC) ? 0.995f : DECAY_SLOW;
+            float decay = bandMax[i] > mRunningMax[i] ? 0.7f : slowDecay;
             mRunningMax[i] = Math.max(mRunningMax[i] * decay, bandMax[i]);
             float effectiveMax = Math.max(mRunningMax[i], 0.001f);
             float target = TARGET_PEAK;
             float desiredGain;
             
-            if (sourceType == SourceType.NETWORK) {
+            if (sourceType == SourceType.NETWORK || sourceType == SourceType.VIZUALIZER) {
                 desiredGain = 1.0f;
             } else {
                 desiredGain = target / effectiveMax;
                 if (sourceType == SourceType.INTERNAL) {
                     desiredGain = Math.max(0.7f, Math.min(1.4f, desiredGain));
-                } else if (sourceType == SourceType.VIZUALIZER) {
-                    desiredGain = Math.max(0.1f, Math.min(100.0f, desiredGain));
                 } else {
-                    desiredGain = Math.max(0.1f, Math.min(200.0f, desiredGain));
+                    // MIC: Slightly more responsive but cap to avoid noise floor issues
+                    desiredGain = Math.max(0.1f, Math.min(150.0f, desiredGain));
+                    if (effectiveMax < 0.001f) desiredGain = Math.min(desiredGain, 1.0f);
                 }
             }
             
-            float smoothing = desiredGain < mBandGain[i] ? GAIN_SMOOTHING_ATTACK : GAIN_SMOOTHING_DECAY;
-            if (sourceType == SourceType.NETWORK) {
+            float smoothing;
+            if (sourceType == SourceType.MIC) {
+                // Mic needs to be more responsive to ambient changes
+                smoothing = desiredGain < mBandGain[i] ? 0.2f : 0.04f;
+            } else {
+                smoothing = desiredGain < mBandGain[i] ? GAIN_SMOOTHING_ATTACK : GAIN_SMOOTHING_DECAY;
+            }
+
+            if (sourceType == SourceType.NETWORK || sourceType == SourceType.VIZUALIZER) {
                 mBandGain[i] = 1.0f;
-            } else if (sourceType == SourceType.INTERNAL || sourceType == SourceType.VIZUALIZER) {
+            } else if (sourceType == SourceType.INTERNAL) {
                 float internalSmoothing = smoothing * 0.1f;
                 mBandGain[i] = (mBandGain[i] * (1f - internalSmoothing)) + (desiredGain * internalSmoothing);
             } else {

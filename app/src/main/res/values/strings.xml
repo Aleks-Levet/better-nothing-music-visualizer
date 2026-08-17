@@ -66,6 +66,16 @@
     <string name="audio_pipeline_title">Audio Pipeline (Expert)</string>
     <string name="freq_detection_method">Frequency Range Detection</string>
     <string name="freq_detection_desc">MAX: Highest bin value (Responsive).\nMEAN: Average of all bins (Stable).\nRMS: Root Mean Square (Accurate Energy).</string>
+    <string name="microphone_mode">Microphone Capture Mode (Expert)</string>
+    <string name="microphone_mode_desc">Changes how the microphone captures audio.</string>
+    <string name="mic_mode_voice_comm">Voice Comm</string>
+    <string name="mic_mode_voice_comm_desc">VOICE_COMMUNICATION: Usually has echo cancellation and noise suppression.</string>
+    <string name="mic_mode_voice_perf">Performance</string>
+    <string name="mic_mode_voice_perf_desc">VOICE_PERFORMANCE: Optimized for real-time voice applications. Lower latency than normal voice comms.</string>
+    <string name="mic_mode_unprocessed">Unprocessed</string>
+    <string name="mic_mode_unprocessed_desc">UNPROCESSED: Raw audio from the mic. Bad gain control, no noise suppression. Best for music visualization accuracy.</string>
+    <string name="mic_mode_camcorder">Camera</string>
+    <string name="mic_mode_camcorder_desc">CAMCORDER: Often has different tuning for directional audio.</string>
 
     <!-- Flashlight Screen -->
     <string name="flashlight_title">Flashlight</string>
