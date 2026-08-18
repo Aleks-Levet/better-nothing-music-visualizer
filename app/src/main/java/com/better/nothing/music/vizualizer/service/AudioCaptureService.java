@@ -1444,7 +1444,7 @@ public class AudioCaptureService extends Service {
     private void ensureGlyphSession() {
         if (mMaxBrightness <= 0 || mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN || !sIsRunning) return;
 
-        if (mGM == null || mGMM == null) {
+        if (mGM == null || mGMM == null || !mGMConnected || !mGMMConnected) {
             ensureGlyphManagerInitialized();
             return; // Callback will re-invoke this
         }
@@ -1455,6 +1455,10 @@ public class AudioCaptureService extends Service {
                 mGM.openSession();
                 mSessionOpen = true;
             }
+        } catch (GlyphException | NullPointerException e) {
+            Log.e(TAG, "Failed to open Glyph session", e);
+        }
+    }
         } catch (Exception e) {
             Log.e(TAG, "Failed to open Glyph session", e);
         }
