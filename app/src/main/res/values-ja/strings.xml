@@ -25,13 +25,11 @@
     <string name="theme_nothing_red">Nothingレッド</string>
 
     <!-- Haptics Screen -->
-    <string name="haptics_title">ハプティクス</string>
     <string name="haptics_header">ハプティクスコントロール</string>
     <string name="haptics_mode_label">ハプティクスエンジン・モード</string>
     <string name="haptics_mode_bass">低音振幅</string>
     <string name="haptics_mode_beat">ビート検出</string>
     <string name="haptics_beat_detection_desc">選択した周波数範囲内で検出されたビートに合わせて振動します。よりスムーズですが、時折不安定になることがあります。これはベータ機能です。</string>
-    <string name="haptics_motor_title">ハプティクス視覚化</string>
     <string name="haptics_frequency_label">周波数： %1$d - %2$d Hz</string>
     <string name="haptics_frequency_desc">この範囲のオーディオ振幅に基づいて振動します。</string>
     <string name="haptics_amplitude_label">強度： %.1fx</string>
@@ -44,9 +42,7 @@
     <string name="haptics_decay_smooth">スムージング有効</string>
 
     <!-- Flashlight Screen -->
-    <string name="flashlight_title">懐中電灯</string>
     <string name="flashlight_header">懐中電灯ビジュアライザー</string>
-    <string name="flashlight_sync_title">懐中電灯同期</string>
     <string name="flashlight_frequency_label">周波数： %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">懐中電灯が反応するHz範囲です。低音には低く、スネアやボーカルには高く設定します。</string>
     <string name="flashlight_monitor_label">懐中電灯モニター</string>
@@ -64,17 +60,13 @@
     <!-- About Screen -->
     <string name="about_title">アプリ情報とアップデート</string>
     <string name="github_repository">GitHubリポジトリ</string>
-    <string name="view_source">ソースコードを表示</string>
     <string name="version_info">バージョン %s</string>
     <string name="zones_config_version">設定バージョン： %s</string>
     <string name="media_projection_info">MediaProjectionはリアルタイム・ビジュアライザーの動作にのみ使用されます。不要な録音やデータの保存は行われません。</string>
     <string name="credits">クレジット</string>
     <string name="open_github_profile">GitHubプロフィールを開く</string>
-    <string name="check_for_app_updates">アプリのアップデートを確認</string>
     <string name="discord_server">Discordサーバー</string>
     <string name="join_discord">Discordコミュニティに参加</string>
-    <string name="checking_for_updates">アップデートを確認中…</string>
-    <string name="app_up_to_date">アプリは最新です</string>
 
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">メディアプロジェクション\n（デフォルト、最適）</string>
@@ -95,7 +87,6 @@
     <string name="overlay_width">オーバーレイの幅</string>
     <string name="overlay_height">オーバーレイの高さ</string>
     <string name="vertical_position">垂直方向の位置</string>
-    <string name="dynamic_gain">ダイナミックゲイン</string>
 
     <string name="tab_audio">オーディオ</string>
     <string name="tab_glyphs">Glyph</string>
@@ -103,23 +94,11 @@
     <string name="tab_flashlight">懐中電灯</string>
     <string name="tab_settings">設定</string>
 
-    <string name="update_available_title">アップデートが利用可能です： %s</string>
-    <string name="update_available_msg">新しいバージョンが利用可能です。更新内容：</string>
-    <string name="no_changelog">変更履歴はありません。</string>
-    <string name="install">インストール</string>
-    <string name="download">ダウンロード</string>
-    <string name="not_now">後で</string>
-    <string name="downloading_update">アップデートをダウンロード中…</string>
-
-    <string name="mediaprojection_permission">MediaProjectionの権限</string>
-    <string name="mediaprojection_description">この権限により、アプリはAndroidのキャプチャシステムを介してデバイスのオーディオストリームにアクセスでき、Glyphビジュアライザーがリアルタイムで反応できるようになります。不要な録画は保存されず、アプリがメディアやプライベートデータを保存することはありません。</string>
     <string name="continue_label">続行</string>
 
     <string name="audio_permission_required">録音の権限が必要です</string>
     <string name="screen_capture_denied">画面キャプチャの権限が拒否されました</string>
-    <string name="notifications_required">ビジュアライザーの動作中は通知が必要です</string>
     <string name="overlay_permission_denied">オーバーレイの権限が拒否されました</string>
-    <string name="notification_access_required">この機能のために通知へのアクセスを有効にしてください</string>
 
     <string name="config_update_success">zones.configを正常にアップデートしました</string>
     <string name="config_import_success">zones.configを正常にインポートしました</string>

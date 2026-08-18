@@ -69,9 +69,6 @@
                 android:value="AudioVisualizer"/>
         </service>
 
-        <service
-            android:name=".service.VisualizerService"
-            android:exported="false" />
 
         <service
             android:name=".service.VisualizerTileService"

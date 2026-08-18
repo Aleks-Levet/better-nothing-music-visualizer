@@ -25,13 +25,11 @@
     <string name="theme_nothing_red">Rouge Nothing</string>
 
     <!-- Haptics Screen -->
-    <string name="haptics_title">Haptique</string>
     <string name="haptics_header">Commandes haptiques</string>
     <string name="haptics_mode_label">Mode du moteur haptique</string>
     <string name="haptics_mode_bass">Amplitude des basses</string>
     <string name="haptics_mode_beat">Détection du rythme</string>
     <string name="haptics_beat_detection_desc">Vibre sur les battements détectés dans la plage de fréquences sélectionnée. Plus fluide mais parfois moins stable. (Fonctionnalité bêta)</string>
-    <string name="haptics_motor_title">Visualisation haptique</string>
     <string name="haptics_frequency_label">Fréquence : %1$d - %2$d Hz</string>
     <string name="haptics_frequency_desc">Vibre selon l\'amplitude audio dans cette plage.</string>
     <string name="haptics_amplitude_label">Intensité moteur : %.1fx</string>
@@ -45,9 +43,7 @@
     <string name="haptics_decay_smooth">Lissage actif</string>
 
     <!-- Flashlight Screen -->
-    <string name="flashlight_title">Lampe torche</string>
     <string name="flashlight_header">Visualiseur lampe torche</string>
-    <string name="flashlight_sync_title">Synchro Flash</string>
     <string name="flashlight_mode_label">Mode du moteur Flash</string>
     <string name="flashlight_mode_amplitude">Amplitude</string>
     <string name="flashlight_mode_beat">Détection du rythme</string>
@@ -76,17 +72,13 @@
     <!-- About Screen -->
     <string name="about_title">Infos et mises à jour</string>
     <string name="github_repository">Dépôt GitHub</string>
-    <string name="view_source">Voir le code source</string>
     <string name="version_info">Version %s</string>
     <string name="zones_config_version">Version config : %s</string>
     <string name="media_projection_info">MediaProjection est utilisé uniquement pour l\'analyse audio en temps réel. Aucun enregistrement n\'est stocké.</string>
     <string name="credits">Crédits</string>
     <string name="open_github_profile">Profil GitHub</string>
-    <string name="check_for_app_updates">Vérifier les mises à jour</string>
     <string name="discord_server">Serveur Discord</string>
     <string name="join_discord">Rejoignez la communauté sur Discord</string>
-    <string name="checking_for_updates">Vérification des mises à jour…</string>
-    <string name="app_up_to_date">L\'application est à jour</string>
 
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">Media Projection\n(recommandé)</string>
@@ -114,7 +106,6 @@
     <string name="overlay_width">Largeur</string>
     <string name="overlay_height">Hauteur</string>
     <string name="vertical_position">Position verticale</string>
-    <string name="dynamic_gain">Gain dynamique</string>
 
     <string name="tab_audio">Audio</string>
     <string name="tab_glyphs">Glyphs</string>
@@ -122,23 +113,11 @@
     <string name="tab_flashlight">Flash</string>
     <string name="tab_settings">Paramètres</string>
 
-    <string name="update_available_title">Mise à jour disponible : %s</string>
-    <string name="update_available_msg">Une nouvelle version est disponible. Nouveautés :</string>
-    <string name="no_changelog">Aucun journal de modifications disponible.</string>
-    <string name="install">Installer</string>
-    <string name="download">Télécharger</string>
-    <string name="not_now">Plus tard</string>
-    <string name="downloading_update">Téléchargement…</string>
-
-    <string name="mediaprojection_permission">Autorisation MediaProjection</string>
-    <string name="mediaprojection_description">Cette autorisation permet à l\'application d\'accéder au flux audio via le système de capture d\'Android pour synchroniser les Glyphs en temps réel. Aucune donnée n\'est stockée ou transmise.</string>
     <string name="continue_label">Continuer</string>
 
     <string name="audio_permission_required">L\'autorisation d\'enregistrement audio est requise</string>
     <string name="screen_capture_denied">Autorisation de capture d\'écran refusée</string>
-    <string name="notifications_required">Les notifications sont requises lorsque le visualiseur est actif</string>
     <string name="overlay_permission_denied">Autorisation de superposition refusée</string>
-    <string name="notification_access_required">Veuillez activer l\'accès aux notifications pour cette fonctionnalité</string>
 
     <string name="config_update_success">Mise à jour de zones.config réussie</string>
     <string name="config_import_success">Importation de zones.config réussie</string>

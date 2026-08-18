@@ -417,7 +417,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val _tabletTabWidth = MutableStateFlow(0)
+    private val _tabletTabWidth = MutableStateFlow(400)
     val tabletTabWidth = _tabletTabWidth.asStateFlow()
     fun setTabletTabWidth(width: Int) {
         _tabletTabWidth.value = width
@@ -2037,7 +2037,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _overlayWidth.value = get("overlay_width", 120)
         _overlayHeight.value = get("overlay_height", 12)
         _overlayHeightBottom.value = get("overlay_height_bottom", 12)
-        _tabletTabWidth.value = get("tablet_tab_width", 0)
+        _tabletTabWidth.value = get("tablet_tab_width", 400)
         _overlayYOffset.value = get("overlay_y_offset", 2)
         _overlaySensitivity.value = get("overlay_sensitivity", 1.0f)
         _overlaySensitivityBottom.value = get("overlay_sensitivity_bottom", 1.0f)
@@ -2059,8 +2059,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         _lensVisualizerEnabled.value = get("lens_visualizer_enabled", false)
         _lensVisualizerRadius.value = get("lens_visualizer_radius", 16f)
-        _lensVisualizerX.value = get("lens_visualizer_x_dp", 180f)
-        _lensVisualizerY.value = get("lens_visualizer_y_dp", 24f)
+        _lensVisualizerX.value = get("lens_visualizer_x_px", 540f)
+        _lensVisualizerY.value = get("lens_visualizer_y_px", 72f)
         _lensVisualizerBarWidth.value = get("lens_visualizer_bar_width", 1f)
         _lensVisualizerMaxHeight.value = get("lens_visualizer_max_height", 5f)
         _lensVisualizerBarCount.value = get("lens_visualizer_bar_count", 35)

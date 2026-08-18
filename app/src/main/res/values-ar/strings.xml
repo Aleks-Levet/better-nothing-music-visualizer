@@ -2,166 +2,110 @@
 <resources>
 
     <!-- Audio Screen -->
-    <string name="audio_warning_vizualizer">تنويه: يستخدم هذا المصدر بث الصوت المرئي القياسي الخاص بنظام Android. جودته منخفضة وقد يؤدي إلى نتائج غير مرضية.</string>
-    <string name="auto_memorize_device">حفظ الجهاز تلقائيًا</string>
-    <string name="saving_latency_for">جارٍ حفظ زمن التأخير لـ: %s</string>
+    <string name="audio_warning_vizualizer">تحذير: يستخدم هذا المصدر بث صوتي بنمط المصور المرئي القياسي لـAndroid. إنه منخفض الدقة وقد يكون سيئًا.</string>
+    <string name="auto_memorize_device">تذكر الجهاز تلقائيًا</string>
+    <string name="saving_latency_for">جارٍ حفظ زمن الانتقال لـ: %s</string>
     <string name="internal_speaker">مكبر الصوت الداخلي</string>
-    <string name="manual_mode_global_latency">الوضع اليدوي (زمن استجابة عام)</string>
-    <string name="latency_compensation">تعويض زمن التأخير</string>
+    <string name="manual_mode_global_latency">الوضع اليدوي (زمن الانتقال العالمي)</string>
+    <string name="latency_compensation">تعويض زمن الانتقال</string>
     <string name="live_spectrum">طيف الصوت المباشر</string>
 
     <!-- Glyph Screen -->
     <string name="glyph_controls">عناصر تحكم Glyph</string>
-    <string name="gamma_control">التحكم في جاما</string>
-    <string name="gamma_description">القيمة الأعلى لجاما تمنح مظهرًا أكثر حدة، لكن بتفاصيل أقل دقة وسطوع إجمالي أقل. أما القيمة الأدنى فهي أكثر سطوعًا وأقل حدة.</string>
-    <string name="light_gamma">جاما الإضاءة:</string>
+    <string name="gamma_control">عنصر تحكم Gamma</string>
+    <string name="gamma_description">تعطي قيمة gamma الأعلى مظهرًا أكثر قوة، ولكن مع تفاصيل أقل دقة وسطوع إجمالي أقل. القيمة الأقل تكون أكثر سطوعًا ولكنها أقل قوة.</string>
+    <string name="light_gamma">Gamma الضوء:</string>
     <string name="visualizer_presets">الإعدادات المسبقة للمصور المرئي</string>
 
     <!-- Settings Screen -->
     <string name="settings_title">الإعدادات</string>
-    <string name="app_theme">مظهر التطبيق</string>
+    <string name="app_theme">سمة التطبيق</string>
     <string name="theme_normal">الافتراضي</string>
     <string name="theme_liquorice">أسود عرق السوس</string>
-    <string name="theme_nothing_red">Nothing أحمر</string>
+    <string name="theme_nothing_red">أحمر Nothing</string>
 
     <!-- Haptics Screen -->
-    <string name="haptics_title">الاهتزاز</string>
     <string name="haptics_header">عناصر تحكم الاهتزاز</string>
     <string name="haptics_mode_label">وضع محرك الاهتزاز</string>
-    <string name="haptics_mode_bass">شدة صوت الجهير</string>
-    <string name="haptics_mode_beat">التعرف على الإيقاع</string>
-    <string name="haptics_beat_detection_desc">يهتز عند اكتشاف الإيقاعات ضمن نطاق التردد المحدد. أكثر انسيابية لكنه أحيانًا أقل ثباتًا. هذه ميزة تجريبية.</string>
-    <string name="haptics_motor_title">تصوير الاهتزاز</string>
-    <string name="haptics_frequency_label">التردد: %1$d - %2$d Hz</string>
-    <string name="haptics_frequency_desc">يهتز بناءً على شدة الصوت ضمن هذا النطاق.</string>
-    <string name="haptics_amplitude_label">قوة المحرك: %.1fx</string>
-    <string name="haptics_audio_gain_label">كسب الصوت: %.1fx</string>
-    <string name="haptics_gamma_label">جاما: %.1f</string>
+    <string name="haptics_mode_bass">سعة الجهير (Bass)</string>
+    <string name="haptics_mode_beat">كشف الإيقاع</string>
+    <string name="haptics_beat_detection_desc">يهتز عند اكتشاف إيقاعات ضمن نطاق التردد المحدد. أكثر سلاسة ولكن في بعض الأحيان ليس مستقرًا تمامًا. إنها ميزة تجريبية.</string>
+    <string name="haptics_frequency_label">التردد: %1$d - %2$d هرتز</string>
+    <string name="haptics_frequency_desc">يهتز بناءً على سعة الصوت في هذا النطاق.</string>
+    <string name="haptics_amplitude_label">الشدة: %.1fx</string>
+    <string name="haptics_gamma_label">Gamma: %.1f</string>
     <string name="haptics_decay_label">التلاشي: %.2f</string>
     <string name="haptics_speed_label">السرعة: %.1f</string>
     <string name="haptics_sensitivity_label">الحساسية: %.1f</string>
-    <string name="haptics_motor_multiplier_desc">مضاعف قوة إخراج المحرك العام.</string>
-    <string name="haptics_decay_instant">بلا تنعيم (فوري)</string>
-    <string name="haptics_decay_smooth">التنعيم مفعّل</string>
-    <!-- Flashlight Screen -->
-    <string name="flashlight_title">الكشاف</string>
-    <string name="flashlight_header">مصور الكشاف المرئي</string>
-    <string name="flashlight_sync_title">مزامنة الكشاف</string>
-    <string name="flashlight_mode_label">وضع محرك الكشاف</string>
-    <string name="flashlight_mode_amplitude">شدة الصوت</string>
-    <string name="flashlight_mode_beat">كشف الإيقاع</string>
-    <string name="flashlight_intensity_label">مستويات الشعلة: %1$d</string>
-    <string name="flashlight_frequency_label">التردد: %1$d - %2$d Hz</string>
-    <string name="flashlight_frequency_desc">نطاق التردد بالهرتز الذي سيستجيب له الكشاف. أقل للجهير، وأعلى للطبل الخفيف/الأصوات.</string>
-    <string name="flashlight_threshold_label">العتبة: %.2f</string>
-    <string name="flashlight_threshold_desc">إذا كان مصباحك اليدوي يحتوي على مستوى واحد فقط، فإن هذا يشغّله ويطفئه.</string>
-    <string name="flashlight_beat_sensitivity_label">حساسية الإيقاع: %.1f</string>
-    <string name="flashlight_beat_sensitivity_desc">القيم الأعلى تتجاهل الإشارات الانتقالية الأضعف.</string>
-    <string name="flashlight_speed_label">السرعة: %.0f ms</string>
-    <string name="flashlight_monitor_label">مراقبة الكشاف</string>
+    <string name="haptics_motor_multiplier_desc">مضاعف قوة إخراج الاهتزاز العام.</string>
+    <string name="haptics_decay_instant">بدون تنعيم (فوري)</string>
+    <string name="haptics_decay_smooth">التنعيم نشط</string>
 
-    <string name="experimental_features">ميزات تجريبية</string>
-    <string name="developer_mode">وضع المطوّر</string>
-    <string name="spoof_device">محاكاة جهاز</string>
+    <!-- Flashlight Screen -->
+    <string name="flashlight_frequency_label">التردد: %1$d - %2$d هرتز</string>
+    <string name="flashlight_frequency_desc">نطاق التردد الذي سيتفاعل معه الكشاف. أقل للجهير، وأعلى للصنج/الأصوات.</string>
+    <string name="flashlight_monitor_label">مراقب الكشاف</string>
+
+    <string name="experimental_features">الميزات التجريبية</string>
+    <string name="developer_mode">وضع المطور</string>
+    <string name="spoof_device">انتحال الجهاز</string>
     <string name="spoof_device_description">يجبر التطبيق على التصرف كما لو كان يعمل على الجهاز المحدد.</string>
-    <string name="spoof_locale">محاكاة اللغة</string>
-    <string name="spoof_locale_description">إجبار التطبيق على استخدام لغة معينة لأغراض الاختبار.</string>
-    <string name="idle_breathing_title">التنفّس عند الخمول</string>
+    <string name="idle_breathing_title">التنفس في وضع الخمول</string>
+    <string name="idle_breathing_desc">تنبض الـ Glyphs بشكل خفيف عندما يكون المصور المرئي نشطًا ولكن لا يوجد صوت يعمل.</string>
     <string name="start_visualizer">بدء</string>
     <string name="stop_visualizer">إيقاف</string>
-    <string name="glyph_no_config">لم يتم تحميل أي إعداد. يُرجى التحقق من التحديثات في الإعدادات لتنزيل أحدث الإعدادات المسبقة للمصور المرئي.</string>
+    <string name="glyph_no_config">لم يتم تحميل أي تكوين. يرجى التحقق من وجود تحديثات في الإعدادات لتنزيل أحدث الإعدادات المسبقة للمصور المرئي.</string>
 
     <!-- About Screen -->
     <string name="about_title">معلومات التطبيق والتحديثات</string>
-    <string name="analytics_disclaimer_title">التحليلات</string>
-    <string name="analytics_disclaimer_text">يستخدم هذا التطبيق خدمة Google Analytics (Firebase) لجمع إحصاءات استخدام مجهولة الهوية وتقارير الأعطال للمساعدة في تحسين تجربة التطبيق. لا يتم جمع أي بيانات شخصية أو محتوى صوتي.</string>
     <string name="github_repository">مستودع GitHub</string>
-    <string name="view_source">عرض المصدر</string>
     <string name="version_info">الإصدار %s</string>
-    <string name="zones_config_version">إصدار الإعداد: %s</string>
-    <string name="media_projection_info">يُستخدم MediaProjection فقط لتشغيل المصور المرئي الفوري. لا يتم إجراء أي تسجيل أو تخزين بيانات غير ضروري.</string>
-    <string name="credits">شكر وتقدير</string>
-    <string name="open_github_profile">فتح الملف الشخصي على GitHub</string>
-    <string name="check_for_app_updates">التحقق من تحديثات التطبيق</string>
-    <string name="discord_server">مجتمع Discord</string>
+    <string name="zones_config_version">إصدار التكوين: %s</string>
+    <string name="media_projection_info">يُستخدم MediaProjection فقط لتشغيل المصور المرئي في الوقت الفعلي. لا يتم إجراء أي تسجيل أو تخزين بيانات غير ضروري.</string>
+    <string name="credits">الاعتمادات</string>
+    <string name="open_github_profile">فتح ملف GitHub الشخصي</string>
+    <string name="discord_server">خادم Discord</string>
     <string name="join_discord">انضم إلى مجتمعنا على Discord</string>
-    <string name="checking_for_updates">جارٍ التحقق من التحديثات…</string>
-    <string name="app_up_to_date">التطبيق محدَّث لآخر إصدار</string>
 
     <!-- Capture Source Labels -->
-    <string name="capture_media_projection">MediaProjection\n(الافتراضي، الأفضل)</string>
+    <string name="capture_media_projection">Media Projection\n(افتراضي، الأفضل)</string>
     <string name="capture_microphone">الميكروفون</string>
-    <string name="capture_vizualizer">المصور المرئي المدمج في Android</string>
+    <string name="capture_vizualizer">مصور Android المرئي المدمج</string>
     <string name="update_available">تحديث متاح: %s</string>
-    <string name="update_now">التحديث الآن</string>
+    <string name="update_now">تحديث الآن</string>
 
     <string name="idle_pattern">نمط الخمول</string>
     <string name="idle_pattern_pulse">نبض</string>
     <string name="idle_pattern_wave">موجة</string>
-    <string name="idle_pattern_cylon">سايلون</string>
+    <string name="idle_pattern_cylon">Cylon</string>
     <string name="idle_pattern_zebra">حمار وحشي</string>
-    <string name="idle_pattern_heartbeat">نبضة قلب</string>
+    <string name="idle_pattern_heartbeat">ضربات القلب</string>
     <string name="idle_pattern_orbit">مدار</string>
     <string name="idle_pattern_rain">مطر</string>
     <string name="cancel">إلغاء</string>
-    <string name="back">رجوع</string>
-    <string name="editing_segments_count">تعديل %d مقاطع</string>
-    <string name="frequency_range_label">نطاق التردد: %1$d هرتز - %2$d Hz</string>
-    <string name="no_presets_found">لم يُعثر على أي إعدادات مسبقة. كن أول من يشارك واحدًا!</string>
-    <string name="preset_by_author">بواسطة %1$s • %2$s</string>
-    <string name="downloads_count">%1$s • %2$d تنزيل</string>
-    <string name="clear">مسح</string>
-    <string name="sync_ui_to_beat">مزامنة الواجهة مع الإيقاع</string>
-    <string name="lens_visualizer">مصور العدسة المرئي</string>
-    <string name="lens_radius">نصف قطر العدسة</string>
-    <string name="lens_bar_width">عرض الشريط</string>
-    <string name="lens_max_height">أقصى ارتفاع للشريط</string>
-    <string name="lens_bar_count">عدد الأشرطة</string>
-    <string name="lens_x_position">الموضع الأفقي (X)</string>
-    <string name="lens_y_position">الموضع الرأسي (Y)</string>
-    <string name="lens_sensitivity">حساسية العدسة</string>
+    <string name="enable_on_screen_visualizers">تفعيل المصورات المرئية على الشاشة</string>
     <string name="overlay_width">عرض التراكب</string>
     <string name="overlay_height">ارتفاع التراكب</string>
-    <string name="overlay_sensitivity">حساسية التراكب</string>
     <string name="vertical_position">الموضع الرأسي</string>
-    <string name="dynamic_gain">الكسب الديناميكي</string>
-
-    <!-- Auth -->
 
     <string name="tab_audio">الصوت</string>
-    <string name="tab_glyphs">Glyph</string>
-    <string name="tab_visuals">المرئيات</string>
+    <string name="tab_glyphs">Glyphs</string>
     <string name="tab_haptics">الاهتزاز</string>
     <string name="tab_flashlight">الكشاف</string>
     <string name="tab_settings">الإعدادات</string>
-
-    <string name="update_available_title">تحديث متاح: %s</string>
-    <string name="update_available_msg">يتوفر إصدار جديد. إليك ما الجديد:</string>
-    <string name="no_changelog">لا يوجد سجل تغييرات متاح.</string>
-    <string name="install">تثبيت</string>
-    <string name="download">تنزيل</string>
-    <string name="not_now">ليس الآن</string>
-    <string name="downloading_update">جارٍ تنزيل التحديث...</string>
-
-    <string name="mediaprojection_permission">إذن MediaProjection</string>
-    <string name="mediaprojection_description">يتيح هذا الإذن للتطبيق الوصول إلى البث الصوتي للجهاز عبر نظام الالتقاط الخاص بـAndroid، لكي يستجيب مصور Glyph المرئي في الوقت الفعلي. لا يتم تخزين أي تسجيلات غير ضرورية، ولا يحفظ التطبيق وسائطك أو بياناتك الخاصة.</string>
-    <string name="continue_label">متابعة</string>
-
-    <string name="audio_permission_required">إذن تسجيل الصوت مطلوب</string>
-    <string name="screen_capture_denied">تم رفض إذن التقاط الشاشة</string>
-    <string name="notifications_required">الإشعارات مطلوبة أثناء نشاط المصور المرئي</string>
-    <string name="overlay_permission_denied">تم رفض إذن التراكب</string>
-    <string name="notification_access_required">يُرجى تفعيل الوصول إلى الإشعارات لاستخدام هذه الميزة</string>
-
-    <string name="config_update_success">تم تحديث zones.config بنجاح</string>
-    <string name="config_import_success">تم استيراد zones.config بنجاح</string>
-    <string name="config_import_error">فشلت قراءة الملف المحدد</string>
-    <string name="config_download_error">فشل التنزيل: %d</string>
-    <string name="config_error_updating">خطأ في التحديث: %s</string>
-    <string name="config_error_importing">خطأ في الاستيراد: %s</string>
 
     <!-- License Screen -->
     <string name="license_title">الترخيص</string>
     <string name="license_agreement">اتفاقية الترخيص</string>
     <string name="read_license">قراءة ترخيص البرنامج</string>
+
+    <string name="back">رجوع</string>
+    <string name="editing_segments_count">تحرير %d من المقاطع</string>
+    <string name="frequency_range_label">نطاق التردد: %1$d هرتز - %2$d هرتز</string>
+    <string name="no_presets_found">لم يتم العثور على إعدادات مسبقة. كن أول من يشارك واحدة!</string>
+    <string name="preset_by_author">بواسطة %1$s • %2$s</string>
+    <string name="downloads_count">%1$s • %2$d تنزيل</string>
+    <string name="clear">مسح</string>
+    <string name="config_download_error">فشل التنزيل: %d</string>
+    <string name="tablet_width_title">عرض علامة تبويب الجهاز اللوحي</string>
 </resources>

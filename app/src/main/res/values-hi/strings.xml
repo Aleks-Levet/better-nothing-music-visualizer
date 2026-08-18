@@ -25,13 +25,11 @@
     <string name="theme_nothing_red">नथिंग रेड</string>
 
     <!-- Haptics Screen -->
-    <string name="haptics_title">हैप्टिक्स</string>
     <string name="haptics_header">हैप्टिक नियंत्रण</string>
     <string name="haptics_mode_label">हैप्टिक इंजन मोड</string>
     <string name="haptics_mode_bass">बास आयाम</string>
     <string name="haptics_mode_beat">बीट डिटेक्शन</string>
     <string name="haptics_beat_detection_desc">चयनित आवृत्ति सीमा के भीतर पता लगाए गए बीट्स पर कंपन करता है। स्मूथ लेकिन कभी-कभी उतना स्थिर नहीं। यह एक बीटा फीचर है।</string>
-    <string name="haptics_motor_title">हैप्टिक विज़ुअलाइज़ेशन</string>
     <string name="haptics_frequency_label">आवृत्ति: %1$d - %2$d हर्ट्ज</string>
     <string name="haptics_frequency_desc">इस सीमा में ऑडियो आयाम के आधार पर कंपन करता है।</string>
     <string name="haptics_amplitude_label">आयाम: %.1fx</string>
@@ -39,9 +37,7 @@
     <string name="haptics_speed_label">गति: %.1f</string>
 
     <!-- Flashlight Screen -->
-    <string name="flashlight_title">फ्लैशलाइट</string>
     <string name="flashlight_header">फ्लैशलाइट विज़ुअलाइज़र</string>
-    <string name="flashlight_sync_title">फ्लैशलाइट सिंक</string>
     <string name="flashlight_frequency_label">आवृत्ति: %1$d - %2$d हर्ट्ज</string>
     <string name="flashlight_frequency_desc">वह हर्ट्ज रेंज जिस पर टॉर्च प्रतिक्रिया करेगी। बास के लिए कम, स्नेयर/वोकल्स के लिए उच्च।</string>
     <string name="flashlight_monitor_label">फ्लैशलाइट मॉनिटर</string>
@@ -59,17 +55,13 @@
     <!-- About Screen -->
     <string name="about_title">ऐप की जानकारी और अपडेट</string>
     <string name="github_repository">GitHub रिपॉजिटरी</string>
-    <string name="view_source">सोर्स कोड देखें</string>
     <string name="version_info">संस्करण %s</string>
     <string name="zones_config_version">कॉन्फ़िगरेशन संस्करण: %s</string>
     <string name="media_projection_info">मीडियाप्रोजेक्शन का उपयोग केवल रीयल-टाइम विज़ुअलाइज़र को पावर देने के लिए किया जाता है। कोई अनावश्यक रिकॉर्डिंग या डेटा भंडारण नहीं किया जाता है।</string>
     <string name="credits">श्रेय</string>
     <string name="open_github_profile">GitHub प्रोफ़ाइल खोलें</string>
-    <string name="check_for_app_updates">ऐप अपडेट की जांच करें</string>
     <string name="discord_server">डिस्कॉर्ड सर्वर</string>
     <string name="join_discord">डिस्कॉर्ड पर हमारे समुदाय में शामिल हों</string>
-    <string name="checking_for_updates">अपडेट की जांच की जा रही है…</string>
-    <string name="app_up_to_date">ऐप अपडेट है</string>
 
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">मीडिया प्रोजेक्शन\n(डिफ़ॉल्ट, सर्वोत्तम)</string>
@@ -89,9 +81,7 @@
     <string name="cancel">रद्द करें</string>
     <string name="overlay_width">ओवरले चौड़ाई</string>
     <string name="overlay_height">ओवरले ऊंचाई</string>
-    <string name="overlay_sensitivity">ओवरले संवेदनशीलता</string>
     <string name="vertical_position">ऊर्ध्वाधर स्थिति</string>
-    <string name="dynamic_gain">डायनेमिक गेन</string>
 
     <string name="tab_audio">ऑडियो</string>
     <string name="tab_glyphs">ग्लिफ़</string>
@@ -100,23 +90,11 @@
     <string name="tab_flashlight">टॉर्च</string>
     <string name="tab_settings">सेटिंग्स</string>
 
-    <string name="update_available_title">अपडेट उपलब्ध: %s</string>
-    <string name="update_available_msg">एक नया संस्करण उपलब्ध है। नया क्या है:</string>
-    <string name="no_changelog">कोई चैंजलॉग उपलब्ध नहीं है।</string>
-    <string name="install">इंस्टॉल करें</string>
-    <string name="download">डाउनलोड करें</string>
-    <string name="not_now">अभी नहीं</string>
-    <string name="downloading_update">अपडेट डाउनलोड किया जा रहा है…</string>
-
-    <string name="mediaprojection_permission">MediaProjection अनुमति</string>
-    <string name="mediaprojection_description">यह अनुमति ऐप को एंड्रॉइड कैप्चर सिस्टम के माध्यम से डिवाइस ऑडियो स्ट्रीम तक पहुंचने देती है ताकि ग्लिफ़ विज़ुअलाइज़र वास्तविक समय में प्रतिक्रिया कर सके। कोई अनावश्यक रिकॉर्डिंग सहेजी नहीं जाती है, और ऐप आपके मीडिया या निजी डेटा को सहेजता नहीं है।</string>
     <string name="continue_label">जारी रखें</string>
 
     <string name="audio_permission_required">ऑडियो रिकॉर्डिंग अनुमति आवश्यक है</string>
     <string name="screen_capture_denied">स्क्रीन कैप्चर की अनुमति नकारी गई</string>
-    <string name="notifications_required">विज़ुअलाइज़र सक्रिय होने पर नोटिफिकेशन आवश्यक हैं</string>
     <string name="overlay_permission_denied">ओवरले अनुमति नकारी गई</string>
-    <string name="notification_access_required">कृपया इस सुविधा के लिए नोटिफिकेशन एक्सेस सक्षम करें</string>
 
     <string name="config_update_success">zones.config सफलतापूर्वक अपडेट किया गया</string>
     <string name="config_import_success">zones.config सफलतापूर्वक आयात किया गया</string>

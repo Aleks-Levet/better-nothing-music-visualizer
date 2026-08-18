@@ -64,7 +64,7 @@ public class VisualizerTileService extends TileService {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             t.setSubtitle(on ? getString(R.string.tile_running) : getString(R.string.tile_subtitle_default));
         }
-        t.setIcon(Icon.createWithResource(this, R.drawable.ic_launcher_monochrome));
+        t.setIcon(Icon.createWithResource(this, R.drawable.ic_qs_tile));
         t.updateTile();
     }
 }

@@ -123,8 +123,7 @@ public class GlyphRenderer {
                 int start = Math.max(0, Math.min(range.logBinLo, 511));
                 int end = Math.max(start, Math.min(range.logBinHi, 511));
                 for (int b = start; b <= end; b++) {
-                    // Apply a 2.2x boost to glyphs to ensure they hit peaks frequently
-                    float val = actualFft[b] * 2.2f;
+                    float val = actualFft[b];
                     if (val > maxVal) {
                         maxVal = val;
                     }

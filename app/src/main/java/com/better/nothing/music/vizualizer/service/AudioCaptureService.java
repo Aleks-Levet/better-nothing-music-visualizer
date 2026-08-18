@@ -60,9 +60,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.better.nothing.music.vizualizer.ui.MainViewModel;
 import com.better.nothing.music.vizualizer.ui.VisualizerStyle;
-import com.better.nothing.music.vizualizer.ui.VisualizerOverlayView;
-import com.better.nothing.music.vizualizer.ui.EdgeVisualizerView;
-import com.better.nothing.music.vizualizer.ui.LensVisualizerView;
+import com.better.nothing.music.vizualizer.ui.UnifiedVisualizerView;
 
 import com.nothing.ketchum.Glyph;
 import com.nothing.ketchum.GlyphException;
@@ -313,16 +311,16 @@ public class AudioCaptureService extends Service {
         updateOverlayVisibility();
         requestWidgetRefresh();
     }
-    public void setLensVisualizerRadius(float r) { mLensVisualizerRadius = r; }
-    public void setLensVisualizerX(float x) { mLensVisualizerX = x; }
-    public void setLensVisualizerY(float y) { mLensVisualizerY = y; }
-    public void setLensVisualizerBarWidth(float w) { mLensVisualizerBarWidth = w; }
-    public void setLensVisualizerMaxHeight(float h) { mLensVisualizerMaxHeight = h; }
-    public void setLensVisualizerBarCount(int c) { mLensVisualizerBarCount = c; }
-    public void setLensVisualizerSensitivity(float s) { mLensVisualizerSensitivity = s; }
-    public void setLensGlowBlurRadius(float radius) { mLensGlowBlurRadius = radius; }
-    public void setLensColor(int color) { mLensColor = color; }
-    public void setLensOpacity(float opacity) { mLensOpacity = opacity; }
+    public void setLensVisualizerRadius(float r) { mLensVisualizerRadius = r; updateUnifiedProperties(); }
+    public void setLensVisualizerX(float x) { mLensVisualizerX = x; updateUnifiedProperties(); }
+    public void setLensVisualizerY(float y) { mLensVisualizerY = y; updateUnifiedProperties(); }
+    public void setLensVisualizerBarWidth(float w) { mLensVisualizerBarWidth = w; updateUnifiedProperties(); }
+    public void setLensVisualizerMaxHeight(float h) { mLensVisualizerMaxHeight = h; updateUnifiedProperties(); }
+    public void setLensVisualizerBarCount(int c) { mLensVisualizerBarCount = c; updateUnifiedProperties(); }
+    public void setLensVisualizerSensitivity(float s) { mLensVisualizerSensitivity = s; updateUnifiedProperties(); }
+    public void setLensGlowBlurRadius(float radius) { mLensGlowBlurRadius = radius; updateUnifiedProperties(); }
+    public void setLensColor(int color) { mLensColor = color; updateUnifiedProperties(); }
+    public void setLensOpacity(float opacity) { mLensOpacity = opacity; updateUnifiedProperties(); }
     
     private int mOverlayWidth = 120;
     private int mOverlayHeight = 12;
@@ -350,10 +348,9 @@ public class AudioCaptureService extends Service {
     private boolean mEdgeBottomEnabled = true;
     private int mEdgeColor = android.graphics.Color.WHITE;
     private float mEdgeOpacity = 1.0f;
-    private EdgeVisualizerView mEdgeVisualizerView;
+    private UnifiedVisualizerView mUnifiedVisualizerView;
 
     private WindowManager mWindowManager;
-    private VisualizerOverlayView mOverlayView;
 
     private volatile boolean mHapticEnabled = false;
     private volatile HapticMode mHapticMode = HapticMode.BASS_TO_AMPLITUDE;
@@ -449,8 +446,7 @@ public class AudioCaptureService extends Service {
                 }
 
                 if (now - mLastSendMs >= 16 && mVisualizerConfig != null) {
-                    if (mOverlayView != null) mOverlayView.updateMagnitudes(mLatestRawFFT);
-                    if (mEdgeVisualizerView != null) mEdgeVisualizerView.updateMagnitudes(mLatestRawFFT);
+                    if (mUnifiedVisualizerView != null) mUnifiedVisualizerView.updateMagnitudes(mLatestRawFFT);
 
                     processFrame(mLatestRawFFT, mVisualizerConfig, mPresetConfigVersion.get());
                 }
@@ -880,14 +876,14 @@ public class AudioCaptureService extends Service {
     }
     public void setOverlayTopEnabled(boolean enabled) { mOverlayTopEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); requestWidgetRefresh(); }
     public void setOverlayBottomEnabled(boolean enabled) { mOverlayBottomEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); requestWidgetRefresh(); }
-    public void setOverlayWidth(int width) { mOverlayWidth = width; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); }
-    public void setOverlayHeight(int height) { mOverlayHeight = height; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); }
-    public void setOverlayHeightBottom(int height) { mOverlayHeightBottom = height; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); }
-    public void setOverlayYOffset(int offset) { mOverlayYOffset = offset; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); }
-    public void setOverlaySensitivity(float s) { mOverlaySensitivity = s; if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setTopSensitivity(s)); }
-    public void setOverlaySensitivityBottom(float s) { mOverlaySensitivityBottom = s; if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setBottomSensitivity(s)); }
-    public void setOverlayGlowBlurRadius(float radius) { mOverlayGlowBlurRadius = radius; if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setGlowBlurRadius(radius)); }
-    public void setOverlayOpacity(float opacity) { mOverlayOpacity = opacity; if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setOpacity(opacity)); }
+    public void setOverlayWidth(int width) { mOverlayWidth = width; updateUnifiedProperties(); }
+    public void setOverlayHeight(int height) { mOverlayHeight = height; updateUnifiedProperties(); }
+    public void setOverlayHeightBottom(int height) { mOverlayHeightBottom = height; updateUnifiedProperties(); }
+    public void setOverlayYOffset(int offset) { mOverlayYOffset = offset; updateUnifiedProperties(); }
+    public void setOverlaySensitivity(float s) { mOverlaySensitivity = s; updateUnifiedProperties(); }
+    public void setOverlaySensitivityBottom(float s) { mOverlaySensitivityBottom = s; updateUnifiedProperties(); }
+    public void setOverlayGlowBlurRadius(float radius) { mOverlayGlowBlurRadius = radius; updateUnifiedProperties(); }
+    public void setOverlayOpacity(float opacity) { mOverlayOpacity = opacity; updateUnifiedProperties(); }
 
     public void setEdgeVisualizerEnabled(boolean enabled) {
         mEdgeVisualizerEnabled = enabled;
@@ -895,27 +891,15 @@ public class AudioCaptureService extends Service {
         if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility);
         requestWidgetRefresh();
     }
-    public void setEdgeThickness(int thickness) {
-        mEdgeThickness = thickness;
-        if (mEdgeVisualizerView != null) {
-            float density = getResources().getDisplayMetrics().density;
-            mMainHandler.post(() -> mEdgeVisualizerView.setThickness((int) (thickness * density)));
-        }
-    }
-    public void setEdgeSensitivity(float sensitivity) { mEdgeSensitivity = sensitivity; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setSensitivity(sensitivity)); }
-    public void setEdgeGlowBlurRadius(float radius) { mEdgeGlowBlurRadius = radius; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setGlowBlurRadius(radius)); }
-    public void setEdgeBarCounts(int horiz, int vert) { mEdgeBarCountHoriz = horiz; mEdgeBarCountVert = vert; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setBarCounts(horiz, vert)); }
-    public void setEdgeCornerRadius(float radius) {
-        mEdgeCornerRadius = radius;
-        if (mEdgeVisualizerView != null) {
-            float density = getResources().getDisplayMetrics().density;
-            mMainHandler.post(() -> mEdgeVisualizerView.setScreenRadius(radius * density));
-        }
-    }
-    public void setEdgeColor(int color) { mEdgeColor = color; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setColor(color)); }
-    public void setEdgeTopEnabled(boolean enabled) { mEdgeTopEnabled = enabled; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setTopEnabled(enabled)); }
-    public void setEdgeBottomEnabled(boolean enabled) { mEdgeBottomEnabled = enabled; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setBottomEnabled(enabled)); }
-    public void setEdgeOpacity(float opacity) { mEdgeOpacity = opacity; if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setOpacity(opacity)); }
+    public void setEdgeThickness(int thickness) { mEdgeThickness = thickness; updateUnifiedProperties(); }
+    public void setEdgeSensitivity(float sensitivity) { mEdgeSensitivity = sensitivity; updateUnifiedProperties(); }
+    public void setEdgeGlowBlurRadius(float radius) { mEdgeGlowBlurRadius = radius; updateUnifiedProperties(); }
+    public void setEdgeBarCounts(int horiz, int vert) { mEdgeBarCountHoriz = horiz; mEdgeBarCountVert = vert; updateUnifiedProperties(); }
+    public void setEdgeCornerRadius(float radius) { mEdgeCornerRadius = radius; updateUnifiedProperties(); }
+    public void setEdgeColor(int color) { mEdgeColor = color; updateUnifiedProperties(); }
+    public void setEdgeTopEnabled(boolean enabled) { mEdgeTopEnabled = enabled; updateUnifiedProperties(); }
+    public void setEdgeBottomEnabled(boolean enabled) { mEdgeBottomEnabled = enabled; updateUnifiedProperties(); }
+    public void setEdgeOpacity(float opacity) { mEdgeOpacity = opacity; updateUnifiedProperties(); }
 
     public void reloadConfig() {
         if (mWorkerHandler != null) {
@@ -933,33 +917,30 @@ public class AudioCaptureService extends Service {
         }
     }
 
-    public void setOverlayColor(int color) { mOverlayColor = color; if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setColor(color)); }
+    public void setOverlayColor(int color) { mOverlayColor = color; updateUnifiedProperties(); }
     public void setRoundedBarsEnabled(boolean enabled) {
         mRoundedBarsEnabled = enabled;
-        if (mWorkerHandler != null) mWorkerHandler.post(() -> {
-            if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setRoundedBarsEnabled(enabled));
-            if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setRoundedBarsEnabled(enabled));
-        });
+        updateUnifiedProperties();
     }
 
     public void setOverlayStyle(VisualizerStyle style) {
         mOverlayStyle = style;
-        if (mOverlayView != null) mMainHandler.post(() -> mOverlayView.setStyle(style));
+        updateUnifiedProperties();
     }
 
     public void setEdgeStyle(VisualizerStyle style) {
         mEdgeStyle = style;
-        if (mEdgeVisualizerView != null) mMainHandler.post(() -> mEdgeVisualizerView.setStyle(style));
+        updateUnifiedProperties();
     }
 
     public void setLensStyle(VisualizerStyle style) {
         mLensStyle = style;
-        updateVisualizerService();
+        updateUnifiedProperties();
     }
 
     public VisualizerStyle getLensStyle() { return mLensStyle; }
 
-    private void updateVisualizerService() { Intent intent = new Intent(this, VisualizerService.class); if (mLensVisualizerEnabled && sIsRunning) startService(intent); else stopService(intent); }
+    private void updateVisualizerService() { }
 
     public void setHapticEnabled(boolean enabled) {
         mHapticEnabled = hasHapticMotor(this) && enabled;
@@ -1322,8 +1303,7 @@ public class AudioCaptureService extends Service {
                     mLatestUiPeakDiff = maxDiff / 2047f; // Use 2047 for diff scaling similar to GlyphRenderer
                 }
 
-                if (mOverlayView != null) mOverlayView.updateMagnitudes(mLatestRawFFT);
-                if (mEdgeVisualizerView != null) mEdgeVisualizerView.updateMagnitudes(mLatestRawFFT);
+                if (mUnifiedVisualizerView != null) mUnifiedVisualizerView.updateMagnitudes(mLatestRawFFT);
 
                 float hRawPeak = getLatestHapticPeak();
                 float fRawPeak = getLatestFlashlightPeak();
@@ -1500,15 +1480,18 @@ public class AudioCaptureService extends Service {
             
         int addedButtons = 0;
         if (mSelectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
-            builder.addAction(0, mMaxBrightness > 0 ? getString(R.string.notification_action_glyphs_on) : getString(R.string.notification_action_glyphs_off), PendingIntent.getService(this, 10, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_GLYPHS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
+            String label = getString(R.string.notification_action_glyphs);
+            builder.addAction(0, mMaxBrightness > 0 ? label.toUpperCase(Locale.ROOT) : label, PendingIntent.getService(this, 10, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_GLYPHS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
             addedButtons++;
         }
         if (hasHapticMotor(this)) {
-            builder.addAction(0, mHapticEnabled ? getString(R.string.notification_action_haptics_on) : getString(R.string.notification_action_haptics_off), PendingIntent.getService(this, 11, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_HAPTICS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
+            String label = getString(R.string.notification_action_haptics);
+            builder.addAction(0, mHapticEnabled ? label.toUpperCase(Locale.ROOT) : label, PendingIntent.getService(this, 11, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_HAPTICS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
             addedButtons++;
         }
         if (hasFlashlight(this)) {
-            builder.addAction(0, mFlashlightEnabled ? getString(R.string.notification_action_flash_on) : getString(R.string.notification_action_flash_off), PendingIntent.getService(this, 12, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_TORCH), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
+            String label = getString(R.string.notification_action_flash);
+            builder.addAction(0, mFlashlightEnabled ? label.toUpperCase(Locale.ROOT) : label, PendingIntent.getService(this, 12, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_TORCH), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
             addedButtons++;
         }
         
@@ -1527,11 +1510,11 @@ public class AudioCaptureService extends Service {
         mMainHandler.post(() -> {
             if (mWindowManager == null) mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
             
-            float density = getResources().getDisplayMetrics().density;
+            boolean anyEnabled = (mEdgeVisualizerEnabled || mOverlayEnabled || mLensVisualizerEnabled) && mCapturing;
 
-            if (mEdgeVisualizerEnabled && mCapturing) {
-                if (mEdgeVisualizerView == null) {
-                    mEdgeVisualizerView = new EdgeVisualizerView(this);
+            if (anyEnabled) {
+                if (mUnifiedVisualizerView == null) {
+                    mUnifiedVisualizerView = new UnifiedVisualizerView(this);
                     WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                             WindowManager.LayoutParams.MATCH_PARENT,
                             WindowManager.LayoutParams.MATCH_PARENT,
@@ -1546,74 +1529,74 @@ public class AudioCaptureService extends Service {
                     if (Build.VERSION.SDK_INT >= 28) {
                         params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
                     }
-                    try { mWindowManager.addView(mEdgeVisualizerView, params); } catch (Exception ignored) {}
+                    try { mWindowManager.addView(mUnifiedVisualizerView, params); } catch (Exception ignored) {}
                 }
-                mEdgeVisualizerView.setThickness((int) (mEdgeThickness * density));
-                mEdgeVisualizerView.setSensitivity(mEdgeSensitivity);
-                mEdgeVisualizerView.setBarCounts(mEdgeBarCountHoriz, mEdgeBarCountVert);
-                mEdgeVisualizerView.setTopEnabled(mEdgeTopEnabled);
-                mEdgeVisualizerView.setBottomEnabled(mEdgeBottomEnabled);
-                mEdgeVisualizerView.setScreenRadius(mEdgeCornerRadius * density);
-                mEdgeVisualizerView.setColor(mEdgeColor);
-                mEdgeVisualizerView.setRoundedBarsEnabled(mRoundedBarsEnabled);
-                mEdgeVisualizerView.setGlowBlurRadius(mEdgeGlowBlurRadius);
-                mEdgeVisualizerView.setStyle(mEdgeStyle);
-                mEdgeVisualizerView.setOpacity(mEdgeOpacity);
-            } else if (mEdgeVisualizerView != null) {
-                try { mWindowManager.removeView(mEdgeVisualizerView); } catch (Exception ignored) {}
-                mEdgeVisualizerView = null;
+                updateUnifiedProperties();
+            } else if (mUnifiedVisualizerView != null) {
+                try { mWindowManager.removeView(mUnifiedVisualizerView); } catch (Exception ignored) {}
+                mUnifiedVisualizerView = null;
             }
+        });
+    }
 
-            if (mOverlayEnabled && mCapturing) {
-                int extraPaddingPx = (int) (64 * density);
-                int glowInsetPx = (mOverlayStyle == VisualizerStyle.GLOW)
-                        ? (int) Math.max(extraPaddingPx, mOverlayGlowBlurRadius * 4f)
-                        : extraPaddingPx;
-                int wPx = (int) (mOverlayWidth * density) + glowInsetPx * 2;
-                int hTotalPx = (int) ((mOverlayHeight + mOverlayHeightBottom) * density) + glowInsetPx * 2;
-                int yOffPx = (int) (mOverlayYOffset * density) - glowInsetPx;
+    private void updateUnifiedProperties() {
+        mMainHandler.post(() -> {
+            if (mUnifiedVisualizerView == null) return;
+            float density = getResources().getDisplayMetrics().density;
+            
+            mUnifiedVisualizerView.setRoundedBarsEnabled(mRoundedBarsEnabled);
+            
+            mUnifiedVisualizerView.setEdgeProperties(
+                    mEdgeVisualizerEnabled && mCapturing,
+                    (int) (mEdgeThickness * density),
+                    mEdgeSensitivity,
+                    mEdgeBarCountHoriz,
+                    mEdgeBarCountVert,
+                    mEdgeCornerRadius * density,
+                    mEdgeTopEnabled,
+                    mEdgeBottomEnabled,
+                    mEdgeColor,
+                    mEdgeOpacity,
+                    mEdgeGlowBlurRadius,
+                    mEdgeStyle
+            );
 
-                if (mOverlayView == null) {
-                    mOverlayView = new VisualizerOverlayView(this);
-                    WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                            wPx,
-                            hTotalPx,
-                            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
-                                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE |
-                                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN |
-                                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                            PixelFormat.TRANSLUCENT
-                    );
-                    params.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-                    params.y = yOffPx;
-                    if (Build.VERSION.SDK_INT >= 28) {
-                        params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
-                    }
-                    try { mWindowManager.addView(mOverlayView, params); } catch (Exception ignored) {}
-                } else {
-                    WindowManager.LayoutParams params = (WindowManager.LayoutParams) mOverlayView.getLayoutParams();
-                    params.width = wPx;
-                    params.height = hTotalPx;
-                    params.y = yOffPx;
-                    try { mWindowManager.updateViewLayout(mOverlayView, params); } catch (Exception ignored) {}
-                }
-                mOverlayView.setTopEnabled(mOverlayTopEnabled);
-                mOverlayView.setBottomEnabled(mOverlayBottomEnabled);
-                mOverlayView.setHeights((int) (mOverlayHeight * density), (int) (mOverlayHeightBottom * density));
-                mOverlayView.setTopSensitivity(mOverlaySensitivity);
-                mOverlayView.setBottomSensitivity(mOverlaySensitivityBottom);
-                mOverlayView.setColor(mOverlayColor);
-                mOverlayView.setRoundedBarsEnabled(mRoundedBarsEnabled);
-                mOverlayView.setGlowBlurRadius(mOverlayGlowBlurRadius);
-                mOverlayView.setStyle(mOverlayStyle);
-                mOverlayView.setOpacity(mOverlayOpacity);
-                mOverlayView.setPadding(glowInsetPx);
-            } else if (mOverlayView != null) {
-                try { mWindowManager.removeView(mOverlayView); } catch (Exception ignored) {}
-                mOverlayView = null;
-            }
-            updateVisualizerService();
+            int extraPaddingPx = (int) (64 * density);
+            int glowInsetPx = (mOverlayStyle == VisualizerStyle.GLOW)
+                    ? (int) Math.max(extraPaddingPx, mOverlayGlowBlurRadius * 4f)
+                    : extraPaddingPx;
+            
+            mUnifiedVisualizerView.setOverlayProperties(
+                    mOverlayEnabled && mCapturing,
+                    (int) (mOverlayWidth * density) + glowInsetPx * 2,
+                    (int) (mOverlayHeight * density),
+                    (int) (mOverlayHeightBottom * density),
+                    (int) (mOverlayYOffset * density) - glowInsetPx,
+                    mOverlaySensitivity,
+                    mOverlaySensitivityBottom,
+                    mOverlayTopEnabled,
+                    mOverlayBottomEnabled,
+                    mOverlayColor,
+                    mOverlayOpacity,
+                    mOverlayGlowBlurRadius,
+                    mOverlayStyle,
+                    glowInsetPx
+            );
+
+            mUnifiedVisualizerView.setLensProperties(
+                    mLensVisualizerEnabled && mCapturing,
+                    mLensVisualizerRadius * density,
+                    mLensVisualizerX,
+                    mLensVisualizerY,
+                    mLensVisualizerBarWidth * density,
+                    mLensVisualizerMaxHeight * density,
+                    mLensVisualizerBarCount,
+                    mLensVisualizerSensitivity,
+                    mLensColor,
+                    mLensOpacity,
+                    mLensGlowBlurRadius,
+                    mLensStyle
+            );
         });
     }
 

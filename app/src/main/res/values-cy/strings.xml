@@ -25,22 +25,18 @@
     <string name="theme_nothing_red">Coch Nothing</string>
 
     <!-- Haptics Screen -->
-    <string name="haptics_title">Haptigau</string>
     <string name="haptics_header">Rheolyddion haptig</string>
     <string name="haptics_mode_label">Modd Peiriant Haptig</string>
     <string name="haptics_mode_bass">Osgled Bas</string>
     <string name="haptics_mode_beat">Canfod Curiad</string>
     <string name="haptics_beat_detection_desc">Yn dirgrynu ar guriadau a ganfyddir o fewn yr ystod amlder a ddewiswyd. Yn llyfnach ond weithiau ddim mor sefydlog. Mae\'n nodwedd beta.</string>
-    <string name="haptics_motor_title">Delweddu haptig</string>
     <string name="haptics_frequency_label">Amlder: %1$d - %2$d Hz</string>
     <string name="haptics_frequency_desc">Yn dirgrynu yn seiliedig ar osgled sain yn yr ystod hon.</string>
     <string name="haptics_amplitude_label">Osgled: %.1fx</string>
     <string name="haptics_gamma_label">Gamma (Ymateb): %.1f</string>
     <string name="haptics_speed_label">Cyflymder: %.1f</string>
     <!-- Flashlight Screen -->
-    <string name="flashlight_title">Fflachlamp</string>
     <string name="flashlight_header">Delweddydd fflachlamp</string>
-    <string name="flashlight_sync_title">Cydweddu Fflachlamp</string>
     <string name="flashlight_frequency_label">Amlder: %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">Yr ystod Hz y bydd y fflachlamp yn ymateb iddi. Is ar gyfer bas, uwch ar gyfer drwm/llais.</string>
     <string name="flashlight_monitor_label">Monitor Fflachlamp</string>
@@ -60,17 +56,13 @@
     <!-- About Screen -->
     <string name="about_title">Gwybodaeth ap a diweddariadau</string>
     <string name="github_repository">Ystorfa GitHub</string>
-    <string name="view_source">Gweld y Cod Ffynhonnell</string>
     <string name="version_info">Fersiwn %s</string>
     <string name="zones_config_version">Fersiwn Ffurfweddiad: %s</string>
     <string name="media_projection_info">Defnyddir MediaProjection dim ond i bweru\'r delweddydd amser real. Ni chyflawnir unrhyw recordio neu storio data diangen.</string>
     <string name="credits">Credydau</string>
     <string name="open_github_profile">Agor proffil GitHub</string>
-    <string name="check_for_app_updates">Gwirio am Ddiweddariadau Ap</string>
     <string name="discord_server">Gweinydd Discord</string>
     <string name="join_discord">Ymunwch â\'n cymuned ar Discord</string>
-    <string name="checking_for_updates">Gwirio am ddiweddariadau…</string>
-    <string name="app_up_to_date">Mae\'r ap yn gyfredol</string>
 
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">Media Projection\n(diofyn, gorau)</string>
@@ -91,7 +83,6 @@
     <string name="overlay_width">Lled y Troslun</string>
     <string name="overlay_height">Uchder y Troslun</string>
     <string name="vertical_position">Safle Fertigol</string>
-    <string name="dynamic_gain">Ennill Dynamig</string>
 
     <string name="tab_audio">Sain</string>
     <string name="tab_glyphs">Glyphs</string>
@@ -99,23 +90,11 @@
     <string name="tab_flashlight">Fflachlamp</string>
     <string name="tab_settings">Gosodiadau</string>
 
-    <string name="update_available_title">Diweddariad ar Gael: %s</string>
-    <string name="update_available_msg">Mae fersiwn newydd ar gael. Beth sy\'n newydd:</string>
-    <string name="no_changelog">Dim rhestr newidiadau ar gael.</string>
-    <string name="install">Gosod</string>
-    <string name="download">Lawrlwytho</string>
-    <string name="not_now">Nid nawr</string>
-    <string name="downloading_update">Wrthi\'n Lawrlwytho Diweddariad…</string>
-
-    <string name="mediaprojection_permission">Caniatâd MediaProjection</string>
-    <string name="mediaprojection_description">Mae\'r caniatâd hwn yn gadael i\'r ap gael mynediad i ffrwd sain y ddyfais trwy system ddal Android fel y gall y delweddydd Glyph ymateb mewn amser real. Ni storir unrhyw recordiadau diangen, ac nid yw\'r ap yn cadw eich cyfryngau na\'ch data preifat.</string>
     <string name="continue_label">Parhau</string>
 
     <string name="audio_permission_required">Mae angen caniatâd recordio sain</string>
     <string name="screen_capture_denied">Gwrthodwyd caniatâd dal sgrin</string>
-    <string name="notifications_required">Mae angen hysbysiadau tra bod y delweddydd yn weithredol</string>
     <string name="overlay_permission_denied">Gwrthodwyd caniatâd troslun</string>
-    <string name="notification_access_required">Galluogwch fynediad i hysbysiadau ar gyfer y nodwedd hon</string>
 
     <string name="config_update_success">Wedi diweddaru zones.config yn llwyddiannus</string>
     <string name="config_import_success">Wedi mewnforio zones.config yn llwyddiannus</string>

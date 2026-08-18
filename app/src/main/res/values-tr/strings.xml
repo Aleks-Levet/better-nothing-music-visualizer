@@ -25,13 +25,11 @@
     <string name="theme_nothing_red">Nothing Kırmızı</string>
 
     <!-- Haptics Screen -->
-    <string name="haptics_title">Dokunsal</string>
     <string name="haptics_header">Dokunsal kontroller</string>
     <string name="haptics_mode_label">Titreşim Motoru Modu</string>
     <string name="haptics_mode_bass">Basa Duyarlı</string>
     <string name="haptics_mode_beat">Ritme Ayak Uydur!</string>
     <string name="haptics_beat_detection_desc">Seçilen frekans aralığında algılanan ritimlere göre titreşir. Daha pürüzsüzdür ancak bazen o kadar kararlı değildir. Beta özelliğidir.</string>
-    <string name="haptics_motor_title">Dokunsal görselleştirme</string>
     <string name="haptics_frequency_label">Frekans: %1$d - %2$d Hz</string>
     <string name="haptics_frequency_desc">Bu aralıktaki ses genliğine göre titreşir.</string>
     <string name="haptics_amplitude_label">Yoğunluk: %.1fx</string>
@@ -44,9 +42,6 @@
     <string name="haptics_decay_smooth">Yumuşatma aktif</string>
 
     <!-- Flashlight Screen -->
-    <string name="flashlight_title">Fener</string>
-    <string name="flashlight_header">Fener görselleştirici</string>
-    <string name="flashlight_sync_title">Fener Senkronizasyonu</string>
     <string name="flashlight_frequency_label">Frekans: %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">Fenerin tepki vereceği Hz aralığı. Bas için düşük, trampet/vokal için yüksek.</string>
     <string name="flashlight_monitor_label">Fener Monitörü</string>
@@ -64,17 +59,13 @@
     <!-- About Screen -->
     <string name="about_title">Uygulama Hakkında ve Güncellemeler</string>
     <string name="github_repository">GitHub Sayfası</string>
-    <string name="view_source">Kaynağı Görüntüle</string>
     <string name="version_info">Sürüm %s</string>
     <string name="zones_config_version">Yapılandırma Sürümü: %s</string>
     <string name="media_projection_info">MediaProjection yalnızca gerçek zamanlı görselleştiriciyi çalıştırmak için kullanılır. Ekranınız veya verileriniz gereksizce kaydedilmez.</string>
     <string name="credits">Emeği Geçenler</string>
     <string name="open_github_profile">GitHub profiline git</string>
-    <string name="check_for_app_updates">Uygulama Güncellemelerini Kontrol Et</string>
     <string name="discord_server">Discord Sunucumuz</string>
     <string name="join_discord">Discord\'daki topluluğumuza katılın</string>
-    <string name="checking_for_updates">Güncellemeler kontrol ediliyor…</string>
-    <string name="app_up_to_date">Uygulamanız güncel</string>
 
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">Media Projection(varsayılan, en iyisi)</string>
@@ -96,38 +87,12 @@
     <string name="overlay_width">Spektrum Genişliği</string>
     <string name="overlay_height">Spektrum Yüksekliği</string>
     <string name="vertical_position">Dikey Konum</string>
-    <string name="dynamic_gain">Dinamik Kazanç</string>
 
     <string name="tab_audio">Ses</string>
     <string name="tab_glyphs">Glyphler</string>
     <string name="tab_haptics">Dokunsal</string>
     <string name="tab_flashlight">Fener</string>
     <string name="tab_settings">Ayarlar</string>
-
-    <string name="update_available_title">Güncelleme Mevcut: %s</string>
-    <string name="update_available_msg">Yeni bir sürüm mevcut. Yenilikler:</string>
-    <string name="no_changelog">Değişiklik günlüğü mevcut değil.</string>
-    <string name="install">Yükle</string>
-    <string name="download">İndir</string>
-    <string name="not_now">Şimdi değil</string>
-    <string name="downloading_update">Güncelleme İndiriliyor…</string>
-
-    <string name="mediaprojection_permission">MediaProjection izni</string>
-    <string name="mediaprojection_description">Bu izin, Glyph görselleştiricinin gerçek zamanlı olarak tepki verebilmesi için uygulamanın Android\'in yakalama sistemi aracılığıyla cihazın ses akışına erişmesine olanak tanır. Gereksiz kayıtlar saklanmaz ve uygulama medyanızı veya özel verilerinizi kaydetmez.</string>
-    <string name="continue_label">Devam Et</string>
-
-    <string name="audio_permission_required">Ses kaydı izni gereklidir</string>
-    <string name="screen_capture_denied">Ekran yakalama izni reddedildi</string>
-    <string name="notifications_required">Görselleştirici aktifken bildirimler gereklidir</string>
-    <string name="overlay_permission_denied">Bindirme izni reddedildi</string>
-    <string name="notification_access_required">Lütfen bu özellik için bildirim erişimini etkinleştirin</string>
-
-    <string name="config_update_success">zones.config başarıyla güncellendi</string>
-    <string name="config_import_success">zones.config başarıyla içe aktarıldı</string>
-    <string name="config_import_error">Seçilen dosya okunamadı</string>
-    <string name="config_download_error">İndirme başarısız oldu: %d</string>
-    <string name="config_error_updating">Güncelleme hatası: %s</string>
-    <string name="config_error_importing">İçe aktarma hatası: %s</string>
 
     <!-- License Screen -->
     <string name="license_title">Lisans</string>

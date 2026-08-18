@@ -29,7 +29,7 @@
     <string name="preset_description">Description</string>
 
     <!-- Settings Screen -->
-    <string name="settings_title">Settings</string>
+    <string name="settings_title">@string/tab_settings</string>
     <string name="app_theme">App theme and font</string>
     <string name="theme_normal">Default</string>
     <string name="theme_liquorice">Liquorice Black</string>
@@ -41,6 +41,11 @@
     <string name="font_google_sans" translatable="false">Google Sans</string>
 
     <!-- Haptics Screen -->
+    <string name="haptics_header">Haptic controls</string>
+    <string name="haptics_mode_label">Haptic Engine Mode</string>
+    <string name="haptics_mode_bass">Bass Amplitude</string>
+    <string name="haptics_mode_beat">Beat Detection</string>
+    <string name="haptics_beat_detection_desc">Vibrates on detected beats within the selected frequency range. Smoother but sometimes not as stable. It\'s a beta feature.</string>
     <string name="haptics_frequency_label">Frequency: %1$d - %2$d Hz</string>
     <string name="haptics_frequency_desc">Vibrates based on audio amplitude in this range.</string>
     <string name="haptics_amplitude_label">Motor Gain: %.1fx</string>
@@ -73,6 +78,7 @@
     <string name="mic_mode_camcorder_desc">CAMCORDER: Often has different tuning for directional audio.</string>
 
     <!-- Flashlight Screen -->
+    <string name="flashlight_header">Flashlight visualizer</string>
     <string name="flashlight_mode_label">Flashlight Engine Mode</string>
     <string name="flashlight_mode_amplitude">Amplitude</string>
     <string name="flashlight_mode_beat">Beat Detection</string>
@@ -157,18 +163,14 @@
     <string name="lens_bar_width">Bar Width</string>
     <string name="lens_max_height">Max Bar Height</string>
     <string name="lens_bar_count">Bar Count</string>
-    <string name="lens_x_position">Horizontal Position</string>
-    <string name="lens_y_position">Vertical Position (Y)</string>
-    <string name="lens_sensitivity">Lens Sensitivity</string>
+
     <string name="overlay_width">Overlay Width</string>
     <string name="overlay_height">Overlay Height</string>
     <string name="overlay_height_bottom">Bottom Height</string>
-    <string name="overlay_sensitivity">Overlay Sensitivity</string>
-    <string name="overlay_sensitivity_bottom">Bottom Sensitivity</string>
+
     <string name="overlay_top_segment">Top Segment</string>
     <string name="overlay_bottom_segment">Bottom Segment</string>
     <string name="vertical_position">Vertical Position</string>
-    <string name="dynamic_gain">Dynamic Gain</string>
 
     <!-- Auth -->
     <string name="default_web_client_id" translatable="false">252304807982-ubtpig2ddtukmjfa7cp21lj1mjgnr968.apps.googleusercontent.com</string>
@@ -239,11 +241,10 @@
     <string name="screen_corner_radius">Screen Corner Radius</string>
     <string name="horizontal_bar_count">Horizontal Bar Count</string>
     <string name="vertical_bar_count">Vertical Bar Count</string>
-    <string name="edge_sensitivity">Edge Sensitivity</string>
+
     <string name="x_position">X Position</string>
     <string name="y_position">Y Position</string>
     <string name="bar_height">Bar Height</string>
-    <string name="sensitivity">Sensitivity</string>
 
     <!-- Settings Extra -->
     <string name="vizualizer_stats">Vizualizer Stats</string>
@@ -251,13 +252,10 @@
 
     <!-- Notification Extra -->
     <string name="notification_channel_name">BNMV Notification</string>
-    <string name="notification_title">Better Nothing Music Visualilzer</string>
-    <string name="notification_action_glyphs_on">GLYPHS</string>
-    <string name="notification_action_glyphs_off">glyphs</string>
-    <string name="notification_action_haptics_on">HAPTICS</string>
-    <string name="notification_action_haptics_off">haptics</string>
-    <string name="notification_action_flash_on">FLASH</string>
-    <string name="notification_action_flash_off">flash</string>
+    <string name="notification_title">Better Nothing Music Visualizer</string>
+    <string name="notification_action_glyphs">glyphs</string>
+    <string name="notification_action_haptics">haptics</string>
+    <string name="notification_action_flash">flash</string>
     <string name="notification_action_stop">Stop BNMV</string>
 
     <!-- Device Names -->
@@ -279,8 +277,8 @@
     <string name="idle_pulse">Idle</string>
     <string name="feature_breakdown">Feature Breakdown</string>
     <string name="glyph_interface">Glyph Interface/Matrix</string>
-    <string name="haptic_feedback">Haptic Feedback</string>
-    <string name="flashlight_sync_stat">Flashlight Sync</string>
+    <string name="haptic_feedback">Haptic Vibration</string>
+    <string name="flashlight_sync_stat">Flashlight sync</string>
     <string name="total_active_use">Total Active Use</string>
 
     <!-- Glyphs Screen Extra -->

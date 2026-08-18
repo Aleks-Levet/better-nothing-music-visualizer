@@ -25,13 +25,7 @@
     <string name="theme_nothing_red">Rojo Nothing</string>
 
     <!-- Haptics Screen -->
-    <string name="haptics_title">Hápticos</string>
-    <string name="haptics_header">Controles hápticos</string>
-    <string name="haptics_mode_label">Modo del motor háptico</string>
-    <string name="haptics_mode_bass">Amplitud de bajos</string>
-    <string name="haptics_mode_beat">Detección de ritmo</string>
-    <string name="haptics_beat_detection_desc">Vibra con los ritmos detectados dentro del rango de frecuencia seleccionado. Más suave pero a veces no tan estable. Es una función beta.</string>
-    <string name="haptics_motor_title">Visualización háptica</string>
+
     <string name="haptics_frequency_label">Frecuencia: %1$d - %2$d Hz</string>
     <string name="haptics_frequency_desc">Vibra según la amplitud de audio en este rango.</string>
     <string name="haptics_amplitude_label">Intensidad: %.1fx</string>
@@ -44,9 +38,7 @@
     <string name="haptics_decay_smooth">Suavizado activo</string>
 
     <!-- Flashlight Screen -->
-    <string name="flashlight_title">Linterna</string>
-    <string name="flashlight_header">Visualizador de linterna</string>
-    <string name="flashlight_sync_title">Sincronización de linterna</string>
+
     <string name="flashlight_frequency_label">Frecuencia: %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">El rango de Hz al que reaccionará la linterna. Más bajo para bajos, más alto para caja/voces.</string>
     <string name="flashlight_monitor_label">Monitor de linterna</string>
@@ -64,17 +56,13 @@
     <!-- About Screen -->
     <string name="about_title">Información de la aplicación y actualizaciones</string>
     <string name="github_repository">Repositorio de GitHub</string>
-    <string name="view_source">Ver código fuente</string>
     <string name="version_info">Versión %s</string>
     <string name="zones_config_version">Versión de configuración: %s</string>
     <string name="media_projection_info">MediaProjection se utiliza únicamente para alimentar el visualizador en tiempo real. No se realiza ninguna grabación o almacenamiento de datos innecesario.</string>
     <string name="credits">Créditos</string>
     <string name="open_github_profile">Abrir perfil de GitHub</string>
-    <string name="check_for_app_updates">Buscar actualizaciones de la aplicación</string>
     <string name="discord_server">Servidor de Discord</string>
     <string name="join_discord">Únete a nuestra comunidad en Discord</string>
-    <string name="checking_for_updates">Buscando actualizaciones…</string>
-    <string name="app_up_to_date">La aplicación está actualizada</string>
 
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">Media Projection\n(predeterminado, mejor)</string>
@@ -102,7 +90,7 @@
     <string name="overlay_width">Ancho de superposición</string>
     <string name="overlay_height">Alto de superposición</string>
     <string name="vertical_position">Posición vertical</string>
-    <string name="dynamic_gain">Ganancia dinámica</string>
+
 
     <string name="tab_audio">Audio</string>
     <string name="tab_glyphs">Glyphs</string>
@@ -110,23 +98,12 @@
     <string name="tab_flashlight">Linterna</string>
     <string name="tab_settings">Ajustes</string>
 
-    <string name="update_available_title">Actualización disponible: %s</string>
-    <string name="update_available_msg">Una nueva versión está disponible. Novedades:</string>
-    <string name="no_changelog">No hay registro de cambios disponible.</string>
-    <string name="install">Instalar</string>
-    <string name="download">Descargar</string>
-    <string name="not_now">Ahora no</string>
-    <string name="downloading_update">Descargando actualización…</string>
 
-    <string name="mediaprojection_permission">Permiso de MediaProjection</string>
-    <string name="mediaprojection_description">Este permiso permite que la aplicación acceda al flujo de audio del dispositivo a través del sistema de captura de Android para que el visualizador Glyph pueda reaccionar en tiempo real. No se almacenan grabaciones innecesarias y la aplicación no guarda tu contenido multimedia ni tus datos privados.</string>
+
+
     <string name="continue_label">Continuar</string>
 
-    <string name="audio_permission_required">Se requiere permiso de grabación de audio</string>
-    <string name="screen_capture_denied">Permiso de captura de pantalla denegado</string>
-    <string name="notifications_required">Se requieren notificaciones mientras el visualizador está activo</string>
-    <string name="overlay_permission_denied">Permiso de superposición denegado</string>
-    <string name="notification_access_required">Habilita el acceso a las notificaciones para esta función</string>
+
 
     <string name="config_update_success">Zonas actualizadas con éxito</string>
     <string name="config_import_success">Zonas importadas con éxito</string>

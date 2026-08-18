@@ -25,13 +25,11 @@
     <string name="theme_nothing_red">Rosso Nothing</string>
 
     <!-- Haptics Screen -->
-    <string name="haptics_title">Feedback tattile</string>
     <string name="haptics_header">Controlli tattili</string>
     <string name="haptics_mode_label">Modalità motore tattile</string>
     <string name="haptics_mode_bass">Ampiezza bassi</string>
     <string name="haptics_mode_beat">Rilevamento battito</string>
     <string name="haptics_beat_detection_desc">Vibra sui battiti rilevati all\'interno dell\'intervallo di frequenza selezionato. Più fluido ma a volte meno stabile. È una funzione beta.</string>
-    <string name="haptics_motor_title">Visualizzazione tattile</string>
     <string name="haptics_frequency_label">Frequenza: %1$d - %2$d Hz</string>
     <string name="haptics_frequency_desc">Vibra in base all\'ampiezza audio in questo intervallo.</string>
     <string name="haptics_amplitude_label">Intensità: %.1fx</string>
@@ -44,9 +42,7 @@
     <string name="haptics_decay_smooth">Lissage attivo</string>
 
     <!-- Flashlight Screen -->
-    <string name="flashlight_title">Torcia</string>
     <string name="flashlight_header">Visualizzatore torcia</string>
-    <string name="flashlight_sync_title">Sincronizzazione torcia</string>
     <string name="flashlight_frequency_label">Frequenza: %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">L\'intervallo di Hz a cui reagirà la torcia. Più basso per i bassi, più alto per rullante/voci.</string>
     <string name="flashlight_monitor_label">Monitor torcia</string>
@@ -64,17 +60,13 @@
     <!-- About Screen -->
     <string name="about_title">Info app e aggiornamenti</string>
     <string name="github_repository">Repository GitHub</string>
-    <string name="view_source">Visualizza sorgente</string>
     <string name="version_info">Versione %s</string>
     <string name="zones_config_version">Versione configurazione: %s</string>
     <string name="media_projection_info">MediaProjection viene utilizzato solo per alimentare il visualizzatore in tempo reale. Non viene eseguita alcuna registrazione o memorizzazione di dati non necessaria.</string>
     <string name="credits">Crediti</string>
     <string name="open_github_profile">Apri profilo GitHub</string>
-    <string name="check_for_app_updates">Controlla aggiornamenti app</string>
     <string name="discord_server">Server Discord</string>
     <string name="join_discord">Unisciti alla nostra community su Discord</string>
-    <string name="checking_for_updates">Verifica aggiornamenti in corso…</string>
-    <string name="app_up_to_date">L\'app è aggiornata</string>
 
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">Media Projection\n(predefinito, migliore)</string>
@@ -95,7 +87,6 @@
     <string name="overlay_width">Larghezza sovrapposizione</string>
     <string name="overlay_height">Altezza sovrapposizione</string>
     <string name="vertical_position">Posizione verticale</string>
-    <string name="dynamic_gain">Guadagno dinamico</string>
 
     <string name="tab_audio">Audio</string>
     <string name="tab_glyphs">Glyph</string>
@@ -103,23 +94,11 @@
     <string name="tab_flashlight">Torcia</string>
     <string name="tab_settings">Impostazioni</string>
 
-    <string name="update_available_title">Aggiornamento disponibile: %s</string>
-    <string name="update_available_msg">È disponibile una nuova versione. Cosa c\'è di nuovo:</string>
-    <string name="no_changelog">Nessun registro delle modifiche disponibile.</string>
-    <string name="install">Installa</string>
-    <string name="download">Scarica</string>
-    <string name="not_now">Non ora</string>
-    <string name="downloading_update">Download aggiornamento in corso…</string>
-
-    <string name="mediaprojection_permission">Autorizzazione MediaProjection</string>
-    <string name="mediaprojection_description">Questa autorizzazione consente all\'app di accedere al flusso audio del dispositivo tramite il sistema di cattura di Android, in modo che il visualizzatore Glyph possa reagire in tempo reale. Non vengono memorizzate registrazioni non necessarie e l\'app non salva i tuoi file multimediali o dati privati.</string>
     <string name="continue_label">Continua</string>
 
     <string name="audio_permission_required">L\'autorizzazione alla registrazione audio è richiesta</string>
     <string name="screen_capture_denied">Autorizzazione alla cattura dello schermo negata</string>
-    <string name="notifications_required">Le notifiche sono richieste quando il visualizzatore è attivo</string>
     <string name="overlay_permission_denied">Autorizzazione alla sovrapposizione negata</string>
-    <string name="notification_access_required">Abilita l\'accesso alle notifiche per questa funzione</string>
 
     <string name="config_update_success">zones.config aggiornato con successo</string>
     <string name="config_import_success">zones.config importato con successo</string>

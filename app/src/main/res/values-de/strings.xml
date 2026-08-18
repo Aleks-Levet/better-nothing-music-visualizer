@@ -25,13 +25,7 @@
     <string name="theme_nothing_red">Nothing Rot</string>
 
     <!-- Haptics Screen -->
-    <string name="haptics_title">Haptik</string>
-    <string name="haptics_header">Haptik-Steuerung</string>
-    <string name="haptics_mode_label">Haptik-Engine-Modus</string>
-    <string name="haptics_mode_bass">Bass-Amplitude</string>
-    <string name="haptics_mode_beat">Beat-Erkennung</string>
-    <string name="haptics_beat_detection_desc">Vibriert bei erkannten Beats im gewählten Frequenzbereich. Sanfter, aber manchmal nicht so stabil. Dies ist eine Beta-Funktion.</string>
-    <string name="haptics_motor_title">Haptische Visualisierung</string>
+
     <string name="haptics_frequency_label">Frequenz: %1$d - %2$d Hz</string>
     <string name="haptics_frequency_desc">Vibriert basierend auf der Audioamplitude in diesem Bereich.</string>
     <string name="haptics_amplitude_label">Intensität: %.1fx</string>
@@ -44,9 +38,7 @@
     <string name="haptics_decay_smooth">Glättung aktiv</string>
 
     <!-- Flashlight Screen -->
-    <string name="flashlight_title">Taschenlampe</string>
-    <string name="flashlight_header">Taschenlampen-Visualisierer</string>
-    <string name="flashlight_sync_title">Taschenlampen-Sync</string>
+
     <string name="flashlight_frequency_label">Frequenz: %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">Der Hz-Bereich, auf den die Taschenlampe reagiert. Niedriger für Bass, höher für Snare/Gesang.</string>
     <string name="flashlight_monitor_label">Taschenlampen-Monitor</string>
@@ -64,17 +56,12 @@
     <!-- About Screen -->
     <string name="about_title">App-Info und Updates</string>
     <string name="github_repository">GitHub-Repository</string>
-    <string name="view_source">Quellcode anzeigen</string>
     <string name="version_info">Version %s</string>
     <string name="zones_config_version">Konfigurationsversion: %s</string>
     <string name="media_projection_info">MediaProjection wird nur verwendet, um den Echtzeit-Visualisierer zu betreiben. Es werden keine unnötigen Aufzeichnungen oder Datenspeicherungen durchgeführt.</string>
     <string name="credits">Mitwirkende</string>
     <string name="open_github_profile">GitHub-Profil öffnen</string>
-    <string name="check_for_app_updates">Nach App-Updates suchen</string>
-    <string name="discord_server">Discord-Server</string>
-    <string name="join_discord">Tritt unserer Community auf Discord bei</string>
-    <string name="checking_for_updates">Suche nach Updates…</string>
-    <string name="app_up_to_date">App ist auf dem neuesten Stand</string>
+
 
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">Media Projection\n(Standard, am besten)</string>
@@ -102,7 +89,6 @@
     <string name="overlay_width">Overlay-Breite</string>
     <string name="overlay_height">Overlay-Höhe</string>
     <string name="vertical_position">Vertikale Position</string>
-    <string name="dynamic_gain">Dynamische Verstärkung</string>
 
     <string name="tab_audio">Audio</string>
     <string name="tab_glyphs">Glyphen</string>
@@ -110,23 +96,12 @@
     <string name="tab_flashlight">Taschenlampe</string>
     <string name="tab_settings">Einstellungen</string>
 
-    <string name="update_available_title">Update verfügbar: %s</string>
-    <string name="update_available_msg">Eine neue Version ist verfügbar. Was ist neu:</string>
-    <string name="no_changelog">Kein Änderungsprotokoll verfügbar.</string>
-    <string name="install">Installieren</string>
-    <string name="download">Herunterladen</string>
-    <string name="not_now">Nicht jetzt</string>
-    <string name="downloading_update">Update wird heruntergeladen…</string>
 
-    <string name="mediaprojection_permission">MediaProjection-Berechtigung</string>
-    <string name="mediaprojection_description">Diese Berechtigung ermöglicht der App den Zugriff auf den Audiostream des Geräts über das Erfassungssystem von Android, damit der Glyph-Visualisierer in Echtzeit reagieren kann. Es werden keine unnötigen Aufzeichnungen gespeichert und die App speichert keine Medien oder privaten Daten.</string>
+
+
     <string name="continue_label">Weiter</string>
 
-    <string name="audio_permission_required">Berechtigung zur Audioaufnahme ist erforderlich</string>
-    <string name="screen_capture_denied">Berechtigung zur Bildschirmaufnahme verweigert</string>
-    <string name="notifications_required">Benachrichtigungen sind erforderlich, während der Visualisierer aktiv ist</string>
-    <string name="overlay_permission_denied">Overlay-Berechtigung verweigert</string>
-    <string name="notification_access_required">Bitte aktiviere den Benachrichtigungszugriff für diese Funktion</string>
+
 
     <string name="config_update_success">zones.config erfolgreich aktualisiert</string>
     <string name="config_import_success">zones.config erfolgreich importiert</string>
