@@ -41,13 +41,6 @@
     <string name="font_google_sans" translatable="false">Google Sans</string>
 
     <!-- Haptics Screen -->
-    <string name="haptics_title">Haptics</string>
-    <string name="haptics_header">Haptic controls</string>
-    <string name="haptics_mode_label">Haptic Engine Mode</string>
-    <string name="haptics_mode_bass">Bass Amplitude</string>
-    <string name="haptics_mode_beat">Beat Detection</string>
-    <string name="haptics_beat_detection_desc">Vibrates on detected beats within the selected frequency range. Smoother but sometimes not as stable. It\'s a beta feature.</string>
-    <string name="haptics_motor_title">Haptic visualisation</string>
     <string name="haptics_frequency_label">Frequency: %1$d - %2$d Hz</string>
     <string name="haptics_frequency_desc">Vibrates based on audio amplitude in this range.</string>
     <string name="haptics_amplitude_label">Motor Gain: %.1fx</string>
@@ -80,9 +73,6 @@
     <string name="mic_mode_camcorder_desc">CAMCORDER: Often has different tuning for directional audio.</string>
 
     <!-- Flashlight Screen -->
-    <string name="flashlight_title">Flashlight</string>
-    <string name="flashlight_header">Flashlight visualizer</string>
-    <string name="flashlight_sync_title">Flashlight Sync</string>
     <string name="flashlight_mode_label">Flashlight Engine Mode</string>
     <string name="flashlight_mode_amplitude">Amplitude</string>
     <string name="flashlight_mode_beat">Beat Detection</string>
@@ -99,7 +89,6 @@
     <string name="flashlight_duration_desc">Duration of the pulse in milliseconds.</string>
 
     <string name="experimental_features">Experimental Features</string>
-    <string name="device_features">Device Capabilities</string>
     <string name="feature_flashlight_levels">Flashlight intensity levels</string>
     <string name="feature_supported_n">%d levels supported</string>
     <string name="feature_basic">Binary (On/Off only)</string>
@@ -118,17 +107,13 @@
     <string name="analytics_disclaimer_title">Analytics</string>
     <string name="analytics_disclaimer_text">This app uses Google Analytics (Firebase) to collect anonymous usage statistics and crash reports to help improve the app experience. No personal data or audio content is collected.</string>
     <string name="github_repository">GitHub Repository</string>
-    <string name="view_source">View Github</string>
     <string name="version_info">Version %s</string>
     <string name="zones_config_version">Config Version: %s</string>
     <string name="media_projection_info">MediaProjection is used only to power the real-time visualizer. No unnecessary recording or data storage is performed.</string>
     <string name="credits">Credits</string>
     <string name="open_github_profile">Open GitHub profile</string>
-    <string name="check_for_app_updates">Check for App Updates</string>
     <string name="discord_server">Discord Server</string>
     <string name="join_discord">Join our community on Discord</string>
-    <string name="checking_for_updates">Checking for updates…</string>
-    <string name="app_up_to_date">App is up to date</string>
 
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">Media Projection\n(default, best)</string>
@@ -167,7 +152,6 @@
     <string name="visualizer_style">Style</string>
     <string name="visualizer_opacity">Opacity</string>
 
-
     <string name="lens_visualizer">Front Camera</string>
     <string name="lens_radius">Lens Radius</string>
     <string name="lens_bar_width">Bar Width</string>
@@ -189,7 +173,7 @@
     <!-- Auth -->
     <string name="default_web_client_id" translatable="false">252304807982-ubtpig2ddtukmjfa7cp21lj1mjgnr968.apps.googleusercontent.com</string>
 
-    <string name="tab_audio">BNMV</string>
+    <string name="tab_audio">@string/app_name</string>
     <string name="tab_glyphs">Glyphs</string>
     <string name="tab_visuals">Overlays</string>
     <string name="tab_haptics">Haptics</string>
@@ -201,25 +185,10 @@
     <string name="flashlight_disabled">Flashlight is disabled</string>
     <string name="feature_disabled">This feature is disabled</string>
 
-    <string name="update_available_title">Update Available: %s</string>
-    <string name="update_available_msg">A new version is available. What\'s new:</string>
-    <string name="no_changelog">No changelog available.</string>
-    <string name="install">Install</string>
-    <string name="download">Download</string>
-    <string name="not_now">Not now</string>
-    <string name="downloading_update">Downloading Update...</string>
-
-    <string name="app_name_caps" translatable="false">BETTER NOTHING MUSIC VISUALIZER</string>
-
-    <string name="mediaprojection_permission">MediaProjection permission</string>
-    <string name="mediaprojection_description">This permission lets the app access the device audio stream through Android\'s capture system so the Glyph visualizer can react in real time. No unnecessary recordings are stored, and the app does not save your media or private data.</string>
     <string name="continue_label">Continue</string>
-
     <string name="audio_permission_required">Audio recording permission is required</string>
     <string name="screen_capture_denied">Screen capture permission denied</string>
-    <string name="notifications_required">Notifications are required while the visualizer is active</string>
     <string name="overlay_permission_denied">Overlay permission denied</string>
-    <string name="notification_access_required">Please enable notification access for this feature</string>
 
     <string name="config_update_success">Successfully updated zones.config</string>
     <string name="config_import_success">Successfully imported zones.config</string>
@@ -349,11 +318,11 @@
     <string name="help_source_privacy">Remember, no audio data is ever saved or stored on your device.</string>
 
     <string name="help_output_intro">Control where the visualization appears:</string>
-    <string name="help_output_glyphs_title">Glyphs</string>
+    <string name="help_output_glyphs_title">@string/tab_glyphs</string>
     <string name="help_output_glyphs_desc">Visualizes audio using the Glyph Interface / Matrix LEDs.</string>
-    <string name="help_output_haptics_title">Haptics</string>
+    <string name="help_output_haptics_title">@string/tab_haptics</string>
     <string name="help_output_haptics_desc">Lets you feel the music through the haptic vibration motor.</string>
-    <string name="help_output_flash_title">Flashlight</string>
+    <string name="help_output_flash_title">@string/tab_flashlight</string>
     <string name="help_output_flash_desc">Pulses the camera flashlight to the beat.</string>
     <string name="help_output_broadcast_title">\"Let other devices connect...\"</string>
     <string name="help_output_broadcast_desc">Streams audio data to other devices on your network.</string>
