@@ -334,6 +334,7 @@ public class GlyphRenderer {
     }
 
     private static float applyPercentSlice(float normalizedValue, AudioProcessor.ZoneSpec zone) {
+        if (zone.lowHz == 0 && zone.highHz == 0) return 0f;
         if (!zone.hasPercentSlice()) return normalizedValue;
         float low = Math.min(zone.lowPercent, zone.highPercent);
         float high = Math.max(zone.lowPercent, zone.highPercent);

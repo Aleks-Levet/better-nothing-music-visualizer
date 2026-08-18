@@ -1459,10 +1459,6 @@ public class AudioCaptureService extends Service {
             Log.e(TAG, "Failed to open Glyph session", e);
         }
     }
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to open Glyph session", e);
-        }
-    }
 
     private void clearGlyphSession() {
         try {
