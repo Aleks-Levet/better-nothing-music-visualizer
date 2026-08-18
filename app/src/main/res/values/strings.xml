@@ -99,9 +99,7 @@
     <string name="feature_supported_n">%d levels supported</string>
     <string name="feature_basic">Binary (On/Off only)</string>
     <string name="developer_mode">Spoof device...</string>
-    <string name="spoof_device">Spoof Device Model</string>
     <string name="spoof_device_description">Forces the app to behave as if it\'s running on the selected device.</string>
-    <string name="spoof_locale">Spoof Locale</string>
     <string name="spoof_locale_description">Changes the application\'s language for localization testing.</string>
     <string name="idle_breathing_title">Idle Breathing</string>
     <string name="start_visualizer">Start</string>
