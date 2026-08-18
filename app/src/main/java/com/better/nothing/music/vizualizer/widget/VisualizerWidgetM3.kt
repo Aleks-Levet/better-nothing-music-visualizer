@@ -39,7 +39,7 @@ class VisualizerWidgetM3 : AppWidgetProvider() {
         super.onReceive(context, intent)
         val action = intent.action ?: return
         
-        if (action == ACTION_REFRESH || action == Intent.ACTION_CONFIGURATION_CHANGED) {
+        if (action == ACTION_REFRESH) {
             refreshAllWidgets(context)
         } else if (action.startsWith("com.better.nothing.music.vizualizer.WIDGET_M3_")) {
             performHapticFeedback(context)
@@ -183,15 +183,33 @@ class VisualizerWidgetM3 : AppWidgetProvider() {
         views.setImageViewResource(R.id.img_start_stop, if (isRunning) R.drawable.ic_stop else R.drawable.ic_play)
         views.setTextViewText(R.id.txt_start_stop, context.getString(if (isRunning) R.string.widget_stop_bnmv else R.string.widget_start_bnmv))
         
-        views.setBoolean(R.id.btn_start_stop, "setSelected", isRunning)
-        views.setBoolean(R.id.img_start_stop, "setSelected", isRunning)
-        views.setBoolean(R.id.txt_start_stop, "setSelected", isRunning)
+        val activeColor = Color.WHITE
+        val inactiveColor = context.getColor(R.color.widget_m3_on_surface)
+
+        if (isRunning) {
+            views.setInt(R.id.btn_start_stop, "setBackgroundResource", R.drawable.widget_m3_button_bg_selected)
+            views.setInt(R.id.img_start_stop, "setColorFilter", activeColor)
+            views.setInt(R.id.txt_start_stop, "setTextColor", activeColor)
+        } else {
+            views.setInt(R.id.btn_start_stop, "setBackgroundResource", R.drawable.widget_m3_button_bg)
+            views.setInt(R.id.img_start_stop, "setColorFilter", inactiveColor)
+            views.setInt(R.id.txt_start_stop, "setTextColor", inactiveColor)
+        }
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 
     private fun updateButtonState(context: Context, views: RemoteViews, viewId: Int, isActive: Boolean) {
-        views.setBoolean(viewId, "setSelected", isActive)
+        val activeColor = Color.WHITE
+        val inactiveColor = context.getColor(R.color.widget_m3_on_surface)
+
+        if (isActive) {
+            views.setInt(viewId, "setBackgroundResource", R.drawable.widget_m3_button_bg_selected)
+            views.setInt(viewId, "setColorFilter", activeColor)
+        } else {
+            views.setInt(viewId, "setBackgroundResource", R.drawable.widget_m3_button_bg)
+            views.setInt(viewId, "setColorFilter", inactiveColor)
+        }
     }
 
     private fun createSourcePendingIntent(context: Context, source: AudioCaptureService.CaptureSource): PendingIntent {

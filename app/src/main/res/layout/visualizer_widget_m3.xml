@@ -21,9 +21,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_marginEnd="4dp"
-            android:background="@drawable/widget_m3_button_selector"
+            android:background="@drawable/widget_m3_button_bg"
             android:src="@drawable/ic_cast"
-            android:tint="@color/widget_m3_icon_tint"
             android:scaleType="centerInside"
             android:padding="8dp"
             android:contentDescription="@string/content_desc_internal_source" />
@@ -34,9 +33,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_marginHorizontal="4dp"
-            android:background="@drawable/widget_m3_button_selector"
+            android:background="@drawable/widget_m3_button_bg"
             android:src="@drawable/ic_mic"
-            android:tint="@color/widget_m3_icon_tint"
             android:scaleType="centerInside"
             android:padding="8dp"
             android:contentDescription="@string/content_desc_mic_source" />
@@ -47,9 +45,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_marginStart="4dp"
-            android:background="@drawable/widget_m3_button_selector"
+            android:background="@drawable/widget_m3_button_bg"
             android:src="@drawable/ic_graphic_eq"
-            android:tint="@color/widget_m3_icon_tint"
             android:scaleType="centerInside"
             android:padding="8dp"
             android:contentDescription="@string/content_desc_visualizer_source" />
@@ -69,9 +66,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_marginEnd="4dp"
-            android:background="@drawable/widget_m3_button_selector"
+            android:background="@drawable/widget_m3_button_bg"
             android:src="@drawable/ic_vibration"
-            android:tint="@color/widget_m3_icon_tint"
             android:scaleType="centerInside"
             android:padding="8dp"
             android:contentDescription="@string/content_desc_toggle_haptics" />
@@ -82,9 +78,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_marginHorizontal="4dp"
-            android:background="@drawable/widget_m3_button_selector"
+            android:background="@drawable/widget_m3_button_bg"
             android:src="@drawable/ic_nav_glyphs"
-            android:tint="@color/widget_m3_icon_tint"
             android:scaleType="centerInside"
             android:padding="8dp"
             android:contentDescription="@string/content_desc_toggle_glyphs" />
@@ -95,9 +90,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_marginStart="4dp"
-            android:background="@drawable/widget_m3_button_selector"
+            android:background="@drawable/widget_m3_button_bg"
             android:src="@drawable/ic_flashlight"
-            android:tint="@color/widget_m3_icon_tint"
             android:scaleType="centerInside"
             android:padding="8dp"
             android:contentDescription="@string/content_desc_toggle_torch" />
@@ -110,7 +104,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_marginTop="4dp"
-        android:background="@drawable/widget_m3_button_selector"
+        android:background="@drawable/widget_m3_button_bg"
         android:gravity="center"
         android:orientation="horizontal"
         android:padding="8dp">
@@ -120,7 +114,6 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_play"
-            android:tint="@color/widget_m3_icon_tint"
             android:scaleType="centerInside" />
 
         <TextView
@@ -129,7 +122,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:text="@string/widget_start_bnmv"
-            android:textColor="@color/widget_m3_button_text_color"
+            android:textColor="@color/widget_m3_on_surface"
             android:textSize="12sp"
             android:maxLines="1"
             android:ellipsize="end"

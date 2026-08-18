@@ -170,13 +170,13 @@ fun HapticsScreen(
                 )
 
                 val currentRange =
-                    invLerpLog(hapticFreqMin, 20f, 1000f)..invLerpLog(hapticFreqMax, 20f, 1000f)
+                    invLerpLog(hapticFreqMin, 20f, 2500f)..invLerpLog(hapticFreqMax, 20f, 2500f)
 
                 ExpressiveRangeSlider(
                     value = currentRange,
                     onValueChange = { newRange ->
-                        val newMin = lerpLog(newRange.start, 20f, 1000f)
-                        val newMax = lerpLog(newRange.endInclusive, 20f, 1000f)
+                        val newMin = lerpLog(newRange.start, 20f, 2500f)
+                        val newMax = lerpLog(newRange.endInclusive, 20f, 2500f)
 
                         if (newMax - newMin >= 10f) {
                             onHapticFreqRangeChanged(newMin, newMax)
