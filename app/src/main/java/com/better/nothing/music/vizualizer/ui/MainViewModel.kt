@@ -186,6 +186,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val _discordClicked = MutableStateFlow(false)
+    val discordClicked = _discordClicked.asStateFlow()
+    fun markDiscordClicked() {
+        _discordClicked.value = true
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("discord_clicked", true) }
+        }
+    }
+
     fun fetchLicense() {
         viewModelScope.launch(Dispatchers.IO) {
             _licenseStatus.value = LicenseStatus.Loading
@@ -2068,6 +2078,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _roundedBarsEnabled.value = get("rounded_bars_enabled", false)
 
         _isFirstTime.value = get("first_time_v2", true)
+        _discordClicked.value = get("discord_clicked", false)
 
         // Launch background tasks - deferred slightly to prioritize UI
         viewModelScope.launch {

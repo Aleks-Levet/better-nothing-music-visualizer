@@ -56,6 +56,7 @@ internal fun SettingsScreen(
     val selectedTheme by viewModel.selectedTheme.collectAsStateWithLifecycle()
     val selectedFont by viewModel.selectedFont.collectAsStateWithLifecycle()
     val selectedDevice by viewModel.selectedDevice.collectAsStateWithLifecycle()
+    val discordClicked by viewModel.discordClicked.collectAsStateWithLifecycle()
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
@@ -463,7 +464,11 @@ internal fun SettingsScreen(
         LinkCard(
             title = stringResource(R.string.discord_server),
             icon = ImageVector.vectorResource(id = R.drawable.ic_discord),
-            onClick = { uriHandler.openUri("https://discord.gg/h7DYNttc8K") }
+            isGlowing = !discordClicked,
+            onClick = {
+                viewModel.markDiscordClicked()
+                uriHandler.openUri("https://discord.gg/h7DYNttc8K")
+            }
         )
 
 

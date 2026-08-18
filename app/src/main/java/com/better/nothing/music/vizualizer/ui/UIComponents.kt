@@ -14,6 +14,7 @@ import androidx.compose.animation.core.EaseInOutCubic
 import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -108,11 +109,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -516,12 +521,36 @@ fun LinkCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
+    isGlowing: Boolean = false,
+    glowColor: Color = Color(0xFF9146FF),
     trailingContent: @Composable (RowScope.() -> Unit)? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val haptics = LocalHapticFeedback.current
     val view = LocalView.current
     val isPressed by interactionSource.collectIsPressedAsState()
+
+    val infiniteTransition = rememberInfiniteTransition(label = "glow")
+    val glowIntensity by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = LinearOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glowIntensity"
+    )
+
+    val surfaceColor = when {
+        isGlowing && isPressed -> glowColor.copy(alpha = 0.4f)
+        isGlowing -> glowColor.copy(alpha = 0.15f)
+        isPressed -> MaterialTheme.colorScheme.surfaceVariant
+        else -> MaterialTheme.colorScheme.surface
+    }
+
+    val iconContainerColor = if (isGlowing) glowColor.copy(alpha = 0.25f) else MaterialTheme.colorScheme.surfaceVariant
+    val iconContentColor = if (isGlowing) glowColor else MaterialTheme.colorScheme.primary
+    val titleColor = if (isGlowing) glowColor else MaterialTheme.colorScheme.onSurface
 
     Surface(
         onClick = {
@@ -530,13 +559,25 @@ fun LinkCard(
         },
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 72.dp),
+            .heightIn(min = 72.dp)
+            .then(
+                if (isGlowing) {
+                    Modifier.drawBehind {
+                        val blurRadius = (12.dp + 8.dp * glowIntensity).toPx()
+                        val shadowColor = glowColor.copy(alpha = 0.25f * glowIntensity)
+                        drawRoundRect(
+                            color = shadowColor,
+                            size = size.copy(width = size.width + blurRadius, height = size.height + blurRadius),
+                            topLeft = Offset(-blurRadius/2, -blurRadius/2),
+                            cornerRadius = CornerRadius(24.dp.toPx() + blurRadius/2),
+                            style = Stroke(width = blurRadius)
+                        )
+                    }
+                } else Modifier
+            ),
         shape = RoundedCornerShape(24.dp),
-        color = if (isPressed) {
-            MaterialTheme.colorScheme.surfaceVariant
-        } else {
-            MaterialTheme.colorScheme.surface
-        },
+        color = surfaceColor,
+        border = if (isGlowing) BorderStroke(2.dp, glowColor.copy(alpha = 0.5f + 0.3f * glowIntensity)) else null,
         interactionSource = interactionSource
     ) {
         Box(
@@ -557,8 +598,8 @@ fun LinkCard(
             ) {
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.primary,
+                    color = iconContainerColor,
+                    contentColor = iconContentColor,
                     modifier = Modifier.size(40.dp)
                 ) {
                     Box(
@@ -581,7 +622,7 @@ fun LinkCard(
                         text = title,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = titleColor,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -590,7 +631,7 @@ fun LinkCard(
                         Text(
                             text = subtitle,
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = if (isGlowing) glowColor.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }

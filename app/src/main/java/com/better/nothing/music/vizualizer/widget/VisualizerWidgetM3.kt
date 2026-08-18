@@ -39,7 +39,7 @@ class VisualizerWidgetM3 : AppWidgetProvider() {
         super.onReceive(context, intent)
         val action = intent.action ?: return
         
-        if (action == ACTION_REFRESH) {
+        if (action == ACTION_REFRESH || action == Intent.ACTION_CONFIGURATION_CHANGED) {
             refreshAllWidgets(context)
         } else if (action.startsWith("com.better.nothing.music.vizualizer.WIDGET_M3_")) {
             performHapticFeedback(context)
@@ -135,9 +135,6 @@ class VisualizerWidgetM3 : AppWidgetProvider() {
         val maxBrightness = prefs.getInt("max_brightness", 4095)
         val glyphsEnabled = maxBrightness > 0
 
-        val activeColor = Color.WHITE
-        val inactiveColor = context.getColor(R.color.widget_m3_on_surface)
-
         // Source buttons
         updateButtonState(context, views, R.id.btn_source_internal, currentSource == AudioCaptureService.CaptureSource.INTERNAL.name)
         updateButtonState(context, views, R.id.btn_source_mic, currentSource == AudioCaptureService.CaptureSource.MIC.name)
@@ -186,30 +183,15 @@ class VisualizerWidgetM3 : AppWidgetProvider() {
         views.setImageViewResource(R.id.img_start_stop, if (isRunning) R.drawable.ic_stop else R.drawable.ic_play)
         views.setTextViewText(R.id.txt_start_stop, context.getString(if (isRunning) R.string.widget_stop_bnmv else R.string.widget_start_bnmv))
         
-        if (isRunning) {
-            views.setInt(R.id.btn_start_stop, "setBackgroundResource", R.drawable.widget_m3_button_bg_selected)
-            views.setInt(R.id.img_start_stop, "setColorFilter", activeColor)
-            views.setInt(R.id.txt_start_stop, "setTextColor", activeColor)
-        } else {
-            views.setInt(R.id.btn_start_stop, "setBackgroundResource", R.drawable.widget_m3_button_bg)
-            views.setInt(R.id.img_start_stop, "setColorFilter", inactiveColor)
-            views.setInt(R.id.txt_start_stop, "setTextColor", inactiveColor)
-        }
+        views.setBoolean(R.id.btn_start_stop, "setSelected", isRunning)
+        views.setBoolean(R.id.img_start_stop, "setSelected", isRunning)
+        views.setBoolean(R.id.txt_start_stop, "setSelected", isRunning)
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 
     private fun updateButtonState(context: Context, views: RemoteViews, viewId: Int, isActive: Boolean) {
-        val activeColor = Color.WHITE
-        val inactiveColor = context.getColor(R.color.widget_m3_on_surface)
-
-        if (isActive) {
-            views.setInt(viewId, "setBackgroundResource", R.drawable.widget_m3_button_bg_selected)
-            views.setInt(viewId, "setColorFilter", activeColor)
-        } else {
-            views.setInt(viewId, "setBackgroundResource", R.drawable.widget_m3_button_bg)
-            views.setInt(viewId, "setColorFilter", inactiveColor)
-        }
+        views.setBoolean(viewId, "setSelected", isActive)
     }
 
     private fun createSourcePendingIntent(context: Context, source: AudioCaptureService.CaptureSource): PendingIntent {
