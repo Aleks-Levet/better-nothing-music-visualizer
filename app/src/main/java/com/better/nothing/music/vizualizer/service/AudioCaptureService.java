@@ -141,6 +141,9 @@ public class AudioCaptureService extends Service {
     private static final long MIN_SEND_INTERVAL_MS = 16L;
     private static final long PROJECTION_SETTLE_DELAY_MS = 500L;
 
+    private static final String PREF_KEY_SHOULD_BE_RUNNING = "should_be_running";
+    private static final String PREF_KEY_LAST_CAPTURE_SOURCE = "last_capture_source";
+
     private static volatile boolean sIsRunning = false;
     private static final MutableStateFlow<Boolean> sIsRunningFlow = StateFlowKt.MutableStateFlow(false);
     private static final MutableStateFlow<Boolean> sHapticEnabledFlow = StateFlowKt.MutableStateFlow(false);
@@ -186,6 +189,12 @@ public class AudioCaptureService extends Service {
         sIsRunningFlow.setValue(running);
         requestWidgetRefresh(this);
         requestTileRefresh(this);
+
+        SharedPreferences prefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE);
+        prefs.edit().putBoolean(PREF_KEY_SHOULD_BE_RUNNING, running).apply();
+        if (running) {
+            prefs.edit().putString(PREF_KEY_LAST_CAPTURE_SOURCE, mCaptureSource.name()).apply();
+        }
 
         if (mWorkerHandler != null) {
             if (running && !wasRunning) {
@@ -624,18 +633,39 @@ public class AudioCaptureService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent != null ? intent.getAction() : null;
+        SharedPreferences prefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE);
+        boolean shouldBeRunning = prefs.getBoolean(PREF_KEY_SHOULD_BE_RUNNING, false);
+
         if (Build.VERSION.SDK_INT >= 34) {
             boolean isStartingProjection = intent != null && intent.hasExtra(EXTRA_RESULT_CODE) && intent.hasExtra(EXTRA_DATA);
-            // On Android 14+, starting a microphone foreground service from the background is restricted.
-            // To be safe, we start with SPECIAL_USE first and upgrade later in startCaptureInternal.
+            boolean isStartAction = ACTION_START.equals(action);
+
             if (!ACTION_STOP.equals(action)) {
                 if (isStartingProjection) {
                     startForegroundWithTypes(mCaptureSource, true);
-                } else if (!sIsRunning) {
-                    startForeground(NOTIF_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+                } else if (isStartAction || (intent == null && shouldBeRunning)) {
+                    if (!sIsRunning) {
+                        startForeground(NOTIF_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+                    }
                 }
             }
         }
+
+        if (intent == null) {
+            if (shouldBeRunning) {
+                if (!sIsRunning) {
+                    try {
+                        mCaptureSource = CaptureSource.valueOf(prefs.getString(PREF_KEY_LAST_CAPTURE_SOURCE, CaptureSource.INTERNAL.name()));
+                    } catch (Exception e) { mCaptureSource = CaptureSource.INTERNAL; }
+                    startVisualizer();
+                }
+                return START_STICKY;
+            } else {
+                stopSelf();
+                return START_NOT_STICKY;
+            }
+        }
+
         if (intent != null) {
             String intentAction = intent.getAction();
             if (ACTION_STOP.equals(intentAction)) { stopCapture(); stopSelf(); return START_NOT_STICKY; }
@@ -721,7 +751,7 @@ public class AudioCaptureService extends Service {
             Intent data = intent.getParcelableExtra(EXTRA_DATA);
             if (data != null) startCapture(resultCode, data);
         }
-        return START_STICKY;
+        return sIsRunning ? START_STICKY : START_NOT_STICKY;
     }
 
     @Override
