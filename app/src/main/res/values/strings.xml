@@ -238,6 +238,7 @@
 
     <string name="emulate_hdr_title">Emulate HDR (OLED)</string>
     <string name="emulate_hdr_subtitle">Deepens blacks for improved contrast</string>
+    <string name="emulate_hdr_description">Darkens the background behind the visualizer to make colors pop and reduce distraction. Works best on OLED screens.</string>
     <string name="hdr_intensity">HDR Intensity</string>
 
     <!-- Settings Extra -->
