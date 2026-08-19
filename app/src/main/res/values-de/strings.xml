@@ -18,7 +18,6 @@
     <string name="visualizer_presets">Visualisierer-Voreinstellungen</string>
 
     <!-- Settings Screen -->
-    <string name="settings_title">Einstellungen</string>
     <string name="app_theme">App-Design</string>
     <string name="theme_normal">Standard</string>
     <string name="theme_liquorice">Lakritz-Schwarz</string>
@@ -45,7 +44,6 @@
 
     <string name="experimental_features">Experimentelle Funktionen</string>
     <string name="developer_mode">Entwicklermodus</string>
-    <string name="spoof_device">Gerät vortäuschen</string>
     <string name="spoof_device_description">Zwingt die App dazu, sich so zu verhalten, als ob sie auf dem ausgewählten Gerät liefe.</string>
     <string name="idle_breathing_title">Ruheatmung</string>
     <string name="idle_breathing_desc">Glyphen pulsieren dezent, wenn der Visualisierer aktiv ist, aber kein Ton abgespielt wird.</string>
@@ -80,17 +78,12 @@
     <string name="idle_pattern_rain">Regen</string>
     <string name="cancel">Abbrechen</string>
     <string name="back">Zurück</string>
-    <string name="editing_segments_count">%d Segmente bearbeiten</string>
     <string name="frequency_range_label">Frequenzbereich: %1$dHz - %2$dHz</string>
-    <string name="no_presets_found">Keine Presets gefunden. Sei der Erste, der eines teilt!</string>
-    <string name="preset_by_author">von %1$s • %2$s</string>
-    <string name="downloads_count">%1$s • %2$d Downloads</string>
     <string name="clear">Löschen</string>
     <string name="overlay_width">Overlay-Breite</string>
     <string name="overlay_height">Overlay-Höhe</string>
     <string name="vertical_position">Vertikale Position</string>
 
-    <string name="tab_audio">Audio</string>
     <string name="tab_glyphs">Glyphen</string>
     <string name="tab_haptics">Haptik</string>
     <string name="tab_flashlight">Taschenlampe</string>

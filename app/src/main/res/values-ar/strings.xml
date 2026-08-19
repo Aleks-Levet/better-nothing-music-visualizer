@@ -18,7 +18,6 @@
     <string name="visualizer_presets">الإعدادات المسبقة للمصور المرئي</string>
 
     <!-- Settings Screen -->
-    <string name="settings_title">الإعدادات</string>
     <string name="app_theme">سمة التطبيق</string>
     <string name="theme_normal">الافتراضي</string>
     <string name="theme_liquorice">أسود عرق السوس</string>
@@ -48,7 +47,6 @@
 
     <string name="experimental_features">الميزات التجريبية</string>
     <string name="developer_mode">وضع المطور</string>
-    <string name="spoof_device">انتحال الجهاز</string>
     <string name="spoof_device_description">يجبر التطبيق على التصرف كما لو كان يعمل على الجهاز المحدد.</string>
     <string name="idle_breathing_title">التنفس في وضع الخمول</string>
     <string name="idle_breathing_desc">تنبض الـ Glyphs بشكل خفيف عندما يكون المصور المرئي نشطًا ولكن لا يوجد صوت يعمل.</string>
@@ -65,7 +63,6 @@
     <string name="credits">الاعتمادات</string>
     <string name="open_github_profile">فتح ملف GitHub الشخصي</string>
     <string name="discord_server">خادم Discord</string>
-    <string name="join_discord">انضم إلى مجتمعنا على Discord</string>
 
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">Media Projection\n(افتراضي، الأفضل)</string>
@@ -88,7 +85,6 @@
     <string name="overlay_height">ارتفاع التراكب</string>
     <string name="vertical_position">الموضع الرأسي</string>
 
-    <string name="tab_audio">الصوت</string>
     <string name="tab_glyphs">Glyphs</string>
     <string name="tab_haptics">الاهتزاز</string>
     <string name="tab_flashlight">الكشاف</string>
@@ -100,11 +96,7 @@
     <string name="read_license">قراءة ترخيص البرنامج</string>
 
     <string name="back">رجوع</string>
-    <string name="editing_segments_count">تحرير %d من المقاطع</string>
     <string name="frequency_range_label">نطاق التردد: %1$d هرتز - %2$d هرتز</string>
-    <string name="no_presets_found">لم يتم العثور على إعدادات مسبقة. كن أول من يشارك واحدة!</string>
-    <string name="preset_by_author">بواسطة %1$s • %2$s</string>
-    <string name="downloads_count">%1$s • %2$d تنزيل</string>
     <string name="clear">مسح</string>
     <string name="config_download_error">فشل التنزيل: %d</string>
     <string name="tablet_width_title">عرض علامة تبويب الجهاز اللوحي</string>

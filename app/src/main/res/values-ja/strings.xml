@@ -18,7 +18,6 @@
     <string name="visualizer_presets">ビジュアライザー・プリセット</string>
 
     <!-- Settings Screen -->
-    <string name="settings_title">設定</string>
     <string name="app_theme">アプリのテーマ</string>
     <string name="theme_normal">デフォルト</string>
     <string name="theme_liquorice">リコリスブラック</string>
@@ -49,7 +48,6 @@
 
     <string name="experimental_features">実験的機能</string>
     <string name="developer_mode">開発者モード</string>
-    <string name="spoof_device">デバイスのなりすまし</string>
     <string name="spoof_device_description">選択したデバイス上で動作しているかのようにアプリを強制的に動作させます。</string>
     <string name="idle_breathing_title">待機時の呼吸</string>
     <string name="idle_breathing_desc">ビジュアライザーが有効でオーディオが再生されていないとき、Glyphが微妙に点滅します。</string>
@@ -66,7 +64,6 @@
     <string name="credits">クレジット</string>
     <string name="open_github_profile">GitHubプロフィールを開く</string>
     <string name="discord_server">Discordサーバー</string>
-    <string name="join_discord">Discordコミュニティに参加</string>
 
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">メディアプロジェクション\n（デフォルト、最適）</string>
@@ -88,7 +85,6 @@
     <string name="overlay_height">オーバーレイの高さ</string>
     <string name="vertical_position">垂直方向の位置</string>
 
-    <string name="tab_audio">オーディオ</string>
     <string name="tab_glyphs">Glyph</string>
     <string name="tab_haptics">ハプティクス</string>
     <string name="tab_flashlight">懐中電灯</string>
@@ -113,10 +109,6 @@
     <string name="read_license">ソフトウェアライセンスを読む</string>
 
     <string name="back">戻る</string>
-    <string name="editing_segments_count">%d個のセグメントを編集中</string>
     <string name="frequency_range_label">周波数範囲：%1$dHz - %2$dHz</string>
-    <string name="no_presets_found">プリセットが見つかりません。最初の共有者になりましょう！</string>
-    <string name="preset_by_author">作成者：%1$s • %2$s</string>
-    <string name="downloads_count">%1$s • %2$d ダウンロード</string>
     <string name="clear">クリア</string>
 </resources>

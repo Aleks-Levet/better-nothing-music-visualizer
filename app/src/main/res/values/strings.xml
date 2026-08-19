@@ -29,7 +29,7 @@
     <string name="preset_description">Description</string>
 
     <!-- Settings Screen -->
-    <string name="settings_title">@string/tab_settings</string>
+    <string name="settings_title" translatable="false">@string/tab_settings</string>
     <string name="app_theme">App theme and font</string>
     <string name="theme_normal">Default</string>
     <string name="theme_liquorice">Liquorice Black</string>
@@ -165,7 +165,7 @@
     <!-- Auth -->
     <string name="default_web_client_id" translatable="false">252304807982-ubtpig2ddtukmjfa7cp21lj1mjgnr968.apps.googleusercontent.com</string>
 
-    <string name="tab_audio">@string/app_name</string>
+    <string name="tab_audio" translatable="false">@string/app_name</string>
     <string name="tab_glyphs">Glyphs</string>
     <string name="tab_visuals">Overlays</string>
     <string name="tab_haptics">Haptics</string>
@@ -235,6 +235,10 @@
     <string name="x_position">X Position</string>
     <string name="y_position">Y Position</string>
     <string name="bar_height">Bar Height</string>
+
+    <string name="emulate_hdr_title">Emulate HDR (OLED)</string>
+    <string name="emulate_hdr_subtitle">Deepens blacks for improved contrast</string>
+    <string name="hdr_intensity">HDR Intensity</string>
 
     <!-- Settings Extra -->
     <string name="vizualizer_stats">Vizualizer Stats</string>

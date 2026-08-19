@@ -3,7 +3,6 @@
     <string name="about_title">Инфа и обновы</string>
     <string name="app_theme">Темки и стиль</string>
     <string name="audio_permission_required">Дай доступ к ушам телефона (аудио)</string>
-    <string name="audio_screen_title">Better Nothing\nMusic Visualizer</string>
     <string name="audio_warning_vizualizer">Предупреждение: этот источник использует дефолтный аудиопоток Андроида. Качество там ублюдское и работать всё будет... ну о-о-очень хуево.</string>
     <string name="auto_memorize_device">Запоминать устройство</string>
     <string name="back">Свалить назад</string>
@@ -23,9 +22,6 @@
     <string name="developer_mode">Режим Хакера</string>
     <string name="discord_server">Наш Дискорд-сервер</string>
 
-    <string name="downloads_count">%1$s • скачано раз: %2$d</string>
-
-    <string name="editing_segments_count">Мучаем сразу %d сегментов</string>
     <string name="experimental_features">Опасные эксперименты</string>
     <string name="flashlight_frequency_desc">Диапазон Гц для вспышки. Ниже — под басы, выше — под тарелки и вокал.</string>
     <string name="flashlight_frequency_label">Частота: %1$d - %2$d Гц</string>
@@ -67,25 +63,18 @@
 
     <string name="enable_on_screen_visualizers">Включить экранные визуализаторы</string>
 
-    <string name="no_presets_found">Тут пусто, как в карманах к концу месяца. Будь первым, закинь пресет!</string>
-
-
 
     <string name="overlay_height">Высота оверлея</string>
     <string name="overlay_permission_denied">В разрешении на оверлей отказано (ну и сиди без красоты)</string>
     <string name="overlay_width">Ширина оверлея</string>
     <string name="output_selection">2. Выберите устройства вывода визуализации</string>
-    <string name="preset_by_author">от %1$s • %2$s</string>
     <string name="read_license">Прочитать лицензию ПО</string>
     <string name="saving_latency_for">Запоминаем задержку для: %s</string>
 
     <string name="select_capture_source">1. Выберите источник входящего аудиосигнала</string>
-    <string name="settings_title">Крутилки и гайки</string>
-    <string name="spoof_device">Притвориться другим девайсом</string>
     <string name="spoof_device_description">Заставляет приложение думать, что оно работает на совсем другом смартфона.</string>
     <string name="start_visualizer">ПОЕХАЛИ!</string>
     <string name="stop_visualizer">ТОРМОЗИ!</string>
-    <string name="tab_audio">Звук</string>
     <string name="tab_flashlight">Фонарик</string>
     <string name="tab_glyphs">Глифы</string>
     <string name="tab_haptics">Вибратор))</string>

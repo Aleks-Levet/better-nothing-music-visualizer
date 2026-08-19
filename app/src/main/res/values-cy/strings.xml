@@ -18,7 +18,6 @@
     <string name="visualizer_presets">Rhagosodiadau delweddydd</string>
 
     <!-- Settings Screen -->
-    <string name="settings_title">Gosodiadau</string>
     <string name="app_theme">Thema\'r Ap</string>
     <string name="theme_normal">Diofyn</string>
     <string name="theme_liquorice">Du Licris</string>
@@ -43,9 +42,7 @@
 
     <string name="experimental_features">Nodweddion Arbrofol</string>
     <string name="developer_mode">Modd Datblygwr</string>
-    <string name="spoof_device">Ffugio Dyfais</string>
     <string name="spoof_device_description">Gorfodi\'r ap i ymddwyn fel pe bai\'n rhedeg ar y ddyfais a ddewiswyd.</string>
-    <string name="spoof_locale">Ffugio Iaith</string>
     <string name="spoof_locale_description">Gorfodi\'r ap i ddefnyddio iaith benodol ar gyfer profi.</string>
     <string name="idle_breathing_title">Anadlu Segur</string>
     <string name="idle_breathing_desc">Mae Glyphs yn bylsio\'n gynnil pan fydd y delweddydd yn weithredol ond nid oes sain yn chwarae.</string>
@@ -62,7 +59,6 @@
     <string name="credits">Credydau</string>
     <string name="open_github_profile">Agor proffil GitHub</string>
     <string name="discord_server">Gweinydd Discord</string>
-    <string name="join_discord">Ymunwch â\'n cymuned ar Discord</string>
 
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">Media Projection\n(diofyn, gorau)</string>
@@ -84,7 +80,6 @@
     <string name="overlay_height">Uchder y Troslun</string>
     <string name="vertical_position">Safle Fertigol</string>
 
-    <string name="tab_audio">Sain</string>
     <string name="tab_glyphs">Glyphs</string>
     <string name="tab_haptics">Haptigau</string>
     <string name="tab_flashlight">Fflachlamp</string>
@@ -109,10 +104,6 @@
     <string name="read_license">Darllen trwydded y feddalwedd</string>
 
     <string name="back">Yn ôl</string>
-    <string name="editing_segments_count">Golygu %d Segment</string>
     <string name="frequency_range_label">Ystod Amlder: %1$dHz - %2$dHz</string>
-    <string name="no_presets_found">Heb ganfod unrhyw ragosodiadau. Byddwch y cyntaf i rannu un!</string>
-    <string name="preset_by_author">gan %1$s • %2$s</string>
-    <string name="downloads_count">%1$s • %2$d o lawrlwythiadau</string>
     <string name="clear">Clirio</string>
 </resources>

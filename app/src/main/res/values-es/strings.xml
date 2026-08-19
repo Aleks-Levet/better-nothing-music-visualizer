@@ -18,7 +18,6 @@
     <string name="visualizer_presets">Ajustes preestablecidos del visualizador</string>
 
     <!-- Settings Screen -->
-    <string name="settings_title">Ajustes</string>
     <string name="app_theme">Tema de la aplicación</string>
     <string name="theme_normal">Predeterminado</string>
     <string name="theme_liquorice">Negro Regaliz</string>
@@ -45,7 +44,6 @@
 
     <string name="experimental_features">Funciones experimentales</string>
     <string name="developer_mode">Modo de desarrollador</string>
-    <string name="spoof_device">Simular dispositivo</string>
     <string name="spoof_device_description">Fuerza a la aplicación a comportarse como si se estuviera ejecutando en el dispositivo seleccionado.</string>
     <string name="idle_breathing_title">Respiración en reposo</string>
     <string name="idle_breathing_desc">Los Glyphs pulsan sutilmente cuando el visualizador está activo pero no se reproduce audio.</string>
@@ -62,7 +60,6 @@
     <string name="credits">Créditos</string>
     <string name="open_github_profile">Abrir perfil de GitHub</string>
     <string name="discord_server">Servidor de Discord</string>
-    <string name="join_discord">Únete a nuestra comunidad en Discord</string>
 
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">Media Projection\n(predeterminado, mejor)</string>
@@ -81,18 +78,13 @@
     <string name="idle_pattern_rain">Lluvia</string>
     <string name="cancel">Cancelar</string>
     <string name="back">Atrás</string>
-    <string name="editing_segments_count">Editando %d segmentos</string>
     <string name="frequency_range_label">Rango de frecuencia: %1$dHz - %2$dHz</string>
-    <string name="no_presets_found">No se encontraron ajustes. ¡Sé el primero en compartir uno!</string>
-    <string name="preset_by_author">por %1$s • %2$s</string>
-    <string name="downloads_count">%1$s • %2$d descargas</string>
     <string name="clear">Borrar</string>
     <string name="overlay_width">Ancho de superposición</string>
     <string name="overlay_height">Alto de superposición</string>
     <string name="vertical_position">Posición vertical</string>
 
 
-    <string name="tab_audio">Audio</string>
     <string name="tab_glyphs">Glyphs</string>
     <string name="tab_haptics">Hápticos</string>
     <string name="tab_flashlight">Linterna</string>

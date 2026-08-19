@@ -18,7 +18,6 @@
     <string name="visualizer_presets">विज़ुअलाइज़र प्रीसेट</string>
 
     <!-- Settings Screen -->
-    <string name="settings_title">सेटिंग्स</string>
     <string name="app_theme">ऐप थीम</string>
     <string name="theme_normal">डिफ़ॉल्ट</string>
     <string name="theme_liquorice">लिकोरिस ब्लैक</string>
@@ -44,7 +43,6 @@
 
     <string name="experimental_features">प्रायोगिक विशेषताएं</string>
     <string name="developer_mode">डेवलपर मोड</string>
-    <string name="spoof_device">स्पूफ डिवाइस</string>
     <string name="spoof_device_description">ऐप को यह व्यवहार करने के लिए मजबूर करता है जैसे कि यह चयनित डिवाइस पर चल रहा हो।</string>
     <string name="idle_breathing_title">आइडल ब्रीदिंग</string>
     <string name="idle_breathing_desc">जब विज़ुअलाइज़र सक्रिय होता है लेकिन कोई ऑडियो नहीं चल रहा होता है तो ग्लिफ़ सूक्ष्म रूप से पल्स करते हैं।</string>
@@ -61,7 +59,6 @@
     <string name="credits">श्रेय</string>
     <string name="open_github_profile">GitHub प्रोफ़ाइल खोलें</string>
     <string name="discord_server">डिस्कॉर्ड सर्वर</string>
-    <string name="join_discord">डिस्कॉर्ड पर हमारे समुदाय में शामिल हों</string>
 
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">मीडिया प्रोजेक्शन\n(डिफ़ॉल्ट, सर्वोत्तम)</string>
@@ -83,7 +80,6 @@
     <string name="overlay_height">ओवरले ऊंचाई</string>
     <string name="vertical_position">ऊर्ध्वाधर स्थिति</string>
 
-    <string name="tab_audio">ऑडियो</string>
     <string name="tab_glyphs">ग्लिफ़</string>
     <string name="tab_visuals">विजुअल्स</string>
     <string name="tab_haptics">हैप्टिक्स</string>
@@ -109,11 +105,7 @@
     <string name="read_license">सॉफ्टवेयर लाइसेंस पढ़ें</string>
 
     <string name="back">पीछे</string>
-    <string name="editing_segments_count">%d सेगमेंट संपादित किए जा रहे हैं</string>
     <string name="frequency_range_label">आवृत्ति रेंज: %1$dHz - %2$dHz</string>
-    <string name="no_presets_found">कोई प्रीसेट नहीं मिला। साझा करने वाले पहले व्यक्ति बनें!</string>
-    <string name="preset_by_author">%1$s • %2$s द्वारा</string>
-    <string name="downloads_count">%1$s • %2$d डाउनलोड</string>
     <string name="clear">साफ़ करें</string>
     <string name="tablet_width_title">टैबलेट टैब की चौड़ाई</string>
 </resources>
