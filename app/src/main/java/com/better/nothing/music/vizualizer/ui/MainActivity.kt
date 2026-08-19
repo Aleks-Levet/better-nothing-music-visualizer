@@ -805,7 +805,7 @@ internal fun BetterVizApp(
 
     // Sync selectedTab when pager is scrolled by user
     LaunchedEffect(pagerState.currentPage) {
-        if (!isProgrammaticScroll && backProgress == 0f) {
+        if (!isProgrammaticScroll && pagerState.isScrollInProgress && backProgress == 0f) {
             val swipedTab = visibleTabs.getOrNull(pagerState.currentPage)
             if (swipedTab != null && swipedTab != selectedTab) {
                 view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
