@@ -524,6 +524,7 @@ class MainActivity : AppCompatActivity() {
             it.setOverlayTopEnabled(viewModel.overlayTopEnabled.value)
             it.setOverlayBottomEnabled(viewModel.overlayBottomEnabled.value)
             it.setOverlayWidth(viewModel.overlayWidth.value)
+            it.setEmulateHdrOpacity(viewModel.emulateHdrOpacity.value)
             it.setOverlayHeight(viewModel.overlayHeight.value)
             it.setOverlayHeightBottom(viewModel.overlayHeightBottom.value)
             it.setOverlayYOffset(viewModel.overlayYOffset.value)

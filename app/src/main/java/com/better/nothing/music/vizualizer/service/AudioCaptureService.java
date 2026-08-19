@@ -332,6 +332,7 @@ public class AudioCaptureService extends Service {
     public void setLensOpacity(float opacity) { mLensOpacity = opacity; updateUnifiedProperties(); }
     
     private int mOverlayWidth = 120;
+    private float mEmulateHdrOpacity = 0f;
     private int mOverlayHeight = 12;
     private int mOverlayHeightBottom = 12;
     private int mOverlayYOffset = 2;
@@ -564,6 +565,7 @@ public class AudioCaptureService extends Service {
             mLensStyle = VisualizerStyle.BARS;
         }
         mOverlayWidth = appPrefs.getInt("overlay_width", 120);
+        mEmulateHdrOpacity = appPrefs.getFloat("emulate_hdr_opacity", 0f);
         mOverlayHeight = appPrefs.getInt("overlay_height", 12);
         mOverlayYOffset = appPrefs.getInt("overlay_y_offset", 2);
         mOverlaySensitivity = appPrefs.getFloat("overlay_sensitivity", 1.0f);
@@ -909,6 +911,7 @@ public class AudioCaptureService extends Service {
     public void setOverlayTopEnabled(boolean enabled) { mOverlayTopEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); requestWidgetRefresh(); }
     public void setOverlayBottomEnabled(boolean enabled) { mOverlayBottomEnabled = enabled; if (mWorkerHandler != null) mWorkerHandler.post(this::updateOverlayVisibility); requestWidgetRefresh(); }
     public void setOverlayWidth(int width) { mOverlayWidth = width; updateUnifiedProperties(); }
+    public void setEmulateHdrOpacity(float opacity) { mEmulateHdrOpacity = opacity; updateUnifiedProperties(); }
     public void setOverlayHeight(int height) { mOverlayHeight = height; updateUnifiedProperties(); }
     public void setOverlayHeightBottom(int height) { mOverlayHeightBottom = height; updateUnifiedProperties(); }
     public void setOverlayYOffset(int offset) { mOverlayYOffset = offset; updateUnifiedProperties(); }
@@ -1652,7 +1655,8 @@ public class AudioCaptureService extends Service {
                     mOverlayOpacity,
                     mOverlayGlowBlurRadius,
                     mOverlayStyle,
-                    glowInsetPx
+                    glowInsetPx,
+                    mEmulateHdrOpacity
             );
 
             mUnifiedVisualizerView.setLensProperties(

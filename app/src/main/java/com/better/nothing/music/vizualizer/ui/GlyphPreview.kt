@@ -292,6 +292,10 @@ fun GlyphPreviewContent(
             val dy = (size.height - viewBoxH * scale) / 2
             val vbCenter = Offset(viewBoxW / 2f, viewBoxH / 2f)
 
+            val glowFilter12 = if (scale > 0f) android.graphics.BlurMaskFilter(12f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL) else null
+            val glowFilter8 = if (scale > 0f) android.graphics.BlurMaskFilter(8f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL) else null
+            val glowFilter6 = if (scale > 0f) android.graphics.BlurMaskFilter(6f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL) else null
+
             // Calculate the horizontal centering offset for legacy models in square viewbox
             // Phone width was 182.
             val centeringOffset = 0f
@@ -306,9 +310,7 @@ fun GlyphPreviewContent(
                     drawIntoCanvas { canvas ->
                         glowPaint.color = color
                         glowPaint.alpha = alpha * 0.45f
-                        if (scale > 0f) {
-                            glowPaint.nativePaint.maskFilter = android.graphics.BlurMaskFilter(12f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL)
-                        }
+                        glowPaint.nativePaint.maskFilter = glowFilter12
                         canvas.drawPath(path, glowPaint)
                     }
                 }
@@ -358,7 +360,7 @@ fun GlyphPreviewContent(
                                 paths["p1_ring_tr"]?.let { drawSmoothPath(it, getA(4)) }
                                 paths["p1_ring_tl"]?.let { drawSmoothPath(it, getA(5)) }
                                 paths["p1_dot"]?.let { drawSmoothPath(it, getA(6)) }
-                                paths["p1_battery"]?.let { drawPathVerticalSegments(this, it, color, 7..14, vizState, baseOpacity, scale, glowPaint) }
+                                paths["p1_battery"]?.let { drawPathVerticalSegments(this, it, color, 7..14, vizState, baseOpacity, glowPaint, glowFilter8) }
                             }
                         }
                     }
@@ -371,9 +373,9 @@ fun GlyphPreviewContent(
                             paths["p2_0"]?.let { drawSmoothPath(it, getA(0)) }
                             paths["p2_1"]?.let { drawSmoothPath(it, getA(1)) }
                             paths["p2_2"]?.let { drawSmoothPath(it, getA(2)) }
-                            paths["p2_ring"]?.let { drawPathRadial(this, it, color, (3..18).toList(), vizState, baseOpacity, scale, glowPaint, vbCenter.copy(y = vbCenter.y - 6f)) }
+                            paths["p2_ring"]?.let { drawPathRadial(this, it, color, (3..18).toList(), vizState, baseOpacity, glowPaint, vbCenter.copy(y = vbCenter.y - 6f), glowFilter8) }
                             for (i in 19..24) { paths["p2_$i"]?.let { drawSmoothPath(it, getA(i)) } }
-                            paths["p2_battery"]?.let { drawPathVerticalSegments(this, it, color, 25..32, vizState, baseOpacity, scale, glowPaint) }
+                            paths["p2_battery"]?.let { drawPathVerticalSegments(this, it, color, 25..32, vizState, baseOpacity, glowPaint, glowFilter8) }
                         }
                     }
 
@@ -382,7 +384,7 @@ fun GlyphPreviewContent(
                         // Center is (95.5, 110.5). Centering it in a 182x182 box.
                         withTransform({ translate(-4.5f, -19.5f) }) {
                             val localVbCenter = Offset(95.5f, 110.5f)
-                            paths["p2a_large"]?.let { drawPathRadial(this, it, color, (0..23).toList(), vizState, baseOpacity, scale, glowPaint, localVbCenter) }
+                            paths["p2a_large"]?.let { drawPathRadial(this, it, color, (0..23).toList(), vizState, baseOpacity, glowPaint, localVbCenter, glowFilter8) }
                             paths["p2a_medium"]?.let { drawSmoothPath(it, getA(24)) }
                             paths["p2a_small"]?.let { drawSmoothPath(it, getA(25)) }
                         }
@@ -393,9 +395,9 @@ fun GlyphPreviewContent(
                         // Center is (92.5, 76). Centering it in a 182x182 box.
                         withTransform({ translate(-1.5f, 15f) }) {
                             val localVbCenter = Offset(92.5f, 76f)
-                            paths["p3a_large"]?.let { drawPathRadial(this, it, color, (0..19).toList(), vizState, baseOpacity, scale, glowPaint, localVbCenter) }
-                            paths["p3a_medium"]?.let { drawPathRadial(this, it, color, (20..30).toList(), vizState, baseOpacity, scale, glowPaint, localVbCenter) }
-                            paths["p3a_small"]?.let { drawPathRadial(this, it, color, (31..35).toList(), vizState, baseOpacity, scale, glowPaint, localVbCenter) }
+                            paths["p3a_large"]?.let { drawPathRadial(this, it, color, (0..19).toList(), vizState, baseOpacity, glowPaint, localVbCenter, glowFilter8) }
+                            paths["p3a_medium"]?.let { drawPathRadial(this, it, color, (20..30).toList(), vizState, baseOpacity, glowPaint, localVbCenter, glowFilter8) }
+                            paths["p3a_small"]?.let { drawPathRadial(this, it, color, (31..35).toList(), vizState, baseOpacity, glowPaint, localVbCenter, glowFilter8) }
                         }
                     }
 
@@ -417,9 +419,7 @@ fun GlyphPreviewContent(
                                 drawIntoCanvas { canvas ->
                                     glowPaint.color = squareColor
                                     glowPaint.alpha = alpha * 0.4f
-                                    if (scale > 0f) {
-                                        glowPaint.nativePaint.maskFilter = android.graphics.BlurMaskFilter(8f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL)
-                                    }
+                                    glowPaint.nativePaint.maskFilter = glowFilter8
                                     canvas.drawRect(px, py, px + actualSquareSize, py + actualSquareSize, glowPaint)
                                 }
                             }
@@ -436,9 +436,7 @@ fun GlyphPreviewContent(
                                 drawIntoCanvas { canvas ->
                                     glowPaint.color = Color.White
                                     glowPaint.alpha = a * 0.4f
-                                    if (scale > 0f) {
-                                        glowPaint.nativePaint.maskFilter = android.graphics.BlurMaskFilter(6f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL)
-                                    }
+                                    glowPaint.nativePaint.maskFilter = glowFilter6
                                     canvas.drawRect(pos.x, pos.y, pos.x + ledSize.width, pos.y + ledSize.height, glowPaint)
                                 }
                             }
@@ -460,9 +458,9 @@ private fun drawPathRadial(
     indices: List<Int>,
     state: FloatArray,
     baseOpacity: Float,
-    scale: Float,
     paint: Paint,
     viewBoxCenter: Offset,
+    glowFilter: android.graphics.BlurMaskFilter?,
     clockwise: Boolean = true
 ) {
     val count = indices.size
@@ -528,9 +526,7 @@ private fun drawPathRadial(
 
             paint.color = color
             paint.alpha = alpha * 0.4f
-            if (scale > 0f) {
-                paint.nativePaint.maskFilter = android.graphics.BlurMaskFilter(8f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL)
-            }
+            paint.nativePaint.maskFilter = glowFilter
             canvas.drawPath(path, paint)
 
             paint.alpha = alpha
@@ -542,7 +538,7 @@ private fun drawPathRadial(
     }
 }
 
-private fun drawPathVerticalSegments(scope: DrawScope, path: Path, color: Color, range: IntRange, state: FloatArray, baseOpacity: Float, scale: Float, paint: Paint) {
+private fun drawPathVerticalSegments(scope: DrawScope, path: Path, color: Color, range: IntRange, state: FloatArray, baseOpacity: Float, paint: Paint, glowFilter: android.graphics.BlurMaskFilter?) {
     val b = path.getBounds()
     val count = range.last - range.first + 1
     val sliceH = b.height / count
@@ -563,9 +559,7 @@ private fun drawPathVerticalSegments(scope: DrawScope, path: Path, color: Color,
 
             paint.color = color
             paint.alpha = alpha * 0.4f
-            if (scale > 0f) {
-                paint.nativePaint.maskFilter = android.graphics.BlurMaskFilter(8f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL)
-            }
+            paint.nativePaint.maskFilter = glowFilter
             canvas.drawPath(path, paint)
 
             paint.alpha = alpha

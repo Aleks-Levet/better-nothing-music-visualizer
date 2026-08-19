@@ -1,12 +1,13 @@
 package com.better.nothing.music.vizualizer.ui.PrimaryScreens
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BlurCircular
 import androidx.compose.material.icons.filled.BorderOuter
+import androidx.compose.material.icons.filled.Brightness4
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -77,6 +78,7 @@ fun VisualsScreen(
     val lensColor by viewModel.lensColor.collectAsStateWithLifecycle()
     val lensStyle by viewModel.lensStyle.collectAsStateWithLifecycle()
     val lensOpacity by viewModel.lensOpacity.collectAsStateWithLifecycle()
+    val emulateHdrOpacity by viewModel.emulateHdrOpacity.collectAsStateWithLifecycle()
 
     val scrollState = rememberScrollState()
 
@@ -95,6 +97,7 @@ fun VisualsScreen(
         var overlayExpanded by rememberSaveable { mutableStateOf(overlayEnabled) }
         var edgeExpanded by rememberSaveable { mutableStateOf(edgeVisualizerEnabled) }
         var lensExpanded by rememberSaveable { mutableStateOf(lensEnabled) }
+        var hdrExpanded by rememberSaveable { mutableStateOf(false) }
 
         // ── Overlay Visualizer ──────────────────────────────────────────────
         ExpandableExpressiveCard(
@@ -749,6 +752,48 @@ fun VisualsScreen(
                     }
                 }
             }
+
+        AnimatedVisibility(
+            visible = overlayEnabled || edgeVisualizerEnabled || lensEnabled,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            ExpandableExpressiveCard(
+                title = "Emulate HDR (OLED)",
+                icon = Icons.Default.Brightness4,
+                expanded = hdrExpanded,
+                onExpandedChange = { hdrExpanded = it },
+                subtitle = "Deepens blacks for improved contrast"
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "HDR Intensity",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "${(emulateHdrOpacity * 100).toInt()}%",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    VisualSlider(
+                        value = emulateHdrOpacity,
+                        onValueChange = { viewModel.setEmulateHdrOpacity(it) },
+                        valueRange = 0f..0.2f,
+                        fineTuneStep = 0.01f,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
 
         
         Spacer(modifier = Modifier.height(85.dp))

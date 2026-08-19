@@ -16,6 +16,7 @@ public class UnifiedVisualizerView extends View {
     private int[] mFftRaw;
     private final Paint mPaint = new Paint();
     private final Paint mGlowPaint = new Paint();
+    private final Paint mGlowPaintInner = new Paint();
     private float mDensity;
 
     // --- Edge Properties ---
@@ -30,6 +31,8 @@ public class UnifiedVisualizerView extends View {
     private int mEdgeColor = Color.WHITE;
     private float mEdgeOpacity = 1.0f;
     private float mEdgeGlowBlurRadius = 24f;
+    private BlurMaskFilter mEdgeGlowFilter;
+    private BlurMaskFilter mEdgeGlowFilterInner;
     private VisualizerStyle mEdgeStyle = VisualizerStyle.BARS;
 
     private float[] mSmoothedEdgeTop = new float[0];
@@ -56,8 +59,12 @@ public class UnifiedVisualizerView extends View {
     private int mOverlayColor = Color.WHITE;
     private float mOverlayOpacity = 1.0f;
     private float mOverlayGlowBlurRadius = 24f;
+    private BlurMaskFilter mOverlayGlowFilter;
+    private BlurMaskFilter mOverlayGlowFilterInner;
     private VisualizerStyle mOverlayStyle = VisualizerStyle.BARS;
     private int mOverlayPaddingPx = 0;
+    private float mEmulateHdrOpacity = 0f;
+    private final Paint mHdrPaint = new Paint();
 
     private static final int OVERLAY_NUM_BARS = 16;
     private final float[] mSmoothedOverlayTop = new float[OVERLAY_NUM_BARS];
@@ -75,6 +82,8 @@ public class UnifiedVisualizerView extends View {
     private int mLensColor = Color.WHITE;
     private float mLensOpacity = 1.0f;
     private float mLensGlowBlurRadius = 24f;
+    private BlurMaskFilter mLensGlowFilter;
+    private BlurMaskFilter mLensGlowFilterInner;
     private VisualizerStyle mLensStyle = VisualizerStyle.BARS;
 
     private float[] mSmoothedLensMagnitudes = new float[0];
@@ -87,6 +96,8 @@ public class UnifiedVisualizerView extends View {
         mDensity = getResources().getDisplayMetrics().density;
         mPaint.setAntiAlias(true);
         mGlowPaint.setAntiAlias(true);
+        mGlowPaintInner.setAntiAlias(true);
+        mHdrPaint.setColor(Color.BLACK);
         setClickable(false);
         setFocusable(false);
         setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
@@ -114,14 +125,19 @@ public class UnifiedVisualizerView extends View {
         this.mEdgeBottomEnabled = bottomEnabled;
         this.mEdgeColor = color;
         this.mEdgeOpacity = opacity;
-        this.mEdgeGlowBlurRadius = glowRadius;
+        if (this.mEdgeGlowBlurRadius != glowRadius || mEdgeGlowFilter == null) {
+            this.mEdgeGlowBlurRadius = glowRadius;
+            this.mEdgeGlowFilter = new BlurMaskFilter(Math.max(1f, glowRadius), BlurMaskFilter.Blur.NORMAL);
+            this.mEdgeGlowFilterInner = new BlurMaskFilter(Math.max(1f, glowRadius * 0.7f), BlurMaskFilter.Blur.NORMAL);
+        }
         this.mEdgeStyle = style;
         invalidate();
     }
 
     public void setOverlayProperties(boolean enabled, int widthPx, int topHeightPx, int bottomHeightPx, int yOffsetPx,
                                      float topSensitivity, float bottomSensitivity, boolean topEnabled, boolean bottomEnabled,
-                                     int color, float opacity, float glowRadius, VisualizerStyle style, int paddingPx) {
+                                     int color, float opacity, float glowRadius, VisualizerStyle style, int paddingPx,
+                                     float emulateHdrOpacity) {
         this.mOverlayEnabled = enabled;
         this.mOverlayWidthPx = widthPx;
         this.mOverlayHeightTopPx = topHeightPx;
@@ -133,9 +149,14 @@ public class UnifiedVisualizerView extends View {
         this.mOverlayBottomEnabled = bottomEnabled;
         this.mOverlayColor = color;
         this.mOverlayOpacity = opacity;
-        this.mOverlayGlowBlurRadius = glowRadius;
+        if (this.mOverlayGlowBlurRadius != glowRadius || mOverlayGlowFilter == null) {
+            this.mOverlayGlowBlurRadius = glowRadius;
+            this.mOverlayGlowFilter = new BlurMaskFilter(Math.max(1f, glowRadius), BlurMaskFilter.Blur.NORMAL);
+            this.mOverlayGlowFilterInner = new BlurMaskFilter(Math.max(1f, glowRadius * 0.7f), BlurMaskFilter.Blur.NORMAL);
+        }
         this.mOverlayStyle = style;
         this.mOverlayPaddingPx = paddingPx;
+        this.mEmulateHdrOpacity = emulateHdrOpacity;
         invalidate();
     }
 
@@ -155,7 +176,11 @@ public class UnifiedVisualizerView extends View {
         this.mLensSensitivity = sensitivity;
         this.mLensColor = color;
         this.mLensOpacity = opacity;
-        this.mLensGlowBlurRadius = glowRadius;
+        if (this.mLensGlowBlurRadius != glowRadius || mLensGlowFilter == null) {
+            this.mLensGlowBlurRadius = glowRadius;
+            this.mLensGlowFilter = new BlurMaskFilter(Math.max(1f, glowRadius), BlurMaskFilter.Blur.NORMAL);
+            this.mLensGlowFilterInner = new BlurMaskFilter(Math.max(1f, glowRadius * 0.65f), BlurMaskFilter.Blur.NORMAL);
+        }
         this.mLensStyle = style;
         invalidate();
     }
@@ -232,6 +257,11 @@ public class UnifiedVisualizerView extends View {
         super.onDraw(canvas);
         if (mFftRaw == null) return;
 
+        if (mEmulateHdrOpacity > 0.001f) {
+            mHdrPaint.setAlpha((int) (255 * mEmulateHdrOpacity));
+            canvas.drawPaint(mHdrPaint);
+        }
+
         if (mEdgeEnabled) drawEdge(canvas);
         if (mOverlayEnabled) drawOverlay(canvas);
         if (mLensEnabled) drawLens(canvas);
@@ -269,6 +299,20 @@ public class UnifiedVisualizerView extends View {
         float step = totalLength / totalBars;
         float barThickness = Math.max(1f, step * 0.8f);
 
+        if (mEdgeStyle == VisualizerStyle.GLOW) {
+            mGlowPaint.setColor(mEdgeColor);
+            mGlowPaint.setAlpha((int) (100 * mEdgeOpacity));
+            mGlowPaint.setMaskFilter(mEdgeGlowFilter);
+
+            mGlowPaintInner.setColor(mEdgeColor);
+            mGlowPaintInner.setAlpha((int) (180 * mEdgeOpacity));
+            mGlowPaintInner.setMaskFilter(mEdgeGlowFilterInner);
+        } else {
+            mPaint.setColor(mEdgeColor);
+            mPaint.setAlpha((int) (255 * mEdgeOpacity));
+            mPaint.setMaskFilter(null);
+        }
+
         for (int i = 0; i < totalBars; i++) {
             float dist = i * step + step / 2f;
             if (!isEdgeSegmentEnabled(dist, horizLen, vertLen, arcLen)) continue;
@@ -285,17 +329,9 @@ public class UnifiedVisualizerView extends View {
             if (mEdgeStyle == VisualizerStyle.GLOW) {
                 float glowHeight = barHeight * 2.2f;
                 float glowThickness = barThickness * 3.5f;
-                mGlowPaint.setColor(mEdgeColor);
-                mGlowPaint.setAlpha((int) (100 * mEdgeOpacity));
-                mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mEdgeGlowBlurRadius), BlurMaskFilter.Blur.NORMAL));
                 canvas.drawRoundRect(-1.5f, -glowThickness / 2f, glowHeight + 1.5f, glowThickness / 2f, cornerRadius * 2.8f, cornerRadius * 2.8f, mGlowPaint);
-                mGlowPaint.setAlpha((int) (180 * mEdgeOpacity));
-                mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mEdgeGlowBlurRadius * 0.7f), BlurMaskFilter.Blur.NORMAL));
-                canvas.drawRoundRect(0, -glowThickness / 2.5f, glowHeight * 0.95f, glowThickness / 2.5f, cornerRadius * 2f, cornerRadius * 2f, mGlowPaint);
+                canvas.drawRoundRect(0, -glowThickness / 2.5f, glowHeight * 0.95f, glowThickness / 2.5f, cornerRadius * 2f, cornerRadius * 2f, mGlowPaintInner);
             } else {
-                mPaint.setColor(mEdgeColor);
-                mPaint.setAlpha((int) (255 * mEdgeOpacity));
-                mPaint.setMaskFilter(null);
                 canvas.drawRoundRect(0, -barThickness / 2, barHeight, barThickness / 2, cornerRadius, cornerRadius, mPaint);
             }
             canvas.restore();
@@ -330,6 +366,20 @@ public class UnifiedVisualizerView extends View {
         float baselineY = h - mOverlayYOffsetPx - (mOverlayBottomEnabled ? mOverlayHeightBottomPx : 0) - mOverlayPaddingPx;
         float cornerRadius = (mOverlayStyle == VisualizerStyle.ROUNDED_BARS || mRoundedBarsEnabled) ? barWidth / 2f : 2f;
 
+        if (mOverlayStyle == VisualizerStyle.GLOW) {
+            mGlowPaint.setColor(mOverlayColor);
+            mGlowPaint.setAlpha((int) (120 * mOverlayOpacity));
+            mGlowPaint.setMaskFilter(mOverlayGlowFilter);
+
+            mGlowPaintInner.setColor(mOverlayColor);
+            mGlowPaintInner.setAlpha((int) (180 * mOverlayOpacity));
+            mGlowPaintInner.setMaskFilter(mOverlayGlowFilterInner);
+        } else {
+            mPaint.setColor(mOverlayColor);
+            mPaint.setAlpha((int) (255 * mOverlayOpacity));
+            mPaint.setMaskFilter(null);
+        }
+
         for (int i = 0; i < OVERLAY_NUM_BARS; i++) {
             float left = startX + i * barWidth + spacing;
             float right = startX + (i + 1) * barWidth - spacing;
@@ -337,15 +387,9 @@ public class UnifiedVisualizerView extends View {
                 float hT = Math.max(1.0f, Math.min(mSmoothedOverlayTop[i] * mOverlayHeightTopPx, mOverlayHeightTopPx));
                 if (mOverlayStyle == VisualizerStyle.GLOW) {
                     float gP = Math.max(18f, hT * 0.55f);
-                    mGlowPaint.setColor(mOverlayColor);
-                    mGlowPaint.setAlpha((int) (120 * mOverlayOpacity));
-                    mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mOverlayGlowBlurRadius), BlurMaskFilter.Blur.NORMAL));
                     canvas.drawRoundRect(left - 3f, baselineY - hT - gP, right + 3f, baselineY + gP, cornerRadius * 2.2f, cornerRadius * 2.2f, mGlowPaint);
-                    mGlowPaint.setAlpha((int) (180 * mOverlayOpacity));
-                    mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mOverlayGlowBlurRadius * 0.7f), BlurMaskFilter.Blur.NORMAL));
-                    canvas.drawRoundRect(left - 1.5f, baselineY - hT - gP * 0.35f, right + 1.5f, baselineY + gP * 0.35f, cornerRadius * 2f, cornerRadius * 2f, mGlowPaint);
+                    canvas.drawRoundRect(left - 1.5f, baselineY - hT - gP * 0.35f, right + 1.5f, baselineY + gP * 0.35f, cornerRadius * 2f, cornerRadius * 2f, mGlowPaintInner);
                 } else {
-                    mPaint.setColor(mOverlayColor); mPaint.setAlpha((int) (255 * mOverlayOpacity)); mPaint.setMaskFilter(null);
                     canvas.drawRoundRect(left, baselineY - hT, right, baselineY, cornerRadius, cornerRadius, mPaint);
                 }
             }
@@ -353,14 +397,9 @@ public class UnifiedVisualizerView extends View {
                 float hB = Math.max(1.0f, Math.min(mSmoothedOverlayBottom[i] * mOverlayHeightBottomPx, mOverlayHeightBottomPx));
                 if (mOverlayStyle == VisualizerStyle.GLOW) {
                     float gP = Math.max(18f, hB * 0.55f);
-                    mGlowPaint.setColor(mOverlayColor); mGlowPaint.setAlpha((int) (120 * mOverlayOpacity));
-                    mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mOverlayGlowBlurRadius), BlurMaskFilter.Blur.NORMAL));
                     canvas.drawRoundRect(left - 3f, baselineY - gP, right + 3f, baselineY + hB + gP, cornerRadius * 2.2f, cornerRadius * 2.2f, mGlowPaint);
-                    mGlowPaint.setAlpha((int) (180 * mOverlayOpacity));
-                    mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mOverlayGlowBlurRadius * 0.7f), BlurMaskFilter.Blur.NORMAL));
-                    canvas.drawRoundRect(left - 1.5f, baselineY - gP * 0.35f, right + 1.5f, baselineY + hB + gP * 0.35f, cornerRadius * 2f, cornerRadius * 2f, mGlowPaint);
+                    canvas.drawRoundRect(left - 1.5f, baselineY - gP * 0.35f, right + 1.5f, baselineY + hB + gP * 0.35f, cornerRadius * 2f, cornerRadius * 2f, mGlowPaintInner);
                 } else {
-                    mPaint.setColor(mOverlayColor); mPaint.setAlpha((int) (255 * mOverlayOpacity)); mPaint.setMaskFilter(null);
                     canvas.drawRoundRect(left, baselineY, right, baselineY + hB, cornerRadius, cornerRadius, mPaint);
                 }
             }
@@ -370,6 +409,28 @@ public class UnifiedVisualizerView extends View {
     private void drawLens(Canvas canvas) {
         int count = mSmoothedLensMagnitudes.length;
         if (count == 0) return;
+
+        if (mLensStyle == VisualizerStyle.GLOW) {
+            float gW = Math.max(16f, mLensBarWidthPx * 4.5f);
+            mGlowPaint.setColor(mLensColor);
+            mGlowPaint.setStrokeWidth(gW);
+            mGlowPaint.setStrokeCap(Paint.Cap.ROUND);
+            mGlowPaint.setAlpha((int) (100 * mLensOpacity));
+            mGlowPaint.setMaskFilter(mLensGlowFilter);
+
+            mGlowPaintInner.setColor(mLensColor);
+            mGlowPaintInner.setStrokeWidth(gW);
+            mGlowPaintInner.setStrokeCap(Paint.Cap.ROUND);
+            mGlowPaintInner.setAlpha((int) (180 * mLensOpacity));
+            mGlowPaintInner.setMaskFilter(mLensGlowFilterInner);
+        } else {
+            mPaint.setColor(mLensColor);
+            mPaint.setStrokeWidth(mLensBarWidthPx);
+            mPaint.setStrokeCap((mLensStyle == VisualizerStyle.ROUNDED_BARS || mRoundedBarsEnabled) ? Paint.Cap.ROUND : Paint.Cap.BUTT);
+            mPaint.setAlpha((int) (255 * mLensOpacity));
+            mPaint.setMaskFilter(null);
+        }
+
         for (int i = 0; i < count; i++) {
             float angle = (float) (i * 2 * Math.PI / count);
             float barLen = mSmoothedLensMagnitudes[i] * mLensMaxHeightPx;
@@ -382,18 +443,9 @@ public class UnifiedVisualizerView extends View {
                 float gL = barLen * 2.2f;
                 float gEX = (float) (mLensXPos + (mLensRadiusPx + gL) * Math.cos(angle));
                 float gEY = (float) (mLensYPos + (mLensRadiusPx + gL) * Math.sin(angle));
-                float gW = Math.max(16f, mLensBarWidthPx * 4.5f);
-                mGlowPaint.setColor(mLensColor); mGlowPaint.setStrokeWidth(gW); mGlowPaint.setStrokeCap(Paint.Cap.ROUND);
-                mGlowPaint.setAlpha((int) (100 * mLensOpacity));
-                mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mLensGlowBlurRadius), BlurMaskFilter.Blur.NORMAL));
                 canvas.drawLine(sX, sY, gEX, gEY, mGlowPaint);
-                mGlowPaint.setAlpha((int) (180 * mLensOpacity));
-                mGlowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, mLensGlowBlurRadius * 0.65f), BlurMaskFilter.Blur.NORMAL));
-                canvas.drawLine(sX, sY, eX, eY, mGlowPaint);
+                canvas.drawLine(sX, sY, eX, eY, mGlowPaintInner);
             } else {
-                mPaint.setColor(mLensColor); mPaint.setStrokeWidth(mLensBarWidthPx);
-                mPaint.setStrokeCap((mLensStyle == VisualizerStyle.ROUNDED_BARS || mRoundedBarsEnabled) ? Paint.Cap.ROUND : Paint.Cap.BUTT);
-                mPaint.setAlpha((int) (255 * mLensOpacity)); mPaint.setMaskFilter(null);
                 canvas.drawLine(sX, sY, eX, eY, mPaint);
             }
         }

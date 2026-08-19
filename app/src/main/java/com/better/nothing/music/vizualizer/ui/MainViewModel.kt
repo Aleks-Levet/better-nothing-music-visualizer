@@ -373,6 +373,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val _emulateHdrOpacity = MutableStateFlow(0f)
+    val emulateHdrOpacity = _emulateHdrOpacity.asStateFlow()
+    fun setEmulateHdrOpacity(opacity: Float) {
+        _emulateHdrOpacity.value = opacity
+        MainActivity.serviceStatic?.setEmulateHdrOpacity(opacity)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("emulate_hdr_opacity", opacity) }
+        }
+    }
+
     private val _overlayTopEnabled = MutableStateFlow(true)
     val overlayTopEnabled = _overlayTopEnabled.asStateFlow()
     fun setOverlayTopEnabled(enabled: Boolean) {
@@ -2052,6 +2063,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _overlayTopEnabled.value = get("overlay_top_enabled", true)
         _overlayBottomEnabled.value = get("overlay_bottom_enabled", false)
         _overlayWidth.value = get("overlay_width", 120)
+        _emulateHdrOpacity.value = get("emulate_hdr_opacity", 0f)
         _overlayHeight.value = get("overlay_height", 12)
         _overlayHeightBottom.value = get("overlay_height_bottom", 12)
         _tabletTabWidth.value = get("tablet_tab_width", 400)
