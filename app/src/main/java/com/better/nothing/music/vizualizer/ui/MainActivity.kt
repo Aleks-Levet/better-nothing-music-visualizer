@@ -1153,6 +1153,7 @@ private fun TabContent(
             val flashlightSpeedMs by viewModel.flashlightSpeedMs.collectAsStateWithLifecycle()
             val flashlightBeatSensitivity by viewModel.flashlightBeatSensitivity.collectAsStateWithLifecycle()
             val flashlightIntensityLevels by viewModel.flashlightIntensityLevels.collectAsStateWithLifecycle()
+            val flashlightMaxIntensity by viewModel.flashlightMaxIntensity.collectAsStateWithLifecycle()
             val flashlightLevel by viewModel.flashlightLevel.collectAsStateWithLifecycle()
             val isFlashlightBeatDetected by viewModel.isFlashlightBeatDetected.collectAsStateWithLifecycle()
             val flashlightAmplitude by viewModel.flashlightAmplitude.collectAsStateWithLifecycle()
@@ -1189,6 +1190,8 @@ private fun TabContent(
                     )
                 },
                 flashlightIntensityLevels = flashlightIntensityLevels,
+                flashlightMaxIntensity = flashlightMaxIntensity,
+                onFlashlightMaxIntensityChanged = { viewModel.setFlashlightMaxIntensity(it) },
                 flashlightCurrentLevel = flashlightLevel,
                 flashlightAmplitudeFlow = viewModel.flashlightAmplitude,
                 flashlightMotorIntensityFlow = viewModel.flashlightMotorIntensity,

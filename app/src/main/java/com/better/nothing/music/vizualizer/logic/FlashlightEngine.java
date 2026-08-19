@@ -36,6 +36,7 @@ public final class FlashlightEngine {
 
     private float amplitudeThresholdOrMultiplier = 0.15f;
     private float flashlightBeatSpeedMs = 90f;
+    private int userMaxIntensity = -1;
 
     private final BeatDetector beatDetector = new BeatDetector();
     private final float[] beatPattern = buildBeatPattern();
@@ -174,6 +175,14 @@ public final class FlashlightEngine {
         this.beatFlashDurationMs = (long) flashlightBeatSpeedMs;
     }
 
+    public synchronized void setUserMaxIntensity(int intensity) {
+        this.userMaxIntensity = intensity;
+    }
+
+    public synchronized int getUserMaxIntensity() {
+        return userMaxIntensity > 0 ? userMaxIntensity : maxTorchStrength;
+    }
+
     public synchronized void performFlashlightFeedback(
             float rawPeak,
             @Nullable AudioProcessor.VisualizerConfig config,
@@ -203,9 +212,10 @@ public final class FlashlightEngine {
             float threshold = amplitudeThresholdOrMultiplier * 0.5f;
             if (smoothedIntensity < threshold) { stopFlashlightInternal(); return; }
             float normalized = clamp((smoothedIntensity - threshold) / (1.0f - threshold), 0f, 1f);
-            int level = Math.round(normalized * maxTorchStrength);
+            int max = getUserMaxIntensity();
+            int level = Math.round(normalized * max);
             if (level <= 0) { stopFlashlightInternal(); return; }
-            submitTorchLevel(Math.max(1, Math.min(maxTorchStrength, level)));
+            submitTorchLevel(Math.max(1, Math.min(max, level)));
             return;
         }
 
@@ -250,8 +260,9 @@ public final class FlashlightEngine {
         float progress = clamp(elapsed / (float) Math.max(1L, beatFlashDurationMs), 0f, 1f);
         float intensity = sampleBeatPattern(progress);
         if (hasVariableTorchStrength()) {
-            int level = Math.max(1, Math.round(intensity * maxTorchStrength));
-            submitTorchLevel(Math.min(maxTorchStrength, level));
+            int max = getUserMaxIntensity();
+            int level = Math.max(1, Math.round(intensity * max));
+            submitTorchLevel(Math.min(max, level));
         } else submitTorchLevel(1);
     }
 

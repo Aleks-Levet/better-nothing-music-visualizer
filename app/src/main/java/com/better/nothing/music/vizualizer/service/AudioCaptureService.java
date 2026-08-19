@@ -376,6 +376,7 @@ public class AudioCaptureService extends Service {
     private volatile float mFlashlightBeatSensitivity = 1.0f;
     private volatile float mFlashlightSpeedMs = 90f;
     private volatile int mFlashlightIntensityLevels = 1;
+    private volatile int mFlashlightMaxIntensity = -1;
 
     private ContinuousHapticEngine mContinuousHapticEngine;
     private BeatDetectionHapticEngine mBeatDetectionEngine;
@@ -600,6 +601,7 @@ public class AudioCaptureService extends Service {
         mGlyphDecaySpeed = appPrefs.getFloat("glyph_decay_speed", 0.75f);
         setHapticMotorEnabled(appPrefs.getBoolean("haptic_motor_enabled", false));
         setFlashlightEnabled(appPrefs.getBoolean("flashlight_enabled", false));
+        setFlashlightMaxIntensity(appPrefs.getInt("flashlight_max_intensity", -1));
         
         mIdleBreathingEnabled = appPrefs.getBoolean("idle_breathing_enabled", false);
         if (mGlyphRenderer != null) {
@@ -982,6 +984,10 @@ public class AudioCaptureService extends Service {
     public void setFlashlightPulseDurationMs(int ms) { mFlashlightPulseDurationMs = ms; if (mFlashlightEngine != null) mFlashlightEngine.setPulseDurationMs(ms); }
     public void setFlashlightBeatSensitivity(float s) { mFlashlightBeatSensitivity = s; if (mFlashlightEngine != null) mFlashlightEngine.setFlashlightBeatSensitivity(s); }
     public void setFlashlightSpeedMs(float s) { mFlashlightSpeedMs = s; if (mFlashlightEngine != null) mFlashlightEngine.setFlashlightSpeedMs(s); }
+    public void setFlashlightMaxIntensity(int intensity) {
+        mFlashlightMaxIntensity = intensity;
+        if (mFlashlightEngine != null) mFlashlightEngine.setUserMaxIntensity(intensity);
+    }
 
     public int getFlashlightIntensityLevels() { return mFlashlightEngine != null ? mFlashlightEngine.getTorchIntensityLevels() : (mFlashlightIntensityLevels > 0 ? mFlashlightIntensityLevels : 1); }
     public int getFlashlightCurrentLevel() { return mFlashlightEngine != null ? mFlashlightEngine.getCurrentLevel() : 0; }
