@@ -759,11 +759,11 @@ fun VisualsScreen(
             exit = shrinkVertically() + fadeOut()
         ) {
             ExpandableExpressiveCard(
-                title = "Emulate HDR (OLED)",
+                title = stringResource(R.string.emulate_hdr_title),
                 icon = Icons.Default.Brightness4,
                 expanded = hdrExpanded,
                 onExpandedChange = { hdrExpanded = it },
-                subtitle = "Deepens blacks for improved contrast"
+                subtitle = stringResource(R.string.emulate_hdr_subtitle)
             ) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -774,7 +774,7 @@ fun VisualsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "HDR Intensity",
+                            text = stringResource(R.string.hdr_intensity),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
