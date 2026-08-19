@@ -1390,6 +1390,25 @@ public class AudioCaptureService extends Service {
 
     private void processVisualizerWaveform(byte[] waveform, int samplingRate) {
         if (!mCapturing) return;
+        
+        // Cheap signal check if we are in idle breathing to save CPU
+        boolean deepSilence = mGlyphRenderer != null && mGlyphRenderer.isDeeplySilent();
+        if (deepSilence) {
+            boolean hasAnySignal = false;
+            for (byte b : waveform) {
+                if (Math.abs((b & 0xFF) - 128) > 3) {
+                    hasAnySignal = true;
+                    break;
+                }
+            }
+            if (!hasAnySignal) {
+                // Still silent. Skip expensive FFT/mapping but still dispatch to keep breathing animation smooth.
+                PendingFrame frame = new PendingFrame(EMPTY_FFT, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
+                synchronized (mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
+                return;
+            }
+        }
+
         // Robust sampling rate detection: handle both Hz (most devices) and mHz (docs)
         int hz = (samplingRate > 1000000) ? (samplingRate / 1000) : samplingRate;
         if (hz < 8000) hz = 44100; // Fallback for invalid values
@@ -1413,6 +1432,23 @@ public class AudioCaptureService extends Service {
                 break;
             }
             if (read == 0) continue;
+
+            // Cheap signal check if we are in idle breathing
+            boolean deepSilence = mGlyphRenderer != null && mGlyphRenderer.isDeeplySilent();
+            if (deepSilence) {
+                boolean hasAnySignal = false;
+                for (short s : hop) {
+                    if (Math.abs(s) > 750) { // Approx 2.3% of 32768
+                        hasAnySignal = true;
+                        break;
+                    }
+                }
+                if (!hasAnySignal) {
+                    PendingFrame frame = new PendingFrame(EMPTY_FFT, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
+                    synchronized(mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
+                    continue;
+                }
+            }
 
             AudioProcessor.SourceType type = (mCaptureSource == CaptureSource.MIC) ? AudioProcessor.SourceType.MIC : AudioProcessor.SourceType.INTERNAL;
             AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, type, mVisualizerConfig != null ? mVisualizerConfig.decay : 0.85f);
@@ -1639,7 +1675,14 @@ public class AudioCaptureService extends Service {
         up.sort((l, r) -> Float.compare(l[0], r[0])); AudioProcessor.FrequencyRange[] ur = new AudioProcessor.FrequencyRange[up.size()];
         for (int i = 0; i < up.size(); i++) ur[i] = new AudioProcessor.FrequencyRange(up.get(i)[0], up.get(i)[1]);
         int[][] zr = new int[zs.length][];
-        for (int z = 0; z < zs.length; z++) { ArrayList<Integer> os = new ArrayList<>(); for (int r = 0; r < ur.length; r++) if (!(ur[r].highHz < zs[z].lowHz || ur[r].lowHz > zs[z].highHz)) os.add(r); int[] m = new int[os.size()]; for (int i = 0; i < os.size(); i++) m[i] = os.get(i); zr[z] = m; }
+        for (int z = 0; z < zs.length; z++) {
+            ArrayList<Integer> os = new ArrayList<>();
+            for (int r = 0; r < ur.length; r++)
+                if (ur[r].lowHz == zs[z].lowHz && ur[r].highHz == zs[z].highHz) os.add(r);
+            int[] m = new int[os.size()];
+            for (int i = 0; i < os.size(); i++) m[i] = os.get(i);
+            zr[z] = m;
+        }
         return new AudioProcessor.VisualizerConfig(pk, name, d, ad, zs, ur, zr);
     }
 

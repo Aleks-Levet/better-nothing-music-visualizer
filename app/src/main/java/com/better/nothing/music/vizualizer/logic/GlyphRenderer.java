@@ -86,6 +86,14 @@ public class GlyphRenderer {
 
     public float[] getCurrentLightState() { return mCurrentLightState; }
 
+    public boolean isBreathing() {
+        return mBreathingEnvelope > 0.01f;
+    }
+
+    public boolean isDeeplySilent() {
+        return mSilenceStartTimeMs > 0 && (System.currentTimeMillis() - mSilenceStartTimeMs) > BREATH_DELAY_MS;
+    }
+
     public int[] processFrame(int[] fftraw, AudioProcessor.VisualizerConfig config, long nowMs) {
         if (config == null || fftraw == null) return new int[0];
 
@@ -119,19 +127,20 @@ public class GlyphRenderer {
             // 1. Calculate and decay unique frequency ranges first
             for (int r = 0; r < config.uniqueRanges.length; r++) {
                 AudioProcessor.FrequencyRange range = config.uniqueRanges[r];
-                float maxVal = 0f;
+                double sumSq = 0;
+                int count = 0;
                 int start = Math.max(0, Math.min(range.logBinLo, 511));
                 int end = Math.max(start, Math.min(range.logBinHi, 511));
                 for (int b = start; b <= end; b++) {
                     float val = actualFft[b];
-                    if (val > maxVal) {
-                        maxVal = val;
-                    }
+                    sumSq += (double) val * val;
+                    count++;
                 }
 
-                float normalized = Math.min(1.0f, maxVal / 4095f);
+                float rmsVal = (count > 0) ? (float) Math.sqrt(sumSq / count) : 0f;
+                float normalized = Math.min(1.0f, rmsVal / 4095f);
                 
-                // Apply decay blending to the frequency range itself
+                // Exponential decay
                 if (normalized > mRangeDecayState[r]) {
                     // Instant rise
                     mRangeDecayState[r] = normalized;
@@ -159,7 +168,7 @@ public class GlyphRenderer {
                 }
             }
 
-            applyIdleBreathing(mCurrentLightState, fftraw, nowMs);
+            applyIdleBreathing(mCurrentLightState, fftraw, config, nowMs);
 
             int[] frameColors = buildFrameColors(mCurrentLightState, zoneCount);
             int frameHash = Arrays.hashCode(frameColors);
@@ -177,7 +186,7 @@ public class GlyphRenderer {
         }
     }
 
-    private void applyIdleBreathing(float[] state, int[] fftraw, long nowMs) {
+    private void applyIdleBreathing(float[] state, int[] fftraw, AudioProcessor.VisualizerConfig config, long nowMs) {
         long deltaMs = (mLastFrameMs > 0) ? (nowMs - mLastFrameMs) : 16;
         mLastFrameMs = nowMs;
 
@@ -225,7 +234,22 @@ public class GlyphRenderer {
                 // Breath value interpolates between background and peak brightness
                 float breathVal = (mIdleBackgroundBrightness + intensity * (mIdleBrightness - mIdleBackgroundBrightness)) * mBreathingEnvelope;
 
-                if (state[i] < breathVal) state[i] = breathVal;
+                // Check if this is an "always on" zone (0,0 percentage range)
+                boolean isAlwaysOn = false;
+                if (config != null && i < config.zones.length) {
+                    AudioProcessor.ZoneSpec spec = config.zones[i];
+                    if (spec.hasPercentSlice() && spec.lowPercent == 0f && spec.highPercent == 0f) {
+                        isAlwaysOn = true;
+                    }
+                }
+
+                if (isAlwaysOn) {
+                    // For always-on LEDs, smoothly transition from the signal state (which is 1.0)
+                    // to the idle breath state as the envelope grows.
+                    state[i] = (state[i] * (1.0f - mBreathingEnvelope)) + (breathVal * mBreathingEnvelope);
+                } else {
+                    if (state[i] < breathVal) state[i] = breathVal;
+                }
             }
         }
     }
