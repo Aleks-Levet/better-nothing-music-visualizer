@@ -1,7 +1,6 @@
 package com.better.nothing.music.vizualizer.ui.PrimaryScreens
 
 import android.Manifest
-import android.R.attr.width
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -18,8 +17,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -27,7 +24,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -42,22 +38,17 @@ import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Cast
 import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.FlashlightOn
-import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.PhoneAndroid
-import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
@@ -68,8 +59,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -79,6 +68,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -92,7 +82,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -101,14 +90,12 @@ import androidx.compose.ui.platform.LocalView
 import android.view.HapticFeedbackConstants
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontVariation.width
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.better.nothing.music.vizualizer.R
-import com.better.nothing.music.vizualizer.logic.AudioProcessor
 import com.better.nothing.music.vizualizer.logic.UdpNetworkSync
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
 import com.better.nothing.music.vizualizer.ui.OptionTile
@@ -122,13 +109,10 @@ import com.better.nothing.music.vizualizer.ui.FineTuneButton
 import com.better.nothing.music.vizualizer.ui.ExpressiveSwitch
 import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
 import com.better.nothing.music.vizualizer.ui.MainViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
 import java.util.Locale
 import java.net.InetAddress
 import kotlin.math.log10
 import kotlin.math.pow
-import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -172,7 +156,7 @@ fun AudioScreen(
         }
     }
 
-    var pendingCaptureSource by remember { mutableStateOf<AudioCaptureService.CaptureSource?>(null) }
+    var pendingCaptureSource by rememberSaveable { mutableStateOf<AudioCaptureService.CaptureSource?>(null) }
     val recordAudioLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -204,7 +188,7 @@ fun AudioScreen(
         }
     }
 
-    var isTitleToggled by remember { mutableStateOf(false) }
+    var isTitleToggled by rememberSaveable { mutableStateOf(false) }
     val fullTitle = stringResource(R.string.audio_screen_title)
     val shortTitle = stringResource(R.string.app_name)
 
@@ -418,7 +402,7 @@ fun OutputSelectionCard(
     connectedClients: Map<InetAddress, Int?> = emptyMap(),
     isRunning: Boolean = false
 ) {
-    var isHelpExpanded by remember { mutableStateOf(false) }
+    var isHelpExpanded by rememberSaveable { mutableStateOf(false) }
 
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
         CardHeader(
@@ -546,7 +530,7 @@ fun CaptureSourceCard(
     developerModeEnabled: Boolean,
     networkDeviceName: String? = null
 ) {
-    var isHelpExpanded by remember { mutableStateOf(false) }
+    var isHelpExpanded by rememberSaveable { mutableStateOf(false) }
 
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
         CardHeader(
@@ -678,8 +662,8 @@ fun LatencyCard(
 ) {
     val haptics = LocalHapticFeedback.current
     val view = LocalView.current
-    var draggingIndex by remember { mutableIntStateOf(-1) }
-    var isExpanded by remember { mutableStateOf(false) }
+    var draggingIndex by rememberSaveable { mutableIntStateOf(-1) }
+    var isExpanded by rememberSaveable { mutableStateOf(false) }
 
     val visualOrder = remember(latencyPresets) {
         latencyPresets.mapIndexed { i, v -> i to v }
@@ -687,7 +671,7 @@ fun LatencyCard(
             .map { it.first }
     }
 
-    var isFirstOrderChange by remember { mutableStateOf(true) }
+    var isFirstOrderChange by rememberSaveable { mutableStateOf(true) }
     LaunchedEffect(visualOrder) {
         if (isFirstOrderChange) {
             isFirstOrderChange = false
@@ -915,7 +899,7 @@ fun FFTSpectrumCard(
 
                     val points = data.size - 1
                     for (i in 5..points) {
-                        val fraction = i.divideBy(points)
+                        val fraction = i.toFloat() / points.toFloat()
                         val mag = data[i]
 
                         // data is already normalized 0..1 from MainActivity/MainViewModel
@@ -1017,5 +1001,3 @@ private fun HelpItem(title: String, description: String) {
         )
     }
 }
-
-private fun Int.divideBy(divisor: Int): Float = this.toFloat() / divisor.toFloat()

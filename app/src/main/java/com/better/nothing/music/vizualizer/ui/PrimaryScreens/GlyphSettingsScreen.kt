@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -450,6 +451,8 @@ internal fun GlyphsScreen(
 }
 
 
+import androidx.compose.runtime.saveable.rememberSaveable
+
 @Composable
 fun BrightnessCard(
     maxBrightness: Int,
@@ -468,10 +471,10 @@ fun BrightnessCard(
     val MIN_BRIGHTNESS = 50
     val MAX_BRIGHTNESS = 5000
 
-    var isMoreSlidersExpanded by remember { mutableStateOf(false) }
-    var isThresholdExpanded by remember { mutableStateOf(false) }
-    var isGammaExpanded by remember { mutableStateOf(false) }
-    var isSpeedExpanded by remember { mutableStateOf(false) }
+    var isMoreSlidersExpanded by rememberSaveable { mutableStateOf(false) }
+    var isThresholdExpanded by rememberSaveable { mutableStateOf(false) }
+    var isGammaExpanded by rememberSaveable { mutableStateOf(false) }
+    var isSpeedExpanded by rememberSaveable { mutableStateOf(false) }
 
     // Quadratic mapping: slider position (0..1) -> value = min + (max-min) * pos^2
     fun linearToPos(linear: Int): Float {

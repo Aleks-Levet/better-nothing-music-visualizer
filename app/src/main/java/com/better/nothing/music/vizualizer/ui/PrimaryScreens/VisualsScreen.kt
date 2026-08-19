@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.BorderOuter
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -91,9 +92,9 @@ fun VisualsScreen(
 
         ScreenTitle(text = stringResource(R.string.tab_visuals))
 
-        var overlayExpanded by remember { mutableStateOf(overlayEnabled) }
-        var edgeExpanded by remember { mutableStateOf(edgeVisualizerEnabled) }
-        var lensExpanded by remember { mutableStateOf(lensEnabled) }
+        var overlayExpanded by rememberSaveable { mutableStateOf(overlayEnabled) }
+        var edgeExpanded by rememberSaveable { mutableStateOf(edgeVisualizerEnabled) }
+        var lensExpanded by rememberSaveable { mutableStateOf(lensEnabled) }
 
         // ── Overlay Visualizer ──────────────────────────────────────────────
         ExpandableExpressiveCard(

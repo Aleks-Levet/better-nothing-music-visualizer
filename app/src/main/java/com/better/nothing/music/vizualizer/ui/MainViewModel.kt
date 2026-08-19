@@ -1162,6 +1162,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         
         _selectedTab.value = tab
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putString("selected_tab", tab.name) }
+        }
     }
 
     fun navigateBack(): Boolean {
@@ -1614,6 +1618,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _flashlightPulseDurationMs = MutableStateFlow(40)
     val flashlightPulseDurationMs = _flashlightPulseDurationMs.asStateFlow()
 
+    val _flashlightMaxIntensity = MutableStateFlow(-1)
+    val flashlightMaxIntensity = _flashlightMaxIntensity.asStateFlow()
+
     fun setFlashlightEnabled(enabled: Boolean, fromService: Boolean = false) {
         if (_flashlightEnabled.value == enabled) return
         _flashlightEnabled.value = enabled
@@ -1692,6 +1699,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 .edit { putInt("flashlight_pulse_duration_ms", ms) }
         }
         MainActivity.serviceStatic?.setFlashlightPulseDurationMs(ms)
+    }
+
+    fun setFlashlightMaxIntensity(value: Int) {
+        _flashlightMaxIntensity.value = value
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putInt("flashlight_max_intensity", value) }
+        }
+        MainActivity.serviceStatic?.setFlashlightMaxIntensity(value)
     }
 
     fun setFlashlightIntensityLevels(levels: Int) {
@@ -2021,6 +2037,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _flashlightThreshold.value = get("flashlight_threshold", 0.15f)
         _flashlightBeatSensitivity.value = get("flashlight_beat_sensitivity", 1.5f)
         _flashlightSpeedMs.value = get("flashlight_speed_ms", 80f)
+        _flashlightMaxIntensity.value = get("flashlight_max_intensity", -1)
         
         val defaultFlashlightEngineMode = if (flashlightIntensityLevels.value > 1) BeatEngineMode.SMOOTH else BeatEngineMode.SHORT_PULSE
         _flashlightBeatEngineMode.value = safeValueOf(get("flashlight_beat_engine_mode", ""), defaultFlashlightEngineMode)
@@ -2079,6 +2096,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         _isFirstTime.value = get("first_time_v2", true)
         _discordClicked.value = get("discord_clicked", false)
+
+        val savedTab = get("selected_tab", Tab.Audio.name)
+        _selectedTab.value = safeValueOf(savedTab, Tab.Audio)
 
         // Launch background tasks - deferred slightly to prioritize UI
         viewModelScope.launch {

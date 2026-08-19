@@ -77,6 +77,8 @@ fun FlashlightScreen(
     flashlightBeatSensitivity: Float,
     onFlashlightBeatSensitivityChanged: (Float) -> Unit,
     flashlightIntensityLevels: Int,
+    flashlightMaxIntensity: Int,
+    onFlashlightMaxIntensityChanged: (Int) -> Unit,
     flashlightCurrentLevel: Int,
     flashlightAmplitudeFlow: StateFlow<Float>,
     flashlightMotorIntensityFlow: StateFlow<Float>,
@@ -179,42 +181,63 @@ fun FlashlightScreen(
             }
 
             AnimatedVisibility(flashlightMode == TorchMode.BEAT_DETECTION) {
-                if (flashlightIntensityLevels > 1) {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    if (flashlightIntensityLevels > 1) {
+                        ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
+                            CardHeader(title = stringResource(R.string.beat_engine_mode_label))
+                            ExpressiveSplitButton(
+                                items = BeatEngineMode.entries,
+                                selectedItem = flashlightBeatEngineMode,
+                                onItemSelection = onFlashlightBeatEngineModeChanged,
+                                labelProvider = { mode ->
+                                    stringResource(
+                                        when (mode) {
+                                            BeatEngineMode.SMOOTH -> R.string.beat_engine_smooth
+                                            BeatEngineMode.SHORT_PULSE -> R.string.beat_engine_short
+                                        }
+                                    )
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+
                     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                        CardHeader(title = stringResource(R.string.beat_engine_mode_label))
-                        ExpressiveSplitButton(
-                            items = BeatEngineMode.entries,
-                            selectedItem = flashlightBeatEngineMode,
-                            onItemSelection = onFlashlightBeatEngineModeChanged,
-                            labelProvider = { mode ->
-                                stringResource(
-                                    when (mode) {
-                                        BeatEngineMode.SMOOTH -> R.string.beat_engine_smooth
-                                        BeatEngineMode.SHORT_PULSE -> R.string.beat_engine_short
-                                    }
-                                )
-                            },
+                        CardHeader(
+                            title = stringResource(
+                                R.string.flashlight_beat_sensitivity_label,
+                                flashlightBeatSensitivity
+                            )
+                        )
+                        ExpressiveSlider(
+                            value = flashlightBeatSensitivity,
+                            onValueChange = onFlashlightBeatSensitivityChanged,
+                            valueRange = 0.3f..6.0f,
                             modifier = Modifier.fillMaxWidth()
+                        )
+                        BodyText(
+                            text = stringResource(R.string.flashlight_beat_sensitivity_desc),
+                            size = 12.sp
                         )
                     }
                 }
+            }
 
+            if (flashlightIntensityLevels > 1) {
                 ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
+                    val displayIntensity = if (flashlightMaxIntensity > 0) flashlightMaxIntensity else flashlightIntensityLevels
                     CardHeader(
                         title = stringResource(
-                            R.string.flashlight_beat_sensitivity_label,
-                            flashlightBeatSensitivity
+                            R.string.flashlight_intensity_label,
+                            displayIntensity
                         )
                     )
                     ExpressiveSlider(
-                        value = flashlightBeatSensitivity,
-                        onValueChange = onFlashlightBeatSensitivityChanged,
-                        valueRange = 0.3f..6.0f,
+                        value = displayIntensity.toFloat(),
+                        onValueChange = { onFlashlightMaxIntensityChanged(it.toInt()) },
+                        valueRange = 1f..flashlightIntensityLevels.toFloat(),
+                        steps = if (flashlightIntensityLevels > 2) flashlightIntensityLevels - 2 else 0,
                         modifier = Modifier.fillMaxWidth()
-                    )
-                    BodyText(
-                        text = stringResource(R.string.flashlight_beat_sensitivity_desc),
-                        size = 12.sp
                     )
                 }
             }
