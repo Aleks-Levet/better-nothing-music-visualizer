@@ -324,12 +324,12 @@
     <string name="idle_breathing_desc">Glyphs pulse subtly when the visualizer is active but no audio is playing.</string>
 
     <!-- Widget -->
-    <string name="widget_start_bnmv" translatable="false">START BNMV</string>
-    <string name="widget_stop_bnmv" translatable="false">STOP BNMV</string>
+    <string name="widget_start_bnmv">START BNMV</string>
+    <string name="widget_stop_bnmv">STOP BNMV</string>
 
     <!-- First Time Help -->
-    <string name="first_time_help_title" translatable="false">Quick Tip</string>
-    <string name="first_time_help_msg" translatable="false">Click on the [info] buttons whenever you need help!</string>
+    <string name="first_time_help_title">Quick Tip</string>
+    <string name="first_time_help_msg">Click on the [info] buttons whenever you need help!</string>
 
     <!-- Easter Eggs -->
     <string name="toast_no_output">All outputs are disabled, so BNMV will do NOTHING 😆</string>
@@ -338,7 +338,7 @@
     <string name="easter_egg_glyph_popup_title" translatable="false">Glyphs go brrr</string>
     <string name="easter_egg_glyph_popup_body">This app icon concept was made by the developer of the biggest app that was made by the Nothing Community, NoVolume. It\'s an amazing app and you definitely need to check it out on the play store.\n\nThis is what he said:</string>
     <string name="easter_egg_glyph_popup_quote">\"I think that this app icon would suit the app much more and more people would install the app.\"</string>
-    <string name="ok" translatable="false">OK</string>
+    <string name="ok">OK</string>
     <string name="i_dont_give_a_fuck">I don\'t give a fuck</string>
 
     <!-- Visualizer Color & Accessibility -->
