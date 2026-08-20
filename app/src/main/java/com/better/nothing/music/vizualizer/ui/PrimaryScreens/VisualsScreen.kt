@@ -792,7 +792,7 @@ fun VisualsScreen(
                     VisualSlider(
                         value = emulateHdrOpacity,
                         onValueChange = { viewModel.setEmulateHdrOpacity(it) },
-                        valueRange = 0f..0.2f,
+                        valueRange = 0f..0.5f,
                         fineTuneStep = 0.01f,
                         modifier = Modifier.fillMaxWidth()
                     )

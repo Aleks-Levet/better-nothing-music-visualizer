@@ -22,6 +22,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -1559,6 +1560,15 @@ fun ExpressiveSlider(
         wasActive.value = isActive
     }
 
+    val animatedValue by animateFloatAsState(
+        targetValue = value,
+        animationSpec = if (isDragged) snap() else spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMediumLow
+        ),
+        label = "slider_value_animation"
+    )
+
     // The "Expressive" factor (1.0 to 1.8)
     val animationFactor by animateFloatAsState(
         targetValue = if (isActive && LocalM3EEnabled.current) 2.1f else 1.0f,
@@ -1570,9 +1580,14 @@ fun ExpressiveSlider(
     )
 
     Slider(
-        value = value,
+        value = animatedValue,
         onValueChange = { newValue ->
-            onValueChange(newValue)
+            if (newValue != value) {
+                if (!isDragged) {
+                    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
+                }
+                onValueChange(newValue)
+            }
         },
         valueRange = valueRange,
         steps = steps,
