@@ -2,8 +2,6 @@
 
 ## To Do Fuckery
 
-* **and work on the translation tools so we can get hoomans to translate our app.**
-
 * Make some gifs for the demos, not videos!
 
 * Check if auto update works
