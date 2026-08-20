@@ -1,124 +1,302 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <!-- Audio Screen -->
-    <string name="audio_warning_vizualizer">Attention : cette source utilise le flux audio standard du visualiseur Android. La fidélité est moindre et le résultat est dans la plupart des cas merdique.</string>
+    <string name="audio_warning_vizualizer">Attention : cette source utilise le flux audio standard qu\'Android nous donne. La fidélité n\'est pas top et le résultat est dans la plupart des cas merdique.</string>
     <string name="auto_memorize_device">Mémorisation auto de l\'appareil</string>
     <string name="saving_latency_for">Latence enregistrée pour : %s</string>
     <string name="internal_speaker">Haut-parleur interne</string>
-    <string name="manual_mode_global_latency">Mode manuel (Latence globale)</string>
-    <string name="latency_compensation">Compensation de latence</string>
-    <string name="live_spectrum">Spectre audio en direct</string>
-
+    <string name="manual_mode_global_latency">Mode manuel</string>
+    <string name="latency_compensation">Compensation de la latence</string>
+    <string name="live_spectrum">Spectre audio</string>
     <!-- Glyph Screen -->
-    <string name="glyph_controls">Commandes Glyph</string>
-    <string name="gamma_control">Contrôle du Gamma</string>
+    <string name="glyph_controls">Paramètres Glyph</string>
+    <string name="glyph_brightness">Luminosité :</string>
+    <string name="threshold_label">Seuil :</string>
+    <string name="speed_label">Vitesse :</string>
+    <string name="disabled">désactivé</string>
+    <string name="threshold_description">Définit un volume audio minimum requis pour déclencher les glyphs. Des valeurs plus élevées donnent une apparence plus propre en ignorant le bruit de fond.</string>
+    <string name="speed_description">Contrôle la vitesse à laquelle les glyphs s\'estompent après un pic audio. Une vitesse plus élevée donne une visualisation plus réactive et plus nette.</string>
+    <string name="show_more_sliders">Afficher plus de réglages…</string>
+    <string name="gamma_control">Gamma</string>
     <string name="gamma_description">Un gamma élevé accentue le contraste pour un rendu plus percutant, au détriment des détails subtils et de la luminosité globale. Un gamma faible est plus lumineux mais moins contrasté.</string>
-    <string name="light_gamma">Gamma des lumières :</string>
-    <string name="visualizer_presets">Préréglages du visualiseur</string>
-
+    <string name="light_gamma">Gamma :</string>
+    <string name="visualizer_presets">Modes du visualiseur</string>
+    <string name="preset_name">Nom de la configuration</string>
+    <string name="preset_description">Description</string>
     <!-- Settings Screen -->
     <string name="app_theme">Thème de l\'application</string>
     <string name="theme_normal">Par défaut</string>
-    <string name="theme_liquorice">Noir Réglisse</string>
-    <string name="theme_nothing_red">Rouge Nothing</string>
-
+    <string name="theme_liquorice">Gris foncé</string>
+    <string name="theme_nothing_red">Nothing</string>
     <!-- Haptics Screen -->
-    <string name="haptics_header">Commandes haptiques</string>
-    <string name="haptics_mode_label">Mode du moteur haptique</string>
-    <string name="haptics_mode_bass">Amplitude des basses</string>
+    <string name="haptics_header">Vibration</string>
+    <string name="haptics_mode_label">Mode de visualisation</string>
+    <string name="haptics_mode_bass">Amplitude</string>
     <string name="haptics_mode_beat">Détection du rythme</string>
-    <string name="haptics_beat_detection_desc">Vibre sur les battements détectés dans la plage de fréquences sélectionnée. Plus fluide mais parfois moins stable. (Fonctionnalité bêta)</string>
+    <string name="haptics_beat_detection_desc">Vibre sur les battements détectés dans la plage de fréquences sélectionnée. Plus fluide mais souvent moins stable. (Fonctionnalité bêta)</string>
     <string name="haptics_frequency_label">Fréquence : %1$d - %2$d Hz</string>
-    <string name="haptics_frequency_desc">Vibre selon l\'amplitude audio dans cette plage.</string>
-    <string name="haptics_amplitude_label">Intensité moteur : %.1fx</string>
-    <string name="haptics_audio_gain_label">Gain audio : %.1fx</string>
+    <string name="haptics_frequency_desc">Vibre selon une plage de fréquence selectionnée.</string>
+    <string name="haptics_amplitude_label">Intensité de vibration : %.1fx</string>
+    <string name="haptics_audio_gain_label">Volume audio : %.1fx</string>
     <string name="haptics_gamma_label">Gamma : %.1f</string>
+    <string name="haptics_decay_label">Décroissance : %.2f</string>
     <string name="haptics_speed_label">Vitesse : %.1f</string>
     <string name="haptics_sensitivity_label">Sensibilité : %.1f</string>
-    <string name="haptics_decay_label">Décroissance : %.2f</string>
-    <string name="haptics_motor_multiplier_desc">Multiplicateur de force global des vibrations.</string>
+    <string name="haptics_motor_multiplier_desc">Ajuste l\'intensité des vibrations.</string>
     <string name="haptics_decay_instant">Sans lissage (Instantané)</string>
     <string name="haptics_decay_smooth">Lissage actif</string>
-
+    <string name="haptics_duration_label">Durée : %d ms</string>
+    <string name="beat_engine_mode_label">Mode de vibration</string>
+    <string name="beat_engine_smooth">Fluide</string>
+    <string name="beat_engine_short">Pas fluide</string>
+    <!-- Audio Processing -->
+    <string name="microphone_mode">Mode de capture du microphone (expert)</string>
+    <string name="microphone_mode_desc">Modifie la façon dont le microphone capture l\'audio.</string>
+    <string name="mic_mode_voice_comm">Comm vocale</string>
+    <string name="mic_mode_voice_comm_desc">VOICE_COMMUNICATION : Il a pour effet d\'annuler l\'écho et de supprimer le bruit.</string>
+    <string name="mic_mode_voice_perf">Performance</string>
+    <string name="mic_mode_voice_perf_desc">VOICE_PERFORMANCE: Optimisé pour les applications vocales en temps réel. Plus faible latence que Comm Vocale.</string>
+    <string name="mic_mode_unprocessed">Brut</string>
+    <string name="mic_mode_unprocessed_desc">Par défaut</string>
+    <string name="mic_mode_camcorder">Caméra</string>
+    <string name="mic_mode_camcorder_desc">CAMCORDER: Le mode qu\'utilise la caméra de votre appareil.</string>
     <!-- Flashlight Screen -->
-    <string name="flashlight_header">Visualiseur lampe torche</string>
-    <string name="flashlight_mode_label">Mode du moteur Flash</string>
+    <string name="flashlight_header">Visualiseur flash</string>
+    <string name="flashlight_mode_label">Mode du visualiseur Flash</string>
     <string name="flashlight_mode_amplitude">Amplitude</string>
     <string name="flashlight_mode_beat">Détection du rythme</string>
     <string name="flashlight_intensity_label">Niveaux de luminosité : %1$d</string>
     <string name="flashlight_frequency_label">Fréquence : %1$d - %2$d Hz</string>
-    <string name="flashlight_frequency_desc">La plage de fréquences (Hz) à laquelle le flash réagira. Privilégiez les basses fréquences pour les kicks, et les hautes pour les caisses claires ou les voix.</string>
+    <string name="flashlight_frequency_desc">La plage de fréquences (Hz) à laquelle le flash réagira. Privilégiez les basses fréquences pour les kicks.</string>
     <string name="flashlight_threshold_label">Seuil : %.2f</string>
     <string name="flashlight_threshold_desc">Si votre flash ne possède qu\'un seul niveau, ce seuil gère son activation.</string>
     <string name="flashlight_beat_sensitivity_label">Sensibilité du rythme : %.1f</string>
-    <string name="flashlight_beat_sensitivity_desc">Les valeurs élevées ignorent les signaux les plus faibles.</string>
+    <string name="flashlight_beat_sensitivity_desc">Les valeurs élevées ignorent les signaux les plus faibles ou le bruit de fond.</string>
     <string name="flashlight_speed_label">Vitesse : %.0f ms</string>
     <string name="flashlight_monitor_label">Moniteur Flash</string>
-
+    <string name="flashlight_duration_label">Durée : %d ms</string>
+    <string name="flashlight_duration_desc">Durée de l\'impulsion en millisecondes.</string>
     <string name="experimental_features">Fonctionnalités expérimentales</string>
-    <string name="developer_mode">Mode développeur</string>
+    <string name="feature_flashlight_levels">Niveaux d\'intensité du flash</string>
+    <string name="feature_supported_n">%d niveaux pris en charge</string>
+    <string name="feature_basic">Binaire (On/Off seulement)</string>
+    <string name="developer_mode">Émuler un appareil...</string>
     <string name="spoof_device_description">Force l\'application à se comporter comme si elle tournait sur l\'appareil sélectionné.</string>
-    <string name="spoof_locale_description">Force l\'application à utiliser une langue spécifique pour les tests.</string>
-    <string name="idle_breathing_title">Respiration au repos</string>
-    <string name="idle_breathing_desc">Les Glyphs pulsent subtilement lorsque le visualiseur est actif mais qu\'aucun son n\'est détecté.</string>
+    <string name="spoof_locale_description">Force l\'application à utiliser une langue spécifique.</string>
+    <string name="idle_breathing_title">Animation au repos</string>
     <string name="start_visualizer">Démarrer</string>
     <string name="stop_visualizer">Arrêter</string>
     <string name="glyph_no_config">Aucune configuration chargée. Vérifiez les mises à jour dans les paramètres pour télécharger les derniers préréglages.</string>
-
     <!-- About Screen -->
     <string name="about_title">Infos et mises à jour</string>
-    <string name="github_repository">Dépôt GitHub</string>
+    <string name="analytics_disclaimer_title">Analyses</string>
+    <string name="analytics_disclaimer_text">Cette application utilise Google Analytics (Firebase) pour collecter des statistiques d\'utilisation anonymes et des rapports de plantage afin d\'améliorer l\'expérience de l\'application. Aucune donnée personnelle ou contenu audio n\'est collectée.</string>
+    <string name="github_repository">GitHub</string>
     <string name="version_info">Version %s</string>
     <string name="zones_config_version">Version config : %s</string>
     <string name="media_projection_info">MediaProjection est utilisé uniquement pour l\'analyse audio en temps réel. Aucun enregistrement n\'est stocké.</string>
-    <string name="credits">Crédits</string>
-    <string name="open_github_profile">Profil GitHub</string>
+    <string name="credits">Remerciements</string>
+    <string name="open_github_profile">Ouvrir le profil GitHub</string>
     <string name="discord_server">Serveur Discord</string>
-
     <!-- Capture Source Labels -->
-    <string name="capture_media_projection">Media Projection\n(recommandé)</string>
+    <string name="capture_media_projection">Audio interne\n(recommandé)</string>
     <string name="capture_microphone">Microphone</string>
     <string name="capture_vizualizer">Visualiseur Android standard</string>
     <string name="update_available">Mise à jour disponible : %s</string>
     <string name="update_now">Mettre à jour</string>
-
-    <string name="idle_pattern">Motif au repos</string>
-    <string name="idle_pattern_pulse">Pulsation</string>
+    <string name="idle_pattern">Animation au repos</string>
+    <string name="idle_pattern_pulse">Lent</string>
     <string name="idle_pattern_wave">Vague</string>
-    <string name="idle_pattern_cylon">Cylon</string>
-    <string name="idle_pattern_zebra">Zèbre</string>
-    <string name="idle_pattern_heartbeat">Battement de coeur</string>
+    <string name="idle_pattern_cylon">Cycle</string>
+    <string name="idle_pattern_zebra">Alterné</string>
+    <string name="idle_pattern_heartbeat">Cœur</string>
     <string name="idle_pattern_orbit">Orbite</string>
     <string name="idle_pattern_rain">Pluie</string>
+    <string name="idle_pulse_brightness">Luminosité de l\'animation : %d%%</string>
+    <string name="idle_background_brightness">Luminosité de l\'arrière-plan : %d%%</string>
     <string name="cancel">Annuler</string>
     <string name="back">Retour</string>
-    <string name="frequency_range_label">Plage : %1$d Hz - %2$d Hz</string>
+    <string name="frequency_range_label">Fréquences : %1$d Hz - %2$d Hz</string>
     <string name="clear">Effacer</string>
+    <string name="sync_ui_to_beat">Interface animée</string>
+    <string name="alternate_glyph_viz">Visualiseur glyph alternatif</string>
+    <string name="nav_overlay">Barre de navigation</string>
+    <string name="enable_on_screen_visualizers">Visualiseurs sur l\'écran</string>
+    <string name="higher_quality_audio_analysis">Analyse audio HD</string>
+    <string name="rounded_bars">Barres arrondies</string>
+    <string name="style_bars">Barres</string>
+    <string name="style_rounded_bars">Barres arrondies</string>
+    <string name="style_glow">Flou</string>
+    <string name="visualizer_style">Style</string>
+    <string name="visualizer_opacity">Opacité</string>
+    <string name="lens_visualizer">Caméra frontale</string>
+    <string name="lens_radius">Taille</string>
+    <string name="lens_bar_width">Largeur de barre</string>
+    <string name="lens_max_height">Hauteur</string>
+    <string name="lens_bar_count">Nombre de barres</string>
     <string name="overlay_width">Largeur</string>
     <string name="overlay_height">Hauteur</string>
+    <string name="overlay_height_bottom">Hauteur en bas</string>
+    <string name="overlay_top_segment">Barres vers le haut</string>
+    <string name="overlay_bottom_segment">Barres vers le bas</string>
     <string name="vertical_position">Position verticale</string>
-
+    <!-- Auth -->
     <string name="tab_glyphs">Glyphs</string>
+    <string name="tab_visuals">Affichages</string>
     <string name="tab_haptics">Vibrations</string>
     <string name="tab_flashlight">Flash</string>
     <string name="tab_settings">Paramètres</string>
-
+    <string name="glyphs_disabled">Les glyphs sont désactivés</string>
+    <string name="haptics_disabled">La vibration en rythme est désactivée</string>
+    <string name="flashlight_disabled">Le flash est désactivé</string>
+    <string name="feature_disabled">Cette fonctionnalité est désactivée</string>
     <string name="continue_label">Continuer</string>
-
-    <string name="audio_permission_required">L\'autorisation d\'enregistrement audio est requise</string>
-    <string name="screen_capture_denied">Autorisation de capture d\'écran refusée</string>
-    <string name="overlay_permission_denied">Autorisation de superposition refusée</string>
-
+    <string name="audio_permission_required">L\'accès au micro est requis.</string>
+    <string name="screen_capture_denied">Autorisation de partage d\'écran refusée</string>
+    <string name="overlay_permission_denied">Autorisation d\'affichage sur d\'autres applis refusée</string>
     <string name="config_update_success">Mise à jour de zones.config réussie</string>
     <string name="config_import_success">Importation de zones.config réussie</string>
     <string name="config_import_error">Échec de la lecture du fichier</string>
     <string name="config_download_error">Échec du téléchargement : %d</string>
     <string name="config_error_updating">Erreur lors de la mise à jour : %s</string>
     <string name="config_error_importing">Erreur lors de l\'importation : %s</string>
-
     <!-- License Screen -->
     <string name="license_title">Licence</string>
     <string name="license_agreement">Contrat de licence</string>
     <string name="read_license">Lire la licence logicielle</string>
+    <string name="failed_load_license">Échec du chargement de la licence actuelle.</string>
+    <string name="retry">Réessayer</string>
+    <!-- Audio Discovery -->
+    <string name="connect_to_device">Se connecter à un appareil</string>
+    <string name="no_devices_found">Aucun appareil utilisant BNMV a été trouvé sur votre réseau Wi-Fi.</string>
+    <string name="search_again">Relancer la recherche</string>
+    <!-- MainViewModel Toasts & Status -->
+    <string name="download_failed_http">Échec du téléchargement : HTTP %d</string>
+    <string name="download_error">Erreur de téléchargement: %s</string>
+    <string name="installation_failed">Échec de l\'installation : %s</string>
+    <string name="license_load_error">Impossible de charger la licence : %d</string>
+    <string name="unknown_error">Erreur inconnue, mystère !</string>
+    <string name="update_checking">Recherche de mises à jour...</string>
+    <string name="update_downloading">Téléchargement : %d%%</string>
+    <string name="update_uptodate">La dernière version est installée</string>
+    <string name="update_error">Erreur : %s</string>
+    <string name="check_software_updates">Rechercher des mises à jour</string>
+    <!-- Tile Service -->
+    <string name="tile_running">En cours</string>
+    <string name="tile_subtitle_default">Better Nothing Music Vizualiser</string>
+    <!-- Feature Monitors -->
+    <string name="haptic_monitor">Vibration</string>
+    <string name="flashlight_level_stats">NIVEAU : %1$d / %2$d</string>
+    <!-- Visuals Options -->
+    <string name="top_edge_overlay">En haut de l\'écran</string>
+    <string name="bottom_edge_overlay">En bas de l\'écran</string>
+    <string name="edge_visualizer">Bords de l\'écran</string>
+    <string name="edge_bar_height">Hauteur</string>
+    <string name="top_edge_segment">En haut de l\'écran</string>
+    <string name="bottom_edge_segment">En bas de l\'écran</string>
+    <string name="screen_corner_radius">Arrondi de l\'écran</string>
+    <string name="horizontal_bar_count">Nombre de barres horizontales</string>
+    <string name="vertical_bar_count">Nombre de barres verticales</string>
+    <string name="x_position">Position X</string>
+    <string name="y_position">Position Y</string>
+    <string name="bar_height">Hauteur</string>
+    <string name="emulate_hdr_title">Simuler le HDR (OLED)</string>
+    <string name="emulate_hdr_description">Assombrit légèrement le reste de l\'écran pour que les visualiseurs à l\'écran paraissent plus lumineux que l\'écran. Fonctionne sur les écrans OLED.</string>
+    <string name="hdr_intensity">Intensité</string>
+    <!-- Settings Extra -->
+    <string name="vizualizer_stats">Statistiques</string>
+    <string name="tablet_width_title">Largeur des catégories</string>
+    <!-- Notification Extra -->
+    <string name="notification_channel_name">Notification BNMV</string>
+    <string name="notification_title">Better Nothing Music Visualizer</string>
+    <string name="notification_action_glyphs">glyphs</string>
+    <string name="notification_action_haptics">vibrations</string>
+    <string name="notification_action_flash">flash</string>
+    <string name="notification_action_stop">Arrêter</string>
+    <!-- Device Names -->
+    <string name="device_unknown">Appareil Inconnu</string>
+    <!-- Stats Screen -->
+    <string name="usage_stats">Statistiques d\'utilisation</string>
+    <string name="total_visualization_time">Temps de visualisation total</string>
+    <string name="engagement">Engagement</string>
+    <string name="active_music">Musique active</string>
+    <string name="idle_pulse">Inactif</string>
+    <string name="feature_breakdown">Répartition des fonctionnalités</string>
+    <string name="glyph_interface">Glyph Interface/Matrix</string>
+    <string name="haptic_feedback">Vibration</string>
+    <string name="flashlight_sync_stat">Synchro Flash</string>
+    <string name="total_active_use">Total de l\'utilisation active</string>
+    <!-- Glyphs Screen Extra -->
+    <string name="update_required">Mise à jour requise</string>
+    <string name="download_full_config">Télécharger la configuration complète pour voir les préréglages</string>
+    <string name="visualizer_configuration">Configuration du Visualiseur</string>
+    <string name="config_description">Le fichier zones.config définit comment les fréquences correspondent aux LEDs des Glyphs. La mise à jour depuis GitHub assure la prise en charge de nouveaux appareils et modes.</string>
+    <string name="up_to_date">À jour</string>
+    <string name="update_available_label">MISE À JOUR DISPONIBLE</string>
+    <string name="local_config">Local</string>
+    <string name="show_gamma_info">Plus d\'infos</string>
+    <string name="check_github">Vérifier les màj</string>
+    <!-- About Screen Extra -->
+    <string name="view_source_contributions">Voir le code source et les contributions</string>
+    <string name="software_update">Mise à jour logicielle</string>
+    <string name="update_label">METTRE À JOUR</string>
+    <!-- Audio Service -->
+    <string name="audio_route_none">Aucune</string>
+    <string name="output_selection">2. Sélectionnez les sorties</string>
+    <string name="select_capture_source">1. Sélectionnez la source audio</string>
+    <string name="broadcast">Laisser d\'autres appareils se connecter...</string>
+    <!-- Audio Help Guides -->
+    <string name="help_source_intro">Choisir où capturer l\'audio pour la visualisation :</string>
+    <string name="help_source_internal_title">Audio interne</string>
+    <string name="help_source_internal_desc">Capture un son de haute qualité directement depuis vos applications. Le popup \"partage d\'écran\" est ce dont Android a besoin pour permettre la capture audio par BNMV. Il n\'enregistre pas votre écran et est très économe en batterie. </string>
+    <string name="help_source_mic_title">Microphone</string>
+    <string name="help_source_mic_desc">Analyse le son de l\'environnement. Utile pour les fêtes où vous ne mettez pas le son vous-même.</string>
+    <string name="help_source_network_title">Autre appareil ou application...</string>
+    <string name="help_source_network_desc">Reçoit des données audio d\'un autre appareil qui diffuse des données audio avec cette application.</string>
+    <string name="help_source_viz_title">Visualiseur Android standard</string>
+    <string name="help_source_viz_desc">C\'est ce qu\'Android permet officiellement aux applications de visualiseur d\'utiliser, un flux audio de très faible qualité. Il ne demande pas les autorisations de partage d\'écran, mais c\'est de la merde.</string>
+    <string name="help_source_privacy">N’oubliez pas, aucune donnée audio n’est jamais enregistrée ou stockée sur votre appareil.</string>
+    <string name="help_output_intro">Contrôle où la visualisation s\'affiche:</string>
+    <string name="help_output_glyphs_desc">Visualise l\'audio à l\'aide des LEDs Glyph Interface / Matrice.</string>
+    <string name="help_output_haptics_desc">Vous permet de ressentir la musique à travers le moteur de vibration haptique.</string>
+    <string name="help_output_flash_desc">Synchronise votre flash avec la musique !</string>
+    <string name="help_output_broadcast_title">\"Permettre à d\'autres appareils de se connecter...\"</string>
+    <string name="help_output_broadcast_desc">Diffuse les données audio vers d\'autres appareils de votre réseau utilisant BNMV pour pouvoir les synchroniser ensemble. Essayez, c\'est cool !</string>
+    <string name="help_sync_title">Connexion à un autre appareil :</string>
+    <string name="help_sync_step1">1. Activez \'Laisser d\'autres appareils se connecter...\' sur l\'appareil qui diffuse la musique (Source).</string>
+    <string name="help_sync_step2">2. Sur cet appareil, sélectionnez « Autre appareil ou application » comme Source Audio et choisissez le périphérique source dans la liste.</string>
+    <string name="system_language">Langue du système</string>
+    <string name="select_language">Langues</string>
+    <string name="widget_m3_description">Widget Material 3 (DayNight)</string>
+    <string name="idle_breathing_desc">Les Glyphs s\'animent subtilement lorsque le visualiseur est actif mais qu\'aucun son n\'est détecté.</string>
+    <!-- Widget -->
+    <string name="widget_start_bnmv">DÉMARRER</string>
+    <string name="widget_stop_bnmv">ARRÊTER</string>
+    <!-- First Time Help -->
+    <string name="first_time_help_title">Astuce rapide</string>
+    <string name="first_time_help_msg">Cliquez sur les boutons [info] quand vous avez besoin d\'aide!</string>
+    <!-- Easter Eggs -->
+    <string name="toast_no_output">Aucune sortie n\'est activée, donc BNMV ne fera NOTHING 😆</string>
+    <string name="toast_audio_title_tap">Pourquoi cliquez-vous ici ??</string>
+    <string name="easter_egg_glyph_popup_body">Ce concept de logo de BNMV a été créé par le développeur de la plus grande application créée par la Communauté Nothing, NoVolume. C\'est une application incroyable et vous devez absolument tester sur le Play Store.\n\nVoici ce qu\'il a dit:</string>
+    <string name="easter_egg_glyph_popup_quote">\"Je pense que ce logo conviendrait à l\'application et plus en plus de personnes installeraient l\'application grâce à moi.\"</string>
+    <string name="ok">OK</string>
+    <string name="i_dont_give_a_fuck">Je m\'en balec</string>
+    <!-- Visualizer Color & Accessibility -->
+    <string name="visualizer_color">Couleur</string>
+    <string name="broadcast_clients">Appareils connectés</string>
+    <string name="connected_count">%d connectés</string>
+    <string name="waiting_for_devices">En attente des appareils...</string>
+    <string name="made_by_aleks">Fait par Aleks Levet!</string>
+    <string name="credits_extended">Je ne suis pas le seul à avoir contribué à faire de ce projet incroyable, consultez la page github pour trouver des crédits complets ! Cela a pris des années à faire !</string>
+    <string name="content_desc_internal_source">Source interne</string>
+    <string name="content_desc_mic_source">Microphone</string>
+    <string name="content_desc_visualizer_source">Source du Visualiseur</string>
+    <string name="content_desc_toggle_haptics">Activer/désactiver les vibrations</string>
+    <string name="content_desc_toggle_glyphs">Activer/Désactiver les glyphs</string>
+    <string name="content_desc_toggle_torch">Activer/désactiver la lampe torche</string>
+    <string name="content_desc_start_stop">Démarrer/Arrêter le visualiseur</string>
+    <string name="label_source">SOURCE</string>
+    <string name="label_output">SORTIE</string>
+    <string name="help_show">Afficher l’aide</string>
 </resources>
