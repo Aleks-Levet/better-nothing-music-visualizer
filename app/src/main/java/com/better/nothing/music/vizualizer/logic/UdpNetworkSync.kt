@@ -422,6 +422,22 @@ class UdpNetworkSync(private val context: Context) {
         listeningSocket?.close()
     }
 
+    fun sendHandshake(ip: String, port: Int) {
+        executor.execute {
+            try {
+                val address = InetAddress.getByName(ip)
+                val msg = DISCOVERY_MSG.toByteArray()
+                val socket = DatagramSocket()
+                val packet = DatagramPacket(msg, msg.size, address, port)
+                socket.send(packet)
+                socket.close()
+                Log.d(TAG, "Sent handshake to $ip:$port")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to send handshake to $ip:$port", e)
+            }
+        }
+    }
+
     // --- Packing Logic ---
 
     /**

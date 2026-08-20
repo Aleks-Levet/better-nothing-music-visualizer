@@ -118,6 +118,7 @@ public class AudioCaptureService extends Service {
     public static final String ACTION_SET_SOURCE = "com.better.nothing.music.vizualizer.action.SET_SOURCE";
     public static final String ACTION_REFRESH_SETTINGS = "com.better.nothing.music.vizualizer.action.REFRESH_SETTINGS";
     public static final String ACTION_SET_PRESET = "com.better.nothing.music.vizualizer.action.SET_PRESET";
+    public static final String ACTION_CONNECT_UDP = "com.better.nothing.music.vizualizer.action.CONNECT_UDP";
 
     public static final String EXTRA_SOURCE = "extra_source";
     public static final String EXTRA_PRESET_KEY = "preset_key";
@@ -125,6 +126,8 @@ public class AudioCaptureService extends Service {
     public static final String EXTRA_RESULT_CODE = "result_code";
     public static final String EXTRA_DATA = "data";
     public static final String EXTRA_START_SOURCE = "start_source";
+    public static final String EXTRA_IP = "extra_ip";
+    public static final String EXTRA_PORT = "extra_port";
     public static final float DEFAULT_GAMMA = 2.2f;
     private volatile float mGlyphThreshold = 0.0f;
     private volatile float mGlyphDecaySpeed = 0.75f;
@@ -746,6 +749,13 @@ public class AudioCaptureService extends Service {
                 if (presetKey != null) {
                     setPreset(presetKey);
                     getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putString("selected_preset", presetKey).apply();
+                }
+            }
+            else if (ACTION_CONNECT_UDP.equals(intentAction)) {
+                String ip = intent.getStringExtra(EXTRA_IP);
+                int port = intent.getIntExtra(EXTRA_PORT, 8888);
+                if (ip != null) {
+                    connectUdp(ip, port);
                 }
             }
         }
@@ -1779,6 +1789,23 @@ public class AudioCaptureService extends Service {
     private AudioRouteInfo resolveCurrentAudioRoute() { return null; }
     private void applyPresetSelection(String pk) { mPresetKey = pk; reloadConfig(); }
     public void setPreset(String p) { mPresetKey = p; restartCapture(); }
+
+    public void connectUdp(String ip, int port) {
+        Log.d(TAG, "Connecting to external UDP source: " + ip + ":" + port);
+        mCaptureSource = CaptureSource.NETWORK;
+        getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putString("capture_source", CaptureSource.NETWORK.name()).apply();
+        
+        if (!sIsRunning) {
+            startNetworkCapture();
+        } else {
+            restartCapture();
+        }
+        
+        if (mUdpSync != null) {
+            mUdpSync.sendHandshake(ip, port);
+        }
+    }
+
     private int clampGlyphBrightness(int b) { return Math.max(0, Math.min(4095, b)); }
     private void resetVisualizerState() { if (mGlyphRenderer != null) mGlyphRenderer.resetState(mVisualizerConfig); }
 }

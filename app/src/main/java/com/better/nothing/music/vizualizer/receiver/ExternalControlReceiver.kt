@@ -25,9 +25,13 @@ class ExternalControlReceiver : BroadcastReceiver() {
         const val ACTION_TOGGLE_EDGE = "com.better.nothing.music.vizualizer.ACTION_TOGGLE_EDGE"
         const val ACTION_TOGGLE_LENS = "com.better.nothing.music.vizualizer.ACTION_TOGGLE_LENS"
         
+        const val ACTION_CONNECT_UDP = "com.better.nothing.music.vizualizer.ACTION_CONNECT_UDP"
+        
         const val EXTRA_SOURCE = "source" // INTERNAL, MIC, VIZUALIZER, NETWORK
         const val EXTRA_PRESET = "preset"
         const val EXTRA_ENABLED = "enabled" // Boolean for toggles (optional)
+        const val EXTRA_IP = "ip"
+        const val EXTRA_PORT = "port"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -56,6 +60,20 @@ class ExternalControlReceiver : BroadcastReceiver() {
                     val serviceIntent = Intent(context, AudioCaptureService::class.java).apply {
                         this.action = AudioCaptureService.ACTION_SET_PRESET
                         putExtra(AudioCaptureService.EXTRA_PRESET_KEY, preset)
+                    }
+                    context.startService(serviceIntent)
+                }
+            }
+            ACTION_CONNECT_UDP -> {
+                val ip = intent.getStringExtra(EXTRA_IP) ?: intent.getStringExtra(AudioCaptureService.EXTRA_IP)
+                val port = if (intent.hasExtra(EXTRA_PORT)) intent.getIntExtra(EXTRA_PORT, 8888) 
+                          else intent.getIntExtra(AudioCaptureService.EXTRA_PORT, 8888)
+                
+                if (ip != null) {
+                    val serviceIntent = Intent(context, AudioCaptureService::class.java).apply {
+                        this.action = AudioCaptureService.ACTION_CONNECT_UDP
+                        putExtra(AudioCaptureService.EXTRA_IP, ip)
+                        putExtra(AudioCaptureService.EXTRA_PORT, port)
                     }
                     context.startService(serviceIntent)
                 }
