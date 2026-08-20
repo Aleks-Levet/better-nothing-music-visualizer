@@ -127,18 +127,17 @@ public class GlyphRenderer {
             // 1. Calculate and decay unique frequency ranges first
             for (int r = 0; r < config.uniqueRanges.length; r++) {
                 AudioProcessor.FrequencyRange range = config.uniqueRanges[r];
-                double sumSq = 0;
-                int count = 0;
+                float maxVal = 0f;
                 int start = Math.max(0, Math.min(range.logBinLo, 511));
                 int end = Math.max(start, Math.min(range.logBinHi, 511));
                 for (int b = start; b <= end; b++) {
                     float val = actualFft[b];
-                    sumSq += (double) val * val;
-                    count++;
+                    if (val > maxVal) {
+                        maxVal = val;
+                    }
                 }
 
-                float rmsVal = (count > 0) ? (float) Math.sqrt(sumSq / count) : 0f;
-                float normalized = Math.min(1.0f, rmsVal / 4095f);
+                float normalized = Math.min(1.0f, maxVal / 4095f);
                 
                 // Exponential decay
                 if (normalized > mRangeDecayState[r]) {
