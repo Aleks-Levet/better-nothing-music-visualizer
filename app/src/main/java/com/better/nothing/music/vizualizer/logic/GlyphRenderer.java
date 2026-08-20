@@ -22,6 +22,8 @@ public class GlyphRenderer {
     private float mIdleBackgroundBrightness = 0.02f;
     private boolean mAlternateMode = false;
     private int[] mPreviousFftRaw = null;
+    private float[] mSmoothedFft = null;
+    private int[] mAlternateFft = null;
 
     private float[] mCurrentLightState = new float[0];
     private float[] mRangeDecayState = new float[0];
@@ -101,11 +103,22 @@ public class GlyphRenderer {
         if (mAlternateMode) {
             if (mPreviousFftRaw == null || mPreviousFftRaw.length != fftraw.length) {
                 mPreviousFftRaw = new int[fftraw.length];
+                mSmoothedFft = new float[fftraw.length];
+                mAlternateFft = new int[fftraw.length];
             }
-            actualFft = new int[fftraw.length];
+            
             for (int i = 0; i < fftraw.length; i++) {
-                actualFft[i] = Math.max(0, Math.min(2047, fftraw[i] - mPreviousFftRaw[i])) * 2;
+                // Smooth the raw input to remove jitter
+                mSmoothedFft[i] = mSmoothedFft[i] * 0.4f + fftraw[i] * 0.6f;
+                
+                int delta = (int) (mSmoothedFft[i] - mPreviousFftRaw[i]);
+                // Noise gate: ignore tiny changes that are likely FFT jitter
+                if (delta < 50) delta = 0; 
+                
+                mAlternateFft[i] = Math.max(0, Math.min(2047, delta)) * 2;
+                mPreviousFftRaw[i] = (int) mSmoothedFft[i];
             }
+            actualFft = mAlternateFft;
         }
 
         try {
@@ -172,8 +185,10 @@ public class GlyphRenderer {
             int[] frameColors = buildFrameColors(mCurrentLightState, zoneCount);
             int frameHash = Arrays.hashCode(frameColors);
             
-            // Clone AFTER everything else is done so the next frame can compare
-            mPreviousFftRaw = fftraw.clone();
+            // If NOT in alternate mode, we still clone to keep mPreviousFftRaw updated for when mode toggles
+            if (!mAlternateMode) {
+                mPreviousFftRaw = fftraw.clone();
+            }
 
             if (frameHash == mLastHash) return null;
 
