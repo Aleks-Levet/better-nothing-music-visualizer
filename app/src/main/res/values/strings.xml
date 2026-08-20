@@ -236,9 +236,8 @@
     <string name="y_position">Y Position</string>
     <string name="bar_height">Bar Height</string>
 
-    <string name="emulate_hdr_title">Emulate HDR (OLED)</string>
-    <string name="emulate_hdr_subtitle">Deepens blacks for improved contrast</string>
-    <string name="emulate_hdr_description">Darkens the background behind the visualizer to make colors pop and reduce distraction. Works best on OLED screens.</string>
+    <string name="emulate_hdr_title">Simulate HDR (OLED)</string>
+    <string name="emulate_hdr_description">Darkens the screen to make the visualizer be \"brighter than the screen\", just like what hdr usually does. Works best on OLED screens.</string>
     <string name="hdr_intensity">HDR Intensity</string>
 
     <!-- Settings Extra -->
@@ -311,11 +310,11 @@
     <string name="help_source_privacy">Remember, no audio data is ever saved or stored on your device.</string>
 
     <string name="help_output_intro">Control where the visualization appears:</string>
-    <string name="help_output_glyphs_title">@string/tab_glyphs</string>
+    <string name="help_output_glyphs_title" translatable="false">@string/tab_glyphs</string>
     <string name="help_output_glyphs_desc">Visualizes audio using the Glyph Interface / Matrix LEDs.</string>
-    <string name="help_output_haptics_title">@string/tab_haptics</string>
+    <string name="help_output_haptics_title" translatable="false">@string/tab_haptics</string>
     <string name="help_output_haptics_desc">Lets you feel the music through the haptic vibration motor.</string>
-    <string name="help_output_flash_title">@string/tab_flashlight</string>
+    <string name="help_output_flash_title" translatable="false">@string/tab_flashlight</string>
     <string name="help_output_flash_desc">Pulses the camera flashlight to the beat.</string>
     <string name="help_output_broadcast_title">\"Let other devices connect...\"</string>
     <string name="help_output_broadcast_desc">Streams audio data to other devices on your network.</string>

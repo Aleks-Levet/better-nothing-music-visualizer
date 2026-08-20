@@ -762,8 +762,7 @@ fun VisualsScreen(
                 title = stringResource(R.string.emulate_hdr_title),
                 icon = Icons.Default.Brightness4,
                 expanded = hdrExpanded,
-                onExpandedChange = { hdrExpanded = it },
-                subtitle = stringResource(R.string.emulate_hdr_subtitle)
+                onExpandedChange = { hdrExpanded = it }
             ) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(12.dp)

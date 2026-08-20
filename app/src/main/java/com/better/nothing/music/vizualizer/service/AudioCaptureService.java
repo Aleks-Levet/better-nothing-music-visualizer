@@ -457,7 +457,8 @@ public class AudioCaptureService extends Service {
                 }
 
                 if (now - mLastSendMs >= 16 && mVisualizerConfig != null) {
-                    if (mUnifiedVisualizerView != null) mUnifiedVisualizerView.updateMagnitudes(mLatestRawFFT);
+                    UnifiedVisualizerView v = mUnifiedVisualizerView;
+                    if (v != null) v.updateMagnitudes(mLatestRawFFT);
 
                     processFrame(mLatestRawFFT, mVisualizerConfig, mPresetConfigVersion.get());
                 }
@@ -1342,7 +1343,8 @@ public class AudioCaptureService extends Service {
                     mLatestUiPeakDiff = maxDiff / 2047f; // Use 2047 for diff scaling similar to GlyphRenderer
                 }
 
-                if (mUnifiedVisualizerView != null) mUnifiedVisualizerView.updateMagnitudes(mLatestRawFFT);
+                UnifiedVisualizerView v = mUnifiedVisualizerView;
+                if (v != null) v.updateMagnitudes(mLatestRawFFT);
 
                 float hRawPeak = getLatestHapticPeak();
                 float fRawPeak = getLatestFlashlightPeak();
@@ -1590,6 +1592,7 @@ public class AudioCaptureService extends Service {
             if (anyEnabled) {
                 if (mUnifiedVisualizerView == null) {
                     mUnifiedVisualizerView = new UnifiedVisualizerView(this);
+                    mUnifiedVisualizerView.setAlpha(0f);
                     WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                             WindowManager.LayoutParams.MATCH_PARENT,
                             WindowManager.LayoutParams.MATCH_PARENT,
@@ -1604,12 +1607,19 @@ public class AudioCaptureService extends Service {
                     if (Build.VERSION.SDK_INT >= 28) {
                         params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
                     }
-                    try { mWindowManager.addView(mUnifiedVisualizerView, params); } catch (Exception ignored) {}
+                    try { 
+                        mWindowManager.addView(mUnifiedVisualizerView, params); 
+                    } catch (Exception ignored) {}
                 }
+                mUnifiedVisualizerView.animate().alpha(1f).setDuration(250).start();
                 updateUnifiedProperties();
             } else if (mUnifiedVisualizerView != null) {
-                try { mWindowManager.removeView(mUnifiedVisualizerView); } catch (Exception ignored) {}
-                mUnifiedVisualizerView = null;
+                mUnifiedVisualizerView.animate().alpha(0f).setDuration(250).withEndAction(() -> {
+                    if (mUnifiedVisualizerView != null && mUnifiedVisualizerView.getAlpha() < 0.01f) {
+                        try { mWindowManager.removeView(mUnifiedVisualizerView); } catch (Exception ignored) {}
+                        mUnifiedVisualizerView = null;
+                    }
+                }).start();
             }
         });
     }
