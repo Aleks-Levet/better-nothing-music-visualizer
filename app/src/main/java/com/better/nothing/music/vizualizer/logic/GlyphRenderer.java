@@ -50,7 +50,11 @@ public class GlyphRenderer {
 
     public void setAlternateMode(boolean enabled) {
         this.mAlternateMode = enabled;
-        if (!enabled) mPreviousFftRaw = null;
+        if (!enabled) {
+            mPreviousFftRaw = null;
+            mSmoothedFft = null;
+            mAlternateFft = null;
+        }
     }
 
     public void setGamma(float gamma) {
@@ -101,10 +105,15 @@ public class GlyphRenderer {
 
         int[] actualFft = fftraw;
         if (mAlternateMode) {
-            if (mPreviousFftRaw == null || mPreviousFftRaw.length != fftraw.length) {
+            if (mSmoothedFft == null || mSmoothedFft.length != fftraw.length) {
                 mPreviousFftRaw = new int[fftraw.length];
                 mSmoothedFft = new float[fftraw.length];
                 mAlternateFft = new int[fftraw.length];
+                // Initialize to current state to avoid huge jump on first frame
+                for (int i = 0; i < fftraw.length; i++) {
+                    mSmoothedFft[i] = fftraw[i];
+                    mPreviousFftRaw[i] = fftraw[i];
+                }
             }
             
             for (int i = 0; i < fftraw.length; i++) {
@@ -113,9 +122,9 @@ public class GlyphRenderer {
                 
                 int delta = (int) (mSmoothedFft[i] - mPreviousFftRaw[i]);
                 // Noise gate: ignore tiny changes that are likely FFT jitter
-                if (delta < 50) delta = 0; 
+                if (delta < 20) delta = 0; 
                 
-                mAlternateFft[i] = Math.max(0, Math.min(2047, delta)) * 2;
+                mAlternateFft[i] = Math.max(0, Math.min(1023, delta)) * 4;
                 mPreviousFftRaw[i] = (int) mSmoothedFft[i];
             }
             actualFft = mAlternateFft;

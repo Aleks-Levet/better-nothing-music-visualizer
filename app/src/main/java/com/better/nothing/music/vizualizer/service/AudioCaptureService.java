@@ -741,6 +741,7 @@ public class AudioCaptureService extends Service {
                 setMaxBrightness(nextVal);
                 SharedPreferences.Editor editor = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit();
                 editor.putInt("max_brightness", nextVal);
+                editor.putBoolean("glyphs_enabled", nextVal > 0);
                 if (nextVal > 0) editor.putInt("max_brightness_last", nextVal);
                 editor.apply();
             }

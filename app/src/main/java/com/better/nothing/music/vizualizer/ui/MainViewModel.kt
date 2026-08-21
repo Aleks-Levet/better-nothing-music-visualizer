@@ -1397,7 +1397,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         MainActivity.serviceStatic?.setMaxBrightness(clamped)
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putInt("max_brightness", clamped) }
+                .edit { 
+                    putInt("max_brightness", clamped)
+                    putInt("max_brightness_last", clamped)
+                }
         }
     }
 
@@ -2016,7 +2019,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _glyphThreshold.value = get("glyph_threshold", 0.0f)
         _glyphDecaySpeed.value = get("glyph_decay_speed", 0.75f)
         _spectrumGain.value = get("spectrum_gain", 4.0f)
-        _maxBrightness.value = get("max_brightness", 4095).coerceIn(50, 5000)
+        
+        val savedBrightness = get("max_brightness", 4095)
+        if (savedBrightness > 0) {
+            _maxBrightness.value = savedBrightness.coerceIn(50, 5000)
+        } else {
+            _maxBrightness.value = get("max_brightness_last", 4095).coerceIn(50, 5000)
+        }
+        
         _fftReadMethod.value = safeValueOf(get("fft_read_method", ""), AudioProcessor.ReadMethod.RMS)
         _microphoneMode.value = safeValueOf(get("microphone_mode", ""), MicrophoneMode.UNPROCESSED)
         _glyphsEnabled.value = get("glyphs_enabled", true)

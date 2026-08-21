@@ -1406,7 +1406,7 @@ fun <T> ExpressiveSplitButton(
                     )
                     val dpBouncySpec = spring<androidx.compose.ui.unit.Dp>(
                         dampingRatio = Spring.DampingRatioLowBouncy,
-                        stiffness = Spring.StiffnessMedium
+                        stiffness = Spring.StiffnessLow
                     )
 
                     val baseWeight by animateFloatAsState(
@@ -1563,7 +1563,7 @@ fun ExpressiveSlider(
     val animatedValue by animateFloatAsState(
         targetValue = value,
         animationSpec = if (isDragged) snap() else spring(
-            dampingRatio = Spring.DampingRatioNoBouncy,
+            dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessMediumLow
         ),
         label = "slider_value_animation"

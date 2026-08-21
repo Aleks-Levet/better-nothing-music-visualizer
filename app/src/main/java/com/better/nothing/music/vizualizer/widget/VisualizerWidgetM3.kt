@@ -68,6 +68,7 @@ class VisualizerWidgetM3 : AppWidgetProvider() {
                 val nextVal = if (currentMax > 0) 0 else prefs.getInt("max_brightness_last", 4095)
                 prefs.edit().apply {
                     putInt("max_brightness", nextVal)
+                    putBoolean("glyphs_enabled", nextVal > 0)
                     if (nextVal > 0) putInt("max_brightness_last", nextVal)
                     apply()
                 }
