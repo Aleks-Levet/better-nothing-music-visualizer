@@ -852,6 +852,44 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val _customFontPath = MutableStateFlow<String?>(null)
+    val customFontPath = _customFontPath.asStateFlow()
+
+    fun downloadCustomFont() {
+        val fontFile = File(ctx.filesDir, "google_sans_flex.ttf")
+        if (fontFile.exists() && fontFile.length() > 1000000) {
+            _customFontPath.value = fontFile.absolutePath
+            return
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val url = URL("https://raw.githubusercontent.com/Aleks-Levet/better-nothing-music-visualizer/main/google_sans_flex.ttf")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.connectTimeout = 15000
+                connection.readTimeout = 30000
+                
+                if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                    val input = connection.inputStream
+                    val output = FileOutputStream(fontFile)
+                    val buffer = ByteArray(8192)
+                    var bytesRead: Int
+                    while (input.read(buffer).also { bytesRead = it } != -1) {
+                        output.write(buffer, 0, bytesRead)
+                    }
+                    output.close()
+                    input.close()
+                    
+                    if (fontFile.exists()) {
+                        _customFontPath.value = fontFile.absolutePath
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Failed to download font", e)
+            }
+        }
+    }
+
     fun checkAppUpdate() {
         _appUpdateStatus.value = AppUpdateStatus.UpToDate
     }
@@ -2238,6 +2276,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         reloadFlashlightSpeedForLevels()
         updateSelectedDevice()
         refreshPresets()
+        downloadCustomFont()
         MainActivity.serviceStatic?.setMicrophoneMode(_microphoneMode.value.audioSource)
     }
 

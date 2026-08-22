@@ -269,6 +269,7 @@ class MainActivity : AppCompatActivity() {
             val m3eEnabled by viewModel.m3eEnabled.collectAsStateWithLifecycle()
             val musicThemeColor by viewModel.musicThemeColor.collectAsStateWithLifecycle()
             val isRunning by viewModel.runningState.collectAsStateWithLifecycle()
+            val customFontPath by viewModel.customFontPath.collectAsStateWithLifecycle()
 
             val gSansWeight by viewModel.googleSansWeight.collectAsStateWithLifecycle()
             val gSansWidth by viewModel.googleSansWidth.collectAsStateWithLifecycle()
@@ -318,6 +319,7 @@ class MainActivity : AppCompatActivity() {
                 gSansOpsz = gSansOpsz,
                 gSansGrade = gSansGrade,
                 gSansRounding = gSansRounding,
+                customFontPath = customFontPath,
             ) {
                 val isShowingAbout by viewModel.isShowingAbout.collectAsStateWithLifecycle()
                 val isShowingLicense by viewModel.isShowingLicense.collectAsStateWithLifecycle()

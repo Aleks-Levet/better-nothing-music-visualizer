@@ -130,110 +130,110 @@ internal fun SettingsScreen(
                             },
                             modifier = Modifier.fillMaxWidth()
                         )
+                    }
 
-                        if (selectedFont == "Google Sans Flex") {
-                            val weight by viewModel.googleSansWeight.collectAsStateWithLifecycle()
-                            val width by viewModel.googleSansWidth.collectAsStateWithLifecycle()
-                            val slant by viewModel.googleSansSlant.collectAsStateWithLifecycle()
-                            val opsz by viewModel.googleSansOpticalSize.collectAsStateWithLifecycle()
-                            val grade by viewModel.googleSansGrade.collectAsStateWithLifecycle()
-                            val rounding by viewModel.googleSansRounding.collectAsStateWithLifecycle()
+                    if (selectedFont == "Google Sans Flex" || isRestrictedLocale) {
+                        val weight by viewModel.googleSansWeight.collectAsStateWithLifecycle()
+                        val width by viewModel.googleSansWidth.collectAsStateWithLifecycle()
+                        val slant by viewModel.googleSansSlant.collectAsStateWithLifecycle()
+                        val opsz by viewModel.googleSansOpticalSize.collectAsStateWithLifecycle()
+                        val grade by viewModel.googleSansGrade.collectAsStateWithLifecycle()
+                        val rounding by viewModel.googleSansRounding.collectAsStateWithLifecycle()
 
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 8.dp),
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                // Weight Slider
-                                Column {
-                                    Text(
-                                        text = stringResource(R.string.gsans_weight) + ": ${weight.toInt()}",
-                                        style = MaterialTheme.typography.labelLarge,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                    ExpressiveSlider(
-                                        value = weight,
-                                        onValueChange = { viewModel.setGoogleSansWeight(it) },
-                                        valueRange = 100f..1000f,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            // Weight Slider
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.gsans_weight) + ": ${weight.toInt()}",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                ExpressiveSlider(
+                                    value = weight,
+                                    onValueChange = { viewModel.setGoogleSansWeight(it) },
+                                    valueRange = 100f..1000f,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
 
-                                // Width Slider
-                                Column {
-                                    Text(
-                                        text = stringResource(R.string.gsans_width) + ": ${width.toInt()}%",
-                                        style = MaterialTheme.typography.labelLarge,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                    ExpressiveSlider(
-                                        value = width,
-                                        onValueChange = { viewModel.setGoogleSansWidth(it) },
-                                        valueRange = 25f..150f,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                }
+                            // Width Slider
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.gsans_width) + ": ${width.toInt()}%",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                ExpressiveSlider(
+                                    value = width,
+                                    onValueChange = { viewModel.setGoogleSansWidth(it) },
+                                    valueRange = 25f..150f,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
 
-                                // Rounding Slider
-                                Column {
-                                    Text(
-                                        text = stringResource(R.string.gsans_rounding) + ": ${rounding.toInt()}",
-                                        style = MaterialTheme.typography.labelLarge,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                    ExpressiveSlider(
-                                        value = rounding,
-                                        onValueChange = { viewModel.setGoogleSansRounding(it) },
-                                        valueRange = 0f..100f,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                }
+                            // Rounding Slider
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.gsans_rounding) + ": ${rounding.toInt()}",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                ExpressiveSlider(
+                                    value = rounding,
+                                    onValueChange = { viewModel.setGoogleSansRounding(it) },
+                                    valueRange = 0f..100f,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
 
-                                // Slant Slider
-                                Column {
-                                    Text(
-                                        text = stringResource(R.string.gsans_slant) + ": ${slant.toInt()}°",
-                                        style = MaterialTheme.typography.labelLarge,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                    ExpressiveSlider(
-                                        value = slant,
-                                        onValueChange = { viewModel.setGoogleSansSlant(it) },
-                                        valueRange = -10f..0f,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                }
+                            // Slant Slider
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.gsans_slant) + ": ${slant.toInt()}°",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                ExpressiveSlider(
+                                    value = slant,
+                                    onValueChange = { viewModel.setGoogleSansSlant(it) },
+                                    valueRange = -10f..0f,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
 
-                                // Grade Slider
-                                Column {
-                                    Text(
-                                        text = stringResource(R.string.gsans_grade) + ": ${grade.toInt()}",
-                                        style = MaterialTheme.typography.labelLarge,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                    ExpressiveSlider(
-                                        value = grade,
-                                        onValueChange = { viewModel.setGoogleSansGrade(it) },
-                                        valueRange = -200f..150f,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                }
+                            // Grade Slider
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.gsans_grade) + ": ${grade.toInt()}",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                ExpressiveSlider(
+                                    value = grade,
+                                    onValueChange = { viewModel.setGoogleSansGrade(it) },
+                                    valueRange = -200f..150f,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
 
-                                // Optical Size Slider
-                                Column {
-                                    Text(
-                                        text = stringResource(R.string.gsans_opsz) + ": ${opsz.toInt()}",
-                                        style = MaterialTheme.typography.labelLarge,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                    ExpressiveSlider(
-                                        value = opsz,
-                                        onValueChange = { viewModel.setGoogleSansOpticalSize(it) },
-                                        valueRange = 6f..144f,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                }
+                            // Optical Size Slider
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.gsans_opsz) + ": ${opsz.toInt()}",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                ExpressiveSlider(
+                                    value = opsz,
+                                    onValueChange = { viewModel.setGoogleSansOpticalSize(it) },
+                                    valueRange = 6f..144f,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
                             }
                         }
                     }

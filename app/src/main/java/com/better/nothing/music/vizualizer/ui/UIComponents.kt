@@ -35,6 +35,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -436,12 +437,22 @@ fun FlowRowScope.OptionTile(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            var marqueeActive by remember(label) { mutableStateOf(false) }
+
             Icon(icon, contentDescription = null, modifier = Modifier.size(25.dp))
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = if (isSelected && enabled) FontWeight.Bold else FontWeight.Medium,
-                maxLines = maxLines
+                maxLines = if (marqueeActive) 1 else maxLines,
+                onTextLayout = {
+                    if (it.didOverflowHeight && !marqueeActive) {
+                        marqueeActive = true
+                    }
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .then(if (marqueeActive) Modifier.basicMarquee() else Modifier)
             )
         }
     }
@@ -457,7 +468,7 @@ fun ScreenTitle(
     val configuration = LocalConfiguration.current
     val isRestrictedLocale = remember(configuration) {
         val currentLocale = configuration.locales.get(0).language
-        listOf("hi", "ar", "ja", "zh").contains(currentLocale)
+        listOf("hi", "ar", "ja", "ru", "zh").contains(currentLocale)
     }
 
     Column(
