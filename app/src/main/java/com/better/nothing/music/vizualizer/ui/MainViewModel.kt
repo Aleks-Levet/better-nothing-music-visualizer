@@ -671,6 +671,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val _lensVisualizerWidth = MutableStateFlow(0f)
+    val lensVisualizerWidth = _lensVisualizerWidth.asStateFlow()
+    fun setLensVisualizerWidth(width: Float) {
+        _lensVisualizerWidth.value = width
+        MainActivity.serviceStatic?.setLensVisualizerWidth(width)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("lens_visualizer_width", width) }
+        }
+    }
+
     private val _lensVisualizerX = MutableStateFlow(540f)
     val lensVisualizerX = _lensVisualizerX.asStateFlow()
     fun setLensVisualizerX(x: Float) {
@@ -830,6 +841,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putFloat("gsans_rounding", value) }
         }
+    }
+
+    fun resetGoogleSansAxes() {
+        setGoogleSansWeight(400f)
+        setGoogleSansWidth(100f)
+        setGoogleSansSlant(0f)
+        setGoogleSansRounding(0f)
     }
 
     private val _customFontPath = MutableStateFlow<String?>(null)
@@ -1289,6 +1307,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _spoofedDevice = MutableStateFlow(DeviceProfile.DEVICE_NP1)
     val spoofedDevice = _spoofedDevice.asStateFlow()
 
+    val _spoofFlashlightLevels = MutableStateFlow<Int?>(null)
+    val spoofFlashlightLevels = _spoofFlashlightLevels.asStateFlow()
+
     fun setDeveloperModeEnabled(enabled: Boolean) {
         _developerModeEnabled.value = enabled
         updateSelectedDevice()
@@ -1309,6 +1330,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun setSpoofFlashlightLevels(levels: Int?) {
+        _spoofFlashlightLevels.value = levels
+        MainActivity.serviceStatic?.setFlashlightSpoofLevels(levels)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit {
+                    if (levels == null) remove("spoof_flashlight_levels")
+                    else putInt("spoof_flashlight_levels", levels)
+                }
+        }
+    }
+
     fun setSpoofLocale(localeTag: String?) {
         _spoofLocale.value = localeTag
         val appLocales = if (localeTag == null) {
@@ -1326,6 +1359,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun updateSelectedDevice() {
         val actualDevice = DeviceProfile.detectDevice()
         val targetDevice = if (_developerModeEnabled.value) _spoofedDevice.value else actualDevice
+
+        if (!_developerModeEnabled.value) {
+            setSpoofFlashlightLevels(null)
+        } else {
+            MainActivity.serviceStatic?.setFlashlightSpoofLevels(_spoofFlashlightLevels.value)
+        }
 
         selectedDevice.value = targetDevice
         if (targetDevice == DeviceProfile.DEVICE_UNKNOWN) {
@@ -1705,6 +1744,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _flashlightBeatSensitivity = MutableStateFlow(1.5f)
     val flashlightBeatSensitivity = _flashlightBeatSensitivity.asStateFlow()
 
+    private val _flashlightBeatGamma = MutableStateFlow(8.0f)
+    val flashlightBeatGamma = _flashlightBeatGamma.asStateFlow()
+
     val _flashlightBeatEngineMode = MutableStateFlow(BeatEngineMode.SMOOTH)
     val flashlightBeatEngineMode = _flashlightBeatEngineMode.asStateFlow()
 
@@ -1774,6 +1816,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 .edit { putFloat("flashlight_beat_sensitivity", value) }
         }
         MainActivity.serviceStatic?.setFlashlightBeatSensitivity(value)
+    }
+
+    fun setFlashlightBeatGamma(value: Float) {
+        _flashlightBeatGamma.value = value
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("flashlight_beat_gamma", value) }
+        }
+        MainActivity.serviceStatic?.setFlashlightBeatGamma(value)
     }
 
     fun setFlashlightBeatEngineMode(mode: BeatEngineMode) {
@@ -2092,6 +2143,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         // General settings
         _developerModeEnabled.value = get("developer_mode_v2", false)
         _spoofedDevice.value = get("spoofed_device", DeviceProfile.DEVICE_NP1)
+
+        val spoofFlashlight = all["spoof_flashlight_levels"] as? Int
+        _spoofFlashlightLevels.value = spoofFlashlight
+
         _autoDeviceMemorize.value = get("auto_device_memorize", true)
         _m3eEnabled.value = get("m3e_enabled", true)
         _gammaValue.value = get("gamma_value", 2.2f)
@@ -2142,6 +2197,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _flashlightFreqMax.value = get("flashlight_freq_max", 250).toFloat()
         _flashlightThreshold.value = get("flashlight_threshold", 0.15f)
         _flashlightBeatSensitivity.value = get("flashlight_beat_sensitivity", 1.5f)
+        _flashlightBeatGamma.value = get("flashlight_beat_gamma", 8.0f)
         _flashlightSpeedMs.value = get("flashlight_speed_ms", 80f)
         _flashlightMaxIntensity.value = get("flashlight_max_intensity", -1)
         
@@ -2183,6 +2239,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         _lensVisualizerEnabled.value = get("lens_visualizer_enabled", false)
         _lensVisualizerRadius.value = get("lens_visualizer_radius", 16f)
+        _lensVisualizerWidth.value = get("lens_visualizer_width", 0f)
         _lensVisualizerX.value = get("lens_visualizer_x_px", 540f)
         _lensVisualizerY.value = get("lens_visualizer_y_px", 72f)
         _lensVisualizerBarWidth.value = get("lens_visualizer_bar_width", 1f)

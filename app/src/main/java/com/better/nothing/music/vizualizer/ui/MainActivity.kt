@@ -521,6 +521,7 @@ class MainActivity : AppCompatActivity() {
             it.setIdleBackgroundBrightness(viewModel.idleBackgroundBrightness.value)
             it.setLensVisualizerEnabled(viewModel.onScreenVisualizersEnabled.value && viewModel.lensVisualizerEnabled.value)
             it.setLensVisualizerRadius(viewModel.lensVisualizerRadius.value)
+            it.setLensVisualizerWidth(viewModel.lensVisualizerWidth.value)
             it.setLensVisualizerX(viewModel.lensVisualizerX.value)
             it.setLensVisualizerY(viewModel.lensVisualizerY.value)
             it.setLensVisualizerBarWidth(viewModel.lensVisualizerBarWidth.value)
@@ -1162,8 +1163,8 @@ private fun TabContent(
             val flashlightFreqMin by viewModel.flashlightFreqMin.collectAsStateWithLifecycle()
             val flashlightFreqMax by viewModel.flashlightFreqMax.collectAsStateWithLifecycle()
             val flashlightThreshold by viewModel.flashlightThreshold.collectAsStateWithLifecycle()
-            val flashlightSpeedMs by viewModel.flashlightSpeedMs.collectAsStateWithLifecycle()
             val flashlightBeatSensitivity by viewModel.flashlightBeatSensitivity.collectAsStateWithLifecycle()
+            val flashlightBeatGamma by viewModel.flashlightBeatGamma.collectAsStateWithLifecycle()
             val flashlightIntensityLevels by viewModel.flashlightIntensityLevels.collectAsStateWithLifecycle()
             val flashlightMaxIntensity by viewModel.flashlightMaxIntensity.collectAsStateWithLifecycle()
             val flashlightLevel by viewModel.flashlightLevel.collectAsStateWithLifecycle()
@@ -1193,14 +1194,14 @@ private fun TabContent(
                         it
                     )
                 },
-                flashlightSpeedMs = flashlightSpeedMs,
-                onFlashlightSpeedMsChanged = { viewModel.setFlashlightSpeedMs(it) },
                 flashlightBeatSensitivity = flashlightBeatSensitivity,
                 onFlashlightBeatSensitivityChanged = {
                     viewModel.setFlashlightBeatSensitivity(
                         it
                     )
                 },
+                flashlightBeatGamma = flashlightBeatGamma,
+                onFlashlightBeatGammaChanged = { viewModel.setFlashlightBeatGamma(it) },
                 flashlightIntensityLevels = flashlightIntensityLevels,
                 flashlightMaxIntensity = flashlightMaxIntensity,
                 onFlashlightMaxIntensityChanged = { viewModel.setFlashlightMaxIntensity(it) },

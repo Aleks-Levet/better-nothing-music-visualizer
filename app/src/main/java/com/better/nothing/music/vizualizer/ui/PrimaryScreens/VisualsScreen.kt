@@ -68,6 +68,7 @@ fun VisualsScreen(
     
     val lensEnabled by viewModel.lensVisualizerEnabled.collectAsStateWithLifecycle()
     val lensRadius by viewModel.lensVisualizerRadius.collectAsStateWithLifecycle()
+    val lensWidth by viewModel.lensVisualizerWidth.collectAsStateWithLifecycle()
     val lensX by viewModel.lensVisualizerX.collectAsStateWithLifecycle()
     val lensY by viewModel.lensVisualizerY.collectAsStateWithLifecycle()
     val lensBarWidth by viewModel.lensVisualizerBarWidth.collectAsStateWithLifecycle()
@@ -597,6 +598,29 @@ fun VisualsScreen(
                         value = lensRadius,
                         onValueChange = { viewModel.setLensVisualizerRadius(it) },
                         valueRange = 2f..20f,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.overlay_width),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "${lensWidth.toInt()}dp",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    VisualSlider(
+                        value = lensWidth,
+                        onValueChange = { viewModel.setLensVisualizerWidth(it) },
+                        valueRange = 0f..200f,
                         modifier = Modifier.fillMaxWidth()
                     )
 

@@ -72,10 +72,10 @@ fun FlashlightScreen(
     onFlashlightFreqRangeChanged: (Float, Float) -> Unit,
     flashlightThreshold: Float,
     onFlashlightThresholdChanged: (Float) -> Unit,
-    flashlightSpeedMs: Float,
-    onFlashlightSpeedMsChanged: (Float) -> Unit,
     flashlightBeatSensitivity: Float,
     onFlashlightBeatSensitivityChanged: (Float) -> Unit,
+    flashlightBeatGamma: Float,
+    onFlashlightBeatGammaChanged: (Float) -> Unit,
     flashlightIntensityLevels: Int,
     flashlightMaxIntensity: Int,
     onFlashlightMaxIntensityChanged: (Int) -> Unit,
@@ -242,41 +242,42 @@ fun FlashlightScreen(
                 }
             }
 
-            AnimatedVisibility (flashlightMode == TorchMode.BEAT_DETECTION) {
-                if (flashlightBeatEngineMode == BeatEngineMode.SHORT_PULSE || flashlightIntensityLevels <= 1) {
-                    ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                        CardHeader(
-                            title = stringResource(
-                                R.string.flashlight_duration_label,
-                                flashlightPulseDurationMs
+            AnimatedVisibility(flashlightMode == TorchMode.BEAT_DETECTION) {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    if (flashlightIntensityLevels > 1 && flashlightBeatEngineMode == BeatEngineMode.SMOOTH) {
+                        ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
+                            CardHeader(
+                                title = stringResource(
+                                    R.string.haptics_speed_label,
+                                    flashlightBeatGamma
+                                )
                             )
-                        )
-                        ExpressiveSlider(
-                            value = flashlightPulseDurationMs.toFloat(),
-                            onValueChange = { onFlashlightPulseDurationMsChanged(it.toInt()) },
-                            valueRange = 5f..200f,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        BodyText(
-                            text = stringResource(R.string.flashlight_duration_desc),
-                            size = 12.sp
-                        )
-                    }
-                }
-                AnimatedVisibility (flashlightMode != TorchMode.BEAT_DETECTION) {
-                    ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                        CardHeader(
-                            title = stringResource(
-                                R.string.flashlight_speed_label,
-                                flashlightSpeedMs
+                            ExpressiveSlider(
+                                value = flashlightBeatGamma,
+                                onValueChange = onFlashlightBeatGammaChanged,
+                                valueRange = 4.0f..15.0f,
+                                modifier = Modifier.fillMaxWidth()
                             )
-                        )
-                        ExpressiveSlider(
-                            value = flashlightSpeedMs,
-                            onValueChange = onFlashlightSpeedMsChanged,
-                            valueRange = 40f..150f,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        }
+                    } else {
+                        ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
+                            CardHeader(
+                                title = stringResource(
+                                    R.string.haptics_duration_label,
+                                    flashlightPulseDurationMs
+                                )
+                            )
+                            ExpressiveSlider(
+                                value = flashlightPulseDurationMs.toFloat(),
+                                onValueChange = { onFlashlightPulseDurationMsChanged(it.toInt()) },
+                                valueRange = 5f..200f,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            BodyText(
+                                text = stringResource(R.string.flashlight_duration_desc),
+                                size = 12.sp
+                            )
+                        }
                     }
                 }
             }

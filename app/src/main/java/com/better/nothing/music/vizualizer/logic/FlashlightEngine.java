@@ -29,6 +29,7 @@ public final class FlashlightEngine {
     private String cameraId;
     private boolean hasTorchStrength;
     private int maxTorchStrength = 1;
+    private Integer spoofIntensityLevels = null;
 
     private TorchMode torchMode = TorchMode.AMPLITUDE;
     private BeatEngineMode beatEngineMode = BeatEngineMode.SMOOTH;
@@ -36,10 +37,10 @@ public final class FlashlightEngine {
 
     private float amplitudeThresholdOrMultiplier = 0.15f;
     private float flashlightBeatSpeedMs = 90f;
+    private float flashlightBeatGamma = 8.0f;
     private int userMaxIntensity = -1;
 
     private final BeatDetector beatDetector = new BeatDetector();
-    private final float[] beatPattern = buildBeatPattern();
 
     private long beatFlashStartMs = 0L;
     private long beatFlashDurationMs = 90L;
@@ -79,10 +80,16 @@ public final class FlashlightEngine {
     }
 
     public synchronized int getTorchIntensityLevels() {
+        if (spoofIntensityLevels != null) return spoofIntensityLevels;
         return hasTorchStrength ? Math.max(1, maxTorchStrength) : 1;
     }
 
+    public synchronized void setSpoofIntensityLevels(Integer levels) {
+        this.spoofIntensityLevels = levels;
+    }
+
     public synchronized int getCurrentLevel() {
+        if (spoofIntensityLevels != null) return lastLevel;
         if (cameraId != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             try {
                 return cameraManager.getTorchStrengthLevel(cameraId);
@@ -175,6 +182,10 @@ public final class FlashlightEngine {
         this.beatFlashDurationMs = (long) flashlightBeatSpeedMs;
     }
 
+    public synchronized void setFlashlightBeatGamma(float gamma) {
+        this.flashlightBeatGamma = Math.max(4.0f, Math.min(15.0f, gamma));
+    }
+
     public synchronized void setUserMaxIntensity(int intensity) {
         this.userMaxIntensity = intensity;
     }
@@ -239,7 +250,7 @@ public final class FlashlightEngine {
 
     public synchronized void triggerBeat() {
         beatFlashStartMs = SystemClock.elapsedRealtime();
-        beatFlashDurationMs = (beatEngineMode == BeatEngineMode.SHORT_PULSE) ? pulseDurationMs : (long) flashlightBeatSpeedMs;
+        beatFlashDurationMs = (beatEngineMode == BeatEngineMode.SHORT_PULSE) ? pulseDurationMs : 1540L;
         updateBeatFlashState();
     }
 
@@ -257,35 +268,21 @@ public final class FlashlightEngine {
             return;
         }
 
-        float progress = clamp(elapsed / (float) Math.max(1L, beatFlashDurationMs), 0f, 1f);
-        float intensity = sampleBeatPattern(progress);
+        float sustainMs = 40f;
+        float decayMs = 1500f;
+        float intensity;
+        if (elapsed < sustainMs) {
+            intensity = 1.0f;
+        } else {
+            float x = 1f - ((elapsed - sustainMs) / decayMs);
+            intensity = (float) Math.pow(Math.max(0f, Math.min(1f, x)), flashlightBeatGamma);
+        }
+
         if (hasVariableTorchStrength()) {
             int max = getUserMaxIntensity();
             int level = Math.max(1, Math.round(intensity * max));
             submitTorchLevel(Math.min(max, level));
         } else submitTorchLevel(1);
-    }
-
-    private float sampleBeatPattern(float progress) {
-        int index = Math.min(BEAT_PATTERN_STEPS - 1, Math.max(0, Math.round(progress * (BEAT_PATTERN_STEPS - 1))));
-        return beatPattern[index];
-    }
-
-    private static float[] buildBeatPattern() {
-        float[] pattern = new float[BEAT_PATTERN_STEPS];
-        int attackSteps = Math.max(1, BEAT_PATTERN_STEPS / 5); 
-        for (int i = 0; i < BEAT_PATTERN_STEPS; i++) {
-            if (i < attackSteps) {
-                float progress = i / (float) attackSteps;
-                pattern[i] = (float) (1.0 - Math.pow(1.0 - progress, 2.0));
-            } else {
-                float progress = (i - attackSteps) / (float) (BEAT_PATTERN_STEPS - 1 - attackSteps);
-                pattern[i] = (float) Math.pow(Math.E, -5.0 * progress);
-            }
-        }
-        pattern[0] = 0f;
-        pattern[BEAT_PATTERN_STEPS - 1] = 0f;
-        return pattern;
     }
 
     private void resetBeatDetection() { beatDetector.reset(); }
@@ -296,12 +293,20 @@ public final class FlashlightEngine {
     }
 
     private void submitTorchLevel(int level) {
-        if (cameraId == null) return;
         final long now = SystemClock.elapsedRealtime();
         boolean intervalPassed = (now - lastSubmitMs) >= MIN_RESUBMIT_INTERVAL_MS;
-        int deadzone = (hasVariableTorchStrength()) ? 1 : 0;
+        int deadzone = (getTorchIntensityLevels() > 1) ? 1 : 0;
         boolean significantChange = Math.abs(level - lastLevel) >= deadzone;
         if (torchActive && !intervalPassed && !significantChange) return;
+
+        if (spoofIntensityLevels != null) {
+            torchActive = true;
+            lastLevel = level;
+            lastSubmitMs = now;
+            return;
+        }
+
+        if (cameraId == null) return;
         try {
             if (hasVariableTorchStrength()) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -331,8 +336,10 @@ public final class FlashlightEngine {
 
     private void stopFlashlightInternal() {
         if (!torchActive) { lastLevel = 0; smoothedIntensity = 0f; prevTarget = 0f; return; }
-        try { if (cameraId != null) cameraManager.setTorchMode(cameraId, false); }
-        catch (CameraAccessException | IllegalArgumentException | SecurityException e) {}
+        if (spoofIntensityLevels == null) {
+            try { if (cameraId != null) cameraManager.setTorchMode(cameraId, false); }
+            catch (CameraAccessException | IllegalArgumentException | SecurityException e) {}
+        }
         torchActive = false;
         lastLevel = 0;
         smoothedIntensity = 0f;

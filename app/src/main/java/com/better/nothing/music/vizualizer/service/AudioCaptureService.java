@@ -51,7 +51,10 @@ import android.service.quicksettings.TileService;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.WindowManager;
+import android.view.Display;
+import android.content.res.Configuration;
 import android.graphics.PixelFormat;
+import android.graphics.Point;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -307,6 +310,7 @@ public class AudioCaptureService extends Service {
     private boolean mEdgeVisualizerEnabled = false;
     private boolean mLensVisualizerEnabled = false;
     public volatile float mLensVisualizerRadius = 40f;
+    public volatile float mLensVisualizerWidth = 0f;
     public volatile float mLensVisualizerX = 540f;
     public volatile float mLensVisualizerY = 72f;
     public volatile float mLensVisualizerBarWidth = 3f;
@@ -324,6 +328,7 @@ public class AudioCaptureService extends Service {
         requestWidgetRefresh();
     }
     public void setLensVisualizerRadius(float r) { mLensVisualizerRadius = r; updateUnifiedProperties(); }
+    public void setLensVisualizerWidth(float w) { mLensVisualizerWidth = w; updateUnifiedProperties(); }
     public void setLensVisualizerX(float x) { mLensVisualizerX = x; updateUnifiedProperties(); }
     public void setLensVisualizerY(float y) { mLensVisualizerY = y; updateUnifiedProperties(); }
     public void setLensVisualizerBarWidth(float w) { mLensVisualizerBarWidth = w; updateUnifiedProperties(); }
@@ -362,7 +367,7 @@ public class AudioCaptureService extends Service {
     private int mEdgeColor = android.graphics.Color.WHITE;
     private float mEdgeOpacity = 1.0f;
     private UnifiedVisualizerView mUnifiedVisualizerView;
-
+    private WindowManager.LayoutParams mUnifiedLayoutParams;
     private WindowManager mWindowManager;
 
     private volatile boolean mHapticEnabled = false;
@@ -388,6 +393,7 @@ public class AudioCaptureService extends Service {
     private volatile float mFlashlightThreshold = 0.15f;
     private volatile float mFlashlightBeatSensitivity = 1.0f;
     private volatile float mFlashlightSpeedMs = 90f;
+    private volatile float mFlashlightBeatGamma = 8.0f;
     private volatile int mFlashlightIntensityLevels = 1;
     private volatile int mFlashlightMaxIntensity = -1;
 
@@ -573,6 +579,7 @@ public class AudioCaptureService extends Service {
         mOverlayHeight = appPrefs.getInt("overlay_height", 12);
         mOverlayYOffset = appPrefs.getInt("overlay_y_offset", 2);
         mOverlaySensitivity = appPrefs.getFloat("overlay_sensitivity", 1.0f);
+        mLensVisualizerWidth = appPrefs.getFloat("lens_visualizer_width", 0f);
 
         AudioProcessor.ReadMethod readMethod;
         try {
@@ -617,6 +624,7 @@ public class AudioCaptureService extends Service {
         setHapticMotorEnabled(appPrefs.getBoolean("haptic_motor_enabled", false));
         setFlashlightEnabled(appPrefs.getBoolean("flashlight_enabled", false));
         setFlashlightMaxIntensity(appPrefs.getInt("flashlight_max_intensity", -1));
+        setFlashlightBeatGamma(appPrefs.getFloat("flashlight_beat_gamma", 8.0f));
         
         mIdleBreathingEnabled = appPrefs.getBoolean("idle_breathing_enabled", false);
         if (mGlyphRenderer != null) {
@@ -635,6 +643,26 @@ public class AudioCaptureService extends Service {
     }
 
     @Override public IBinder onBind(Intent intent) { return mBinder; }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        updateOverlaySize();
+    }
+
+    private void updateOverlaySize() {
+        mMainHandler.post(() -> {
+            if (mUnifiedVisualizerView != null && mUnifiedLayoutParams != null && mWindowManager != null) {
+                Point screenSize = new Point();
+                mWindowManager.getDefaultDisplay().getRealSize(screenSize);
+                mUnifiedLayoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+                mUnifiedLayoutParams.height = screenSize.y;
+                try {
+                    mWindowManager.updateViewLayout(mUnifiedVisualizerView, mUnifiedLayoutParams);
+                } catch (Exception ignored) {}
+            }
+        });
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -1028,10 +1056,17 @@ public class AudioCaptureService extends Service {
     public void setFlashlightBeatEngineMode(BeatEngineMode m) { mFlashlightBeatEngineMode = m; if (mFlashlightEngine != null) mFlashlightEngine.setBeatEngineMode(m); requestWidgetRefresh(); }
     public void setFlashlightPulseDurationMs(int ms) { mFlashlightPulseDurationMs = ms; if (mFlashlightEngine != null) mFlashlightEngine.setPulseDurationMs(ms); }
     public void setFlashlightBeatSensitivity(float s) { mFlashlightBeatSensitivity = s; if (mFlashlightEngine != null) mFlashlightEngine.setFlashlightBeatSensitivity(s); }
+    public void setFlashlightBeatGamma(float g) { mFlashlightBeatGamma = g; if (mFlashlightEngine != null) mFlashlightEngine.setFlashlightBeatGamma(g); }
     public void setFlashlightSpeedMs(float s) { mFlashlightSpeedMs = s; if (mFlashlightEngine != null) mFlashlightEngine.setFlashlightSpeedMs(s); }
     public void setFlashlightMaxIntensity(int intensity) {
         mFlashlightMaxIntensity = intensity;
         if (mFlashlightEngine != null) mFlashlightEngine.setUserMaxIntensity(intensity);
+    }
+
+    public void setFlashlightSpoofLevels(Integer levels) {
+        if (mFlashlightEngine != null) {
+            mFlashlightEngine.setSpoofIntensityLevels(levels);
+        }
     }
 
     public int getFlashlightIntensityLevels() { return mFlashlightEngine != null ? mFlashlightEngine.getTorchIntensityLevels() : (mFlashlightIntensityLevels > 0 ? mFlashlightIntensityLevels : 1); }
@@ -1604,25 +1639,30 @@ public class AudioCaptureService extends Service {
                 if (mUnifiedVisualizerView == null) {
                     mUnifiedVisualizerView = new UnifiedVisualizerView(this);
                     mUnifiedVisualizerView.setAlpha(0f);
-                    WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                    Point screenSize = new Point();
+                    mWindowManager.getDefaultDisplay().getRealSize(screenSize);
+
+                    mUnifiedLayoutParams = new WindowManager.LayoutParams(
                             WindowManager.LayoutParams.MATCH_PARENT,
-                            WindowManager.LayoutParams.MATCH_PARENT,
+                            screenSize.y,
                             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
                                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE |
                                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN |
-                                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS |
+                                    WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS,
                             PixelFormat.TRANSLUCENT
                     );
-                    params.gravity = Gravity.TOP | Gravity.START;
+                    mUnifiedLayoutParams.gravity = Gravity.TOP | Gravity.START;
                     if (Build.VERSION.SDK_INT >= 28) {
-                        params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+                        mUnifiedLayoutParams.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
                     }
                     if (Build.VERSION.SDK_INT >= 30) {
-                        params.setFitInsetsTypes(0);
+                        mUnifiedLayoutParams.setFitInsetsTypes(0);
+                        mUnifiedLayoutParams.setFitInsetsIgnoringVisibility(true);
                     }
                     try { 
-                        mWindowManager.addView(mUnifiedVisualizerView, params); 
+                        mWindowManager.addView(mUnifiedVisualizerView, mUnifiedLayoutParams); 
                     } catch (Exception ignored) {}
                 }
                 mUnifiedVisualizerView.animate().alpha(1f).setDuration(250).start();
@@ -1632,6 +1672,7 @@ public class AudioCaptureService extends Service {
                     if (mUnifiedVisualizerView != null && mUnifiedVisualizerView.getAlpha() < 0.01f) {
                         try { mWindowManager.removeView(mUnifiedVisualizerView); } catch (Exception ignored) {}
                         mUnifiedVisualizerView = null;
+                        mUnifiedLayoutParams = null;
                     }
                 }).start();
             }
@@ -1686,6 +1727,7 @@ public class AudioCaptureService extends Service {
             mUnifiedVisualizerView.setLensProperties(
                     mLensVisualizerEnabled && mCapturing,
                     mLensVisualizerRadius * density,
+                    mLensVisualizerWidth * density,
                     mLensVisualizerX,
                     mLensVisualizerY,
                     mLensVisualizerBarWidth * density,
@@ -1787,10 +1829,72 @@ public class AudioCaptureService extends Service {
         return mCurrentAudioRoute != null ? mCurrentAudioRoute.displayName : getString(R.string.audio_route_none);
     }
 
-    private void refreshLatencyForCurrentAudioRoute() {}
+    private void refreshLatencyForCurrentAudioRoute() {
+        mCurrentAudioRoute = resolveCurrentAudioRoute();
+        int latency = loadLatencyCompensationMs(this, mSelectedDevice, getActiveAudioRouteKey());
+        setLatencyCompensationMs(latency);
+        Log.d(TAG, "Refreshed latency for route: " + getActiveAudioRouteName() + " -> " + latency + "ms");
+    }
+
+    private boolean isBluetoothOutput(AudioDeviceInfo device) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                return device.getType() == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP ||
+                       device.getType() == AudioDeviceInfo.TYPE_BLE_HEADSET ||
+                       device.getType() == AudioDeviceInfo.TYPE_BLE_SPEAKER ||
+                       device.getType() == AudioDeviceInfo.TYPE_BLE_BROADCAST;
+            } else {
+                return device.getType() == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP;
+            }
+        } else {
+            return device.getType() == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP;
+        }
+    }
+
+    private boolean isWiredOutput(AudioDeviceInfo device) {
+        return device.getType() == AudioDeviceInfo.TYPE_WIRED_HEADPHONES ||
+               device.getType() == AudioDeviceInfo.TYPE_WIRED_HEADSET ||
+               device.getType() == AudioDeviceInfo.TYPE_USB_HEADSET;
+    }
+
     public static boolean hasHapticMotor(Context c) { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { VibratorManager vm = (VibratorManager) c.getSystemService(Context.VIBRATOR_MANAGER_SERVICE); return vm != null && vm.getDefaultVibrator().hasVibrator(); } Vibrator v = (Vibrator) c.getSystemService(Context.VIBRATOR_SERVICE); return v != null && v.hasVibrator(); }
     public static boolean hasFlashlight(Context c) { return c.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH); }
-    private AudioRouteInfo resolveCurrentAudioRoute() { return null; }
+    private AudioRouteInfo resolveCurrentAudioRoute() {
+        if (mAudioManager == null) return null;
+        AudioDeviceInfo[] outputs = mAudioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+        AudioDeviceInfo preferred = null;
+        for (AudioDeviceInfo device : outputs) {
+            if (isBluetoothOutput(device)) {
+                preferred = device;
+                break;
+            }
+        }
+        if (preferred == null) {
+            for (AudioDeviceInfo device : outputs) {
+                if (isWiredOutput(device)) {
+                    preferred = device;
+                    break;
+                }
+            }
+        }
+        if (preferred == null) {
+            for (AudioDeviceInfo device : outputs) {
+                if (device.getType() == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER) {
+                    preferred = device;
+                    break;
+                }
+            }
+        }
+
+        if (preferred != null) {
+            String name = (preferred.getType() == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER) ?
+                    getString(R.string.internal_speaker) :
+                    preferred.getProductName().toString();
+            return new AudioRouteInfo(preferred.getType() + "_" + name, name);
+        }
+        return null;
+    }
+
     private void applyPresetSelection(String pk) { mPresetKey = pk; reloadConfig(); }
     public void setPreset(String p) { mPresetKey = p; restartCapture(); }
 

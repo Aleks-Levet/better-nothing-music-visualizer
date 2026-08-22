@@ -219,6 +219,27 @@ internal fun SettingsScreen(
                                     )
                                 }
                             }
+
+                            // Reset Button
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                IconButton(
+                                    onClick = {
+                                        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
+                                        viewModel.resetGoogleSansAxes()
+                                    },
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.RestartAlt,
+                                        contentDescription = "Reset Font Settings",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
                         }
                     }
 
@@ -421,6 +442,26 @@ internal fun SettingsScreen(
                             BodyText(
                                 text = stringResource(R.string.spoof_device_description),
                                 size = 11.sp
+                            )
+
+                            // Flashlight Spoofing
+                            val spoofFlashlightLevels by viewModel.spoofFlashlightLevels.collectAsStateWithLifecycle()
+                            Text(
+                                text = stringResource(R.string.spoof_flashlight_levels),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            val spoofOptions = listOf(null, 1, 5, 20, 100)
+                            ExpressiveSplitButton(
+                                items = spoofOptions,
+                                selectedItem = spoofFlashlightLevels,
+                                onItemSelection = { viewModel.setSpoofFlashlightLevels(it) },
+                                labelProvider = {
+                                    if (it == null) stringResource(R.string.spoof_flashlight_default)
+                                    else it.toString()
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                maxButtonsPerRow = 5
                             )
                         }
                     }

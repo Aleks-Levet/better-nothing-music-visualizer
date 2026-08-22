@@ -41,6 +41,7 @@ public class UnifiedVisualizerView extends View {
     private float[] mSmoothedEdgeRight = new float[0];
 
     private final Path mEdgePath = new Path();
+    private final Path mLensPath = new Path();
     private final PathMeasure mPathMeasure = new PathMeasure();
     private final float[] mPos = new float[2];
     private final float[] mTan = new float[2];
@@ -73,6 +74,7 @@ public class UnifiedVisualizerView extends View {
     // --- Lens Properties ---
     private boolean mLensEnabled = false;
     private float mLensRadiusPx = 40f;
+    private float mLensWidthPx = 0f;
     private float mLensXPos = 180f;
     private float mLensYPos = 24f;
     private float mLensBarWidthPx = 3f;
@@ -98,6 +100,13 @@ public class UnifiedVisualizerView extends View {
         mGlowPaint.setAntiAlias(true);
         mGlowPaintInner.setAntiAlias(true);
         mHdrPaint.setColor(Color.BLACK);
+        
+        setFitsSystemWindows(false);
+        setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        );
         setClickable(false);
         setFocusable(false);
         setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
@@ -160,11 +169,12 @@ public class UnifiedVisualizerView extends View {
         invalidate();
     }
 
-    public void setLensProperties(boolean enabled, float radiusPx, float xPos, float yPos, float barWidthPx,
+    public void setLensProperties(boolean enabled, float radiusPx, float widthPx, float xPos, float yPos, float barWidthPx,
                                   float maxHeightPx, int barCount, float sensitivity, int color, float opacity,
                                   float glowRadius, VisualizerStyle style) {
         this.mLensEnabled = enabled;
         this.mLensRadiusPx = radiusPx;
+        this.mLensWidthPx = widthPx;
         this.mLensXPos = xPos;
         this.mLensYPos = yPos;
         this.mLensBarWidthPx = barWidthPx;
@@ -410,6 +420,28 @@ public class UnifiedVisualizerView extends View {
         int count = mSmoothedLensMagnitudes.length;
         if (count == 0) return;
 
+        mLensPath.reset();
+        if (mLensWidthPx <= 0.1f) {
+            mLensPath.addCircle(mLensXPos, mLensYPos, mLensRadiusPx, Path.Direction.CW);
+        } else {
+            float w = mLensWidthPx;
+            float r = mLensRadiusPx;
+            float left = mLensXPos - w / 2f;
+            float right = mLensXPos + w / 2f;
+            mLensPath.moveTo(left, mLensYPos - r);
+            mLensPath.lineTo(right, mLensYPos - r);
+            mArcRect.set(right - r, mLensYPos - r, right + r, mLensYPos + r);
+            mLensPath.arcTo(mArcRect, -90, 180, false);
+            mLensPath.lineTo(left, mLensYPos + r);
+            mArcRect.set(left - r, mLensYPos - r, left + r, mLensYPos + r);
+            mLensPath.arcTo(mArcRect, 90, 180, false);
+            mLensPath.close();
+        }
+
+        mPathMeasure.setPath(mLensPath, false);
+        float totalLength = mPathMeasure.getLength();
+        float step = totalLength / count;
+
         if (mLensStyle == VisualizerStyle.GLOW) {
             float gW = Math.max(16f, mLensBarWidthPx * 4.5f);
             mGlowPaint.setColor(mLensColor);
@@ -432,22 +464,23 @@ public class UnifiedVisualizerView extends View {
         }
 
         for (int i = 0; i < count; i++) {
-            float angle = (float) (i * 2 * Math.PI / count);
+            float dist = i * step;
+            mPathMeasure.getPosTan(dist, mPos, mTan);
             float barLen = mSmoothedLensMagnitudes[i] * mLensMaxHeightPx;
-            float sX = (float) (mLensXPos + mLensRadiusPx * Math.cos(angle));
-            float sY = (float) (mLensYPos + mLensRadiusPx * Math.sin(angle));
-            float eX = (float) (mLensXPos + (mLensRadiusPx + barLen) * Math.cos(angle));
-            float eY = (float) (mLensYPos + (mLensRadiusPx + barLen) * Math.sin(angle));
+            
+            canvas.save();
+            canvas.translate(mPos[0], mPos[1]);
+            float angle = (float) Math.toDegrees(Math.atan2(mTan[1], mTan[0]));
+            canvas.rotate(angle - 90);
 
             if (mLensStyle == VisualizerStyle.GLOW) {
                 float gL = barLen * 2.2f;
-                float gEX = (float) (mLensXPos + (mLensRadiusPx + gL) * Math.cos(angle));
-                float gEY = (float) (mLensYPos + (mLensRadiusPx + gL) * Math.sin(angle));
-                canvas.drawLine(sX, sY, gEX, gEY, mGlowPaint);
-                canvas.drawLine(sX, sY, eX, eY, mGlowPaintInner);
+                canvas.drawLine(0, 0, gL, 0, mGlowPaint);
+                canvas.drawLine(0, 0, barLen, 0, mGlowPaintInner);
             } else {
-                canvas.drawLine(sX, sY, eX, eY, mPaint);
+                canvas.drawLine(0, 0, barLen, 0, mPaint);
             }
+            canvas.restore();
         }
     }
 }
