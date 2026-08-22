@@ -395,6 +395,7 @@ public class AudioCaptureService extends Service {
     private volatile float mFlashlightSpeedMs = 90f;
     private volatile float mFlashlightBeatGamma = 8.0f;
     private volatile int mFlashlightIntensityLevels = 1;
+    private volatile Integer mFlashlightSpoofLevels = null;
     private volatile int mFlashlightMaxIntensity = -1;
 
     private ContinuousHapticEngine mContinuousHapticEngine;
@@ -1045,7 +1046,7 @@ public class AudioCaptureService extends Service {
     }
 
     public void setFlashlightEnabled(boolean enabled) {
-        mFlashlightEnabled = hasFlashlight(this) && enabled;
+        mFlashlightEnabled = (hasFlashlight(this) || mFlashlightSpoofLevels != null) && enabled;
         sFlashlightEnabledFlow.setValue(mFlashlightEnabled);
         if (!mFlashlightEnabled && mFlashlightEngine != null) mFlashlightEngine.stopFlashlight();
         requestWidgetRefresh(); refreshNotification();
@@ -1064,8 +1065,14 @@ public class AudioCaptureService extends Service {
     }
 
     public void setFlashlightSpoofLevels(Integer levels) {
+        mFlashlightSpoofLevels = levels;
         if (mFlashlightEngine != null) {
             mFlashlightEngine.setSpoofIntensityLevels(levels);
+        }
+        // Re-evaluate if we can keep the flashlight enabled if it was disabled due to no hardware
+        SharedPreferences appPrefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE);
+        if (appPrefs.getBoolean("flashlight_enabled", false)) {
+            setFlashlightEnabled(true);
         }
     }
 

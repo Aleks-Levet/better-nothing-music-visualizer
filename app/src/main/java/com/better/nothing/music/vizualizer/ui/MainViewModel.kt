@@ -1262,7 +1262,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun selectTab(tab: Tab, recordHistory: Boolean = true) {
         if (selectedDevice.value == DeviceProfile.DEVICE_UNKNOWN && tab == Tab.Glyphs) return
         if (!hasHapticMotor && tab == Tab.Haptics) return
-        if (!hasFlashlight && tab == Tab.Flashlight) return
+        if (!hasFlashlight && _spoofFlashlightLevels.value == null && tab == Tab.Flashlight) return
         
         if (recordHistory && _selectedTab.value != tab) {
             tabHistory.add(_selectedTab.value)
@@ -1309,6 +1309,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val _spoofFlashlightLevels = MutableStateFlow<Int?>(null)
     val spoofFlashlightLevels = _spoofFlashlightLevels.asStateFlow()
+
+    val canAccessFlashlight = _spoofFlashlightLevels.map { it != null || hasFlashlight }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), hasFlashlight)
 
     fun setDeveloperModeEnabled(enabled: Boolean) {
         _developerModeEnabled.value = enabled
@@ -2297,11 +2300,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         viewModelScope.launch {
             delay(1000)
-            if (!hasFlashlight) return@launch
             while (true) {
-                MainActivity.serviceStatic?.let { s ->
-                    _flashlightIntensityLevels.value = s.flashlightIntensityLevels
-                    _flashlightLevel.value = s.flashlightCurrentLevel
+                if (hasFlashlight || _spoofFlashlightLevels.value != null) {
+                    MainActivity.serviceStatic?.let { s ->
+                        _flashlightIntensityLevels.value = s.flashlightIntensityLevels
+                        _flashlightLevel.value = s.flashlightCurrentLevel
+                    }
                 }
                 delay(100)
             }

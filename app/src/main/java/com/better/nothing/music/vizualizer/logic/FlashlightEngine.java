@@ -99,7 +99,7 @@ public final class FlashlightEngine {
     }
 
     public synchronized boolean hasVariableTorchStrength() {
-        return hasTorchStrength && maxTorchStrength > 1;
+        return getTorchIntensityLevels() > 1;
     }
 
     private void initCamera() {
@@ -191,7 +191,7 @@ public final class FlashlightEngine {
     }
 
     public synchronized int getUserMaxIntensity() {
-        return userMaxIntensity > 0 ? userMaxIntensity : maxTorchStrength;
+        return userMaxIntensity > 0 ? userMaxIntensity : getTorchIntensityLevels();
     }
 
     public synchronized void performFlashlightFeedback(
@@ -201,7 +201,7 @@ public final class FlashlightEngine {
             int logBinLo,
             int logBinHi
     ) {
-        if (cameraId == null) return;
+        if (cameraId == null && spoofIntensityLevels == null) return;
         if (torchMode == TorchMode.BEAT_DETECTION) {
             performBeatDetection(fftraw, logBinLo, logBinHi);
             return;

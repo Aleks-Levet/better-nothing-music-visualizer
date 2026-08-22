@@ -322,7 +322,7 @@ fun HapticsScreen(
 
             ExpressiveCard(
                 modifier = Modifier.fillMaxWidth(),
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
+                containerColor = MaterialTheme.colorScheme.surface
             ) {
                 CardHeader(title = stringResource(R.string.haptic_monitor))
 

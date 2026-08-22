@@ -737,7 +737,9 @@ internal fun BetterVizApp(
     val isTablet = config.smallestScreenWidthDp >= 600 && config.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
     val view = LocalView.current
 
-    val visibleTabs = remember(selectedDevice, glyphsEnabled, hapticsEnabled, visualsEnabled, edgeEnabled, lensEnabled, flashlightEnabled, onScreenVisualizersEnabled, isTablet) {
+    val canAccessFlashlight by viewModel.canAccessFlashlight.collectAsStateWithLifecycle()
+
+    val visibleTabs = remember(selectedDevice, glyphsEnabled, hapticsEnabled, visualsEnabled, edgeEnabled, lensEnabled, flashlightEnabled, onScreenVisualizersEnabled, isTablet, canAccessFlashlight) {
         var tabs = Tab.entries.toList()
 
         if (!isTablet) {
@@ -747,7 +749,7 @@ internal fun BetterVizApp(
             if (!viewModel.hasHapticMotor || !hapticsEnabled) {
                 tabs = tabs.filter { it != Tab.Haptics }
             }
-            if (!viewModel.hasFlashlight || !flashlightEnabled) {
+            if (!canAccessFlashlight || !flashlightEnabled) {
                 tabs = tabs.filter { it != Tab.Flashlight }
             }
         } else {
@@ -758,7 +760,7 @@ internal fun BetterVizApp(
             if (!viewModel.hasHapticMotor) {
                 tabs = tabs.filter { it != Tab.Haptics }
             }
-            if (!viewModel.hasFlashlight) {
+            if (!canAccessFlashlight) {
                 tabs = tabs.filter { it != Tab.Flashlight }
             }
         }

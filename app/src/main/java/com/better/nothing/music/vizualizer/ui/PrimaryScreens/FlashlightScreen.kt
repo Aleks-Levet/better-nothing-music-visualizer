@@ -1,5 +1,6 @@
 package com.better.nothing.music.vizualizer.ui.PrimaryScreens
 
+import android.graphics.BlurMaskFilter
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.snap
@@ -35,6 +36,10 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
 import android.view.HapticFeedbackConstants
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -284,7 +289,7 @@ fun FlashlightScreen(
 
             ExpressiveCard(
                 modifier = Modifier.fillMaxWidth(),
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                containerColor = MaterialTheme.colorScheme.surface
             ) {
                 CardHeader(title = stringResource(R.string.flashlight_monitor_label))
 
@@ -338,19 +343,54 @@ fun FlashlightScreen(
                             label = "dotAlpha"
                         )
 
-                        androidx.compose.foundation.Canvas(modifier = Modifier.size(60.dp)) {
+                        // 1. Massive canvas size (300.dp) so the huge blur doesn't get clipped
+                        Canvas(modifier = Modifier.size(200.dp)) {
+                            val center = Offset(size.width / 2, size.height / 2)
+
+                            // Keep the actual dot small so the contrast makes the glow look huge
+                            val baseRadius = 15.dp.toPx() * dotScale
+
+                            // 2. Outer Layer: Massive, soft atmospheric scatter (The "blinding" aura)
+                            drawIntoCanvas { canvas ->
+                                val paint = Paint().apply {
+                                    // Lower alpha, massive spread
+                                    color = Color.White.copy(alpha = dotAlpha * 0.3f)
+                                    isAntiAlias = true
+                                }
+                                paint.asFrameworkPaint().maskFilter = BlurMaskFilter(
+                                    150f, // Huge blur radius
+                                    BlurMaskFilter.Blur.NORMAL
+                                )
+                                canvas.drawCircle(
+                                    center = center,
+                                    radius = baseRadius * 5f,
+                                    paint = paint
+                                )
+                            }
+
+                            // 3. Middle Layer: Intense, tight glow (The "corona")
+                            drawIntoCanvas { canvas ->
+                                val paint = Paint().apply {
+                                    // High alpha, tighter spread
+                                    color = Color.White.copy(alpha = dotAlpha * 0.7f)
+                                    isAntiAlias = true
+                                }
+                                paint.asFrameworkPaint().maskFilter = BlurMaskFilter(
+                                    40f, // Medium blur radius
+                                    BlurMaskFilter.Blur.NORMAL
+                                )
+                                canvas.drawCircle(
+                                    center = center,
+                                    radius = baseRadius * 2f,
+                                    paint = paint
+                                )
+                            }
+
+                            // 4. Core: The pure white, hot center of the bulb
                             drawCircle(
                                 color = Color.White,
-                                radius = (size.minDimension / 2) * dotScale,
-                                alpha = dotAlpha
-                            )
-                            // Glow effect
-                            drawCircle(
-                                brush = Brush.radialGradient(
-                                    0f to Color.White.copy(alpha = 1f * dotAlpha),
-                                    1f to Color.Transparent
-                                ),
-                                radius = (size.minDimension / 1.2f) * dotScale
+                                radius = baseRadius,
+                                alpha = dotAlpha // Keep this close to 1f for maximum intensity
                             )
                         }
                     }
