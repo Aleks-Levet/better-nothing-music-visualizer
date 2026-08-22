@@ -136,8 +136,6 @@ internal fun SettingsScreen(
                         val weight by viewModel.googleSansWeight.collectAsStateWithLifecycle()
                         val width by viewModel.googleSansWidth.collectAsStateWithLifecycle()
                         val slant by viewModel.googleSansSlant.collectAsStateWithLifecycle()
-                        val opsz by viewModel.googleSansOpticalSize.collectAsStateWithLifecycle()
-                        val grade by viewModel.googleSansGrade.collectAsStateWithLifecycle()
                         val rounding by viewModel.googleSansRounding.collectAsStateWithLifecycle()
 
                         Column(
@@ -202,36 +200,6 @@ internal fun SettingsScreen(
                                     value = slant,
                                     onValueChange = { viewModel.setGoogleSansSlant(it) },
                                     valueRange = -10f..0f,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-
-                            // Grade Slider
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.gsans_grade) + ": ${grade.toInt()}",
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                ExpressiveSlider(
-                                    value = grade,
-                                    onValueChange = { viewModel.setGoogleSansGrade(it) },
-                                    valueRange = -200f..150f,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-
-                            // Optical Size Slider
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.gsans_opsz) + ": ${opsz.toInt()}",
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                ExpressiveSlider(
-                                    value = opsz,
-                                    onValueChange = { viewModel.setGoogleSansOpticalSize(it) },
-                                    valueRange = 6f..144f,
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             }

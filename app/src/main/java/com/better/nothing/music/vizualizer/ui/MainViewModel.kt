@@ -822,26 +822,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val _googleSansOpticalSize = MutableStateFlow(14f)
-    val googleSansOpticalSize = _googleSansOpticalSize.asStateFlow()
-    fun setGoogleSansOpticalSize(value: Float) {
-        _googleSansOpticalSize.value = value
-        viewModelScope.launch(Dispatchers.IO) {
-            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putFloat("gsans_opsz", value) }
-        }
-    }
-
-    private val _googleSansGrade = MutableStateFlow(0f)
-    val googleSansGrade = _googleSansGrade.asStateFlow()
-    fun setGoogleSansGrade(value: Float) {
-        _googleSansGrade.value = value
-        viewModelScope.launch(Dispatchers.IO) {
-            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putFloat("gsans_grade", value) }
-        }
-    }
-
     private val _googleSansRounding = MutableStateFlow(0f)
     val googleSansRounding = _googleSansRounding.asStateFlow()
     fun setGoogleSansRounding(value: Float) {
@@ -2138,8 +2118,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _googleSansWeight.value = get("gsans_weight", 400f)
         _googleSansWidth.value = get("gsans_width", 100f)
         _googleSansSlant.value = get("gsans_slant", 0f)
-        _googleSansOpticalSize.value = get("gsans_opsz", 14f)
-        _googleSansGrade.value = get("gsans_grade", 0f)
         _googleSansRounding.value = get("gsans_rounding", 0f)
 
         // Haptics settings

@@ -926,7 +926,7 @@ fun CardHeader(
         Text(
             text = title,
             modifier = Modifier.padding(7.dp).weight(1f),
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold,
             maxLines = 2,
@@ -1526,7 +1526,7 @@ fun <T> ExpressiveSplitButton(
                         ) {
                             Text(
                                 text = resolvedLabels[item] ?: "",
-                                style = MaterialTheme.typography.labelLarge,
+                                style = MaterialTheme.typography.labelMedium,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )

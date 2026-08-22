@@ -56,8 +56,6 @@ fun BetterVizTheme(
     gSansWeight: Float = 400f,
     gSansWidth: Float = 100f,
     gSansSlant: Float = 0f,
-    gSansOpsz: Float = 14f,
-    gSansGrade: Float = 0f,
     gSansRounding: Float = 35f,
     customFontPath: String? = null,
     content: @Composable () -> Unit
@@ -235,7 +233,7 @@ fun BetterVizTheme(
 
     val typography = remember(
         useNType, useGoogleSans, isRestrictedLocale,
-        gSansWeight, gSansWidth, gSansSlant, gSansOpsz, gSansGrade, gSansRounding, customFontPath
+        gSansWeight, gSansWidth, gSansSlant, gSansRounding, customFontPath
     ) {
         val googleSansFlexLoaded = customFontPath != null && java.io.File(customFontPath).exists()
         
@@ -248,8 +246,6 @@ fun BetterVizTheme(
                             FontVariation.Setting("wght", gSansWeight),
                             FontVariation.Setting("wdth", gSansWidth),
                             FontVariation.Setting("slnt", gSansSlant),
-                            FontVariation.Setting("opsz", gSansOpsz),
-                            FontVariation.Setting("GRAD", gSansGrade),
                             FontVariation.Setting("ROND", gSansRounding)
                         )
                     )
@@ -261,10 +257,11 @@ fun BetterVizTheme(
             FontFamily.SansSerif
         }
 
-        // Fallback axis string for system font if the flexible font isn't loaded yet
-        val axisString = if (useGoogleSans && !googleSansFlexLoaded) {
-            "'wght' $gSansWeight, 'wdth' $gSansWidth, 'slnt' $gSansSlant, 'opsz' $gSansOpsz, 'GRAD' $gSansGrade, 'ROND' $gSansRounding"
-        } else null
+        fun getAxes(size: Float, isHeader: Boolean = false): String? {
+            if (!useGoogleSans) return null
+            val grade = if (size < 16f) 50f else if (isHeader) -20f else 0f
+            return "'wght' $gSansWeight 'wdth' $gSansWidth 'slnt' $gSansSlant 'opsz' $size 'GRAD' $grade 'ROND' $gSansRounding"
+        }
 
         val headerFont = when {
             useGoogleSans -> googleSansFlexFamily
@@ -284,45 +281,45 @@ fun BetterVizTheme(
             // HEADERS (SCREENTITLES) - BIG sizes
             displayLarge = TextStyle(
                 fontFamily = headerFont,
-                fontSize = if (isRestrictedLocale) 56.sp else 74.sp,
-                lineHeight = if (isRestrictedLocale) 64.sp else 82.sp,
+                fontSize = if (isRestrictedLocale) 56.sp else 45.sp,
+                lineHeight = if (isRestrictedLocale) 64.sp else 55.sp,
                 fontWeight = FontWeight.Normal,
-                fontFeatureSettings = axisString
+                fontFeatureSettings = getAxes(if (isRestrictedLocale) 56f else 74f, true)
             ),
             displayMedium = TextStyle(
                 fontFamily = headerFont,
                 fontSize = if (isRestrictedLocale) 46.sp else 60.sp,
                 lineHeight = if (isRestrictedLocale) 54.sp else 70.sp,
                 fontWeight = FontWeight.Normal,
-                fontFeatureSettings = axisString
+                fontFeatureSettings = getAxes(if (isRestrictedLocale) 46f else 60f, true)
             ),
             displaySmall = TextStyle(
                 fontFamily = headerFont,
                 fontSize = if (isRestrictedLocale) 38.sp else 48.sp,
                 lineHeight = if (isRestrictedLocale) 44.sp else 56.sp,
                 fontWeight = FontWeight.Normal,
-                fontFeatureSettings = axisString
+                fontFeatureSettings = getAxes(if (isRestrictedLocale) 38f else 48f, true)
             ),
             headlineLarge = TextStyle(
                 fontFamily = headlineFont,
                 fontSize = if (isRestrictedLocale) 36.sp else 42.sp,
                 lineHeight = if (isRestrictedLocale) 42.sp else 50.sp,
                 fontWeight = FontWeight.Normal,
-                fontFeatureSettings = axisString
+                fontFeatureSettings = getAxes(if (isRestrictedLocale) 36f else 42f, true)
             ),
             headlineMedium = TextStyle(
                 fontFamily = headlineFont,
                 fontSize = if (isRestrictedLocale) 28.sp else 36.sp,
                 lineHeight = if (isRestrictedLocale) 36.sp else 42.sp,
                 fontWeight = FontWeight.Normal,
-                fontFeatureSettings = axisString
+                fontFeatureSettings = getAxes(if (isRestrictedLocale) 28f else 36f, true)
             ),
             headlineSmall = TextStyle(
                 fontFamily = headlineFont,
                 fontSize = if (isRestrictedLocale) 24.sp else 32.sp,
                 lineHeight = if (isRestrictedLocale) 32.sp else 38.sp,
                 fontWeight = FontWeight.Normal,
-                fontFeatureSettings = axisString
+                fontFeatureSettings = getAxes(if (isRestrictedLocale) 24f else 32f, true)
             ),
 
             // SUB-HEADERS
@@ -331,21 +328,21 @@ fun BetterVizTheme(
                 fontSize = 24.sp,
                 lineHeight = 32.sp,
                 fontWeight = FontWeight.Normal,
-                fontFeatureSettings = axisString
+                fontFeatureSettings = getAxes(24f)
             ),
             titleMedium = TextStyle(
                 fontFamily = bodyFont,
                 fontSize = 20.sp,
                 lineHeight = 28.sp,
                 fontWeight = FontWeight.Medium,
-                fontFeatureSettings = axisString
+                fontFeatureSettings = getAxes(20f)
             ),
             titleSmall = TextStyle(
                 fontFamily = bodyFont,
                 fontSize = 16.sp,
                 lineHeight = 22.sp,
                 fontWeight = FontWeight.Medium,
-                fontFeatureSettings = axisString
+                fontFeatureSettings = getAxes(16f)
             ),
 
             // BODY & LABELS
@@ -354,42 +351,42 @@ fun BetterVizTheme(
                 fontSize = 18.sp,
                 lineHeight = 26.sp,
                 fontWeight = FontWeight.Normal,
-                fontFeatureSettings = axisString
+                fontFeatureSettings = getAxes(18f)
             ),
             bodyMedium = TextStyle(
                 fontFamily = bodyFont,
                 fontSize = 16.sp,
                 lineHeight = 24.sp,
                 fontWeight = FontWeight.Normal,
-                fontFeatureSettings = axisString
+                fontFeatureSettings = getAxes(16f)
             ),
             bodySmall = TextStyle(
                 fontFamily = bodyFont,
                 fontSize = 14.sp,
                 lineHeight = 20.sp,
                 fontWeight = FontWeight.Normal,
-                fontFeatureSettings = axisString
+                fontFeatureSettings = getAxes(14f)
             ),
             labelLarge = TextStyle(
                 fontFamily = bodyFont,
                 fontSize = 15.sp,
                 lineHeight = 20.sp,
                 fontWeight = FontWeight.Medium,
-                fontFeatureSettings = axisString
+                fontFeatureSettings = getAxes(15f)
             ),
             labelMedium = TextStyle(
                 fontFamily = bodyFont,
                 fontSize = 13.sp,
                 lineHeight = 18.sp,
                 fontWeight = FontWeight.Medium,
-                fontFeatureSettings = axisString
+                fontFeatureSettings = getAxes(13f)
             ),
             labelSmall = TextStyle(
                 fontFamily = bodyFont,
                 fontSize = 12.sp,
                 lineHeight = 16.sp,
                 fontWeight = FontWeight.Medium,
-                fontFeatureSettings = axisString
+                fontFeatureSettings = getAxes(12f)
             ),
         )
     }

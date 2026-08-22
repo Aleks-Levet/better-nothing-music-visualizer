@@ -274,8 +274,6 @@ class MainActivity : AppCompatActivity() {
             val gSansWeight by viewModel.googleSansWeight.collectAsStateWithLifecycle()
             val gSansWidth by viewModel.googleSansWidth.collectAsStateWithLifecycle()
             val gSansSlant by viewModel.googleSansSlant.collectAsStateWithLifecycle()
-            val gSansOpsz by viewModel.googleSansOpticalSize.collectAsStateWithLifecycle()
-            val gSansGrade by viewModel.googleSansGrade.collectAsStateWithLifecycle()
             val gSansRounding by viewModel.googleSansRounding.collectAsStateWithLifecycle()
 
             LaunchedEffect(isRunning) {
@@ -316,8 +314,6 @@ class MainActivity : AppCompatActivity() {
                 gSansWeight = gSansWeight,
                 gSansWidth = gSansWidth,
                 gSansSlant = gSansSlant,
-                gSansOpsz = gSansOpsz,
-                gSansGrade = gSansGrade,
                 gSansRounding = gSansRounding,
                 customFontPath = customFontPath,
             ) {
