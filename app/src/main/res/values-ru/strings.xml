@@ -1,89 +1,302 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="about_title">Инфа и обновы</string>
-    <string name="app_theme">Темки и стиль</string>
-    <string name="audio_permission_required">Дай доступ к ушам телефона (аудио)</string>
-    <string name="audio_warning_vizualizer">Предупреждение: этот источник использует дефолтный аудиопоток Андроида. Качество там ублюдское и работать всё будет... ну о-о-очень хуево.</string>
+    <!-- Audio Screen -->
+    <string name="audio_warning_vizualizer">Внимание: этот источник использует стандартный аудиопоток визуализатора Android. Качество звука низкое, результат может быть не лучшим.</string>
     <string name="auto_memorize_device">Запоминать устройство</string>
-    <string name="back">Свалить назад</string>
-    <string name="cancel">Забудь</string>
-    <string name="capture_media_projection">Media Projection\n(по умолчанию, самый чёткий)</string>
-    <string name="capture_microphone">Дырка микрофона</string>
-    <string name="capture_vizualizer">Древний визуализатор Android</string>
-    <string name="clear">Стереть к чертям</string>
-    <string name="config_download_error">Не получилось качнуть, код подливы: %d</string>
-    <string name="config_error_importing">Ошибка при импорте этого бреда: %s</string>
-    <string name="config_error_updating">Обнова сломалась: %s</string>
-    <string name="config_import_error">Не удалось прочитать эту хуйню</string>
-    <string name="config_import_success">zones.config успешно залетел</string>
-    <string name="config_update_success">zones.config успешно обновился</string>
-    <string name="continue_label">Погнали дальше</string>
-    <string name="credits">Кто всё это заварил</string>
-    <string name="developer_mode">Режим Хакера</string>
-    <string name="discord_server">Наш Дискорд-сервер</string>
-
-    <string name="experimental_features">Опасные эксперименты</string>
-    <string name="flashlight_frequency_desc">Диапазон Гц для вспышки. Ниже — под басы, выше — под тарелки и вокал.</string>
-    <string name="flashlight_frequency_label">Частота: %1$d - %2$d Гц</string>
-    <string name="flashlight_header">Визуализатор вспышки</string>
-    <string name="flashlight_monitor_label">Монитор вспышки</string>
-
-    <string name="frequency_range_label">Диапазон частот: %1$d Гц - %2$d Гц</string>
-    <string name="gamma_control">Управление гаммой</string>
-    <string name="gamma_description">Больше гамма — сочнее свет, но меньше деталей. Меньше гамма — ярче, но цвета бледнеют.</string>
-    <string name="github_repository">Священный исходник на GitHub</string>
+    <string name="saving_latency_for">Сохранение задержки для: %s</string>
+    <string name="internal_speaker">Встроенный динамик</string>
+    <string name="manual_mode_global_latency">Ручной режим (общая задержка)</string>
+    <string name="latency_compensation">Компенсация задержки</string>
+    <string name="live_spectrum">Аудиоспектр в реальном времени</string>
+    <!-- Glyph Screen -->
     <string name="glyph_controls">Управление глифами</string>
-    <string name="glyph_no_config">Конфига нет. Тыкни «Обновить» в настройках, чтобы скачать пресеты.</string>
-    <string name="haptics_amplitude_label">Мощность тряски: %.1fx</string>
-    <string name="haptics_beat_detection_desc">Дрожит точно в бит. Плавнее, но иногда может тупить. Бета-фича!</string>
-    <string name="haptics_frequency_desc">Вибрирует от громкости звука в этом диапазоне.</string>
+    <string name="glyph_brightness">Яркость глифов:</string>
+    <string name="threshold_label">Порог:</string>
+    <string name="speed_label">Скорость:</string>
+    <string name="disabled">отключено</string>
+    <string name="threshold_description">Задает минимальный уровень громкости для срабатывания глифов. Высокие значения отсекают фоновый шум, делая подсветку чище.</string>
+    <string name="speed_description">Определяет, как быстро глифы затухают после пиков громкости. При высокой скорости подсветка реагирует резче и динамичнее.</string>
+    <string name="show_more_sliders">Дополнительные ползунки…</string>
+    <string name="gamma_control">Настройка гаммы</string>
+    <string name="gamma_description">Высокая гамма дает более контрастную и выразительную картинку за счет мелких деталей и общей яркости. Низкая — делает подсветку ярче, но мягче.</string>
+    <string name="light_gamma">Гамма:</string>
+    <string name="visualizer_presets">Пресеты визуализатора</string>
+    <string name="preset_name">Название пресета</string>
+    <string name="preset_description">Описание</string>
+    <!-- Settings Screen -->
+    <string name="app_theme">Тема оформления и шрифт</string>
+    <string name="theme_normal">По умолчанию</string>
+    <string name="theme_liquorice">Jet Black</string>
+    <string name="theme_nothing_red">Nothing Red</string>
+    <!-- Haptics Screen -->
+    <string name="haptics_header">Управление вибрацией</string>
+    <string name="haptics_mode_label">Режим виброотклика</string>
+    <string name="haptics_mode_bass">Амплитуда</string>
+    <string name="haptics_mode_beat">Распознавание бита</string>
+    <string name="haptics_beat_detection_desc">Вибрация срабатывает на ритмические удары в выбранном диапазоне частот. Тактильный отклик мягче, но может работать нестабильно (бета-версия).</string>
     <string name="haptics_frequency_label">Частота: %1$d - %2$d Гц</string>
-    <string name="haptics_gamma_label">Гамма (отклик): %.1f</string>
-    <string name="haptics_header">Настройка вибро-массажера</string>
-    <string name="haptics_mode_bass">Долбить под бас</string>
-    <string name="haptics_mode_beat">Ловить ритм</string>
-    <string name="haptics_mode_label">Режим вибромоторчика</string>
-
+    <string name="haptics_frequency_desc">Вибрация реагирует на громкость звука в этом диапазоне.</string>
+    <string name="haptics_amplitude_label">Усиление мотора: %.1fx</string>
+    <string name="haptics_audio_gain_label">Усиление звука: %.1fx</string>
+    <string name="haptics_gamma_label">Гамма: %.1f</string>
+    <string name="haptics_decay_label">Спад: %.2f</string>
     <string name="haptics_speed_label">Скорость: %.1f</string>
-    <string name="idle_breathing_desc">Глифы тихонько дышат, пока ты ищешь нормальный трек.</string>
-    <string name="idle_breathing_title">Режим «Ждём баса»</string>
-    <string name="idle_pattern">Анимация простоя</string>
-    <string name="idle_pattern_cylon">Сайлон (Бегающий глаз)</string>
+    <string name="haptics_sensitivity_label">Чувствительность: %.1f</string>
+    <string name="haptics_motor_multiplier_desc">Общий множитель силы виброотклика.</string>
+    <string name="haptics_decay_instant">Без сглаживания (мгновенно)</string>
+    <string name="haptics_decay_smooth">Сглаживание активно</string>
+    <string name="haptics_duration_label">Длительность: %d мс</string>
+    <string name="beat_engine_mode_label">Характер отклика</string>
+    <string name="beat_engine_smooth">Плавный спад</string>
+    <string name="beat_engine_short">Короткий импульс</string>
+    <!-- Audio Processing -->
+    <string name="microphone_mode">Режим захвата с микрофона (для экспертов)</string>
+    <string name="microphone_mode_desc">Изменяет способ захвата звука микрофоном.</string>
+    <string name="mic_mode_voice_comm">Голосовая связь</string>
+    <string name="mic_mode_voice_comm_desc">VOICE_COMMUNICATION: обычно использует эхоподавление и шумоподавление.</string>
+    <string name="mic_mode_voice_perf">Производительность</string>
+    <string name="mic_mode_voice_perf_desc">VOICE_PERFORMANCE: оптимизирован для голосовых сервисов реального времени. Задержка ниже, чем в обычном режиме связи.</string>
+    <string name="mic_mode_unprocessed">Без обработки</string>
+    <string name="mic_mode_unprocessed_desc">UNPROCESSED: сырой сигнал с микрофона без шумодава и автоматической регулировки усиления. Лучший выбор для точной визуализации музыки.</string>
+    <string name="mic_mode_camcorder">Камера</string>
+    <string name="mic_mode_camcorder_desc">CAMCORDER: оптимизирован для записи направленного звука.</string>
+    <!-- Flashlight Screen -->
+    <string name="flashlight_header">Визуализация вспышкой</string>
+    <string name="flashlight_mode_label">Режим работы вспышки</string>
+    <string name="flashlight_mode_amplitude">Амплитуда</string>
+    <string name="flashlight_mode_beat">Распознавание бита</string>
+    <string name="flashlight_intensity_label">Уровней яркости фонарика: %1$d</string>
+    <string name="flashlight_frequency_label">Частота: %1$d - %2$d Гц</string>
+    <string name="flashlight_frequency_desc">Диапазон частот, на который реагирует вспышка. Низкие — для баса, высокие — для вокала и снейра.</string>
+    <string name="flashlight_threshold_label">Порог: %.2f</string>
+    <string name="flashlight_threshold_desc">Если вспышка поддерживает только один уровень яркости, этот параметр переключает её вкл/выкл.</string>
+    <string name="flashlight_beat_sensitivity_label">Чувствительность к биту: %.1f</string>
+    <string name="flashlight_beat_sensitivity_desc">При высоких значениях слабые пики громкости игнорируются.</string>
+    <string name="flashlight_speed_label">Скорость: %.0f мс</string>
+    <string name="flashlight_monitor_label">Монитор вспышки</string>
+    <string name="flashlight_duration_label">Длительность: %d мс</string>
+    <string name="flashlight_duration_desc">Длительность светового импульса в миллисекундах.</string>
+    <string name="experimental_features">Экспериментальные функции</string>
+    <string name="feature_flashlight_levels">Уровни яркости вспышки</string>
+    <string name="feature_supported_n">Поддерживается уровней: %d</string>
+    <string name="feature_basic">Двоичный (только Вкл/Выкл)</string>
+    <string name="developer_mode">Эмуляция глифов...</string>
+    <string name="spoof_device_description">Заставляет приложение работать так, будто оно запущено на выбранном устройстве.</string>
+    <string name="spoof_locale_description">Изменяет язык приложения для проверки локализации.</string>
+    <string name="idle_breathing_title">Анимация в покое</string>
+    <string name="start_visualizer">Старт</string>
+    <string name="stop_visualizer">Стоп</string>
+    <string name="glyph_no_config">Конфигурация не загружена. Проверьте наличие обновлений в Настройках, чтобы скачать свежие пресеты визуализации.</string>
+    <!-- About Screen -->
+    <string name="about_title">О приложении и обновления</string>
+    <string name="analytics_disclaimer_title">Аналитика</string>
+    <string name="analytics_disclaimer_text">Приложение использует Google Analytics (Firebase) для сбора анонимной статистики использования и отчетов об ошибках. Персональные данные и аудиозаписи не собираются.</string>
+    <string name="github_repository">Репозиторий GitHub</string>
+    <string name="version_info">Версия %s</string>
+    <string name="zones_config_version">Версия конфига: %s</string>
+    <string name="media_projection_info">Служба захвата экрана (MediaProjection) используется исключительно для работы визуализатора в реальном времени. Приложение ничего не записывает и не сохраняет.</string>
+    <string name="credits">Авторы и благодарности</string>
+    <string name="open_github_profile">Открыть профиль на GitHub</string>
+    <string name="discord_server">Помурчать в Discord</string>
+    <!-- Capture Source Labels -->
+    <string name="capture_media_projection">Захват медиапотока\n(по умолчанию, лучший)</string>
+    <string name="capture_microphone">Микрофон</string>
+    <string name="capture_vizualizer">Встроенный визуализатор Android</string>
+    <string name="update_available">Доступно обновление: %s</string>
+    <string name="update_now">Обновиться сейчас</string>
+    <string name="idle_pattern">Пресеты</string>
     <string name="idle_pattern_pulse">Пульс</string>
     <string name="idle_pattern_wave">Волна</string>
+    <string name="idle_pattern_cylon">Сайлон</string>
     <string name="idle_pattern_zebra">Зебра</string>
-
-    <string name="internal_speaker">Динамик телефона</string>
-    <string name="latency_compensation">Костыль для задержки</string>
-    <string name="license_agreement">Лицензионное соглашение</string>
-    <string name="license_title">Лицензия</string>
-    <string name="light_gamma">Гамма света:</string>
-    <string name="live_spectrum">Аудиоспектр в реальном времени</string>
-    <string name="manual_mode_global_latency">Ручной режим (глобальный пинг)</string>
-
-    <string name="enable_on_screen_visualizers">Включить экранные визуализаторы</string>
-
-
-    <string name="overlay_height">Высота оверлея</string>
-    <string name="overlay_permission_denied">В разрешении на оверлей отказано (ну и сиди без красоты)</string>
+    <string name="idle_pattern_heartbeat">Сердцебиение</string>
+    <string name="idle_pattern_orbit">Орбита</string>
+    <string name="idle_pattern_rain">Дождь</string>
+    <string name="idle_pulse_brightness">Яркость импульса: %d%%</string>
+    <string name="idle_background_brightness">Фоновая яркость: %d%%</string>
+    <string name="cancel">Отмена</string>
+    <string name="back">Назад</string>
+    <string name="frequency_range_label">Диапазон частот: %1$d Гц - %2$d Гц</string>
+    <string name="clear">Очистить</string>
+    <string name="sync_ui_to_beat">Синхронизация интерфейса</string>
+    <string name="alternate_glyph_viz">Альтернативный визуализатор глифов</string>
+    <string name="nav_overlay">Панель навигации</string>
+    <string name="enable_on_screen_visualizers">Включить оверлей</string>
+    <string name="higher_quality_audio_analysis">Лучше качество визуала</string>
+    <string name="rounded_bars">Закругленные полосы</string>
+    <string name="style_bars">Полосы</string>
+    <string name="style_rounded_bars">Закругленные</string>
+    <string name="style_glow">Свечение</string>
+    <string name="visualizer_style">Стиль</string>
+    <string name="visualizer_opacity">Прозрачность</string>
+    <string name="lens_visualizer">Фронтальная камера</string>
+    <string name="lens_radius">Радиус вокруг камеры</string>
+    <string name="lens_bar_width">Ширина полос</string>
+    <string name="lens_max_height">Макс. высота полос</string>
+    <string name="lens_bar_count">Количество полос</string>
     <string name="overlay_width">Ширина оверлея</string>
-    <string name="output_selection">2. Выберите устройства вывода визуализации</string>
-    <string name="read_license">Прочитать лицензию ПО</string>
-    <string name="saving_latency_for">Запоминаем задержку для: %s</string>
-
-    <string name="select_capture_source">1. Выберите источник входящего аудиосигнала</string>
-    <string name="spoof_device_description">Заставляет приложение думать, что оно работает на совсем другом смартфона.</string>
-    <string name="start_visualizer">ПОЕХАЛИ!</string>
-    <string name="stop_visualizer">ТОРМОЗИ!</string>
-    <string name="tab_flashlight">Фонарик</string>
+    <string name="overlay_height">Высота оверлея</string>
+    <string name="overlay_height_bottom">Высота снизу</string>
+    <string name="overlay_top_segment">Верхний сегмент</string>
+    <string name="overlay_bottom_segment">Нижний сегмент</string>
+    <string name="vertical_position">Положение по вертикали</string>
+    <!-- Auth -->
     <string name="tab_glyphs">Глифы</string>
-    <string name="tab_haptics">Вибратор))</string>
-    <string name="tab_settings">Гайки</string>
-    <string name="theme_liquorice">Чернее твоей души</string>
-    <string name="theme_normal">По дефолту</string>
-
-    <string name="version_info">Версия %s</string>
-    <string name="vertical_position">Высота полета</string>
-    <string name="visualizer_presets">Пресеты светомузыки</string>
-    <string name="tablet_width_title">Ширина вкладки планшета</string>
+    <string name="tab_visuals">Оверлеи</string>
+    <string name="tab_haptics">Вибрация</string>
+    <string name="tab_flashlight">Вспышка</string>
+    <string name="tab_settings">Настройки</string>
+    <string name="glyphs_disabled">Глифы отключены</string>
+    <string name="haptics_disabled">Вибрация отключена</string>
+    <string name="flashlight_disabled">Вспышка отключена</string>
+    <string name="feature_disabled">Эта функция отключена</string>
+    <string name="continue_label">Продолжить</string>
+    <string name="audio_permission_required">Требуется разрешение на запись аудио</string>
+    <string name="screen_capture_denied">Отказано в разрешении на захват экрана</string>
+    <string name="overlay_permission_denied">Отказано в разрешении на отображение поверх других окон</string>
+    <string name="config_update_success">Файл zones.config успешно обновлен</string>
+    <string name="config_import_success">Файл zones.config успешно импортирован</string>
+    <string name="config_import_error">Не удалось прочитать выбранный файл</string>
+    <string name="config_download_error">Ошибка загрузки: %d</string>
+    <string name="config_error_updating">Ошибка при обновлении: %s</string>
+    <string name="config_error_importing">Ошибка при импорте: %s</string>
+    <!-- License Screen -->
+    <string name="license_title">Лицензия</string>
+    <string name="license_agreement">Лицензионное соглашение</string>
+    <string name="read_license">Ознакомиться с лицензией ПО</string>
+    <string name="failed_load_license">Не удалось загрузить лицензию.</string>
+    <string name="retry">Повторить</string>
+    <!-- Audio Discovery -->
+    <string name="connect_to_device">Подключиться к устройству</string>
+    <string name="no_devices_found">Устройства в вашей сети Wi-Fi не найдены.</string>
+    <string name="search_again">Искать снова</string>
+    <!-- MainViewModel Toasts & Status -->
+    <string name="download_failed_http">Ошибка загрузки: HTTP %d</string>
+    <string name="download_error">Ошибка загрузки: %s</string>
+    <string name="installation_failed">Сбой установки: %s</string>
+    <string name="license_load_error">Не удалось загрузить лицензию: %d</string>
+    <string name="unknown_error">Неизвестная ошибка</string>
+    <string name="update_checking">Проверка обновлений…</string>
+    <string name="update_downloading">Загрузка: %d%%</string>
+    <string name="update_uptodate">Установлена актуальная версия</string>
+    <string name="update_error">Ошибка: %s</string>
+    <string name="check_software_updates">Проверить обновления ПО</string>
+    <!-- Tile Service -->
+    <string name="tile_running">Работает</string>
+    <string name="tile_subtitle_default">Better Nothing Music Visualizer</string>
+    <!-- Feature Monitors -->
+    <string name="haptic_monitor">Монитор вибрации</string>
+    <string name="flashlight_level_stats">УРОВЕНЬ: %1$d / %2$d</string>
+    <!-- Visuals Options -->
+    <string name="top_edge_overlay">Оверлей верхней грани</string>
+    <string name="bottom_edge_overlay">Оверлей нижней грани</string>
+    <string name="edge_visualizer">Грани экрана</string>
+    <string name="edge_bar_height">Высота полос по краям</string>
+    <string name="top_edge_segment">Верхний сегмент</string>
+    <string name="bottom_edge_segment">Нижний сегмент</string>
+    <string name="screen_corner_radius">Радиус скругления углов</string>
+    <string name="horizontal_bar_count">Число горизонтальных полос</string>
+    <string name="vertical_bar_count">Число вертикальных полос</string>
+    <string name="x_position">Позиция по X</string>
+    <string name="y_position">Позиция по Y</string>
+    <string name="bar_height">Высота полос</string>
+    <string name="emulate_hdr_title">Симуляция HDR (OLED)</string>
+    <string name="emulate_hdr_description">Затеняет экран, чтобы визуализатор казался визуально ярче остального интерфейса, как при настоящем HDR. Лучше всего работает на OLED-дисплеях.</string>
+    <string name="hdr_intensity">Интенсивность HDR</string>
+    <!-- Settings Extra -->
+    <string name="vizualizer_stats">Статистика визуализатора</string>
+    <string name="tablet_width_title">Ширина вкладки для планшетов</string>
+    <!-- Notification Extra -->
+    <string name="notification_channel_name">Уведомление BNMV</string>
+    <string name="notification_title">Better Nothing Music Visualizer</string>
+    <string name="notification_action_glyphs">глифы</string>
+    <string name="notification_action_haptics">вибрация</string>
+    <string name="notification_action_flash">вспышка</string>
+    <string name="notification_action_stop">Остановить BNMV</string>
+    <!-- Device Names -->
+    <string name="device_unknown">Неизвестное устройство</string>
+    <!-- Stats Screen -->
+    <string name="usage_stats">Статистика использования</string>
+    <string name="total_visualization_time">Общее время визуализации</string>
+    <string name="engagement">Вовлеченность</string>
+    <string name="active_music">Музыка активна</string>
+    <string name="idle_pulse">Режим покоя</string>
+    <string name="feature_breakdown">Использование функций</string>
+    <string name="glyph_interface">Интерфейс Glyph / Матрица</string>
+    <string name="haptic_feedback">Тактильный виброотклик</string>
+    <string name="flashlight_sync_stat">Синхронизация вспышки</string>
+    <string name="total_active_use">Всего активного времени</string>
+    <!-- Glyphs Screen Extra -->
+    <string name="update_required">Требуется обновление</string>
+    <string name="download_full_config">Скачайте полную конфигурацию, чтобы увидеть пресеты</string>
+    <string name="visualizer_configuration">Версия визуализатора</string>
+    <string name="config_description">Файл zones.config определяет привязку частот к глифамglyp. Обновление из GitHub добавляет поддержку новых устройств и пресетов.</string>
+    <string name="up_to_date">Актуально</string>
+    <string name="update_available_label">ДОСТУПНО ОБНОВЛЕНИЕ</string>
+    <string name="local_config">Локально...</string>
+    <string name="show_gamma_info">Информация о гамме</string>
+    <string name="check_github">Проверить GitHub</string>
+    <!-- About Screen Extra -->
+    <string name="view_source_contributions">Исходный код и контрибьюторы</string>
+    <string name="software_update">Обновление приложения</string>
+    <string name="update_label">ОБНОВИТЬ</string>
+    <!-- Audio Service -->
+    <string name="audio_route_none">Нет</string>
+    <string name="output_selection">2. Выберите вывод</string>
+    <string name="select_capture_source">1. Выберите источник звука</string>
+    <string name="broadcast">Разрешить подключение устройств…</string>
+    <!-- Audio Help Guides -->
+    <string name="help_source_intro">Выберите источник захвата звука для визуализации:</string>
+    <string name="help_source_internal_title">Захват медиапотока</string>
+    <string name="help_source_internal_desc">Захватывает аудио высокого качества прямо из ваших приложений. Окно «Запись экрана» необходимо Android для передачи аудиопотока в BNMV. Экран при этом не записывается, а расход батареи минимален.</string>
+    <string name="help_source_mic_title">Микрофон</string>
+    <string name="help_source_mic_desc">Захватывает окружающий звук. Удобно для вечеринок, когда музыку включаете не вы.</string>
+    <string name="help_source_network_title">Другое устройство…</string>
+    <string name="help_source_network_desc">Принимает аудиопоток с другого устройства, которое транслирует звук через это приложение.</string>
+    <string name="help_source_viz_title">Встроенный визуализатор Android</string>
+    <string name="help_source_viz_desc">Официальный системный способ Android для работы визуализаторов. Имеет низкое качество звука, но не требует разрешения на захват экрана.</string>
+    <string name="help_source_privacy">Аудиоданные никогда не сохраняются на вашем устройстве.</string>
+    <string name="help_output_intro">Настройте, где будет отображаться визуализация:</string>
+    <string name="help_output_glyphs_desc">Визуализирует музыку через светодиоды подсветки Glyph Interface / Matrix.</string>
+    <string name="help_output_haptics_desc">Позволяет почувствовать ритм через тактильный вибромотор.</string>
+    <string name="help_output_flash_desc">Вспышка камеры мигает в такт музыке.</string>
+    <string name="help_output_broadcast_title">«Разрешить подключение устройств…»</string>
+    <string name="help_output_broadcast_desc">Транслирует аудиопоток на другие устройства в вашей локальной сети.</string>
+    <string name="help_sync_title">Подключение к другому устройству:</string>
+    <string name="help_sync_step1">1. Включите «Разрешить подключение устройств…» на устройстве, воспроизводящем музыку (источник).</string>
+    <string name="help_sync_step2">2. На этом устройстве выберите «Другое устройство или приложение…» в качестве источника звука и укажите устройство-источник в списке.</string>
+    <string name="system_language">Язык системы</string>
+    <string name="select_language">Выбор языка</string>
+    <string name="widget_m3_description">Виджет визуализатора Material 3 (День/Ночь)</string>
+    <string name="idle_breathing_desc">Глифы плавно пульсируют, когда визуализатор включен, но звук не воспроизводится.</string>
+    <!-- Widget -->
+    <string name="widget_start_bnmv">START BNMV</string>
+    <string name="widget_stop_bnmv">STOP BNMV</string>
+    <!-- First Time Help -->
+    <string name="first_time_help_title">Quick Tip</string>
+    <string name="first_time_help_msg">Click on the [info] buttons whenever you need help!</string>
+    <!-- Easter Eggs -->
+    <string name="toast_no_output">Все выводы отключены, поэтому BNMV ничего не делает 😆</string>
+    <string name="toast_audio_title_tap">Зачем ты сюда жмешь? Это ничего не делает! 😆</string>
+    <string name="easter_egg_glyph_popup_body">Этот концепт иконки создал разработчик самого популярного приложения в сообществе Nothing — NoVolume. Это отличное приложение, обязательно загляните на его страницу в Play Маркете.\n\nВот что он сказал:</string>
+    <string name="easter_egg_glyph_popup_quote">«Мне кажется, эта иконка подошла бы приложению гораздо лучше, и больше людей захотели бы его установить».</string>
+    <string name="ok">OK</string>
+    <string name="i_dont_give_a_fuck">Да поебать мне</string>
+    <!-- Visualizer Color & Accessibility -->
+    <string name="visualizer_color">Цвет визуализатора</string>
+    <string name="broadcast_clients">Подключенные клиенты</string>
+    <string name="connected_count">Подключено: %d</string>
+    <string name="waiting_for_devices">Ожидание устройств…</string>
+    <string name="made_by_aleks">Сделано Aleks Levet с любовью!</string>
+    <string name="credits_extended">Я не единственный, кто вложил силы в этот проект. Полный список авторов доступен на странице GitHub. На разработку ушли годы!</string>
+    <string name="content_desc_internal_source">Внутренний источник</string>
+    <string name="content_desc_mic_source">Микрофон</string>
+    <string name="content_desc_visualizer_source">Системный визуализатор</string>
+    <string name="content_desc_toggle_haptics">Переключить вибрацию</string>
+    <string name="content_desc_toggle_glyphs">Переключить глифы</string>
+    <string name="content_desc_toggle_torch">Переключить фонарик</string>
+    <string name="content_desc_start_stop">Старт/Стоп визуализатора</string>
+    <string name="label_source">ИСТОЧНИК</string>
+    <string name="label_output">ВЫВОД</string>
+    <string name="help_show">Показать справку</string>
 </resources>

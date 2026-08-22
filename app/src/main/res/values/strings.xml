@@ -363,5 +363,11 @@
     <string name="label_output">OUTPUT</string>
     <string name="help_show">Show help</string>
 
-
+    <!-- Google Sans Flex Tuning -->
+    <string name="gsans_weight" translatable="false">Weight</string>
+    <string name="gsans_width" translatable="false">Width</string>
+    <string name="gsans_slant" translatable="false">Slant</string>
+    <string name="gsans_opsz" translatable="false">Optical Size</string>
+    <string name="gsans_grade" translatable="false">Grade</string>
+    <string name="gsans_rounding" translatable="false">Rounding</string>
 </resources>

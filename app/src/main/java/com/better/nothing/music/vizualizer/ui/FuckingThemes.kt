@@ -39,7 +39,9 @@ import androidx.core.view.WindowCompat
 import android.app.Activity
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.DeviceFontFamilyName
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,11 +54,18 @@ fun BetterVizTheme(
     fontName: String = "NDot",
     m3eEnabled: Boolean = true,
     musicPrimaryColor: Color? = null,
+    gSansWeight: Float = 400f,
+    gSansWidth: Float = 100f,
+    gSansSlant: Float = 0f,
+    gSansOpsz: Float = 14f,
+    gSansGrade: Float = 0f,
+    gSansRounding: Float = 0f,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
     val restrictedLocales = listOf("hi", "ar", "ja", "ru", "zh")
-    val currentLocale = context.resources.configuration.locales[0].language
+    val currentLocale = configuration.locales[0].language
     val isRestrictedLocale = restrictedLocales.contains(currentLocale)
 
     val finalFontName = if (isRestrictedLocale) "Google Sans Flex" else fontName
@@ -224,106 +233,55 @@ fun BetterVizTheme(
         outline = animateColorAsState(targetColorScheme.outline, tween(500), label = "outline").value,
     )
 
-    val typography = remember(useNType, useGoogleSans, isRestrictedLocale) {
-        val headerFont = if (useGoogleSans) GoogleSansFontFamily else if (useNType) NTypeFontFamily else NDot55FontFamily
-        val headlineFont = if (useGoogleSans) GoogleSansFontFamily else if (useNType) NTypeFontFamily else NDotFontFamily
+    val typography = remember(
+        useNType, useGoogleSans, isRestrictedLocale,
+        gSansWeight, gSansWidth, gSansSlant, gSansOpsz, gSansGrade, gSansRounding
+    ) {
+        val googleSansFlex = if (useGoogleSans) {
+            try {
+                // Use a single Font object to avoid overhead
+                val variationSettings = FontVariation.Settings(
+                    FontVariation.Setting("wght", gSansWeight),
+                    FontVariation.Setting("wdth", gSansWidth),
+                    FontVariation.Setting("slnt", gSansSlant),
+                    FontVariation.Setting("opsz", gSansOpsz),
+                    FontVariation.Setting("GRAD", gSansGrade),
+                    FontVariation.Setting("ROND", gSansRounding),
+                    FontVariation.Setting("SOFT", gSansRounding),
+                    FontVariation.Setting("BNHV", gSansRounding)
+                )
+                
+                // Only use ONE font name for faster resolution
+                FontFamily(Font(DeviceFontFamilyName("google-sans-flex"), variationSettings = variationSettings))
+            } catch (e: Exception) {
+                FontFamily.SansSerif
+            }
+        } else if (useNType) NTypeFontFamily else NDot55FontFamily
+
+        val headlineFont = if (useGoogleSans) googleSansFlex else if (useNType) NTypeFontFamily else NDotFontFamily
+        val bodyFont = if (useGoogleSans) googleSansFlex else FontFamily.SansSerif
+
+        // Optimization: Pre-format the string to avoid multiple allocations in TextStyle
+        val axisString = if (useGoogleSans) {
+            "'wght' $gSansWeight, 'wdth' $gSansWidth, 'slnt' $gSansSlant, 'opsz' $gSansOpsz, 'GRAD' $gSansGrade, 'ROND' $gSansRounding, 'SOFT' $gSansRounding, 'BNHV' $gSansRounding, 'ROUN' $gSansRounding, 'RNDS' $gSansRounding"
+        } else ""
 
         Typography(
-            // HEADERS
-            displayLarge = TextStyle(
-                fontFamily = headerFont,
-                fontSize = if (isRestrictedLocale) 34.sp else 45.sp,
-                lineHeight = if (isRestrictedLocale) 42.sp else 55.sp,
-                fontWeight = FontWeight.Normal
-            ),
-            displayMedium = TextStyle(
-                fontFamily = headerFont,
-                fontSize = if (isRestrictedLocale) 28.sp else 36.sp,
-                lineHeight = if (isRestrictedLocale) 36.sp else 44.sp,
-                fontWeight = FontWeight.Normal
-            ),
-            displaySmall = TextStyle(
-                fontFamily = headerFont,
-                fontSize = if (isRestrictedLocale) 24.sp else 30.sp,
-                lineHeight = if (isRestrictedLocale) 32.sp else 38.sp,
-                fontWeight = FontWeight.Normal
-            ),
-            headlineLarge = TextStyle(
-                fontFamily = headlineFont,
-                fontSize = if (isRestrictedLocale) 24.sp else 32.sp,
-                lineHeight = if (isRestrictedLocale) 32.sp else 40.sp,
-                fontWeight = FontWeight.Normal
-            ),
-            headlineMedium = TextStyle(
-                fontFamily = headlineFont,
-                fontSize = if (isRestrictedLocale) 24.sp else 30.sp,
-                lineHeight = if (isRestrictedLocale) 32.sp else 40.sp,
-                fontWeight = FontWeight.Normal
-            ),
-            headlineSmall = TextStyle(
-                fontFamily = headlineFont,
-                fontSize = if (isRestrictedLocale) 18.sp else 24.sp,
-                lineHeight = if (isRestrictedLocale) 24.sp else 32.sp,
-                fontWeight = FontWeight.Normal
-            ),
-
-            // SUB-HEADERS
-            titleLarge = TextStyle(
-                fontFamily = GoogleSansFontFamily,
-                fontSize = 21.sp,
-                lineHeight = 28.sp,
-                fontWeight = FontWeight.Normal
-            ),
-            titleMedium = TextStyle(
-                fontFamily = GoogleSansFontFamily,
-                fontSize = 17.sp,
-                lineHeight = 24.sp,
-                fontWeight = FontWeight.Normal
-            ),
-            titleSmall = TextStyle(
-                fontFamily = GoogleSansFontFamily,
-                fontSize = 14.sp,
-                lineHeight = 20.sp,
-                fontWeight = FontWeight.Medium
-            ),
-
-            // BODY & LABELS (Use Google Sans Flex for high legibility and branding)
-            bodyLarge = TextStyle(
-                fontFamily = GoogleSansFontFamily,
-                fontSize = 16.sp,
-                lineHeight = 24.sp,
-                fontWeight = FontWeight.Normal
-            ),
-            bodyMedium = TextStyle(
-                fontFamily = GoogleSansFontFamily,
-                fontSize = 14.sp,
-                lineHeight = 20.sp,
-                fontWeight = FontWeight.Normal
-            ),
-            bodySmall = TextStyle(
-                fontFamily = GoogleSansFontFamily,
-                fontSize = 12.sp,
-                lineHeight = 16.sp,
-                fontWeight = FontWeight.Normal
-            ),
-            labelLarge = TextStyle(
-                fontFamily = GoogleSansFontFamily,
-                fontSize = 13.sp,
-                lineHeight = 18.sp,
-                fontWeight = FontWeight.Medium
-            ),
-            labelMedium = TextStyle(
-                fontFamily = GoogleSansFontFamily,
-                fontSize = 12.sp,
-                lineHeight = 16.sp,
-                fontWeight = FontWeight.Medium
-            ),
-            labelSmall = TextStyle(
-                fontFamily = GoogleSansFontFamily,
-                fontSize = 11.sp,
-                lineHeight = 16.sp,
-                fontWeight = FontWeight.Medium
-            ),
+            displayLarge = TextStyle(fontFamily = googleSansFlex, fontWeight = FontWeight.Normal, fontFeatureSettings = axisString),
+            displayMedium = TextStyle(fontFamily = googleSansFlex, fontWeight = FontWeight.Normal, fontFeatureSettings = axisString),
+            displaySmall = TextStyle(fontFamily = googleSansFlex, fontWeight = FontWeight.Normal, fontFeatureSettings = axisString),
+            headlineLarge = TextStyle(fontFamily = headlineFont, fontWeight = FontWeight.Normal, fontFeatureSettings = axisString),
+            headlineMedium = TextStyle(fontFamily = headlineFont, fontWeight = FontWeight.Normal, fontFeatureSettings = axisString),
+            headlineSmall = TextStyle(fontFamily = headlineFont, fontWeight = FontWeight.Normal, fontFeatureSettings = axisString),
+            titleLarge = TextStyle(fontFamily = bodyFont, fontWeight = FontWeight.Normal, fontFeatureSettings = axisString),
+            titleMedium = TextStyle(fontFamily = bodyFont, fontWeight = FontWeight.Normal, fontFeatureSettings = axisString),
+            titleSmall = TextStyle(fontFamily = bodyFont, fontWeight = FontWeight.Medium, fontFeatureSettings = axisString),
+            bodyLarge = TextStyle(fontFamily = bodyFont, fontWeight = FontWeight.Normal, fontFeatureSettings = axisString),
+            bodyMedium = TextStyle(fontFamily = bodyFont, fontWeight = FontWeight.Normal, fontFeatureSettings = axisString),
+            bodySmall = TextStyle(fontFamily = bodyFont, fontWeight = FontWeight.Normal, fontFeatureSettings = axisString),
+            labelLarge = TextStyle(fontFamily = bodyFont, fontWeight = FontWeight.Medium, fontFeatureSettings = axisString),
+            labelMedium = TextStyle(fontFamily = bodyFont, fontWeight = FontWeight.Medium, fontFeatureSettings = axisString),
+            labelSmall = TextStyle(fontFamily = bodyFont, fontWeight = FontWeight.Medium, fontFeatureSettings = axisString)
         )
     }
 
@@ -380,11 +338,6 @@ fun BetterVizTheme(
     }
 
 }
-
-
-
-
-val GoogleSansFontFamily = FontFamily.SansSerif
 
 val NTypeFontFamily = FontFamily(
     Font(R.font.ntype82)

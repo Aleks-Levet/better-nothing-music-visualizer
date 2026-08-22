@@ -791,6 +791,67 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // ── Google Sans Flex Axes ───────────────────────────────────────────────
+    private val _googleSansWeight = MutableStateFlow(400f)
+    val googleSansWeight = _googleSansWeight.asStateFlow()
+    fun setGoogleSansWeight(value: Float) {
+        _googleSansWeight.value = value
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("gsans_weight", value) }
+        }
+    }
+
+    private val _googleSansWidth = MutableStateFlow(100f)
+    val googleSansWidth = _googleSansWidth.asStateFlow()
+    fun setGoogleSansWidth(value: Float) {
+        _googleSansWidth.value = value
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("gsans_width", value) }
+        }
+    }
+
+    private val _googleSansSlant = MutableStateFlow(0f)
+    val googleSansSlant = _googleSansSlant.asStateFlow()
+    fun setGoogleSansSlant(value: Float) {
+        _googleSansSlant.value = value
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("gsans_slant", value) }
+        }
+    }
+
+    private val _googleSansOpticalSize = MutableStateFlow(14f)
+    val googleSansOpticalSize = _googleSansOpticalSize.asStateFlow()
+    fun setGoogleSansOpticalSize(value: Float) {
+        _googleSansOpticalSize.value = value
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("gsans_opsz", value) }
+        }
+    }
+
+    private val _googleSansGrade = MutableStateFlow(0f)
+    val googleSansGrade = _googleSansGrade.asStateFlow()
+    fun setGoogleSansGrade(value: Float) {
+        _googleSansGrade.value = value
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("gsans_grade", value) }
+        }
+    }
+
+    private val _googleSansRounding = MutableStateFlow(0f)
+    val googleSansRounding = _googleSansRounding.asStateFlow()
+    fun setGoogleSansRounding(value: Float) {
+        _googleSansRounding.value = value
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("gsans_rounding", value) }
+        }
+    }
+
     fun checkAppUpdate() {
         _appUpdateStatus.value = AppUpdateStatus.UpToDate
     }
@@ -2034,6 +2095,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _selectedTheme.value = get("selected_theme", "Default")
         _selectedFont.value = get("selected_font", "NDot")
         _broadcastEnabled.value = get("broadcast_enabled", false)
+
+        // Google Sans Flex Axes
+        _googleSansWeight.value = get("gsans_weight", 400f)
+        _googleSansWidth.value = get("gsans_width", 100f)
+        _googleSansSlant.value = get("gsans_slant", 0f)
+        _googleSansOpticalSize.value = get("gsans_opsz", 14f)
+        _googleSansGrade.value = get("gsans_grade", 0f)
+        _googleSansRounding.value = get("gsans_rounding", 0f)
 
         // Haptics settings
         _hapticMotorEnabled.value = get("haptic_motor_enabled", false)

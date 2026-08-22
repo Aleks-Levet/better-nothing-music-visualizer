@@ -1,103 +1,302 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <!-- Audio Screen -->
-    <string name="audio_warning_vizualizer">تحذير: يستخدم هذا المصدر بث صوتي بنمط المصور المرئي القياسي لـAndroid. إنه منخفض الدقة وقد يكون سيئًا.</string>
-    <string name="auto_memorize_device">تذكر الجهاز تلقائيًا</string>
-    <string name="saving_latency_for">جارٍ حفظ زمن الانتقال لـ: %s</string>
+    <string name="audio_warning_vizualizer">تنويه: يستخدم هذا المصدر بث الصوت المرئي القياسي الخاص بنظام Android. جودته منخفضة وقد يؤدي إلى نتائج غير مرضية.</string>
+    <string name="auto_memorize_device">حفظ الجهاز تلقائيًا</string>
+    <string name="saving_latency_for">جارٍ حفظ زمن التأخير لـ: %s</string>
     <string name="internal_speaker">مكبر الصوت الداخلي</string>
-    <string name="manual_mode_global_latency">الوضع اليدوي (زمن الانتقال العالمي)</string>
-    <string name="latency_compensation">تعويض زمن الانتقال</string>
+    <string name="manual_mode_global_latency">الوضع اليدوي (زمن استجابة عام)</string>
+    <string name="latency_compensation">تعويض زمن التأخير</string>
     <string name="live_spectrum">طيف الصوت المباشر</string>
-
     <!-- Glyph Screen -->
     <string name="glyph_controls">عناصر تحكم Glyph</string>
-    <string name="gamma_control">عنصر تحكم Gamma</string>
-    <string name="gamma_description">تعطي قيمة gamma الأعلى مظهرًا أكثر قوة، ولكن مع تفاصيل أقل دقة وسطوع إجمالي أقل. القيمة الأقل تكون أكثر سطوعًا ولكنها أقل قوة.</string>
-    <string name="light_gamma">Gamma الضوء:</string>
+    <string name="glyph_brightness">سطوع Glyph:</string>
+    <string name="threshold_label">الحد:</string>
+    <string name="speed_label">السرعة:</string>
+    <string name="disabled">معطل</string>
+    <string name="threshold_description">تعيين حد أدنى لمستوى الصوت المطلوب لتشغيل Glyphs. تؤدي القيم الأعلى إلى مظهر أفضل عن طريق تجاهل ضوضاء الخلفية.</string>
+    <string name="speed_description">يتحكم في سرعة تلاشي Glyph بعد ذروة الصوت. السرعة الأعلى تؤدي إلى تصوير مرئي تفاعلي وحاد.</string>
+    <string name="show_more_sliders">إظهار المزيد من التحكمات…</string>
+    <string name="gamma_control">التحكم في جاما</string>
+    <string name="gamma_description">القيمة الأعلى لجاما تمنح مظهرًا أكثر حدة، لكن بتفاصيل أقل دقة وسطوع إجمالي أقل. أما القيمة الأدنى فهي أكثر سطوعًا وأقل حدة.</string>
+    <string name="light_gamma">جاما الإضاءة:</string>
     <string name="visualizer_presets">الإعدادات المسبقة للمصور المرئي</string>
-
+    <string name="preset_name">اسم الإعداد المسبق</string>
+    <string name="preset_description">الوصف</string>
     <!-- Settings Screen -->
-    <string name="app_theme">سمة التطبيق</string>
+    <string name="app_theme">مظهر التطبيق</string>
     <string name="theme_normal">الافتراضي</string>
     <string name="theme_liquorice">أسود عرق السوس</string>
-    <string name="theme_nothing_red">أحمر Nothing</string>
-
+    <string name="theme_nothing_red">Nothing أحمر</string>
     <!-- Haptics Screen -->
     <string name="haptics_header">عناصر تحكم الاهتزاز</string>
     <string name="haptics_mode_label">وضع محرك الاهتزاز</string>
-    <string name="haptics_mode_bass">سعة الجهير (Bass)</string>
-    <string name="haptics_mode_beat">كشف الإيقاع</string>
-    <string name="haptics_beat_detection_desc">يهتز عند اكتشاف إيقاعات ضمن نطاق التردد المحدد. أكثر سلاسة ولكن في بعض الأحيان ليس مستقرًا تمامًا. إنها ميزة تجريبية.</string>
-    <string name="haptics_frequency_label">التردد: %1$d - %2$d هرتز</string>
-    <string name="haptics_frequency_desc">يهتز بناءً على سعة الصوت في هذا النطاق.</string>
-    <string name="haptics_amplitude_label">الشدة: %.1fx</string>
-    <string name="haptics_gamma_label">Gamma: %.1f</string>
+    <string name="haptics_mode_bass">ارتفاع الصوت</string>
+    <string name="haptics_mode_beat">التعرف على الإيقاع</string>
+    <string name="haptics_beat_detection_desc">يهتز عند اكتشاف الإيقاعات ضمن نطاق التردد المحدد. أكثر انسيابية لكنه أحيانًا أقل ثباتًا. هذه ميزة تجريبية.</string>
+    <string name="haptics_frequency_label">التردد: %1$d - %2$d Hz</string>
+    <string name="haptics_frequency_desc">يهتز بناءً على شدة الصوت ضمن هذا النطاق.</string>
+    <string name="haptics_amplitude_label">قوة المحرك: %.1fx</string>
+    <string name="haptics_audio_gain_label">كسب الصوت: %.1fx</string>
+    <string name="haptics_gamma_label">جاما: %.1f</string>
     <string name="haptics_decay_label">التلاشي: %.2f</string>
     <string name="haptics_speed_label">السرعة: %.1f</string>
     <string name="haptics_sensitivity_label">الحساسية: %.1f</string>
-    <string name="haptics_motor_multiplier_desc">مضاعف قوة إخراج الاهتزاز العام.</string>
-    <string name="haptics_decay_instant">بدون تنعيم (فوري)</string>
-    <string name="haptics_decay_smooth">التنعيم نشط</string>
-
+    <string name="haptics_motor_multiplier_desc">مضاعف قوة إخراج المحرك العام.</string>
+    <string name="haptics_decay_instant">بلا تنعيم (فوري)</string>
+    <string name="haptics_decay_smooth">التنعيم مفعّل</string>
+    <string name="haptics_duration_label">المدة: %d ms</string>
+    <string name="beat_engine_mode_label">زمن استجابة المحرك</string>
+    <string name="beat_engine_smooth">تلاشي سلس</string>
+    <string name="beat_engine_short">نبض قصير</string>
+    <!-- Audio Processing -->
+    <string name="microphone_mode">وضع التقاط المايكروفون (متقدم)</string>
+    <string name="microphone_mode_desc">يغير كيفية التقاط المايكروفون للصوت.</string>
+    <string name="mic_mode_voice_comm">التواصل الصوتي</string>
+    <string name="mic_mode_voice_comm_desc">VOICE_COMMUNICATION: في العادة يتضمن إلغاء الضجيج والصدى.</string>
+    <string name="mic_mode_voice_perf">الأداء</string>
+    <string name="mic_mode_voice_perf_desc">VOICE_PERFORMANCE: معد لتطبيقات الصوت الفوري. زمن تأخير أقل من VOICE_COMMUNICATIONS.</string>
+    <string name="mic_mode_unprocessed">غير معالج</string>
+    <string name="mic_mode_unprocessed_desc">UNPROCESSED: الصوت الغير معالج من المايكروفون مباشرةً. تحكم سيء لارتفاع الصوت وبدون إلغاء ضجيج. أفضل اختيار للتصوير المرئي الدقيق للموسيقى.</string>
+    <string name="mic_mode_camcorder">الكاميرا</string>
+    <string name="mic_mode_camcorder_desc">CAMCORDER: يتضمن ضبطًا مختلفًا للصوت الموجه.</string>
     <!-- Flashlight Screen -->
-    <string name="flashlight_frequency_label">التردد: %1$d - %2$d هرتز</string>
-    <string name="flashlight_frequency_desc">نطاق التردد الذي سيتفاعل معه الكشاف. أقل للجهير، وأعلى للصنج/الأصوات.</string>
-    <string name="flashlight_monitor_label">مراقب الكشاف</string>
-
-    <string name="experimental_features">الميزات التجريبية</string>
-    <string name="developer_mode">وضع المطور</string>
+    <string name="flashlight_header">مصور الكشاف المرئي</string>
+    <string name="flashlight_mode_label">وضع محرك الكشاف</string>
+    <string name="flashlight_mode_amplitude">شدة الصوت</string>
+    <string name="flashlight_mode_beat">كشف الإيقاع</string>
+    <string name="flashlight_intensity_label">مستويات الشعلة: %1$d</string>
+    <string name="flashlight_frequency_label">التردد: %1$d - %2$d Hz</string>
+    <string name="flashlight_frequency_desc">نطاق التردد بالهرتز الذي سيستجيب له الكشاف. أقل للجهير، وأعلى للطبل الخفيف/الأصوات.</string>
+    <string name="flashlight_threshold_label">العتبة: %.2f</string>
+    <string name="flashlight_threshold_desc">إذا كان مصباحك اليدوي يحتوي على مستوى واحد فقط، فإن هذا يشغّله ويطفئه.</string>
+    <string name="flashlight_beat_sensitivity_label">حساسية الإيقاع: %.1f</string>
+    <string name="flashlight_beat_sensitivity_desc">القيم الأعلى تتجاهل الإشارات الانتقالية الأضعف.</string>
+    <string name="flashlight_speed_label">السرعة: %.0f ms</string>
+    <string name="flashlight_monitor_label">مراقبة الكشاف</string>
+    <string name="flashlight_duration_label">المدة: %d ms</string>
+    <string name="flashlight_duration_desc">مدة النبض بالمللي ثانية.</string>
+    <string name="experimental_features">ميزات تجريبية</string>
+    <string name="feature_flashlight_levels">مستويات شدة الكشاف</string>
+    <string name="feature_supported_n">%d مستويات مدعومة</string>
+    <string name="feature_basic">ثنائي (تشغيل/إيقاف فقط)</string>
+    <string name="developer_mode">وضع المطوّر</string>
     <string name="spoof_device_description">يجبر التطبيق على التصرف كما لو كان يعمل على الجهاز المحدد.</string>
-    <string name="idle_breathing_title">التنفس في وضع الخمول</string>
-    <string name="idle_breathing_desc">تنبض الـ Glyphs بشكل خفيف عندما يكون المصور المرئي نشطًا ولكن لا يوجد صوت يعمل.</string>
+    <string name="spoof_locale_description">إجبار التطبيق على استخدام لغة معينة لأغراض الاختبار.</string>
+    <string name="idle_breathing_title">التنفّس عند الخمول</string>
     <string name="start_visualizer">بدء</string>
     <string name="stop_visualizer">إيقاف</string>
-    <string name="glyph_no_config">لم يتم تحميل أي تكوين. يرجى التحقق من وجود تحديثات في الإعدادات لتنزيل أحدث الإعدادات المسبقة للمصور المرئي.</string>
-
+    <string name="glyph_no_config">لم يتم تحميل أي إعداد. يُرجى التحقق من التحديثات في الإعدادات لتنزيل أحدث الإعدادات المسبقة للمصور المرئي.</string>
     <!-- About Screen -->
     <string name="about_title">معلومات التطبيق والتحديثات</string>
+    <string name="analytics_disclaimer_title">التحليلات</string>
+    <string name="analytics_disclaimer_text">يستخدم هذا التطبيق خدمة Google Analytics (Firebase) لجمع إحصاءات استخدام مجهولة الهوية وتقارير الأعطال للمساعدة في تحسين تجربة التطبيق. لا يتم جمع أي بيانات شخصية أو محتوى صوتي.</string>
     <string name="github_repository">مستودع GitHub</string>
     <string name="version_info">الإصدار %s</string>
-    <string name="zones_config_version">إصدار التكوين: %s</string>
-    <string name="media_projection_info">يُستخدم MediaProjection فقط لتشغيل المصور المرئي في الوقت الفعلي. لا يتم إجراء أي تسجيل أو تخزين بيانات غير ضروري.</string>
-    <string name="credits">الاعتمادات</string>
-    <string name="open_github_profile">فتح ملف GitHub الشخصي</string>
-    <string name="discord_server">خادم Discord</string>
-
+    <string name="zones_config_version">إصدار الإعداد: %s</string>
+    <string name="media_projection_info">يُستخدم MediaProjection فقط لتشغيل المصور المرئي الفوري. لا يتم إجراء أي تسجيل أو تخزين بيانات غير ضروري.</string>
+    <string name="credits">شكر وتقدير</string>
+    <string name="open_github_profile">فتح الملف الشخصي على GitHub</string>
+    <string name="discord_server">مجتمع Discord</string>
     <!-- Capture Source Labels -->
-    <string name="capture_media_projection">Media Projection\n(افتراضي، الأفضل)</string>
+    <string name="capture_media_projection">MediaProjection\n(الافتراضي، الأفضل)</string>
     <string name="capture_microphone">الميكروفون</string>
-    <string name="capture_vizualizer">مصور Android المرئي المدمج</string>
+    <string name="capture_vizualizer">المصور المرئي المدمج في Android</string>
     <string name="update_available">تحديث متاح: %s</string>
-    <string name="update_now">تحديث الآن</string>
-
+    <string name="update_now">التحديث الآن</string>
     <string name="idle_pattern">نمط الخمول</string>
     <string name="idle_pattern_pulse">نبض</string>
     <string name="idle_pattern_wave">موجة</string>
-    <string name="idle_pattern_cylon">Cylon</string>
-    <string name="idle_pattern_zebra">حمار وحشي</string>
-    <string name="idle_pattern_heartbeat">ضربات القلب</string>
+    <string name="idle_pattern_cylon">سايلون</string>
+    <string name="idle_pattern_zebra">بالتناوب</string>
+    <string name="idle_pattern_heartbeat">نبضة قلب</string>
     <string name="idle_pattern_orbit">مدار</string>
     <string name="idle_pattern_rain">مطر</string>
+    <string name="idle_pulse_brightness">سطوع النبض: %d%%</string>
+    <string name="idle_background_brightness">سطوع الخلفية: %d%%</string>
     <string name="cancel">إلغاء</string>
-    <string name="enable_on_screen_visualizers">تفعيل المصورات المرئية على الشاشة</string>
+    <string name="back">رجوع</string>
+    <string name="frequency_range_label">نطاق التردد: %1$d هرتز - %2$d Hz</string>
+    <string name="clear">مسح</string>
+    <string name="sync_ui_to_beat">مزامنة الواجهة مع الإيقاع</string>
+    <string name="alternate_glyph_viz">مصور Glyph بديل</string>
+    <string name="nav_overlay">شريط التنقل</string>
+    <string name="enable_on_screen_visualizers">تشغيل المصور المرئي على الشاشة</string>
+    <string name="higher_quality_audio_analysis">تحليل صوتي بجودة أعلى</string>
+    <string name="rounded_bars">أشرطة مستديرة</string>
+    <string name="style_bars">أشرطة</string>
+    <string name="style_rounded_bars">مستديرة</string>
+    <string name="style_glow">توهج</string>
+    <string name="visualizer_style">مظهر</string>
+    <string name="visualizer_opacity">العتامة</string>
+    <string name="lens_visualizer">مصور العدسة المرئي</string>
+    <string name="lens_radius">نصف قطر العدسة</string>
+    <string name="lens_bar_width">عرض الشريط</string>
+    <string name="lens_max_height">أقصى ارتفاع للشريط</string>
+    <string name="lens_bar_count">عدد الأشرطة</string>
     <string name="overlay_width">عرض التراكب</string>
     <string name="overlay_height">ارتفاع التراكب</string>
+    <string name="overlay_height_bottom">الارتفاع في الأسفل</string>
+    <string name="overlay_top_segment">الخط العلوي</string>
+    <string name="overlay_bottom_segment">الخط السفلي</string>
     <string name="vertical_position">الموضع الرأسي</string>
-
-    <string name="tab_glyphs">Glyphs</string>
+    <!-- Auth -->
+    <string name="tab_glyphs">Glyph</string>
+    <string name="tab_visuals">المرئيات</string>
     <string name="tab_haptics">الاهتزاز</string>
     <string name="tab_flashlight">الكشاف</string>
     <string name="tab_settings">الإعدادات</string>
-
+    <string name="glyphs_disabled">الـGlyphs مطفأة</string>
+    <string name="haptics_disabled">الاهتزاز مطفأ</string>
+    <string name="flashlight_disabled">الكشاف مطفأ</string>
+    <string name="feature_disabled">هذه الميزة مطفأة</string>
+    <string name="continue_label">متابعة</string>
+    <string name="audio_permission_required">إذن تسجيل الصوت مطلوب</string>
+    <string name="screen_capture_denied">تم رفض إذن التقاط الشاشة</string>
+    <string name="overlay_permission_denied">تم رفض إذن التراكب</string>
+    <string name="config_update_success">تم تحديث zones.config بنجاح</string>
+    <string name="config_import_success">تم استيراد zones.config بنجاح</string>
+    <string name="config_import_error">فشلت قراءة الملف المحدد</string>
+    <string name="config_download_error">فشل التنزيل: %d</string>
+    <string name="config_error_updating">خطأ في التحديث: %s</string>
+    <string name="config_error_importing">خطأ في الاستيراد: %s</string>
     <!-- License Screen -->
     <string name="license_title">الترخيص</string>
     <string name="license_agreement">اتفاقية الترخيص</string>
     <string name="read_license">قراءة ترخيص البرنامج</string>
-
-    <string name="back">رجوع</string>
-    <string name="frequency_range_label">نطاق التردد: %1$d هرتز - %2$d هرتز</string>
-    <string name="clear">مسح</string>
-    <string name="config_download_error">فشل التنزيل: %d</string>
-    <string name="tablet_width_title">عرض علامة تبويب الجهاز اللوحي</string>
+    <string name="failed_load_license">فشل تحميل الترخيص الحالي.</string>
+    <string name="retry">أعد المحاولة</string>
+    <!-- Audio Discovery -->
+    <string name="connect_to_device">الاتصال بجهاز</string>
+    <string name="no_devices_found">لم يتم العثور على أية أجهزة على شبكة Wi-Fi.</string>
+    <string name="search_again">ابحث مجددًا</string>
+    <!-- MainViewModel Toasts & Status -->
+    <string name="download_failed_http">فشل التنزيل: HTTP %d</string>
+    <string name="download_error">خطأ أثناء التنزيل: %s</string>
+    <string name="installation_failed">فشل التثبيت: %s</string>
+    <string name="license_load_error">فشل تحميل الترخيص: %d</string>
+    <string name="unknown_error">خطأ غير معروف</string>
+    <string name="update_checking">جارٍ التحقق من التحديثات...</string>
+    <string name="update_downloading">جارٍ التنزيل: %d%%</string>
+    <string name="update_uptodate">لديك بالفعل أحدث إصدار</string>
+    <string name="update_error">خطأ: %s</string>
+    <string name="check_software_updates">التحقق من وجود تحديثات</string>
+    <!-- Tile Service -->
+    <string name="tile_running">قيد التشغيل</string>
+    <string name="tile_subtitle_default">مصور موسيقى Nothing المحسّن</string>
+    <!-- Feature Monitors -->
+    <string name="haptic_monitor">مراقب الاهتزاز</string>
+    <string name="flashlight_level_stats">المستوى: %1$d / %2$d</string>
+    <!-- Visuals Options -->
+    <string name="top_edge_overlay">تراكب الحافة العلوية</string>
+    <string name="bottom_edge_overlay">تراكب الحافة السفلية</string>
+    <string name="edge_visualizer">حواف الشاشة</string>
+    <string name="edge_bar_height">ارتفاع شريط الحافة</string>
+    <string name="top_edge_segment">خط الحافة العلوية</string>
+    <string name="bottom_edge_segment">خط الحافة السفلية</string>
+    <string name="screen_corner_radius">نصف قطر زاوية الشاشة</string>
+    <string name="horizontal_bar_count">عدد الأشرطة الأفقية</string>
+    <string name="vertical_bar_count">عدد الأشرطة العمودية</string>
+    <string name="x_position">الموقع الأفقي</string>
+    <string name="y_position">الموقع الرأسي</string>
+    <string name="bar_height">ارتفاع الشريط</string>
+    <string name="emulate_hdr_title">محاكاة HDR (OLED)</string>
+    <string name="emulate_hdr_description">يعتم الشاشة لجعل المصور المرئي أكثر سطوعًا من الشاشة (تمامًا كما يفعل HDR عادةً). يعمل بشكل أفضل على شاشات OLED.</string>
+    <string name="hdr_intensity">شدة HDR</string>
+    <!-- Settings Extra -->
+    <string name="vizualizer_stats">إحصائيات المصور المرئي</string>
+    <string name="tablet_width_title">عرض علامة التبويب على الجهاز اللوحي</string>
+    <!-- Notification Extra -->
+    <string name="notification_channel_name">إشعار BNMV</string>
+    <string name="notification_title">مصور موسيقى Nothing المحسّن</string>
+    <string name="notification_action_glyphs">Glyphs</string>
+    <string name="notification_action_haptics">الاهتزاز</string>
+    <string name="notification_action_flash">الكشاف</string>
+    <string name="notification_action_stop">إيقاف BNMV</string>
+    <!-- Device Names -->
+    <string name="device_unknown">جهاز غير معروف</string>
+    <!-- Stats Screen -->
+    <string name="usage_stats">إحصائيات الاستخدام</string>
+    <string name="total_visualization_time">إجمالي وقت التصوير المرئي</string>
+    <string name="engagement">التفاعل</string>
+    <string name="active_music">الموسيقى النشطة</string>
+    <string name="idle_pulse">الخمول</string>
+    <string name="feature_breakdown">تفاصيل المزايا</string>
+    <string name="glyph_interface">واجهة/مصفوفة Glyph</string>
+    <string name="haptic_feedback">الاهتزاز</string>
+    <string name="flashlight_sync_stat">مزامنة الكشاف</string>
+    <string name="total_active_use">إجمالي الاستخدام النشط</string>
+    <!-- Glyphs Screen Extra -->
+    <string name="update_required">التحديث مطلوب</string>
+    <string name="download_full_config">تحميل التكوين كاملًا لرؤية الإعدادات المسبقة</string>
+    <string name="visualizer_configuration">تكوين المصور المرئي</string>
+    <string name="config_description">يحدد ملف zones.config كيفية ربط الترددات المختلفة بمصابيح LED الخاصة بـGlyph. التحديث من GitHub يضمن دعم الأجهزة والإعدادات المسبقة الجديدة.</string>
+    <string name="up_to_date">أحدث إصدار</string>
+    <string name="update_available_label">تحديث متوفر</string>
+    <string name="local_config">محلي</string>
+    <string name="show_gamma_info">عرض معلومات غاما</string>
+    <string name="check_github">زيارة GitHub</string>
+    <!-- About Screen Extra -->
+    <string name="view_source_contributions">عرض المصدر والمساهمات</string>
+    <string name="software_update">تحديث البرنامج</string>
+    <string name="update_label">تحديث</string>
+    <!-- Audio Service -->
+    <string name="audio_route_none">لا شيء</string>
+    <string name="output_selection">٢. اختر المخارج</string>
+    <string name="select_capture_source">١. اختر مصدر الصوت</string>
+    <string name="broadcast">السماح للأجهزة الأخرى بالاتصال...</string>
+    <!-- Audio Help Guides -->
+    <string name="help_source_intro">اختر مكان التقاط الصوت للتصوير المرئي:</string>
+    <string name="help_source_internal_title">عرض الوسائط</string>
+    <string name="help_source_internal_desc">يلتقط الصوت عالي الجودة مباشرة من تطبيقاتك. نافذة \"مشاركة الشاشة\" هو ما يحتاج إليه Android للسماح بالتقاط الصوت بواسطة BNMV. لا يسجل شاشتك ويحافظ على البطارية. </string>
+    <string name="help_source_mic_title">المايكروفون</string>
+    <string name="help_source_mic_desc">يلتقط الصوت من البيئة المحيطة. مفيد في الحفلات عندما لا تشغل الموسيقى بنفسك.</string>
+    <string name="help_source_network_title">جهاز أو تطبيق آخر...</string>
+    <string name="help_source_network_desc">يتلقى بيانات صوتية من جهاز آخر يبث صوتًا باستخدام هذا التطبيق.</string>
+    <string name="help_source_viz_title">المصور المرئي المدمج في Android</string>
+    <string name="help_source_viz_desc">هذا ما يسمح به Android رسميًا لتطبيقات التصوير المرئي وهو بث صوتي ذو جودة منخفضة لكنه لا يتطلب إذن مشاركة الشاشة.</string>
+    <string name="help_source_privacy">تذكر، لا يتم حفظ أو تخزين أي بيانات صوتية على جهازك.</string>
+    <string name="help_output_intro">التحكم في المكان الذي يظهر فيه التصوير المرئي:</string>
+    <string name="help_output_glyphs_desc">يصور الصوت مرئيًا باستخدام مصابيح LED في واجهة/مصفوفة Glyph.</string>
+    <string name="help_output_haptics_desc">يشعرك بالموسيقى عن طريق محرك الاهتزاز.</string>
+    <string name="help_output_flash_desc">ينبض ضوء الكشاف مع الإيقاع.</string>
+    <string name="help_output_broadcast_title">\"السماح للأجهزة الأخرى بالاتصال...\"</string>
+    <string name="help_output_broadcast_desc">يبث الصوت إلى أجهزة أخرى على شبكتك المحلية.</string>
+    <string name="help_sync_title">الاتصال بجهاز آخر:</string>
+    <string name="help_sync_step1">١. فعل \"السماح للأجهزة الأخرى بالاتصال...\" على الجهاز المشغل للموسيقى (المصدر).</string>
+    <string name="help_sync_step2">٢. على هذا الجهاز، اختر \"جهاز أو تطبيق آخر...\" كمصدر الصوت ثم اختر الجهاز المصدر من القائمة.</string>
+    <string name="system_language">لغة النظام</string>
+    <string name="select_language">اختر اللغة</string>
+    <string name="widget_m3_description">الأداة المصغرة للتصوير المرئي بتصميم Material 3 (نهار/ليل)</string>
+    <string name="idle_breathing_desc">تنبض Glyphs بشكل طفيف عندما يكون المصور المرئي مفعلًا لكن لا يوجد صوت مشغل.</string>
+    <!-- Widget -->
+    <string name="widget_start_bnmv">START BNMV</string>
+    <string name="widget_stop_bnmv">STOP BNMV</string>
+    <!-- First Time Help -->
+    <string name="first_time_help_title">Quick Tip</string>
+    <string name="first_time_help_msg">Click on the [info] buttons whenever you need help!</string>
+    <!-- Easter Eggs -->
+    <string name="toast_no_output">جميع أجهزة الإخراج معطلة، لذا BNMV will do NOTHING 😆</string>
+    <string name="toast_audio_title_tap">لماذا تضغط هنا؟ It does NOTHING 😆</string>
+    <string name="easter_egg_glyph_popup_body">صنع التصميم المبدئي لأيقونة التطبيق بواسطة مطور أشهر تطبيق تم صنعه بواسطة مجتمع Nothing، NoVolume. إنه حقًا تطبيق رائع وحتمًا عليك إلقاء نظرة عليه على متجر Play.\n\nهذا ما قاله:</string>
+    <string name="easter_egg_glyph_popup_quote">\"أعتقد أن أيقونة التطبيق هذه تليق بالتطبيق أكثر وحتمًا سيتم تثبيت التطبيق من قبل مستخدمين كثر\".</string>
+    <string name="ok">OK</string>
+    <string name="i_dont_give_a_fuck">أنا لا أبالي</string>
+    <!-- Visualizer Color & Accessibility -->
+    <string name="visualizer_color">لون المصور المرئي</string>
+    <string name="broadcast_clients">عملاء البث</string>
+    <string name="connected_count">%d متصل</string>
+    <string name="waiting_for_devices">في انتظار الأجهزة...</string>
+    <string name="made_by_aleks">صنع بحب من قبل Aleks Levet!</string>
+    <string name="credits_extended">لست الوحيد الذي عمل على إنشاء هذا المشروع الرائع، ألق نظرة على صفحة GitHub للاطلاع على جميع من عمل على المشروع. استغرق إنشاء هذا المشروع سنوات عدة!</string>
+    <string name="content_desc_internal_source">المصدر الداخلي</string>
+    <string name="content_desc_mic_source">مصدر المايكروفون</string>
+    <string name="content_desc_visualizer_source">مصدر المصور المرئي</string>
+    <string name="content_desc_toggle_haptics">تشغيل/إيقاف الاهتزاز</string>
+    <string name="content_desc_toggle_glyphs">تشغيل/إيقاف Glyphs</string>
+    <string name="content_desc_toggle_torch">تشغيل/إيقاف الكشاف</string>
+    <string name="content_desc_start_stop">تشغيل/إيقاف المصور المرئي</string>
+    <string name="label_source">المصدر</string>
+    <string name="label_output">المخرج</string>
+    <string name="help_show">عرض المساعدة</string>
 </resources>

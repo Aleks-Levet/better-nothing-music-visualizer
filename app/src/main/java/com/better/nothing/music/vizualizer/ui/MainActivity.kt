@@ -270,6 +270,13 @@ class MainActivity : AppCompatActivity() {
             val musicThemeColor by viewModel.musicThemeColor.collectAsStateWithLifecycle()
             val isRunning by viewModel.runningState.collectAsStateWithLifecycle()
 
+            val gSansWeight by viewModel.googleSansWeight.collectAsStateWithLifecycle()
+            val gSansWidth by viewModel.googleSansWidth.collectAsStateWithLifecycle()
+            val gSansSlant by viewModel.googleSansSlant.collectAsStateWithLifecycle()
+            val gSansOpsz by viewModel.googleSansOpticalSize.collectAsStateWithLifecycle()
+            val gSansGrade by viewModel.googleSansGrade.collectAsStateWithLifecycle()
+            val gSansRounding by viewModel.googleSansRounding.collectAsStateWithLifecycle()
+
             LaunchedEffect(isRunning) {
                 if (isRunning) {
                     while (true) {
@@ -305,6 +312,12 @@ class MainActivity : AppCompatActivity() {
                 fontName = selectedFont,
                 m3eEnabled = m3eEnabled,
                 musicPrimaryColor = musicThemeColor,
+                gSansWeight = gSansWeight,
+                gSansWidth = gSansWidth,
+                gSansSlant = gSansSlant,
+                gSansOpsz = gSansOpsz,
+                gSansGrade = gSansGrade,
+                gSansRounding = gSansRounding,
             ) {
                 val isShowingAbout by viewModel.isShowingAbout.collectAsStateWithLifecycle()
                 val isShowingLicense by viewModel.isShowingLicense.collectAsStateWithLifecycle()

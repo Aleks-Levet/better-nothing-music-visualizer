@@ -1,37 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <!-- Audio Screen -->
-    <string name="audio_warning_vizualizer">警告：このソースは標準的なAndroidビジュアライザースタイルのオーディオストリームを使用しています。低忠実度であり、品質が劣る可能性があります。</string>
+    <string name="audio_warning_vizualizer">警告：このソースは標準的なAndroidビジュアライザースタイルのオーディオストリームを使用しています。精度が低く、品質が劣る可能性があります。</string>
     <string name="auto_memorize_device">デバイスを自動記憶</string>
     <string name="saving_latency_for">レイテンシを保存中： %s</string>
     <string name="internal_speaker">内蔵スピーカー</string>
     <string name="manual_mode_global_latency">マニュアルモード（グローバルレイテンシ）</string>
     <string name="latency_compensation">レイテンシ補正</string>
     <string name="live_spectrum">ライブ・オーディオ・スペクトラム</string>
-
     <!-- Glyph Screen -->
     <string name="glyph_controls">Glyphコントロール</string>
+    <string name="glyph_brightness">Glyph の明るさ:</string>
+    <string name="threshold_label">しきい値:</string>
+    <string name="speed_label">スピード:</string>
+    <string name="disabled">無効</string>
+    <string name="threshold_description">Glyphが光る最小のオーディオレベルを設定します。大きな値を設定することでバックグラウンドノイズが無視されより洗練された見た目になります。</string>
+    <string name="speed_description">オーディオピークの後、Glyphがフェードアウトする時間を設定します。速くすることで高感度でシャープな見た目になります。</string>
+    <string name="show_more_sliders">スライダーをさらに表示...</string>
     <string name="gamma_control">ガンマコントロール</string>
     <string name="gamma_description">ガンマ値を高くすると、よりパンチの効いた外観になりますが、微妙なディテールや全体的な明るさは低下します。低くすると明るくなりますが、パンチは弱まります。</string>
     <string name="light_gamma">ライトガンマ：</string>
     <string name="visualizer_presets">ビジュアライザー・プリセット</string>
-
+    <string name="preset_name">プリセットの名前</string>
+    <string name="preset_description">説明</string>
     <!-- Settings Screen -->
     <string name="app_theme">アプリのテーマ</string>
     <string name="theme_normal">デフォルト</string>
     <string name="theme_liquorice">リコリスブラック</string>
     <string name="theme_nothing_red">Nothingレッド</string>
-
     <!-- Haptics Screen -->
     <string name="haptics_header">ハプティクスコントロール</string>
     <string name="haptics_mode_label">ハプティクスエンジン・モード</string>
-    <string name="haptics_mode_bass">低音振幅</string>
+    <string name="haptics_mode_bass">振動の強さ</string>
     <string name="haptics_mode_beat">ビート検出</string>
-    <string name="haptics_beat_detection_desc">選択した周波数範囲内で検出されたビートに合わせて振動します。よりスムーズですが、時折不安定になることがあります。これはベータ機能です。</string>
+    <string name="haptics_beat_detection_desc">選択した周波数範囲内で検出されたビートに合わせて振動します。よりスムーズになりますが、不安定になることがあります。これはベータ機能です。</string>
     <string name="haptics_frequency_label">周波数： %1$d - %2$d Hz</string>
     <string name="haptics_frequency_desc">この範囲のオーディオ振幅に基づいて振動します。</string>
     <string name="haptics_amplitude_label">強度： %.1fx</string>
+    <string name="haptics_audio_gain_label">音量ゲイン: %.1fx</string>
     <string name="haptics_gamma_label">ガンマ： %.1f</string>
     <string name="haptics_decay_label">減衰： %.2f</string>
     <string name="haptics_speed_label">速度： %.1f</string>
@@ -39,24 +45,52 @@
     <string name="haptics_motor_multiplier_desc">全体のバイブレーション強度倍率。</string>
     <string name="haptics_decay_instant">スムージングなし（即時）</string>
     <string name="haptics_decay_smooth">スムージング有効</string>
-
+    <string name="haptics_duration_label">持続時間: %d ms</string>
+    <string name="beat_engine_mode_label">振動タイプ</string>
+    <string name="beat_engine_smooth">スムーズフォールアウト</string>
+    <string name="beat_engine_short">短いパルス</string>
+    <!-- Audio Processing -->
+    <string name="microphone_mode">マイクキャプチャモード (エキスパート)</string>
+    <string name="microphone_mode_desc">マイクの音声キャプチャ方法を変更します。</string>
+    <string name="mic_mode_voice_comm">音声通話</string>
+    <string name="mic_mode_voice_comm_desc">音声通話:通常、エコーやノイズが抑制されます。</string>
+    <string name="mic_mode_voice_perf">品質</string>
+    <string name="mic_mode_voice_perf_desc">音声品質:リアルタイムの音声アプリケーション向けに最適化されています。通常の音声通話よりも遅延が小さくなります。</string>
+    <string name="mic_mode_unprocessed">未処理</string>
+    <string name="mic_mode_unprocessed_desc">未処理: マイクからの生音声。ゲイン調整、ノイズ抑制なし。正確な音楽ビジュアライゼーションに最適です。</string>
+    <string name="mic_mode_camcorder">カメラ</string>
+    <string name="mic_mode_camcorder_desc">ビデオカメラ: 指向性オーディオに合わせたチューニングが施されていることが多いです。</string>
     <!-- Flashlight Screen -->
-    <string name="flashlight_header">懐中電灯ビジュアライザー</string>
+    <string name="flashlight_header">フラッシュライトビジュアライザー</string>
+    <string name="flashlight_mode_label">フラッシュエンジンモード</string>
+    <string name="flashlight_mode_amplitude">強さ</string>
+    <string name="flashlight_mode_beat">ビート検出</string>
+    <string name="flashlight_intensity_label">明るさレベル: %1$d</string>
     <string name="flashlight_frequency_label">周波数： %1$d - %2$d Hz</string>
-    <string name="flashlight_frequency_desc">懐中電灯が反応するHz範囲です。低音には低く、スネアやボーカルには高く設定します。</string>
-    <string name="flashlight_monitor_label">懐中電灯モニター</string>
-
+    <string name="flashlight_frequency_desc">フラッシュライトが反応するHz範囲です。低音には低く、スネアやボーカルには高く設定します。</string>
+    <string name="flashlight_threshold_label">しきい値: %.2f</string>
+    <string name="flashlight_threshold_desc">明るさレベルが1つだけの場合は、オンとオフだけになります。</string>
+    <string name="flashlight_beat_sensitivity_label">ビート感度: %.1f</string>
+    <string name="flashlight_beat_sensitivity_desc">値を大きくすると、弱いトランジエントが無視されます。</string>
+    <string name="flashlight_speed_label">スピード: %.0f ms</string>
+    <string name="flashlight_monitor_label">フラッシュライトモニター</string>
+    <string name="flashlight_duration_label">持続時間: %d ms</string>
+    <string name="flashlight_duration_desc">ミリ秒単位のパルスの持続時間。</string>
     <string name="experimental_features">実験的機能</string>
+    <string name="feature_flashlight_levels">フラッシュライトの輝度レベル</string>
+    <string name="feature_supported_n">%d 段階の調整に対応しています</string>
+    <string name="feature_basic">バイナリ(オン/オフのみ)</string>
     <string name="developer_mode">開発者モード</string>
     <string name="spoof_device_description">選択したデバイス上で動作しているかのようにアプリを強制的に動作させます。</string>
+    <string name="spoof_locale_description">ローカライズテスト用に言語を変更します。</string>
     <string name="idle_breathing_title">待機時の呼吸</string>
-    <string name="idle_breathing_desc">ビジュアライザーが有効でオーディオが再生されていないとき、Glyphが微妙に点滅します。</string>
     <string name="start_visualizer">開始</string>
     <string name="stop_visualizer">停止</string>
     <string name="glyph_no_config">設定が読み込まれていません。設定からアップデートを確認し、最新のビジュアライザー・プリセットをダウンロードしてください。</string>
-
     <!-- About Screen -->
     <string name="about_title">アプリ情報とアップデート</string>
+    <string name="analytics_disclaimer_title">アナリティクス</string>
+    <string name="analytics_disclaimer_text">本アプリでは、ユーザー体験の向上を目的として、Google Analytics（Firebase）により匿名の使用統計データおよびクラッシュレポートを収集しています。個人情報および音声コンテンツの収集は行われません。</string>
     <string name="github_repository">GitHubリポジトリ</string>
     <string name="version_info">バージョン %s</string>
     <string name="zones_config_version">設定バージョン： %s</string>
@@ -64,15 +98,13 @@
     <string name="credits">クレジット</string>
     <string name="open_github_profile">GitHubプロフィールを開く</string>
     <string name="discord_server">Discordサーバー</string>
-
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">メディアプロジェクション\n（デフォルト、最適）</string>
     <string name="capture_microphone">マイク</string>
     <string name="capture_vizualizer">Android内蔵ビジュアライザー</string>
     <string name="update_available">アップデートがあります： %s</string>
     <string name="update_now">今すぐアップデート</string>
-
-    <string name="idle_pattern">待機時パターン</string>
+    <string name="idle_pattern">待機時のパターン</string>
     <string name="idle_pattern_pulse">パルス</string>
     <string name="idle_pattern_wave">ウェーブ</string>
     <string name="idle_pattern_cylon">サイロン</string>
@@ -80,35 +112,191 @@
     <string name="idle_pattern_heartbeat">ハートビート</string>
     <string name="idle_pattern_orbit">軌道</string>
     <string name="idle_pattern_rain">雨</string>
+    <string name="idle_pulse_brightness">パルスの明るさ: %d%%</string>
+    <string name="idle_background_brightness">背景の明るさ: %d%%</string>
     <string name="cancel">キャンセル</string>
+    <string name="back">戻る</string>
+    <string name="frequency_range_label">周波数範囲：%1$dHz - %2$dHz</string>
+    <string name="clear">クリア</string>
+    <string name="sync_ui_to_beat">UIをビートと同期</string>
+    <string name="alternate_glyph_viz">グリフビジュアライザーの代替</string>
+    <string name="nav_overlay">ナビゲーションバー</string>
+    <string name="enable_on_screen_visualizers">オンスクリーンビジュアライザーを有効化</string>
+    <string name="higher_quality_audio_analysis">高品質のオーディオ解析</string>
+    <string name="rounded_bars">丸いバー</string>
+    <string name="style_bars">バー</string>
+    <string name="style_rounded_bars">丸い角</string>
+    <string name="style_glow">グロウ</string>
+    <string name="visualizer_style">スタイル</string>
+    <string name="visualizer_opacity">透明度</string>
+    <string name="lens_visualizer">フロントカメラ</string>
+    <string name="lens_radius">カメラ半径</string>
+    <string name="lens_bar_width">バーの幅</string>
+    <string name="lens_max_height">バーの最大の高さ</string>
+    <string name="lens_bar_count">バーの数</string>
     <string name="overlay_width">オーバーレイの幅</string>
     <string name="overlay_height">オーバーレイの高さ</string>
+    <string name="overlay_height_bottom">下部の長さ</string>
+    <string name="overlay_top_segment">上部セグメント</string>
+    <string name="overlay_bottom_segment">下部セグメント</string>
     <string name="vertical_position">垂直方向の位置</string>
-
+    <!-- Auth -->
     <string name="tab_glyphs">Glyph</string>
+    <string name="tab_visuals">オーバーレイ</string>
     <string name="tab_haptics">ハプティクス</string>
-    <string name="tab_flashlight">懐中電灯</string>
+    <string name="tab_flashlight">フラッシュライト</string>
     <string name="tab_settings">設定</string>
-
+    <string name="glyphs_disabled">Glyphは無効です</string>
+    <string name="haptics_disabled">ハプティクスは無効です</string>
+    <string name="flashlight_disabled">懐中電灯は無効です</string>
+    <string name="feature_disabled">この機能は無効です</string>
     <string name="continue_label">続行</string>
-
     <string name="audio_permission_required">録音の権限が必要です</string>
     <string name="screen_capture_denied">画面キャプチャの権限が拒否されました</string>
     <string name="overlay_permission_denied">オーバーレイの権限が拒否されました</string>
-
     <string name="config_update_success">zones.configを正常にアップデートしました</string>
     <string name="config_import_success">zones.configを正常にインポートしました</string>
     <string name="config_import_error">選択したファイルの読み込みに失敗しました</string>
     <string name="config_download_error">ダウンロードに失敗しました： %d</string>
     <string name="config_error_updating">アップデート中にエラーが発生しました： %s</string>
     <string name="config_error_importing">インポート中にエラーが発生しました： %s</string>
-
     <!-- License Screen -->
     <string name="license_title">ライセンス</string>
     <string name="license_agreement">ライセンス契約</string>
     <string name="read_license">ソフトウェアライセンスを読む</string>
-
-    <string name="back">戻る</string>
-    <string name="frequency_range_label">周波数範囲：%1$dHz - %2$dHz</string>
-    <string name="clear">クリア</string>
+    <string name="failed_load_license">現在のライセンスの読み込みに失敗しました。</string>
+    <string name="retry">再試行</string>
+    <!-- Audio Discovery -->
+    <string name="connect_to_device">デバイスに接続</string>
+    <string name="no_devices_found">お使いのWi-Fiネットワーク上にデバイスが見つかりません。</string>
+    <string name="search_again">もう一度検索する</string>
+    <!-- MainViewModel Toasts & Status -->
+    <string name="download_failed_http">ダウンロードに失敗しました: HTTP %d</string>
+    <string name="download_error">ダウンローダーエラー: %s</string>
+    <string name="installation_failed">インストールに失敗しました: %s</string>
+    <string name="license_load_error">ライセンスを読み込めませんでした: %d</string>
+    <string name="unknown_error">不明なエラー</string>
+    <string name="update_checking">アップデートを確認中...</string>
+    <string name="update_downloading">ダウンロード中…: %d%%</string>
+    <string name="update_uptodate">最新バージョンがインストールされています</string>
+    <string name="update_error">エラー: %s</string>
+    <string name="check_software_updates">ソフトウェアのアップデートを確認する</string>
+    <!-- Tile Service -->
+    <string name="tile_running">実行中</string>
+    <string name="tile_subtitle_default">Better Nothing Music Vizualiser</string>
+    <!-- Feature Monitors -->
+    <string name="haptic_monitor">ハプティックモニター</string>
+    <string name="flashlight_level_stats">レベル: %1$d / %2$d</string>
+    <!-- Visuals Options -->
+    <string name="top_edge_overlay">上端オーバーレイ</string>
+    <string name="bottom_edge_overlay">下端オーバーレイ</string>
+    <string name="edge_visualizer">スクリーンエッジ</string>
+    <string name="edge_bar_height">エッジバーの高さ</string>
+    <string name="top_edge_segment">上端セグメント</string>
+    <string name="bottom_edge_segment">下端セグメント</string>
+    <string name="screen_corner_radius">スクリーンコーナーの半径</string>
+    <string name="horizontal_bar_count">水平バーの数</string>
+    <string name="vertical_bar_count">垂直バーの数</string>
+    <string name="x_position">x座標</string>
+    <string name="y_position">y座標</string>
+    <string name="bar_height">バーの高さ</string>
+    <string name="emulate_hdr_title">HDRシミュレーション(OLED)</string>
+    <string name="emulate_hdr_description">HDR効果のように画面を暗くし、ビジュアライザーを鮮やかに際立たせます。OLED(有機EL)ディスプレイに最適です。</string>
+    <string name="hdr_intensity">HDRの強さ</string>
+    <!-- Settings Extra -->
+    <string name="vizualizer_stats">ビジュアライザーの統計情報</string>
+    <string name="tablet_width_title">タブレットのタブ幅</string>
+    <!-- Notification Extra -->
+    <string name="notification_channel_name">BNV通知</string>
+    <string name="notification_title">Better Nothing Music Visualizer</string>
+    <string name="notification_action_glyphs">glyphs</string>
+    <string name="notification_action_haptics">ハプティクス</string>
+    <string name="notification_action_flash">フラッシュ</string>
+    <string name="notification_action_stop">BNMVを停止</string>
+    <!-- Device Names -->
+    <string name="device_unknown">不明なデバイス</string>
+    <!-- Stats Screen -->
+    <string name="usage_stats">使用状況統計</string>
+    <string name="total_visualization_time">ビジュアライザー総使用時間</string>
+    <string name="engagement">エンゲージメント総数</string>
+    <string name="active_music">アクティブミュージック</string>
+    <string name="idle_pulse">待機中</string>
+    <string name="feature_breakdown">機能の詳細</string>
+    <string name="glyph_interface">Glyph Interface/Matrix</string>
+    <string name="haptic_feedback">バイブレーション</string>
+    <string name="flashlight_sync_stat">フラッシュライトと同期</string>
+    <string name="total_active_use">アクティブ使用の合計</string>
+    <!-- Glyphs Screen Extra -->
+    <string name="update_required">アップデートが必要です</string>
+    <string name="download_full_config">プリセットを表示するには完全な設定をダウンロードしてください</string>
+    <string name="visualizer_configuration">ビジュアライザーの設定</string>
+    <string name="config_description">zones.config は、各周波数帯と Glyph LED のマッピングを設定するファイルです。GitHubから最新版に更新することで、新しいデバイスやプリセットにも対応できるようになります。</string>
+    <string name="up_to_date">アプリは最新バージョンです</string>
+    <string name="update_available_label">アップデートが可能です</string>
+    <string name="local_config">Local</string>
+    <string name="show_gamma_info">カメラの設定を表示する</string>
+    <string name="check_github">Githubを確認する</string>
+    <!-- About Screen Extra -->
+    <string name="view_source_contributions">sourceとcontributionsを確認する</string>
+    <string name="software_update">ソフトウェアアップデート</string>
+    <string name="update_label">アップデート</string>
+    <!-- Audio Service -->
+    <string name="audio_route_none">None</string>
+    <string name="output_selection">2.出力を選択</string>
+    <string name="select_capture_source">1. オーディオソースを選択</string>
+    <string name="broadcast">他のデバイスを接続...</string>
+    <!-- Audio Help Guides -->
+    <string name="help_source_intro">ビジュアライゼーション用のオーディオをキャプチャする場所を選択してください:</string>
+    <string name="help_source_internal_title">メディアプロジェクション</string>
+    <string name="help_source_internal_desc">アプリの音声を高音質で直接キャプチャします。「画面共有」の表示は音声取得に必要なAndroidの許可ダイアログです。画面は録画されず、省電力で動作します。</string>
+    <string name="help_source_mic_title">マイク</string>
+    <string name="help_source_mic_desc">マイクで周囲の音を取得します。自分で曲を流さないパーティーやイベントなどで活躍します。</string>
+    <string name="help_source_network_title">他のデバイスまたはアプリ...</string>
+    <string name="help_source_network_desc">このアプリで音声を配信している別デバイスからの音声データを受信します。</string>
+    <string name="help_source_viz_title">Android内蔵ビジュアライザー</string>
+    <string name="help_source_viz_desc">Android標準の音声入力を使用します。音質は低下しますが画面共有の許可は不要です。</string>
+    <string name="help_source_privacy">音声データがデバイスに保存されることはありません。</string>
+    <string name="help_output_intro">ビジュアライゼーションが表示される場所を制御:</string>
+    <string name="help_output_glyphs_desc">Glyph Interface / Matrix LEDを使用して音声をビジュアライズします。</string>
+    <string name="help_output_haptics_desc">振動モーターを通して音楽を感じることができます。</string>
+    <string name="help_output_flash_desc">カメラのフラッシュライトを拍に合わせてに点滅させます。</string>
+    <string name="help_output_broadcast_title">「他デバイスからの接続を許可...」</string>
+    <string name="help_output_broadcast_desc">ネットワーク上の他デバイスに音声データをストリーミングします。</string>
+    <string name="help_sync_title">別デバイスに接続中:</string>
+    <string name="help_sync_step1">1. 音楽再生中のデバイス(送信元)で、「他デバイスからの接続を許可...」をオンにします。</string>
+    <string name="help_sync_step2">2. このデバイス(受信先)で、オーディオソースとして「別のデバイスまたはアプリ...」を選択し、送信元デバイスを選択します。</string>
+    <string name="system_language">システムの言語設定に従う</string>
+    <string name="select_language">言語を選択</string>
+    <string name="widget_m3_description">Material 3 Visualizer ウィジェット (dayNight)</string>
+    <string name="idle_breathing_desc">ビジュアライザーが有効でオーディオが再生されていないとき、Glyphがわずかに点滅します。</string>
+    <!-- Widget -->
+    <string name="widget_start_bnmv">START BNMV</string>
+    <string name="widget_stop_bnmv">STOP BNMV</string>
+    <!-- First Time Help -->
+    <string name="first_time_help_title">Quick Tip</string>
+    <string name="first_time_help_msg">Click on the [info] buttons whenever you need help!</string>
+    <!-- Easter Eggs -->
+    <string name="toast_no_output">すべての出力が無効になっているため、BNMVはなにも(Nothing)しません😆</string>
+    <string name="toast_audio_title_tap">なぜここをクリックしたの? それはなにも(Nothing)しません! 😆</string>
+    <string name="easter_egg_glyph_popup_body">このアプリのアイコンコンセプトはNothing Community発の最大級のアプリ「Novolume」の開発者によって作成されました。Novolumeはとても素晴らしいアプリですので、そちらもぜひPlayストアチェックしてみてください!\n\n彼の発言:</string>
+    <string name="easter_egg_glyph_popup_quote">「このアイコンの方がアプリにずっと合っていますし、これならもっと多くの人にインストールしてもらえると思います。」\n \"I think that this app icon would suit the app much more and more people would install the app.\"</string>
+    <string name="ok">OK</string>
+    <string name="i_dont_give_a_fuck">クソどうでもいい</string>
+    <!-- Visualizer Color & Accessibility -->
+    <string name="visualizer_color">ビジュアライザーの色</string>
+    <string name="broadcast_clients">ブロードキャストクライアント</string>
+    <string name="connected_count">%d 台が接続されました</string>
+    <string name="waiting_for_devices">デバイスを待機中...</string>
+    <string name="made_by_aleks">Aleks Levet より愛を込めて</string>
+    <string name="credits_extended">この素晴らしいプロジェクトは、私一人だけで作ったものではありません。GitHubでぜひフルクレジットをチェックしてみてください！今に至るまでに何年もかかりました！</string>
+    <string name="content_desc_internal_source">内部ソース</string>
+    <string name="content_desc_mic_source">マイクのソース</string>
+    <string name="content_desc_visualizer_source">ビジュアライザのソース</string>
+    <string name="content_desc_toggle_haptics">ハプティックスの切り替え</string>
+    <string name="content_desc_toggle_glyphs">Glyphの切り替え</string>
+    <string name="content_desc_toggle_torch">ライトの切り替え</string>
+    <string name="content_desc_start_stop">ビジュアライザーを開始/停止</string>
+    <string name="label_source">ソース</string>
+    <string name="label_output">出力</string>
+    <string name="help_show">ヘルプの表示</string>
 </resources>
