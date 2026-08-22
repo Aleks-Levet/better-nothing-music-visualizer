@@ -259,6 +259,7 @@ fun BetterVizTheme(
 
         fun getAxes(size: Float, isHeader: Boolean = false): String? {
             if (!useGoogleSans) return null
+            
             val grade = if (size < 16f) 50f else if (isHeader) -20f else 0f
             return "'wght' $gSansWeight 'wdth' $gSansWidth 'slnt' $gSansSlant 'opsz' $size 'GRAD' $grade 'ROND' $gSansRounding"
         }
@@ -278,115 +279,115 @@ fun BetterVizTheme(
         val bodyFont = if (useGoogleSans) googleSansFlexFamily else FontFamily.SansSerif
 
         Typography(
-            // HEADERS (SCREENTITLES) - BIG sizes
+            // HEADERS (SCREENTITLES)
             displayLarge = TextStyle(
                 fontFamily = headerFont,
-                fontSize = if (isRestrictedLocale) 56.sp else 45.sp,
-                lineHeight = if (isRestrictedLocale) 64.sp else 55.sp,
+                fontSize = if (isRestrictedLocale) 34.sp else 45.sp,
+                lineHeight = if (isRestrictedLocale) 42.sp else 55.sp,
                 fontWeight = FontWeight.Normal,
-                fontFeatureSettings = getAxes(if (isRestrictedLocale) 56f else 74f, true)
+                fontFeatureSettings = getAxes(if (isRestrictedLocale) 34f else 45f, true)
             ),
             displayMedium = TextStyle(
                 fontFamily = headerFont,
-                fontSize = if (isRestrictedLocale) 46.sp else 60.sp,
-                lineHeight = if (isRestrictedLocale) 54.sp else 70.sp,
-                fontWeight = FontWeight.Normal,
-                fontFeatureSettings = getAxes(if (isRestrictedLocale) 46f else 60f, true)
-            ),
-            displaySmall = TextStyle(
-                fontFamily = headerFont,
-                fontSize = if (isRestrictedLocale) 38.sp else 48.sp,
-                lineHeight = if (isRestrictedLocale) 44.sp else 56.sp,
-                fontWeight = FontWeight.Normal,
-                fontFeatureSettings = getAxes(if (isRestrictedLocale) 38f else 48f, true)
-            ),
-            headlineLarge = TextStyle(
-                fontFamily = headlineFont,
-                fontSize = if (isRestrictedLocale) 36.sp else 42.sp,
-                lineHeight = if (isRestrictedLocale) 42.sp else 50.sp,
-                fontWeight = FontWeight.Normal,
-                fontFeatureSettings = getAxes(if (isRestrictedLocale) 36f else 42f, true)
-            ),
-            headlineMedium = TextStyle(
-                fontFamily = headlineFont,
                 fontSize = if (isRestrictedLocale) 28.sp else 36.sp,
-                lineHeight = if (isRestrictedLocale) 36.sp else 42.sp,
+                lineHeight = if (isRestrictedLocale) 36.sp else 44.sp,
                 fontWeight = FontWeight.Normal,
                 fontFeatureSettings = getAxes(if (isRestrictedLocale) 28f else 36f, true)
             ),
-            headlineSmall = TextStyle(
-                fontFamily = headlineFont,
-                fontSize = if (isRestrictedLocale) 24.sp else 32.sp,
+            displaySmall = TextStyle(
+                fontFamily = headerFont,
+                fontSize = if (isRestrictedLocale) 24.sp else 30.sp,
                 lineHeight = if (isRestrictedLocale) 32.sp else 38.sp,
                 fontWeight = FontWeight.Normal,
+                fontFeatureSettings = getAxes(if (isRestrictedLocale) 24f else 30f, true)
+            ),
+            headlineLarge = TextStyle(
+                fontFamily = headlineFont,
+                fontSize = if (isRestrictedLocale) 24.sp else 32.sp,
+                lineHeight = if (isRestrictedLocale) 32.sp else 40.sp,
+                fontWeight = FontWeight.Normal,
                 fontFeatureSettings = getAxes(if (isRestrictedLocale) 24f else 32f, true)
+            ),
+            headlineMedium = TextStyle(
+                fontFamily = headlineFont,
+                fontSize = if (isRestrictedLocale) 24.sp else 30.sp,
+                lineHeight = if (isRestrictedLocale) 32.sp else 40.sp,
+                fontWeight = FontWeight.Normal,
+                fontFeatureSettings = getAxes(if (isRestrictedLocale) 24f else 30f, true)
+            ),
+            headlineSmall = TextStyle(
+                fontFamily = headlineFont,
+                fontSize = if (isRestrictedLocale) 18.sp else 24.sp,
+                lineHeight = if (isRestrictedLocale) 24.sp else 32.sp,
+                fontWeight = FontWeight.Normal,
+                fontFeatureSettings = getAxes(if (isRestrictedLocale) 18f else 24f, true)
             ),
 
             // SUB-HEADERS
             titleLarge = TextStyle(
                 fontFamily = bodyFont,
-                fontSize = 24.sp,
-                lineHeight = 32.sp,
+                fontSize = 21.sp,
+                lineHeight = 28.sp,
                 fontWeight = FontWeight.Normal,
-                fontFeatureSettings = getAxes(24f)
+                fontFeatureSettings = getAxes(21f)
             ),
             titleMedium = TextStyle(
                 fontFamily = bodyFont,
-                fontSize = 20.sp,
-                lineHeight = 28.sp,
+                fontSize = 17.sp,
+                lineHeight = 24.sp,
                 fontWeight = FontWeight.Medium,
-                fontFeatureSettings = getAxes(20f)
+                fontFeatureSettings = getAxes(17f)
             ),
             titleSmall = TextStyle(
                 fontFamily = bodyFont,
-                fontSize = 16.sp,
-                lineHeight = 22.sp,
+                fontSize = 14.sp,
+                lineHeight = 20.sp,
                 fontWeight = FontWeight.Medium,
-                fontFeatureSettings = getAxes(16f)
+                fontFeatureSettings = getAxes(14f)
             ),
 
             // BODY & LABELS
             bodyLarge = TextStyle(
-                fontFamily = bodyFont,
-                fontSize = 18.sp,
-                lineHeight = 26.sp,
-                fontWeight = FontWeight.Normal,
-                fontFeatureSettings = getAxes(18f)
-            ),
-            bodyMedium = TextStyle(
                 fontFamily = bodyFont,
                 fontSize = 16.sp,
                 lineHeight = 24.sp,
                 fontWeight = FontWeight.Normal,
                 fontFeatureSettings = getAxes(16f)
             ),
-            bodySmall = TextStyle(
+            bodyMedium = TextStyle(
                 fontFamily = bodyFont,
                 fontSize = 14.sp,
                 lineHeight = 20.sp,
                 fontWeight = FontWeight.Normal,
                 fontFeatureSettings = getAxes(14f)
             ),
-            labelLarge = TextStyle(
+            bodySmall = TextStyle(
                 fontFamily = bodyFont,
-                fontSize = 15.sp,
-                lineHeight = 20.sp,
-                fontWeight = FontWeight.Medium,
-                fontFeatureSettings = getAxes(15f)
+                fontSize = 12.sp,
+                lineHeight = 16.sp,
+                fontWeight = FontWeight.Normal,
+                fontFeatureSettings = getAxes(12f)
             ),
-            labelMedium = TextStyle(
+            labelLarge = TextStyle(
                 fontFamily = bodyFont,
                 fontSize = 13.sp,
                 lineHeight = 18.sp,
                 fontWeight = FontWeight.Medium,
                 fontFeatureSettings = getAxes(13f)
             ),
-            labelSmall = TextStyle(
+            labelMedium = TextStyle(
                 fontFamily = bodyFont,
                 fontSize = 12.sp,
                 lineHeight = 16.sp,
                 fontWeight = FontWeight.Medium,
                 fontFeatureSettings = getAxes(12f)
+            ),
+            labelSmall = TextStyle(
+                fontFamily = bodyFont,
+                fontSize = 11.sp,
+                lineHeight = 16.sp,
+                fontWeight = FontWeight.Medium,
+                fontFeatureSettings = getAxes(11f)
             ),
         )
     }

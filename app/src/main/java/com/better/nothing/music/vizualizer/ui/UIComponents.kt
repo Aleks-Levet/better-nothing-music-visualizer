@@ -45,6 +45,7 @@ import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -129,12 +130,14 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -437,12 +440,15 @@ fun FlowRowScope.OptionTile(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            var marqueeActive by remember(label) { mutableStateOf(false) }
+            val style = MaterialTheme.typography.labelSmall
+            var marqueeActive by remember(label, style, isSelected, enabled, maxLines) {
+                mutableStateOf(false)
+            }
 
             Icon(icon, contentDescription = null, modifier = Modifier.size(25.dp))
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelMedium,
+                style = style,
                 fontWeight = if (isSelected && enabled) FontWeight.Bold else FontWeight.Medium,
                 maxLines = if (marqueeActive) 1 else maxLines,
                 onTextLayout = {
@@ -486,13 +492,12 @@ fun ScreenTitle(
             )
     ) {
         Text(
-            text  = if (isRestrictedLocale) text.replace("\n", " ") else text,
+            text = text,
             style = MaterialTheme.typography.displayLarge,
             color = MaterialTheme.colorScheme.onBackground,
             letterSpacing = if (isRestrictedLocale) 0.sp else (-1).sp,
             fontWeight = FontWeight.Bold,
-            maxLines = if (isRestrictedLocale) 1 else Int.MAX_VALUE,
-            softWrap = !isRestrictedLocale,
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
     }
@@ -1286,6 +1291,12 @@ fun NativeBottomBar(
                 label = "nav_selection_scale"
             )
 
+            val selectionFactor by animateFloatAsState(
+                targetValue = if (isSelected) 1.0f else 0.0f,
+                animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMedium),
+                label = "nav_selection_factor"
+            )
+
             // Render tab only if it has a noticeable weight
             if (animatedWeight > 0.000005f) {
                 NavigationBarItem(
@@ -1315,7 +1326,7 @@ fun NativeBottomBar(
                             val iconModifier = Modifier
                                 .size(24.dp)
                                 .graphicsLayer {
-                                    val iconScale = selectionScale + (if (isSelected) (uiAmp - 1.0f) * 0.5f else 0f)
+                                    val iconScale = selectionScale + (uiAmp - 1.0f) * 0.5f * selectionFactor
                                     scaleX = iconScale
                                     scaleY = iconScale
                                 }
@@ -1356,187 +1367,217 @@ fun <T> ExpressiveSplitButton(
     val haptics = LocalHapticFeedback.current
     val view = LocalView.current
     val uiAmp = LocalUIAmplitude.current
+    val textMeasurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    val style = MaterialTheme.typography.labelMedium
 
     // 1. Resolve Composable labels into plain strings safely in the Composable pipeline
     val resolvedLabels = items.associateWith { labelProvider(it) }
 
-    // 2. Chunk items into rows using the resolved plain string map
-    val chunkedRows = remember(items, resolvedLabels, maxButtonsPerRow) {
-        if (maxButtonsPerRow != null) {
-            if (items.size == 4 && maxButtonsPerRow == 3) {
-                items.chunked(2)
-            } else {
-                items.chunked(maxButtonsPerRow)
-            }
-        } else if (items.size <= 3) {
-            listOf(items)
-        } else {
-            val rows = mutableListOf<MutableList<T>>()
-            var currentRow = mutableListOf<T>()
-            var currentCharacterCount = 0
+    // 2. Wrap in BoxWithConstraints to get available width for overflow detection
+    BoxWithConstraints(modifier = modifier) {
+        val maxWidth = maxWidth
 
-            // Threshold budget limit per row
-            val maxCharactersPerRow = 26
-
-            items.forEach { item ->
-                val labelText = resolvedLabels[item].orEmpty()
-                val textLength = labelText.length
-
-                if (currentCharacterCount + textLength > maxCharactersPerRow && currentRow.isNotEmpty()) {
-                    rows.add(currentRow)
-                    currentRow = mutableListOf()
-                    currentCharacterCount = 0
+        // 3. Chunk items into rows using actual text measurement
+        val chunkedRows = remember(items, resolvedLabels, maxButtonsPerRow, maxWidth, style, density) {
+            if (maxButtonsPerRow != null) {
+                if (items.size == 4 && maxButtonsPerRow == 3) {
+                    items.chunked(2)
+                } else {
+                    items.chunked(maxButtonsPerRow)
                 }
-                currentRow.add(item)
-                currentCharacterCount += textLength
+            } else {
+                val rows = mutableListOf<List<T>>()
+                var currentRow = mutableListOf<T>()
+
+                items.forEach { item ->
+                    val nextRow = currentRow + item
+                    val n = nextRow.size
+
+                    // Calculation: (TotalWidth - RowSpacings) / N - ButtonPadding
+                    // Each button has Row arrangement spacedBy(4.dp) and internal padding(horizontal=4.dp)
+                    val availableWidthPerButton = if (maxWidth < Dp.Infinity) {
+                        (maxWidth - (n - 1).dp * 4) / n - 8.dp
+                    } else {
+                        Dp.Infinity
+                    }
+
+                    val availableWidthPx = with(density) {
+                        if (availableWidthPerButton < Dp.Infinity) availableWidthPerButton.toPx() else Float.MAX_VALUE
+                    }
+
+                    var allFit = true
+                    for (rowItem in nextRow) {
+                        val labelText = resolvedLabels[rowItem].orEmpty()
+                        val textWidth = textMeasurer.measure(
+                            text = labelText,
+                            style = style,
+                            maxLines = 1
+                        ).size.width
+
+                        if (textWidth > availableWidthPx) {
+                            allFit = false
+                            break
+                        }
+                    }
+
+                    if (allFit || currentRow.isEmpty()) {
+                        currentRow.add(item)
+                    } else {
+                        rows.add(currentRow)
+                        currentRow = mutableListOf(item)
+                    }
+                }
+                if (currentRow.isNotEmpty()) {
+                    rows.add(currentRow)
+                }
+                rows
             }
-            if (currentRow.isNotEmpty()) {
-                rows.add(currentRow)
-            }
-            rows
         }
-    }
 
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        chunkedRows.forEachIndexed { rowIndex, rowItems ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                rowItems.forEachIndexed { itemIndex, item ->
-                    val isSelected = item == selectedItem
-                    var isPressed by remember { mutableStateOf(false) }
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            chunkedRows.forEachIndexed { rowIndex, rowItems ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    rowItems.forEachIndexed { itemIndex, item ->
+                        val isSelected = item == selectedItem
+                        var isPressed by remember { mutableStateOf(false) }
 
-                    val bouncySpec = spring<Float>(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessMediumLow
-                    )
-                    val dpBouncySpec = spring<androidx.compose.ui.unit.Dp>(
-                        dampingRatio = Spring.DampingRatioLowBouncy,
-                        stiffness = Spring.StiffnessLow
-                    )
+                        val bouncySpec = spring<Float>(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessMediumLow
+                        )
+                        val dpBouncySpec = spring<androidx.compose.ui.unit.Dp>(
+                            dampingRatio = Spring.DampingRatioLowBouncy,
+                            stiffness = Spring.StiffnessLow
+                        )
 
-                    val baseWeight by animateFloatAsState(
-                        targetValue = if (isPressed) 0.89f 
-                                      else if (isSelected) 1.2f 
-                                      else 1.0f,
-                        animationSpec = bouncySpec,
-                        label = "ExpressiveWeightAnimationBase"
-                    )
-                    
-                    val animatedWeight = if (isSelected) {
-                        baseWeight * uiAmp
-                    } else {
-                        baseWeight
-                    }
+                        val selectionFactor by animateFloatAsState(
+                            targetValue = if (isSelected) 1.0f else 0.0f,
+                            animationSpec = bouncySpec,
+                            label = "SelectionFactor"
+                        )
 
-                    // Color transitions
-                    val targetContainerColor = if (isSelected) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.surfaceVariant
-                    }
+                        val baseWeight by animateFloatAsState(
+                            targetValue = if (isPressed) 0.89f 
+                                          else if (isSelected) 1.2f 
+                                          else 1.0f,
+                            animationSpec = bouncySpec,
+                            label = "ExpressiveWeightAnimationBase"
+                        )
+                        
+                        val animatedWeight = baseWeight * (1.0f + (uiAmp - 1.0f) * selectionFactor)
 
-                    val targetContentColor = if (isSelected) {
-                        MaterialTheme.colorScheme.onPrimary
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    }
+                        // Color transitions
+                        val targetContainerColor = if (isSelected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.surfaceVariant
+                        }
 
-                    val containerColor by animateColorAsState(
-                        targetValue = targetContainerColor,
-                        animationSpec = tween(durationMillis = 250),
-                        label = "ContainerColorAnimation"
-                    )
+                        val targetContentColor = if (isSelected) {
+                            MaterialTheme.colorScheme.onPrimary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        }
 
-                    val contentColor by animateColorAsState(
-                        targetValue = targetContentColor,
-                        animationSpec = tween(durationMillis = 250),
-                        label = "ContentColorAnimation"
-                    )
+                        val containerColor by animateColorAsState(
+                            targetValue = targetContainerColor,
+                            animationSpec = tween(durationMillis = 250),
+                            label = "ContainerColorAnimation"
+                        )
 
-                    // Edge rounding physics logic
-                    val fullyRounded = 20.dp
-                    val innerRounded = 8.dp // Unified - truly sharp inner edges for the box look
+                        val contentColor by animateColorAsState(
+                            targetValue = targetContentColor,
+                            animationSpec = tween(durationMillis = 250),
+                            label = "ContentColorAnimation"
+                        )
 
-                    val isFirstRow = rowIndex == 0
-                    val isLastRow = rowIndex == chunkedRows.size - 1
-                    val isFirstInRow = itemIndex == 0
-                    val isLastInRow = itemIndex == rowItems.size - 1
+                        // Edge rounding physics logic
+                        val fullyRounded = 20.dp
+                        val innerRounded = 8.dp // Unified - truly sharp inner edges for the box look
 
-                    val targetTopStart = if (isSelected || (isFirstRow && isFirstInRow)) fullyRounded else innerRounded
-                    val targetTopEnd = if (isSelected || (isFirstRow && isLastInRow)) fullyRounded else innerRounded
-                    val targetBottomStart = if (isSelected || (isLastRow && isFirstInRow)) fullyRounded else innerRounded
-                    val targetBottomEnd = if (isSelected || (isLastRow && isLastInRow)) fullyRounded else innerRounded
+                        val isFirstRow = rowIndex == 0
+                        val isLastRow = rowIndex == chunkedRows.size - 1
+                        val isFirstInRow = itemIndex == 0
+                        val isLastInRow = itemIndex == rowItems.size - 1
 
-                    val topStart by animateDpAsState(targetValue = targetTopStart, animationSpec = dpBouncySpec, label = "TopStart")
-                    val bottomStart by animateDpAsState(targetValue = targetBottomStart, animationSpec = dpBouncySpec, label = "BottomStart")
-                    val topEnd by animateDpAsState(targetValue = targetTopEnd, animationSpec = dpBouncySpec, label = "TopEnd")
-                    val bottomEnd by animateDpAsState(targetValue = targetBottomEnd, animationSpec = dpBouncySpec, label = "BottomEnd")
+                        val targetTopStart = if (isSelected || (isFirstRow && isFirstInRow)) fullyRounded else innerRounded
+                        val targetTopEnd = if (isSelected || (isFirstRow && isLastInRow)) fullyRounded else innerRounded
+                        val targetBottomStart = if (isSelected || (isLastRow && isFirstInRow)) fullyRounded else innerRounded
+                        val targetBottomEnd = if (isSelected || (isLastRow && isLastInRow)) fullyRounded else innerRounded
 
-                    val dynamicButtonShape = RoundedCornerShape(
-                        topStart = topStart.coerceAtLeast(0.dp),
-                        bottomStart = bottomStart.coerceAtLeast(0.dp),
-                        topEnd = topEnd.coerceAtLeast(0.dp),
-                        bottomEnd = bottomEnd.coerceAtLeast(0.dp)
-                    )
+                        val topStart by animateDpAsState(targetValue = targetTopStart, animationSpec = dpBouncySpec, label = "TopStart")
+                        val bottomStart by animateDpAsState(targetValue = targetBottomStart, animationSpec = dpBouncySpec, label = "BottomStart")
+                        val topEnd by animateDpAsState(targetValue = targetTopEnd, animationSpec = dpBouncySpec, label = "TopEnd")
+                        val bottomEnd by animateDpAsState(targetValue = targetBottomEnd, animationSpec = dpBouncySpec, label = "BottomEnd")
 
-                    val interactionSource = remember { MutableInteractionSource() }
+                        val dynamicButtonShape = RoundedCornerShape(
+                            topStart = topStart.coerceAtLeast(0.dp),
+                            bottomStart = bottomStart.coerceAtLeast(0.dp),
+                            topEnd = topEnd.coerceAtLeast(0.dp),
+                            bottomEnd = bottomEnd.coerceAtLeast(0.dp)
+                        )
 
-                    LaunchedEffect(interactionSource) {
-                        interactionSource.interactions.collect { interaction ->
-                            when (interaction) {
-                                is PressInteraction.Press -> {
-                                    isPressed = true
-                                    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
-                                }
-                                is PressInteraction.Release -> {
-                                    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
-                                    delay(80)
-                                    isPressed = false
-                                }
-                                is PressInteraction.Cancel -> {
-                                    isPressed = false
+                        val interactionSource = remember { MutableInteractionSource() }
+
+                        LaunchedEffect(interactionSource) {
+                            interactionSource.interactions.collect { interaction ->
+                                when (interaction) {
+                                    is PressInteraction.Press -> {
+                                        isPressed = true
+                                        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
+                                    }
+                                    is PressInteraction.Release -> {
+                                        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+                                        delay(120)
+                                        isPressed = false
+                                    }
+                                    is PressInteraction.Cancel -> {
+                                        isPressed = false
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
-                        Surface(
-                            onClick = {
-                                if (!isSelected) {
-                                    onItemSelection(item)
-                                }
-                            },
-                            color = containerColor,
-                        contentColor = contentColor,
-                        shape = dynamicButtonShape,
-                        modifier = Modifier.weight(animatedWeight),
-                        interactionSource = interactionSource
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 10.dp),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
+                        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+                            Surface(
+                                onClick = {
+                                    if (!isSelected) {
+                                        onItemSelection(item)
+                                    }
+                                },
+                                color = containerColor,
+                            contentColor = contentColor,
+                            shape = dynamicButtonShape,
+                            modifier = Modifier.weight(animatedWeight),
+                            interactionSource = interactionSource
                         ) {
-                            Text(
-                                text = resolvedLabels[item] ?: "",
-                                style = MaterialTheme.typography.labelMedium,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                            Row(
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 10.dp),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = resolvedLabels[item] ?: "",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         }
                     }
                 }
             }
         }
-        }
     }
+}
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

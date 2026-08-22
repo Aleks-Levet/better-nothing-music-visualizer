@@ -1,8 +1,12 @@
 package com.better.nothing.music.vizualizer
 
 import android.app.Application
+import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
 import android.util.Log
+import com.better.nothing.music.vizualizer.widget.VisualizerWidget
+import com.better.nothing.music.vizualizer.widget.VisualizerWidgetM3
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -36,5 +40,14 @@ class BetterVizApplication : Application() {
         } catch (e: Exception) {
             Log.e("BetterVizApp", "Failed to initialize Firebase Analytics", e)
         }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // Refresh widgets when system theme changes
+        val refreshIntent = Intent(VisualizerWidget.ACTION_REFRESH).apply {
+            setPackage(packageName)
+        }
+        sendBroadcast(refreshIntent)
     }
 }

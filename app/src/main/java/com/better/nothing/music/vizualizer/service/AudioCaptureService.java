@@ -1618,6 +1618,9 @@ public class AudioCaptureService extends Service {
                     if (Build.VERSION.SDK_INT >= 28) {
                         params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
                     }
+                    if (Build.VERSION.SDK_INT >= 30) {
+                        params.setFitInsetsTypes(0);
+                    }
                     try { 
                         mWindowManager.addView(mUnifiedVisualizerView, params); 
                     } catch (Exception ignored) {}

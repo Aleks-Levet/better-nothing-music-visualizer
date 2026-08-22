@@ -230,7 +230,7 @@
     <string name="update_required">Требуется обновление</string>
     <string name="download_full_config">Скачайте полную конфигурацию, чтобы увидеть пресеты</string>
     <string name="visualizer_configuration">Версия визуализатора</string>
-    <string name="config_description">Файл zones.config определяет привязку частот к глифамglyp. Обновление из GitHub добавляет поддержку новых устройств и пресетов.</string>
+    <string name="config_description">Файл zones.config определяет привязку частот к глифам. Обновление из GitHub добавляет поддержку новых устройств и пресетов.</string>
     <string name="up_to_date">Актуально</string>
     <string name="update_available_label">ДОСТУПНО ОБНОВЛЕНИЕ</string>
     <string name="local_config">Локально...</string>

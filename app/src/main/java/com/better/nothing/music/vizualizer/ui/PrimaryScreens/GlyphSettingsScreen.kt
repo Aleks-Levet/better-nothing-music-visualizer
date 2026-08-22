@@ -219,12 +219,14 @@ internal fun GlyphsScreen(
                 selectedDevice == com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4B
 
         Row(
-            modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.Top
         ) {
             ExpressiveCard(
-                modifier = Modifier.weight(if (isSlimDevice) 0.72f else 1f).fillMaxHeight()
+                modifier = Modifier
+                    .weight(if (isSlimDevice) 0.72f else 1f)
+                    .then(if (isSlimDevice && isRunning) Modifier.heightIn(min = 300.dp) else Modifier)
             ) {
                 CardHeader(
                     title = stringResource(

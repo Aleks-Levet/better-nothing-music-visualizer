@@ -39,7 +39,7 @@ class VisualizerWidget : AppWidgetProvider() {
         super.onReceive(context, intent)
         val action = intent.action ?: return
         
-        if (action == ACTION_REFRESH) {
+        if (action == ACTION_REFRESH || action == Intent.ACTION_CONFIGURATION_CHANGED) {
             refreshAllWidgets(context)
         } else if (action.startsWith("com.better.nothing.music.vizualizer.WIDGET_")) {
             performHapticFeedback(context)
