@@ -135,7 +135,7 @@ public class AudioCaptureService extends Service {
     private volatile float mGlyphThreshold = 0.0f;
     private volatile float mGlyphDecaySpeed = 0.75f;
 
-    private static final String PREFS_NAME = "glyph_visualizer_prefs";
+
     private static final String APP_PREFS_NAME = "viz_prefs";
     private static final int MAX_GLYPH_BRIGHTNESS = 4095;
 
@@ -1752,10 +1752,10 @@ public class AudioCaptureService extends Service {
 
     public static void requestWidgetRefresh(Context context) { Intent intent = new Intent("com.better.nothing.music.vizualizer.REFRESH_WIDGET"); intent.setPackage(context.getPackageName()); context.sendBroadcast(intent); }
     private void requestWidgetRefresh() { requestWidgetRefresh(this); }
-    public static int loadLatencyCompensationMs(Context context, int device) { return getPreferences(context).getInt("latency_device_" + device, 0); }
-    public static int loadLatencyCompensationMs(Context context, int device, String routeKey) { if (routeKey == null || routeKey.isEmpty()) return loadLatencyCompensationMs(context, device); return getPreferences(context).getInt("latency_route_" + device + "_" + routeKey, loadLatencyCompensationMs(context, device)); }
-    public static float loadGamma(Context context) { return getPreferences(context).getFloat("gamma", 2.2f); }
-    private static SharedPreferences getPreferences(Context context) { return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); }
+    public static int loadLatencyCompensationMs(Context context, int device) { return context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).getInt("latency_device_" + device, 0); }
+    public static int loadLatencyCompensationMs(Context context, int device, String routeKey) { if (routeKey == null || routeKey.isEmpty()) return loadLatencyCompensationMs(context, device); return context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).getInt("latency_" + routeKey, loadLatencyCompensationMs(context, device)); }
+    public static float loadGamma(Context context) { return context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).getFloat("gamma_value", 2.2f); }
+
     public static boolean isHapticEnabledGlobal(Context context) { return context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).getBoolean("haptic_motor_enabled", false); }
     public static Intent createStopIntent(Context context) { Intent intent = new Intent(context, AudioCaptureService.class); intent.setAction(ACTION_STOP); return intent; }
     private void refreshPresetCatalog() throws IOException, JSONException {
