@@ -20,7 +20,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -140,49 +139,22 @@ internal fun SettingsScreen(
                             val grade by viewModel.googleSansGrade.collectAsStateWithLifecycle()
                             val rounding by viewModel.googleSansRounding.collectAsStateWithLifecycle()
 
-                            // Local states for smooth, responsive sliding without triggering full theme recomposition every frame
-                            var localWeight by remember(weight) { mutableStateOf(weight) }
-                            var localWidth by remember(width) { mutableStateOf(width) }
-                            var localSlant by remember(slant) { mutableStateOf(slant) }
-                            var localOpsz by remember(opsz) { mutableStateOf(opsz) }
-                            var localGrade by remember(grade) { mutableStateOf(grade) }
-                            var localRounding by remember(rounding) { mutableStateOf(rounding) }
-
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(top = 8.dp),
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
-                                // Live Preview
-                                Card(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                                ) {
-                                    Box(modifier = Modifier.padding(16.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                        Text(
-                                            text = "Aa Bb Cc 123",
-                                            style = MaterialTheme.typography.headlineLarge.copy(
-                                                fontFamily = FontFamily.SansSerif,
-                                                fontFeatureSettings = "'wght' $localWeight, 'wdth' $localWidth, 'slnt' $localSlant, 'opsz' $localOpsz, 'GRAD' $localGrade, 'ROND' $localRounding, 'SOFT' $localRounding, 'BNHV' $localRounding, 'ROUN' $localRounding, 'RNDS' $localRounding"
-                                            )
-                                        )
-                                    }
-                                }
-
                                 // Weight Slider
                                 Column {
                                     Text(
-                                        text = stringResource(R.string.gsans_weight) + ": ${localWeight.toInt()}",
+                                        text = stringResource(R.string.gsans_weight) + ": ${weight.toInt()}",
                                         style = MaterialTheme.typography.labelLarge,
                                         color = MaterialTheme.colorScheme.primary
                                     )
                                     ExpressiveSlider(
-                                        value = localWeight,
-                                        onValueChange = { 
-                                            localWeight = it
-                                            viewModel.setGoogleSansWeight(it) 
-                                        },
+                                        value = weight,
+                                        onValueChange = { viewModel.setGoogleSansWeight(it) },
                                         valueRange = 100f..1000f,
                                         modifier = Modifier.fillMaxWidth()
                                     )
@@ -191,16 +163,13 @@ internal fun SettingsScreen(
                                 // Width Slider
                                 Column {
                                     Text(
-                                        text = stringResource(R.string.gsans_width) + ": ${localWidth.toInt()}%",
+                                        text = stringResource(R.string.gsans_width) + ": ${width.toInt()}%",
                                         style = MaterialTheme.typography.labelLarge,
                                         color = MaterialTheme.colorScheme.primary
                                     )
                                     ExpressiveSlider(
-                                        value = localWidth,
-                                        onValueChange = { 
-                                            localWidth = it
-                                            viewModel.setGoogleSansWidth(it) 
-                                        },
+                                        value = width,
+                                        onValueChange = { viewModel.setGoogleSansWidth(it) },
                                         valueRange = 25f..150f,
                                         modifier = Modifier.fillMaxWidth()
                                     )
@@ -209,16 +178,13 @@ internal fun SettingsScreen(
                                 // Rounding Slider
                                 Column {
                                     Text(
-                                        text = stringResource(R.string.gsans_rounding) + ": ${localRounding.toInt()}",
+                                        text = stringResource(R.string.gsans_rounding) + ": ${rounding.toInt()}",
                                         style = MaterialTheme.typography.labelLarge,
                                         color = MaterialTheme.colorScheme.primary
                                     )
                                     ExpressiveSlider(
-                                        value = localRounding,
-                                        onValueChange = { 
-                                            localRounding = it
-                                            viewModel.setGoogleSansRounding(it) 
-                                        },
+                                        value = rounding,
+                                        onValueChange = { viewModel.setGoogleSansRounding(it) },
                                         valueRange = 0f..100f,
                                         modifier = Modifier.fillMaxWidth()
                                     )
@@ -227,16 +193,13 @@ internal fun SettingsScreen(
                                 // Slant Slider
                                 Column {
                                     Text(
-                                        text = stringResource(R.string.gsans_slant) + ": ${localSlant.toInt()}°",
+                                        text = stringResource(R.string.gsans_slant) + ": ${slant.toInt()}°",
                                         style = MaterialTheme.typography.labelLarge,
                                         color = MaterialTheme.colorScheme.primary
                                     )
                                     ExpressiveSlider(
-                                        value = localSlant,
-                                        onValueChange = { 
-                                            localSlant = it
-                                            viewModel.setGoogleSansSlant(it) 
-                                        },
+                                        value = slant,
+                                        onValueChange = { viewModel.setGoogleSansSlant(it) },
                                         valueRange = -10f..0f,
                                         modifier = Modifier.fillMaxWidth()
                                     )
@@ -245,16 +208,13 @@ internal fun SettingsScreen(
                                 // Grade Slider
                                 Column {
                                     Text(
-                                        text = stringResource(R.string.gsans_grade) + ": ${localGrade.toInt()}",
+                                        text = stringResource(R.string.gsans_grade) + ": ${grade.toInt()}",
                                         style = MaterialTheme.typography.labelLarge,
                                         color = MaterialTheme.colorScheme.primary
                                     )
                                     ExpressiveSlider(
-                                        value = localGrade,
-                                        onValueChange = { 
-                                            localGrade = it
-                                            viewModel.setGoogleSansGrade(it) 
-                                        },
+                                        value = grade,
+                                        onValueChange = { viewModel.setGoogleSansGrade(it) },
                                         valueRange = -200f..150f,
                                         modifier = Modifier.fillMaxWidth()
                                     )
@@ -263,16 +223,13 @@ internal fun SettingsScreen(
                                 // Optical Size Slider
                                 Column {
                                     Text(
-                                        text = stringResource(R.string.gsans_opsz) + ": ${localOpsz.toInt()}",
+                                        text = stringResource(R.string.gsans_opsz) + ": ${opsz.toInt()}",
                                         style = MaterialTheme.typography.labelLarge,
                                         color = MaterialTheme.colorScheme.primary
                                     )
                                     ExpressiveSlider(
-                                        value = localOpsz,
-                                        onValueChange = { 
-                                            localOpsz = it
-                                            viewModel.setGoogleSansOpticalSize(it) 
-                                        },
+                                        value = opsz,
+                                        onValueChange = { viewModel.setGoogleSansOpticalSize(it) },
                                         valueRange = 6f..144f,
                                         modifier = Modifier.fillMaxWidth()
                                     )
