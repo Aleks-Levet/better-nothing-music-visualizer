@@ -7,7 +7,7 @@
 # **Here's the fucking download button, use it!**
 > (if you don't want to read the rest of the readme)
 
-[<img widtht="60%" alt="Get it on GitHub" src="./.github/assets/big-ass-fucking-download-button.png" />](https://github.com/Aleks-Levet/better-nothing-music-visualizer/releases/download/V3.2.1/Better-Nothing-Music-Vizualizer-V3.2.1.apk)
+[<img widtht="60%" alt="Get it on GitHub" src="./.github/assets/big-ass-fucking-download-button.png" />](https://github.com/Aleks-Levet/better-nothing-music-visualizer/releases/download/V4.o/Better-Nothing-Music-Vizualizer-V4.o.apk)
 <img 
   src="https://img.shields.io/github/downloads/Aleks-Levet/better-nothing-music-visualizer/total?style=for-the-badge&logo=github&label=Devices%20made%20better:&color=ff0000&labelColor=000000"
   style="height:40px;">

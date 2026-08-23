@@ -374,6 +374,8 @@ public class AudioCaptureService extends Service {
     private WindowManager mWindowManager;
 
     private volatile boolean mHapticEnabled = false;
+    private boolean mHasHapticMotor = false;
+    private boolean mHasFlashlight = false;
     private volatile HapticMode mHapticMode = HapticMode.BASS_TO_AMPLITUDE;
     private volatile BeatEngineMode mHapticBeatEngineMode = BeatEngineMode.SMOOTH;
     private volatile int mHapticPulseDurationMs = 40;
@@ -408,7 +410,8 @@ public class AudioCaptureService extends Service {
     private GlyphRenderer mGlyphRenderer;
     private UdpNetworkSync mUdpSync;
     private boolean mBroadcastEnabled = false;
-    private long mLastSendMs = 0L;
+    // Accessed by the capture thread and the main-handler fallback loop.
+    private volatile long mLastSendMs = 0L;
     private long mCaptureStartTimeMs = 0L;
     private volatile int[] mLatestRawFFT = new int[512];
     private int[] mPreviousRawFFT = new int[512];
@@ -465,11 +468,15 @@ public class AudioCaptureService extends Service {
                 long now = SystemClock.elapsedRealtime();
                 if (now - mLastNotifUpdateMs >= 1000) { refreshNotification(); mLastNotifUpdateMs = now; }
 
+                if (now % 10000 < 100) {
+                    Log.i(TAG, "Service Pulse: Broadcaster=" + mBroadcastEnabled + ", Clients=" + (mUdpSync != null ? mUdpSync.getClientIps().getValue().size() : 0));
+                }
+
                 synchronized (mVisualizerPendingFrames) {
                     dispatchDueFrames(mVisualizerPendingFrames);
                 }
 
-                if (now - mLastSendMs >= 16 && mVisualizerConfig != null) {
+                if (now - mLastSendMs >= MIN_SEND_INTERVAL_MS) {
                     UnifiedVisualizerView v = mUnifiedVisualizerView;
                     if (v != null) v.updateMagnitudes(mLatestRawFFT);
 
@@ -539,6 +546,7 @@ public class AudioCaptureService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.i(TAG, "onCreate: Service starting");
         sInstance = this;
         mWorkerThread = new HandlerThread("GlyphVizWorker", Process.THREAD_PRIORITY_BACKGROUND);
         mWorkerThread.start();
@@ -556,7 +564,7 @@ public class AudioCaptureService extends Service {
         mLatencyCompensationMs = loadLatencyCompensationMs(this, mSelectedDevice);
         mGamma = loadGamma(this);
         SharedPreferences appPrefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE);
-        mMaxBrightness = clampGlyphBrightness(appPrefs.getInt("max_brightness", MAX_GLYPH_BRIGHTNESS));
+        mMaxBrightness = (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) ? 0 : clampGlyphBrightness(appPrefs.getInt("max_brightness", MAX_GLYPH_BRIGHTNESS));
         mGlyphThreshold = appPrefs.getFloat("glyph_threshold", 0.0f);
         mGlyphDecaySpeed = appPrefs.getFloat("glyph_decay_speed", 0.75f);
         try {
@@ -595,8 +603,10 @@ public class AudioCaptureService extends Service {
 
         mGlyphRenderer = new GlyphRenderer(mGamma, mIdleBreathingEnabled, mSelectedDevice);
         mGlyphRenderer.setMaxBrightness(mMaxBrightness);
-        mHapticEnabled = hasHapticMotor(this) && appPrefs.getBoolean("haptic_motor_enabled", false);
-        mFlashlightEnabled = hasFlashlight(this) && appPrefs.getBoolean("flashlight_enabled", false);
+        mHasHapticMotor = hasHapticMotor(this);
+        mHasFlashlight = hasFlashlight(this);
+        mHapticEnabled = mHasHapticMotor && appPrefs.getBoolean("haptic_motor_enabled", false);
+        mFlashlightEnabled = mHasFlashlight && appPrefs.getBoolean("flashlight_enabled", false);
         refreshLatencyForCurrentAudioRoute();
         try {
             refreshPresetCatalog();
@@ -625,8 +635,8 @@ public class AudioCaptureService extends Service {
         setMaxBrightness(appPrefs.getInt("max_brightness", MAX_GLYPH_BRIGHTNESS));
         mGlyphThreshold = appPrefs.getFloat("glyph_threshold", 0.0f);
         mGlyphDecaySpeed = appPrefs.getFloat("glyph_decay_speed", 0.75f);
-        setHapticMotorEnabled(appPrefs.getBoolean("haptic_motor_enabled", false));
-        setFlashlightEnabled(appPrefs.getBoolean("flashlight_enabled", false));
+        setHapticMotorEnabled(mHasHapticMotor && appPrefs.getBoolean("haptic_motor_enabled", false));
+        setFlashlightEnabled(mHasFlashlight && appPrefs.getBoolean("flashlight_enabled", false));
         setFlashlightMaxIntensity(appPrefs.getInt("flashlight_max_intensity", -1));
         setFlashlightBeatGamma(appPrefs.getFloat("flashlight_beat_gamma", 8.0f));
         
@@ -903,6 +913,7 @@ public class AudioCaptureService extends Service {
     public void setIdleBackgroundBrightness(float b) { if (mGlyphRenderer != null) mGlyphRenderer.setIdleBackgroundBrightness(b); }
 
     public void setBroadcastEnabled(boolean enabled) {
+        Log.i(TAG, "setBroadcastEnabled: " + enabled);
         mBroadcastEnabled = enabled;
         sBroadcastEnabledFlow.setValue(enabled);
         if (enabled) {
@@ -914,7 +925,7 @@ public class AudioCaptureService extends Service {
     }
 
     public void startNetworkCapture() {
-        Log.d(TAG, "startNetworkCapture: starting client mode targeting " + mNetworkHostIp);
+        Log.i(TAG, "startNetworkCapture: starting client mode targeting " + mNetworkHostIp);
         synchronized (mCaptureLock) {
             stopCaptureLocked(false);
             startForegroundWithTypes(CaptureSource.NETWORK, false);
@@ -983,6 +994,7 @@ public class AudioCaptureService extends Service {
     public void reloadConfig() {
         if (mWorkerHandler != null) {
             mWorkerHandler.post(() -> {
+                if (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) return;
                 try {
                     refreshPresetCatalog();
                     if (!mAvailablePresetKeys.isEmpty() && !mAvailablePresetKeys.contains(mPresetKey)) {
@@ -1022,7 +1034,7 @@ public class AudioCaptureService extends Service {
     private void updateVisualizerService() { }
 
     public void setHapticEnabled(boolean enabled) {
-        mHapticEnabled = hasHapticMotor(this) && enabled;
+        mHapticEnabled = mHasHapticMotor && enabled;
         sHapticEnabledFlow.setValue(mHapticEnabled);
         if (!mHapticEnabled) { if (mContinuousHapticEngine != null) mContinuousHapticEngine.stopHaptics(); if (mBeatDetectionEngine != null) mBeatDetectionEngine.stopHaptics(); }
         requestTileRefresh(); requestWidgetRefresh(); refreshNotification();
@@ -1049,7 +1061,7 @@ public class AudioCaptureService extends Service {
     }
 
     public void setFlashlightEnabled(boolean enabled) {
-        mFlashlightEnabled = (hasFlashlight(this) || mFlashlightSpoofLevels != null) && enabled;
+        mFlashlightEnabled = (mHasFlashlight || mFlashlightSpoofLevels != null) && enabled;
         sFlashlightEnabledFlow.setValue(mFlashlightEnabled);
         if (!mFlashlightEnabled && mFlashlightEngine != null) mFlashlightEngine.stopFlashlight();
         requestWidgetRefresh(); refreshNotification();
@@ -1324,40 +1336,44 @@ public class AudioCaptureService extends Service {
     }
 
     private void processFrame(int[] fftraw, AudioProcessor.VisualizerConfig config, int configVersion) {
-        if (config == null || configVersion != mPresetConfigVersion.get()) return;
         try {
-            long now = SystemClock.elapsedRealtime(); 
+            long now = SystemClock.elapsedRealtime();
+            if (now - mLastSendMs < MIN_SEND_INTERVAL_MS) return;
 
-            // Independent broadcast logic
-            if (mBroadcastEnabled && (now - mLastSendMs >= MIN_SEND_INTERVAL_MS) && fftraw != null) {
+            // Network broadcast is a valid output on devices without Glyph hardware.
+            // Keep it independent from preset/config loading and Glyph session state.
+            if (mBroadcastEnabled && fftraw != null) {
                 mUdpSync.sendFft(fftraw);
             }
 
-            boolean hasActivity = false;
-            if (fftraw != null && fftraw.length > 0) { for (int val : fftraw) if (val > 20) { hasActivity = true; break; } }
-            
-            // Only interact with Glyph library if output is enabled (brightness > 0)
-            if (mMaxBrightness > 0) {
-                // Apply threshold
-                int[] processedFft = fftraw;
-                if (mGlyphThreshold > 0.001f) {
-                    int thresholdFft = (int) (mGlyphThreshold * 4095f);
-                    processedFft = fftraw.clone();
-                    for (int i = 0; i < processedFft.length; i++) {
-                        if (processedFft[i] < thresholdFft) processedFft[i] = 0;
-                    }
-                }
+            // Advance the cadence even when broadcasting is disabled or no Glyph
+            // processing can be performed. Otherwise the fallback loop can stall
+            // forever on tablets/unknown devices.
+            mLastSendMs = now;
 
-                // Determine if we should maintain the glyph session.
-                // We keep it open if there's audio activity, or the app is in foreground, 
-                // or if idle breathing is enabled.
-                boolean shouldMaintain = hasActivity || mIsAppInForeground || mIdleBreathingEnabled;
+            // Glyph processing requires a device preset and a current config.
+            if (config == null || configVersion != mPresetConfigVersion.get()) return;
+
+            // Glyph Processing (Only if supported and enabled)
+            if (mMaxBrightness > 0 && mSelectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
+                boolean hasActivity = false;
+                if (fftraw != null) { for (int val : fftraw) if (val > 20) { hasActivity = true; break; } }
                 
+                boolean shouldMaintain = hasActivity || mIsAppInForeground || mIdleBreathingEnabled;
                 if (shouldMaintain) { 
                     if (!mSessionOpen) ensureGlyphSession(); 
                 }
 
-                if (mSessionOpen && (now - mLastSendMs >= MIN_SEND_INTERVAL_MS)) {
+                if (mSessionOpen) {
+                    int[] processedFft = fftraw;
+                    if (mGlyphThreshold > 0.001f && fftraw != null) {
+                        int thresholdFft = (int) (mGlyphThreshold * 4095f);
+                        processedFft = fftraw.clone();
+                        for (int i = 0; i < processedFft.length; i++) {
+                            if (processedFft[i] < thresholdFft) processedFft[i] = 0;
+                        }
+                    }
+
                     int[] frameColors = mGlyphRenderer.processFrame(processedFft, config, now);
                     if (frameColors != null) {
                         try {
@@ -1366,17 +1382,11 @@ public class AudioCaptureService extends Service {
                             } else if (mGM != null) {
                                 mGM.setFrameColors(frameColors);
                             }
-                            mLastSendMs = now;
                         } catch (Exception ignored) {}
                     }
                 }
             } else {
                 if (mSessionOpen) clearGlyphSession();
-                // If glyphs are off, we still need to update mLastSendMs for broadcast
-                if (mBroadcastEnabled && (now - mLastSendMs >= MIN_SEND_INTERVAL_MS) && fftraw != null) {
-                    mUdpSync.sendFft(fftraw);
-                    mLastSendMs = now;
-                }
             }
         } catch (Exception e) { Log.e(TAG, "processFrame error", e); }
     }
@@ -1529,8 +1539,9 @@ public class AudioCaptureService extends Service {
             boolean deepSilence = mGlyphRenderer != null && mGlyphRenderer.isDeeplySilent();
             if (deepSilence) {
                 boolean hasAnySignal = false;
+                int silThreshold = (mCaptureSource == CaptureSource.INTERNAL) ? 50 : 250;
                 for (short s : hop) {
-                    if (Math.abs(s) > 750) { // Approx 2.3% of 32768
+                    if (Math.abs(s) > silThreshold) { // Lowered for better mic sensitivity
                         hasAnySignal = true;
                         break;
                     }
@@ -1618,12 +1629,12 @@ public class AudioCaptureService extends Service {
             builder.addAction(0, mMaxBrightness > 0 ? label.toUpperCase(Locale.ROOT) : label, PendingIntent.getService(this, 10, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_GLYPHS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
             addedButtons++;
         }
-        if (hasHapticMotor(this)) {
+        if (mHasHapticMotor) {
             String label = getString(R.string.notification_action_haptics);
             builder.addAction(0, mHapticEnabled ? label.toUpperCase(Locale.ROOT) : label, PendingIntent.getService(this, 11, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_HAPTICS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
             addedButtons++;
         }
-        if (hasFlashlight(this)) {
+        if (mHasFlashlight) {
             String label = getString(R.string.notification_action_flash);
             builder.addAction(0, mFlashlightEnabled ? label.toUpperCase(Locale.ROOT) : label, PendingIntent.getService(this, 12, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_TORCH), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
             addedButtons++;
@@ -1810,11 +1821,24 @@ public class AudioCaptureService extends Service {
     }
 
     private static String phoneModelForDevice(int d) { return switch (d) { case DeviceProfile.DEVICE_NP1 -> "PHONE1"; case DeviceProfile.DEVICE_NP2 -> "PHONE2"; case DeviceProfile.DEVICE_NP2A -> "PHONE2A"; case DeviceProfile.DEVICE_NP3A -> "PHONE3A"; case DeviceProfile.DEVICE_NP4A -> "PHONE4A"; case DeviceProfile.DEVICE_NP4APRO -> "PHONE4A_PRO"; case DeviceProfile.DEVICE_NP3 -> "PHONE3"; case DeviceProfile.DEVICE_NP4B -> "PHONE4B"; default -> "UNKNOWN"; }; }
-    public static String loadZonesConfigVersion(Context c) { try { return loadZonesConfigRoot(c).optString("version", "Unknown"); } catch (Exception e) { return "Unknown"; } }
-    private static JSONObject loadZonesConfigRoot(Context c) throws IOException, JSONException { return new JSONObject(loadZonesConfigText(c)); }
+    public static String loadZonesConfigVersion(Context c) { try { JSONObject root = loadZonesConfigRoot(c); return root != null ? root.optString("version", "Unknown") : "Unknown"; } catch (Exception e) { return "Unknown"; } }
+    private static JSONObject loadZonesConfigRoot(Context c) throws IOException, JSONException {
+        String text = loadZonesConfigText(c);
+        if (text == null || text.trim().isEmpty()) return new JSONObject();
+        return new JSONObject(text);
+    }
     public static String loadZonesConfigText(Context c) throws IOException {
-        File f = new File(c.getFilesDir(), "zones.config"); if (f.isFile()) { try (FileInputStream is = new FileInputStream(f)) { return readFully(is); } }
-        try (InputStream is = c.getAssets().open("zones.config")) { return readFully(is); }
+        File f = new File(c.getFilesDir(), "zones.config");
+        if (f.isFile()) {
+            try (FileInputStream is = new FileInputStream(f)) {
+                return readFully(is);
+            }
+        }
+        try (InputStream is = c.getAssets().open("zones.config")) {
+            return readFully(is);
+        } catch (java.io.FileNotFoundException e) {
+            return "";
+        }
     }
     private static String readFully(InputStream is) throws IOException { ByteArrayOutputStream os = new ByteArrayOutputStream(); byte[] buf = new byte[4096]; int r; while ((r = is.read(buf)) != -1) os.write(buf, 0, r); return os.toString("UTF-8"); }
     private static List<String> getAllPresetKeys(JSONObject root) { ArrayList<String> res = new ArrayList<>(); JSONArray names = root.names(); if (names != null) for (int i = 0; i < names.length(); i++) res.add(names.optString(i, "")); Collections.sort(res); return res; }
@@ -1910,7 +1934,7 @@ public class AudioCaptureService extends Service {
     public void setPreset(String p) { mPresetKey = p; restartCapture(); }
 
     public void connectUdp(String ip, int port) {
-        Log.d(TAG, "Connecting to external UDP source: " + ip + ":" + port);
+        Log.i(TAG, "Connecting to external UDP source: " + ip + ":" + port);
         mNetworkHostIp = ip;
         mNetworkHostPort = port;
         mCaptureSource = CaptureSource.NETWORK;

@@ -13,6 +13,7 @@ class BeatDetectionHapticEngine(context: Context) {
 
     private val vibrator: Vibrator?
     private val vibratorManager: VibratorManager?
+    private val hasVibrator: Boolean
 
     private var waveform: VibrationEffect? = null
     private var pulseEffect: VibrationEffect? = null
@@ -37,6 +38,7 @@ class BeatDetectionHapticEngine(context: Context) {
             vibratorManager = null
             vibrator = appContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         }
+        hasVibrator = vibrator?.hasVibrator() == true
 
         // Default mode if no amplitude control is Short Pulse
         if (vibrator != null && !vibrator.hasAmplitudeControl()) {
@@ -55,8 +57,7 @@ class BeatDetectionHapticEngine(context: Context) {
     ) {
         isBeatTriggeredThisFrame = false
         if (
-            vibrator == null ||
-            !vibrator.hasVibrator() ||
+            !hasVibrator ||
             range == null ||
             fftraw.isEmpty()
         ) {

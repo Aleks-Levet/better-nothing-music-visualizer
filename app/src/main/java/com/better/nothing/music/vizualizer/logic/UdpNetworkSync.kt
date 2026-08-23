@@ -95,13 +95,17 @@ class UdpNetworkSync(private val context: Context) {
     // --- Discovery (Host Mode) ---
 
     fun startBroadcasting(deviceName: String) {
-        if (isBroadcasting) return
+        if (isBroadcasting) {
+            Log.i(TAG, "Host: startBroadcasting skipped (already broadcasting)")
+            return
+        }
         isBroadcasting = true
         acquireMulticastLock()
         startLatencyMeasurement()
         
         cachedIp = getIpAddress()
         lastIpCheck = System.currentTimeMillis()
+        Log.i(TAG, "Host: Initialized with deviceName=$deviceName, IP=$cachedIp")
 
         broadcastExecutor.execute {
             var socket: DatagramSocket? = null
@@ -109,16 +113,33 @@ class UdpNetworkSync(private val context: Context) {
                 socket = DatagramSocket(null).apply {
                     reuseAddress = true
                     broadcast = true
-                    bind(java.net.InetSocketAddress(DISCOVERY_PORT))
                 }
+                // Explicitly bind to IPv4 0.0.0.0 to avoid IPv6 issues on some tablets
+                socket.bind(java.net.InetSocketAddress(InetAddress.getByName("0.0.0.0"), DISCOVERY_PORT))
+                
                 discoverySocket = socket
                 val buffer = ByteArray(1024)
+                Log.i(TAG, "Host: Started broadcasting on 0.0.0.0:$DISCOVERY_PORT")
+                
+                var lastHeartbeat: Long = 0
                 while (isBroadcasting && !socket.isClosed) {
                     try {
+                        val now = System.currentTimeMillis()
+                        if (now - lastHeartbeat > 5000) {
+                            Log.i(TAG, "Host: Broadcast loop heartbeat (IP: $cachedIp, Clients: ${_clientIps.value.size})")
+                            lastHeartbeat = now
+                        }
+
+                        socket.soTimeout = 1000
                         val packet = DatagramPacket(buffer, buffer.size)
-                        socket.receive(packet)
+                        try {
+                            socket.receive(packet)
+                        } catch (e: java.net.SocketTimeoutException) {
+                            continue
+                        }
+                        
                         val msg = String(packet.data, 0, packet.length)
-                        Log.d(TAG, "Received discovery message: $msg from ${packet.address}")
+                        Log.i(TAG, "Host: Received discovery message '$msg' from ${packet.address}:${packet.port}")
                         if (msg == DISCOVERY_MSG) {
                             // Periodically refresh IP if it's been a while
                             if (System.currentTimeMillis() - lastIpCheck > 30000) {
@@ -163,9 +184,9 @@ class UdpNetworkSync(private val context: Context) {
                                             responseSocket.send(broadcastPacket)
                                         } catch (e: Exception) {}
                                     }
-                                    Log.d(TAG, "Sent host info responses (direct + broadcast fallback)")
+                                    Log.i(TAG, "Host: Sent host info responses (direct + broadcast fallback) to ${packet.address}")
                                 } catch (e: Exception) {
-                                    Log.e(TAG, "Failed to send discovery response", e)
+                                    Log.e(TAG, "Host: Failed to send discovery response", e)
                                 } finally {
                                     responseSocket?.close()
                                 }
@@ -182,23 +203,23 @@ class UdpNetworkSync(private val context: Context) {
                                             if (current.containsKey(packet.address)) current
                                             else current + (packet.address to null)
                                         }
-                                        Log.d(TAG, "Added ${packet.address} to streaming clients after delay")
+                                        Log.i(TAG, "Host: Added ${packet.address} to streaming clients after delay")
                                     } catch (e: Exception) {
-                                        Log.e(TAG, "Failed to add client after delay", e)
+                                        Log.e(TAG, "Host: Failed to add client after delay", e)
                                     }
                                 }
                             }
                         }
                     } catch (e: Exception) {
                         if (isBroadcasting && !socket.isClosed) {
-                            Log.w(TAG, "Discovery receive error (non-fatal): ${e.message}")
+                            Log.w(TAG, "Host: Discovery receive error (non-fatal): ${e.message}")
                             Thread.sleep(100) // Cooling off
                         }
                     }
                 }
             } catch (e: Exception) {
                 if (isBroadcasting && socket != null && !socket.isClosed) {
-                    Log.e(TAG, "Broadcasting loop error", e)
+                    Log.e(TAG, "Host: Broadcasting loop error", e)
                 }
             } finally {
                 socket?.close()
@@ -207,6 +228,7 @@ class UdpNetworkSync(private val context: Context) {
                     isBroadcasting = false
                 }
                 releaseMulticastLock()
+                Log.i(TAG, "Host: Stopped broadcasting")
             }
         }
     }
@@ -229,9 +251,11 @@ class UdpNetworkSync(private val context: Context) {
         latencyExecutor.execute {
             var latSocket: DatagramSocket? = null
             try {
-                latSocket = DatagramSocket().apply {
-                    soTimeout = 800
+                latSocket = DatagramSocket(null).apply {
+                    reuseAddress = true
                 }
+                latSocket.bind(java.net.InetSocketAddress(InetAddress.getByName("0.0.0.0"), 0))
+                latSocket.soTimeout = 800
                 val buffer = ByteArray(1024)
                 
                 while (isMeasuringLatency) {
@@ -299,8 +323,8 @@ class UdpNetworkSync(private val context: Context) {
             try {
                 socket = DatagramSocket(null).apply {
                     reuseAddress = true
-                    bind(java.net.InetSocketAddress(LATENCY_PORT))
                 }
+                socket.bind(java.net.InetSocketAddress(InetAddress.getByName("0.0.0.0"), LATENCY_PORT))
                 pingResponderSocket = socket
                 val buffer = ByteArray(1024)
                 while (isRespondingToPings && !socket.isClosed) {
@@ -352,9 +376,12 @@ class UdpNetworkSync(private val context: Context) {
     // --- Discovery (Client Mode) ---
 
     fun discoverHosts(onHostFound: (HostInfo) -> Unit) {
-        if (isDiscovering) return
+        if (isDiscovering) {
+            Log.i(TAG, "Client: discoverHosts skipped (already discovering)")
+            return
+        }
         isDiscovering = true
-        Log.d(TAG, "Starting discovery scan...")
+        Log.i(TAG, "Client: Starting discovery scan...")
         acquireMulticastLock()
         scanExecutor.execute {
             var clientSocket: DatagramSocket? = null
@@ -365,7 +392,7 @@ class UdpNetworkSync(private val context: Context) {
                     broadcast = true
                     soTimeout = 500
                 }
-                clientSocket.bind(java.net.InetSocketAddress(DISCOVERY_RESPONSE_PORT))
+                clientSocket.bind(java.net.InetSocketAddress(InetAddress.getByName("0.0.0.0"), DISCOVERY_RESPONSE_PORT))
                 
                 // Start receiving in parallel
                 val receiveJob = generalExecutor.submit {
@@ -386,7 +413,7 @@ class UdpNetworkSync(private val context: Context) {
                                     val actualIp = responsePacket.address.hostAddress ?: reportedIp
                                     
                                     if (discoveredIps.add(actualIp)) {
-                                        Log.d(TAG, "Found host: ${parts[1]} ($actualIp)")
+                                        Log.i(TAG, "Client: Found host: ${parts[1]} ($actualIp) from ${responsePacket.address}:${responsePacket.port}")
                                         val host = HostInfo(
                                             name = parts[1],
                                             model = parts[2],
@@ -402,7 +429,7 @@ class UdpNetworkSync(private val context: Context) {
                             // Continue
                         } catch (e: Exception) {
                             if (isDiscovering && !clientSocket.isClosed) {
-                                Log.w(TAG, "Discovery receive error: ${e.message}")
+                                Log.w(TAG, "Client: Discovery receive error: ${e.message}")
                             }
                         }
                     }
@@ -461,10 +488,10 @@ class UdpNetworkSync(private val context: Context) {
                 }
                 fftCount++
                 if (fftCount % 100 == 0) {
-                    Log.d(TAG, "Sent 100 FFT frames to ${clients.size} clients")
+                    Log.i(TAG, "Host: Sent 100 FFT frames to ${clients.size} clients")
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Streaming send error", e)
+                Log.e(TAG, "Host: Streaming send error", e)
             } finally {
                 isSendingFft = false
             }
@@ -474,19 +501,22 @@ class UdpNetworkSync(private val context: Context) {
     // --- Streaming (Client Mode) ---
 
     fun startListening(hostIp: String? = null, onFftReceived: (IntArray) -> Unit) {
-        if (isListening) return
+        if (isListening) {
+            Log.i(TAG, "Client: startListening skipped (already listening)")
+            return
+        }
         isListening = true
         acquireMulticastLock()
         startPingResponder()
-        Log.d(TAG, "Starting to listen for FFT on port $STREAMING_PORT. Target Host: ${hostIp ?: "none"}")
+        Log.i(TAG, "Client: Starting to listen for FFT on port $STREAMING_PORT. Target Host: ${hostIp ?: "none"}")
         
         broadcastExecutor.execute {
             var socket: DatagramSocket? = null
             try {
                 socket = DatagramSocket(null).apply {
                     reuseAddress = true
-                    bind(java.net.InetSocketAddress(STREAMING_PORT))
                 }
+                socket.bind(java.net.InetSocketAddress(InetAddress.getByName("0.0.0.0"), STREAMING_PORT))
                 listeningSocket = socket
                 
                 // Firewall hole-punch: send a packet FROM our listening port TO the host's discovery port
@@ -496,36 +526,41 @@ class UdpNetworkSync(private val context: Context) {
                         val msg = DISCOVERY_MSG.toByteArray()
                         val packet = DatagramPacket(msg, msg.size, InetAddress.getByName(ip), DISCOVERY_PORT)
                         socket.send(packet)
-                        Log.d(TAG, "Sent hole-punch handshake from port $STREAMING_PORT to $ip:$DISCOVERY_PORT")
+                        Log.i(TAG, "Client: Sent hole-punch handshake from port $STREAMING_PORT to $ip:$DISCOVERY_PORT")
                     } catch (e: Exception) {
-                        Log.w(TAG, "Failed to send initial hole-punch", e)
+                        Log.w(TAG, "Client: Failed to send initial hole-punch", e)
                     }
                 }
 
-                val buffer = ByteArray(768)
+                val buffer = ByteArray(2048)
+                var receivedCount = 0
                 while (isListening && !socket.isClosed) {
                     try {
                         val packet = DatagramPacket(buffer, buffer.size)
                         socket.receive(packet)
                         if (packet.length == 768) {
+                            receivedCount++
+                            if (receivedCount % 100 == 0) {
+                                Log.i(TAG, "Client: Received 100 FFT frames from ${packet.address}:${packet.port}")
+                            }
                             val fft = unpackUint12(packet.data)
                             onFftReceived(fft)
                         } else {
                             // Ignore small packets (like BNMV_PUNCH or handshakes)
                             if (packet.length > 10) {
-                                Log.w(TAG, "Received packet with unexpected length: ${packet.length}")
+                                Log.w(TAG, "Client: Received packet with unexpected length: ${packet.length} from ${packet.address}")
                             }
                         }
                     } catch (e: Exception) {
                         if (isListening && !socket.isClosed) {
-                            Log.w(TAG, "Streaming listen receive error: ${e.message}")
+                            Log.w(TAG, "Client: Streaming listen receive error: ${e.message}")
                             Thread.sleep(10)
                         }
                     }
                 }
             } catch (e: Exception) {
                 if (isListening && socket != null && !socket.isClosed) {
-                    Log.e(TAG, "Streaming listen fatal error", e)
+                    Log.e(TAG, "Client: Streaming listen fatal error", e)
                 }
             } finally {
                 socket?.close()
@@ -535,7 +570,7 @@ class UdpNetworkSync(private val context: Context) {
                 }
                 stopPingResponder()
                 releaseMulticastLock()
-                Log.d(TAG, "Stopped listening")
+                Log.i(TAG, "Client: Stopped listening")
             }
         }
     }

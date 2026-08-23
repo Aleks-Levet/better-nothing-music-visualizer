@@ -25,6 +25,7 @@ public final class ContinuousHapticEngine {
     private static final int MAX_AMPLITUDE = 255;
 
     private final Vibrator vibrator;
+    private final boolean hasVibrator;
 
     private float hapticMultiplier = 1.0f;
     private float hapticAudioGain = 1.0f;
@@ -41,6 +42,7 @@ public final class ContinuousHapticEngine {
         } else {
             this.vibrator = (Vibrator) appContext.getSystemService(Context.VIBRATOR_SERVICE);
         }
+        this.hasVibrator = this.vibrator != null && this.vibrator.hasVibrator();
     }
 
     public synchronized void setHapticMultiplier(float multiplier) { this.hapticMultiplier = Math.max(0.3f, Math.min(1.5f, multiplier)); }
@@ -48,7 +50,7 @@ public final class ContinuousHapticEngine {
     public synchronized void setHapticGamma(float gamma) { this.hapticGamma = Math.max(0.1f, gamma); }
 
     public synchronized float performHapticFeedback(float rawPeak, @Nullable AudioProcessor.VisualizerConfig config) {
-        if (vibrator == null || !vibrator.hasVibrator()) return 0f;
+        if (!hasVibrator) return 0f;
 
         // Use the peak directly from fftraw (0-1 range). 
         // No extra SPECTRUM_GAIN here as it's already in fftraw.

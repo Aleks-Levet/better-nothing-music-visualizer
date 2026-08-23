@@ -50,6 +50,7 @@ enum class VisualizerStyle(val labelRes: Int) {
 enum class MicrophoneMode(val labelRes: Int, val descriptionRes: Int, val audioSource: Int) {
     VOICE_COMMUNICATION(R.string.mic_mode_voice_comm, R.string.mic_mode_voice_comm_desc, 7),
     VOICE_PERFORMANCE(R.string.mic_mode_voice_perf, R.string.mic_mode_voice_perf_desc, 10),
+    VOICE_RECOGNITION(R.string.mic_mode_voice_rec, R.string.mic_mode_voice_rec_desc, 6),
     UNPROCESSED(R.string.mic_mode_unprocessed, R.string.mic_mode_unprocessed_desc, 9),
     CAMCORDER(R.string.mic_mode_camcorder, R.string.mic_mode_camcorder_desc, 5)
 }
@@ -1079,6 +1080,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
     private suspend fun performUpdateAction(): Boolean {
+        if (selectedDevice.value == DeviceProfile.DEVICE_UNKNOWN) {
+            return false
+        }
         // This runs on Dispatchers.IO (called from withContext(IO) above)
         var connection: HttpURLConnection? = null
         return try {

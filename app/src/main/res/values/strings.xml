@@ -67,6 +67,8 @@
     <string name="microphone_mode_desc">Changes how the microphone captures audio.</string>
     <string name="mic_mode_voice_comm">Voice Comm</string>
     <string name="mic_mode_voice_comm_desc">VOICE_COMMUNICATION: Usually has echo cancellation and noise suppression.</string>
+    <string name="mic_mode_voice_rec">Recognition</string>
+    <string name="mic_mode_voice_rec_desc">VOICE_RECOGNITION: Optimized for speech recognition. Usually high gain and minimal processing.</string>
     <string name="mic_mode_voice_perf">Performance</string>
     <string name="mic_mode_voice_perf_desc">VOICE_PERFORMANCE: Optimized for real-time voice applications. Lower latency than normal voice comms.</string>
     <string name="mic_mode_unprocessed">Unprocessed</string>
