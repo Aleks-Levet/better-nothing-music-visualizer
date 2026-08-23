@@ -85,6 +85,9 @@ public final class FlashlightEngine {
     }
 
     public synchronized void setSpoofIntensityLevels(Integer levels) {
+        if (this.spoofIntensityLevels == null && levels != null) {
+            stopFlashlight();
+        }
         this.spoofIntensityLevels = levels;
     }
 
@@ -260,11 +263,7 @@ public final class FlashlightEngine {
         if (elapsed >= beatFlashDurationMs) { stopFlashlightInternal(); return; }
 
         if (beatEngineMode == BeatEngineMode.SHORT_PULSE || !hasVariableTorchStrength()) {
-            if (hasVariableTorchStrength()) {
-                submitTorchLevel(maxTorchStrength);
-            } else {
-                submitTorchLevel(1);
-            }
+            submitTorchLevel(getUserMaxIntensity());
             return;
         }
 

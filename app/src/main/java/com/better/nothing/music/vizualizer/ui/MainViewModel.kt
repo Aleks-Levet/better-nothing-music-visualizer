@@ -278,7 +278,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             return@discoverHosts kotlin.Unit
         }
         viewModelScope.launch {
-            delay(3000)
+            delay(5000)
             _isDiscovering.value = false
         }
     }
@@ -1336,6 +1336,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun setSpoofFlashlightLevels(levels: Int?) {
         _spoofFlashlightLevels.value = levels
         MainActivity.serviceStatic?.setFlashlightSpoofLevels(levels)
+        if (levels != null) {
+            setFlashlightIntensityLevels(levels)
+            setFlashlightMaxIntensity(levels)
+        } else {
+            MainActivity.serviceStatic?.let { s ->
+                setFlashlightIntensityLevels(s.flashlightIntensityLevels)
+                setFlashlightMaxIntensity(s.flashlightIntensityLevels)
+            }
+        }
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit {
@@ -2149,6 +2158,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         val spoofFlashlight = all["spoof_flashlight_levels"] as? Int
         _spoofFlashlightLevels.value = spoofFlashlight
+        if (spoofFlashlight != null) {
+            _flashlightIntensityLevels.value = spoofFlashlight
+        }
 
         _autoDeviceMemorize.value = get("auto_device_memorize", true)
         _m3eEnabled.value = get("m3e_enabled", true)
@@ -2163,6 +2175,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         } else {
             _maxBrightness.value = get("max_brightness_last", 4095).coerceIn(50, 5000)
         }
+
+        _flashlightIntensityLevels.value = FlashlightEngine.detectTorchIntensityLevels(ctx)
         
         _fftReadMethod.value = safeValueOf(get("fft_read_method", ""), AudioProcessor.ReadMethod.RMS)
         _microphoneMode.value = safeValueOf(get("microphone_mode", ""), MicrophoneMode.UNPROCESSED)

@@ -110,6 +110,9 @@ public class AudioCaptureService extends Service {
     private volatile CaptureSource mCaptureSource = CaptureSource.INTERNAL;
 
     public static final String ACTION_STOP = "com.better.nothing.music.vizualizer.action.STOP";
+    private String mNetworkHostIp = null;
+    private int mNetworkHostPort = 8889;
+
     public static final String ACTION_START = "com.better.nothing.music.vizualizer.action.START";
     public static final String ACTION_TOGGLE_HAPTICS = "com.better.nothing.music.vizualizer.action.TOGGLE_HAPTICS";
     public static final String ACTION_TOGGLE_TORCH = "com.better.nothing.music.vizualizer.action.TOGGLE_TORCH";
@@ -911,7 +914,7 @@ public class AudioCaptureService extends Service {
     }
 
     public void startNetworkCapture() {
-        Log.d(TAG, "startNetworkCapture: starting client mode");
+        Log.d(TAG, "startNetworkCapture: starting client mode targeting " + mNetworkHostIp);
         synchronized (mCaptureLock) {
             stopCaptureLocked(false);
             startForegroundWithTypes(CaptureSource.NETWORK, false);
@@ -926,7 +929,7 @@ public class AudioCaptureService extends Service {
                 reloadConfig();
             }
 
-            mUdpSync.startListening(fft -> {
+            mUdpSync.startListening(mNetworkHostIp, fft -> {
                 if (mCapturing && mCaptureSource == CaptureSource.NETWORK) {
                     PendingFrame frame = new PendingFrame(fft, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
                     synchronized (mVisualizerPendingFrames) {
@@ -1326,7 +1329,7 @@ public class AudioCaptureService extends Service {
             long now = SystemClock.elapsedRealtime(); 
 
             // Independent broadcast logic
-            if (mBroadcastEnabled && (now - mLastSendMs >= MIN_SEND_INTERVAL_MS)) {
+            if (mBroadcastEnabled && (now - mLastSendMs >= MIN_SEND_INTERVAL_MS) && fftraw != null) {
                 mUdpSync.sendFft(fftraw);
             }
 
@@ -1370,7 +1373,8 @@ public class AudioCaptureService extends Service {
             } else {
                 if (mSessionOpen) clearGlyphSession();
                 // If glyphs are off, we still need to update mLastSendMs for broadcast
-                if (mBroadcastEnabled && (now - mLastSendMs >= MIN_SEND_INTERVAL_MS)) {
+                if (mBroadcastEnabled && (now - mLastSendMs >= MIN_SEND_INTERVAL_MS) && fftraw != null) {
+                    mUdpSync.sendFft(fftraw);
                     mLastSendMs = now;
                 }
             }
@@ -1907,6 +1911,8 @@ public class AudioCaptureService extends Service {
 
     public void connectUdp(String ip, int port) {
         Log.d(TAG, "Connecting to external UDP source: " + ip + ":" + port);
+        mNetworkHostIp = ip;
+        mNetworkHostPort = port;
         mCaptureSource = CaptureSource.NETWORK;
         getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putString("capture_source", CaptureSource.NETWORK.name()).apply();
         

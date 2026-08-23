@@ -327,19 +327,18 @@ fun FlashlightScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         // Glowing white dot
-                        val dotScaleTarget = 0.3f + (motorIntensity * 0.7f)
+                        val dotScaleTarget = 0.4f + (motorIntensity * 1f)
                         val dotAlphaTarget = 0.2f + (motorIntensity * 0.8f)
 
-                        val isBinary = flashlightIntensityLevels <= 1
 
                         val dotScale by animateFloatAsState(
                             targetValue = dotScaleTarget,
-                            animationSpec = if (isBinary) snap() else androidx.compose.animation.core.spring(stiffness = Spring.StiffnessMedium),
+                            animationSpec = snap(),
                             label = "dotScale"
                         )
                         val dotAlpha by animateFloatAsState(
                             targetValue = dotAlphaTarget,
-                            animationSpec = if (isBinary) snap() else androidx.compose.animation.core.spring(stiffness = Spring.StiffnessMedium),
+                            animationSpec = snap(),
                             label = "dotAlpha"
                         )
 
@@ -358,7 +357,7 @@ fun FlashlightScreen(
                                     isAntiAlias = true
                                 }
                                 paint.asFrameworkPaint().maskFilter = BlurMaskFilter(
-                                    150f, // Huge blur radius
+                                    150f * dotScale, // Huge blur radius
                                     BlurMaskFilter.Blur.NORMAL
                                 )
                                 canvas.drawCircle(
@@ -376,7 +375,7 @@ fun FlashlightScreen(
                                     isAntiAlias = true
                                 }
                                 paint.asFrameworkPaint().maskFilter = BlurMaskFilter(
-                                    40f, // Medium blur radius
+                                    40f * dotScale, // Medium blur radius
                                     BlurMaskFilter.Blur.NORMAL
                                 )
                                 canvas.drawCircle(

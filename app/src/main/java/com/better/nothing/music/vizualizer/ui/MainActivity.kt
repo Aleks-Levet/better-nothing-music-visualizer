@@ -514,6 +514,7 @@ class MainActivity : AppCompatActivity() {
             it.setFlashlightMode(viewModel.flashlightMode.value)
             it.setFlashlightBeatEngineMode(viewModel.flashlightBeatEngineMode.value)
             it.setFlashlightPulseDurationMs(viewModel.flashlightPulseDurationMs.value)
+            it.setFlashlightSpoofLevels(viewModel.spoofFlashlightLevels.value)
             viewModel.setFlashlightIntensityLevels(it.flashlightIntensityLevels)
             it.setIdleBreathingEnabled(viewModel.idleBreathingEnabled.value)
             it.setIdlePattern(viewModel.idlePattern.value)
@@ -913,9 +914,10 @@ internal fun BetterVizApp(
                                         glyphsEnabled = glyphsEnabled,
                                         hapticsEnabled = hapticsEnabled,
                                         flashlightEnabled = flashlightEnabled,
+                                        hasFlashlightAccess = canAccessFlashlight,
                                         visualsEnabled = visualsEnabled,
                                         onOverlayPermissionRequest = onOverlayPermissionRequest,
-                                        PaddingValues(0.dp),
+                                        padding = PaddingValues(0.dp),
                                         isTablet = true
                                     )}
                                 } else {
@@ -964,7 +966,7 @@ internal fun BetterVizApp(
                                 rotationZ = if (pageOffset > 0) -rotationAmount else rotationAmount
                             }
                     ) {
-                        TabContent(tab, viewModel, isRunning, totalVisualizedTime, developerModeEnabled, glyphsEnabled, hapticsEnabled, flashlightEnabled, visualsEnabled, onOverlayPermissionRequest, padding, isTablet = false)
+                        TabContent(tab, viewModel, isRunning, totalVisualizedTime, developerModeEnabled, glyphsEnabled, hapticsEnabled, flashlightEnabled, canAccessFlashlight, visualsEnabled, onOverlayPermissionRequest, padding, isTablet = false)
                     }
                 }
             }
@@ -989,6 +991,7 @@ private fun TabContent(
     glyphsEnabled: Boolean,
     hapticsEnabled: Boolean,
     flashlightEnabled: Boolean,
+    hasFlashlightAccess: Boolean,
     visualsEnabled: Boolean,
     onOverlayPermissionRequest: () -> Unit,
     padding: PaddingValues,
@@ -1060,7 +1063,7 @@ private fun TabContent(
                 developerModeEnabled = developerModeEnabled,
                 isGlyphAvailable = selectedDevice != com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_UNKNOWN,
                 hasHapticMotor = viewModel.hasHapticMotor,
-                hasFlashlight = viewModel.hasFlashlight,
+                hasFlashlight = hasFlashlightAccess,
                 padding = padding
             )
         }
