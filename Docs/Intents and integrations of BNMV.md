@@ -50,6 +50,40 @@ From version 4.0.1 of the app:
 3. Send a "Handshake" UDP packet containing the string `BNMV_DISCOVER` to your specified `ip` and `port`.
 4. Your app should then start sending audio data to BNMV's IP on port `8889`. (Note: You can get BNMV's IP address from the source address of the handshake packet).
 
+#### Optional host discovery response
+
+If you are implementing the LAN host-discovery protocol, respond to `BNMV_DISCOVER` with a UDP packet sent to the requester's source IP on port `8891`:
+
+```text
+BNMV_HOST;<deviceName>;<model>;<hostIp>;<streamingPort>;<protocolVersion>
+```
+
+For example:
+
+```text
+BNMV_HOST;My Music App;Nothing Phone (2);192.168.1.15;8889;6.0.made.by.aleks.levet
+```
+
+The fields are, in order: the message prefix, host/device name, device model, host IP address, FFT streaming port, and protocol version. The current protocol version name is `6.0.made.by.aleks.levet` 
+
+For the explicit `ACTION_CONNECT_UDP` integration above, no response is required; BNMV uses the source IP of `BNMV_DISCOVER` and expects the host to send FFT data to UDP port `8889`.
+
+#### Latency ping response
+
+After discovery, BNMV may send latency probes to the host over UDP port `8890`. A probe has this format:
+
+```text
+BNMV_PING;<timestamp>
+```
+
+Reply immediately with `BNMV_PONG` and the exact same timestamp, sending the response to the source IP and source port of the received probe:
+
+```text
+BNMV_PONG;<timestamp>
+```
+
+For example, if BNMV sends `BNMV_PING;1724567890123`, respond with `BNMV_PONG;1724567890123`. Do not replace or reinterpret the timestamp; BNMV uses it to calculate the round-trip latency.
+
 #### Audio Data Format:
 BNMV expects **512 frequency magnitudes** packed into a **768-byte** UDP packet, sent approximately 60 times per second.
 
