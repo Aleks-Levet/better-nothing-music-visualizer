@@ -12,13 +12,30 @@ You'll need two things from your PC setup: `run-bnmv-stream.sh` and
 
 ## What you need
 
-- **PC**: Linux with PulseAudio or PipeWire (KDE Neon has this by default),
-  Python 3, and the `pulseaudio-utils` package (provides `pactl` and
-  `parec`).
+- **PC**: Linux with PulseAudio or PipeWire, Python 3, and the
+  `pulseaudio-utils` package (provides `pactl` and `parec`).
 - **Phone**: BNMV installed, connected to **the same Wi-Fi network** as your
   PC.
-- A way to send BNMV a one-time "connect" command — see **Step 3** below for
-  two easy options.
+- A way to send BNMV a one-time "connect" command — see **Step 3** below.
+
+### Distro-specific dependencies
+
+| Distro | Install command |
+|---|---|
+| **Debian / Ubuntu / KDE Neon** | `sudo apt install pulseaudio-utils python3-venv` |
+| **Arch Linux** | `sudo pacman -S python python-pipewire` (or `python-pulseaudio` if you use PulseAudio) |
+| **Fedora** | `sudo dnf install pulseaudio-utils python3` |
+
+> **Note:** On Arch Linux and other distros that mark their Python as
+> [externally managed (PEP 668)](https://peps.python.org/pep-0668/),
+> `pip install --user` will fail. The script handles this automatically by
+> creating a local virtual environment (`.venv/`). If you prefer to set it up
+> manually first:
+> ```bash
+> python -m venv .venv
+> source .venv/bin/activate.fish   # or: source .venv/bin/activate (bash)
+> pip install numpy
+> ```
 
 ---
 
@@ -34,7 +51,7 @@ You'll need two things from your PC setup: `run-bnmv-stream.sh` and
    ./run-bnmv-stream.sh
    ```
 
-The first run may install the `numpy` Python package automatically if it's
+The first run will install the `numpy` Python package automatically if it's
 missing. Once running, you'll see something like:
 
 ```
@@ -49,7 +66,6 @@ missing. Once running, you'll see something like:
 [bnmv] Listening for latency pings on UDP :8890 ...
 ```
 
-
 ---
 
 ## Step 2: Make sure your phone is on the same network
@@ -59,30 +75,44 @@ Wi-Fi network as your PC. This won't work over mobile data, and it usually
 won't work on "guest" Wi-Fi networks, since those often block devices from
 talking to each other (client isolation).
 
+---
 
-## Step 3: Confirm it's working
+## Step 3: Connect from BNMV
 
-- On the client device, connect to the linux pc with the `Another device or app...` audio source.
-- On the PC, the terminal should show a handshake line and keep running
-  silently after that (that's normal — it's streaming continuously).
-- On the phone, open BNMV and confirm the visualizer is reacting to your
-  PC's audio. If BNMV doesn't automatically switch to the network source,
-  check its settings for a source selector and choose the network/external
-  option.
-- Play something on your PC and watch the visualizer respond.
+Open BNMV on your phone and use the **External Audio / Another device or
+app...** option to connect to your PC using its LAN IP and port `8888`.
+
+On the PC, the terminal should show a handshake line and keep running
+silently after that (that's normal — it's streaming continuously).
+
+On the phone, confirm the visualizer is reacting to your PC's audio.
+
+---
+
+## Step 4: Open your firewall (if needed)
+
+If your PC has a firewall enabled, you need to allow BNMV's UDP ports.
+
+**ufw** (Debian / Ubuntu / Arch):
+```bash
+sudo ufw allow 8888:8891/udp
+```
+
+**firewalld** (Fedora / RHEL):
+```bash
+sudo firewall-cmd --add-port=8888-8891/udp --permanent
+sudo firewall-cmd --reload
+```
 
 ---
 
 ## Troubleshooting
 
-**Nothing happens after sending the connect command**
+**Nothing happens after connecting from BNMV**
 - Double-check the PC's LAN IP hasn't changed (Wi-Fi/router restarts can
   reassign it) — re-check the IP printed by `run-bnmv-stream.sh`.
 - Confirm phone and PC are genuinely on the same network/subnet.
-- Check your PC's firewall isn't blocking UDP ports `8888`–`8891`:
-  ```bash
-  sudo ufw allow 8888:8891/udp
-  ```
+- Make sure your firewall allows UDP ports `8888`–`8891` (see Step 4).
 
 **Visualizer connects but shows no audio movement**
 - Make sure audio is actually playing on the PC through the **default**
@@ -101,11 +131,11 @@ talking to each other (client isolation).
   ```
 
 **I switched Wi-Fi networks or restarted my PC**
-- You'll need to repeat Step 3 (send the connect command again), since
+- You'll need to repeat Step 3 (reconnect from BNMV), since
   BNMV needs to be told the PC's current IP each time it changes.
 
 ---
 
-That's itw once connected, just leave `run-bnmv-stream.sh` running in the
+That's it — once connected, just leave `run-bnmv-stream.sh` running in the
 background on your PC whenever you want your phone's visualizer synced to
 your computer's audio.
