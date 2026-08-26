@@ -36,17 +36,50 @@ command -v parec    >/dev/null 2>&1 || missing+=("pulseaudio-utils / pipewire-pu
 if [ ${#missing[@]} -ne 0 ]; then
     echo "Missing required tools:" >&2
     printf '  - %s\n' "${missing[@]}" >&2
-    echo "On KDE Neon: sudo apt install pulseaudio-utils" >&2
+    echo "Debian/Ubuntu: sudo apt install pulseaudio-utils python3-venv" >&2
+    echo "Arch:          sudo pacman -S python pipewire-pulse (or pulseaudio)" >&2
+    echo "Fedora:        sudo dnf install pulseaudio-utils python3" >&2
     exit 1
 fi
 
+# ---------------------------------------------------------------------------
+# 2. Ensure numpy is available (use a venv if the system is PEP 668 managed
+#    or if --user install fails)
+# ---------------------------------------------------------------------------
+VENV_DIR="$SCRIPT_DIR/.venv"
+
 if ! python3 -c "import numpy" >/dev/null 2>&1; then
-    echo "Python 'numpy' not found. Installing for your user..."
-    pip3 install --user numpy
+    echo "Python 'numpy' not found. Attempting install..."
+
+    # Try a simple --user install first (works on Debian/Ubuntu/Fedora)
+    if pip3 install --user numpy 2>/dev/null; then
+        echo "numpy installed via pip --user."
+    elif [ ! -d "$VENV_DIR" ]; then
+        # PEP 668 distros (Arch, Fedora 40+, etc.) block --user installs.
+        # Fall back to a local virtual environment.
+        echo "Creating virtual environment in $VENV_DIR ..."
+        python3 -m venv "$VENV_DIR"
+        "$VENV_DIR/bin/pip" install numpy
+        echo "numpy installed in venv."
+    elif [ -d "$VENV_DIR" ]; then
+        "$VENV_DIR/bin/pip" install numpy
+        echo "numpy installed in existing venv."
+    else
+        echo "ERROR: Could not install numpy. Install it manually:" >&2
+        echo "  python3 -m venv $VENV_DIR && $VENV_DIR/bin/pip install numpy" >&2
+        exit 1
+    fi
+fi
+
+# Use venv python if it exists, otherwise fall back to system python3
+if [ -x "$VENV_DIR/bin/python" ]; then
+    PYTHON="$VENV_DIR/bin/python"
+else
+    PYTHON="python3"
 fi
 
 # ---------------------------------------------------------------------------
-# 2. Find the monitor source for the default sink (i.e. "what's playing")
+# 3. Find the monitor source for the default sink (i.e. "what's playing")
 # ---------------------------------------------------------------------------
 DEFAULT_SINK="$(pactl get-default-sink)"
 MONITOR_SOURCE="${DEFAULT_SINK}.monitor"
@@ -59,7 +92,7 @@ if ! pactl list short sources | grep -q "^[0-9]*[[:space:]]*${MONITOR_SOURCE}[[:
 fi
 
 # ---------------------------------------------------------------------------
-# 3. Figure out and print this machine's LAN IP, for the phone-side config
+# 4. Figure out and print this machine's LAN IP, for the phone-side config
 # ---------------------------------------------------------------------------
 LAN_IP="$(ip route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if ($i=="src") print $(i+1)}')"
 echo "=================================================================="
@@ -71,7 +104,7 @@ echo " Point BNMV's ACTION_CONNECT_UDP intent at that ip:port from your phone."
 echo "=================================================================="
 
 # ---------------------------------------------------------------------------
-# 4. Parse a few passthrough options, then hand off to the Python streamer
+# 5. Parse a few passthrough options, then hand off to the Python streamer
 # ---------------------------------------------------------------------------
 EXTRA_ARGS=()
 SOURCE="$MONITOR_SOURCE"
@@ -87,4 +120,4 @@ while [ $# -gt 0 ]; do
     esac
 done
 
-exec python3 "$PY_SCRIPT" --source "$SOURCE" "${EXTRA_ARGS[@]}"
+exec "$PYTHON" "$PY_SCRIPT" --source "$SOURCE" "${EXTRA_ARGS[@]}"
