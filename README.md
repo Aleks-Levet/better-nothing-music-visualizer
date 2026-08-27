@@ -42,7 +42,9 @@ Even if it technically isn’t, the visual response to music just isn’t very o
 
 ### See the difference in action! [**Click here to easily browse our video demos!**](https://github.com/Aleks-Levet/better-nothing-music-visualizer/blob/main/Docs/Demo-video-examples.md)
 
-## 📲 Supported Nothing Phone Models for Glyph Visualisation
+<details>
+<summary><h1><b> 📲 Supported Nothing Phone Models for Glyph Visualisation</b></h1></summary>
+
 **Currently these models are supported:**
 - Nothing phone (1)
 - Nothing phone (2)
@@ -53,12 +55,14 @@ Even if it technically isn’t, the visual response to music just isn’t very o
 - Nothing phone (3) 
 - Nothing Phone (4a)
 - Nothing Phone (4b)
-- Nothing Phone (4a pro) *(not really ready yet but almost)*
+- Nothing Phone (4a pro)
 
-**Keep in mind that every android phone is compatible with the haptic and the flashlight visualization.**
+**Keep in mind that every android phone is compatible with the haptic, on-screen and flashlight visualizations.**
+</details>
 
-
-### <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2699_fe0f/512.gif" alt="⚙" width="25" height="25"> How it works (technically)
+<details>
+<summary><h1><b><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2699_fe0f/512.gif" alt="⚙" width="25" height="25"> How it works (technically)</b></h1></summary>
+  
 - **Deterministic**: BNMV is fully **deterministic**. Unlike the stock implementation *(or the copycat ai slop third party apps that copy our thing)* that can feel semi-random, our visualizer uses direct mathematical analysis of the audio stream to ensure every light corresponds exactly to a frequency range. This means that *if you keep the same settings*, **the same song will result in the same light pattern.**
 - A high quality audio stream is captured through the source you select
 - **FFT (Fast Fourier Transform)** is used to analyze frequencies in a **20 ms window** for each **16.666 ms frame** (60 FPS), making the visualization more accurate
@@ -71,6 +75,7 @@ Even if it technically isn’t, the visual response to music just isn’t very o
 - For the haptic and the flashlight "visualisation":
   - Either the amplitude of the bass frequency is used to determine the brightness of the flashlight or the amplitude of the vibration motor
   - Or the derivative of the amplitude of the bass frequancies is used to detect beats, which trigger a pre-processed pattern on either the haptic motor or the flashlight.
+</details>
 
 ## 🛠️ Presets (for glyph visualization)
 The visualizer's behavior, from frequency ranges to animation smoothing, is entirely controlled by the `zones.config` file. Whether you want to tweak existing presets or add support for a new phone model, you can find everything you need in our configuration guide.
@@ -124,7 +129,7 @@ https://www.virustotal.com/gui/url/c92c1ff82b56eb60bfd1e159592d09f949f0ea2d195e0
     </td>
     <td>
       <strong>Founder, Coordinator & Developer</strong><br/>
-      Main idea and owner of the project. Main developer.
+      Main idea and owner of the project. Developer.
     </td>
   </tr>
   <tr>
@@ -172,8 +177,8 @@ https://www.virustotal.com/gui/url/c92c1ff82b56eb60bfd1e159592d09f949f0ea2d195e0
       </a>
     </td>
     <td>
-      <strong>Developer of the base funtionality</strong><br/>
-      Implemented the real-time music streaming and began the first versions of the android app.
+      <strong>Made the first version of the app</strong><br/>
+      Implemented the real-time music streaming and began the first versions of the android app before leaving the team.
     </td>
   </tr>
   <tr>
@@ -209,7 +214,7 @@ https://www.virustotal.com/gui/url/c92c1ff82b56eb60bfd1e159592d09f949f0ea2d195e0
     </td>
     <td>
       <strong>Previous Contributor</strong>
-      Enhancing the app + various nice additions.
+      Enhanced the app + added various nice additions.
     </td>
   </tr>
 </table>
