@@ -25,6 +25,9 @@ Click the banner below to join our Discord server and connect with the community
        style="border-radius: 12px; box-shadow: 0 0 15px rgba(88, 101, 242, 0.4); max-width: 100%; height: auto;">
 </a>
 
+<details>
+<summary><h1><b>Glyph Visualisation</b></h1>  <h2>(Click here to see more if you have a nothing phone)</h2></summary>
+  
 ## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Thinking%20Face.png" alt="Thinking Face" width="25" height="25" /> Why does this exist?
 For a lot of people (including me), the *stock Glyph Music Visualiastion provided by Nothing* feels random.  
 Even if it technically isn’t, the visual response to music just isn’t very obvious. On top of that, the feature isn’t really using the full potential of the Glyph Interface. So that’s why I made my own music visualizer.
@@ -38,14 +41,7 @@ Even if it technically isn’t, the visual response to music just isn’t very o
 | **Zones** | Standard, full physical glyphs are used | **Each glyph segment and sub-zone is used and controlled independently** |
 | **Visualisation method** | Real-time only | **Realtime with down to 20ms latency, or pre-processed audio files** |
 
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3ac/512.gif" alt="🎬" width="40" height=""> [Video demos and examples](https://github.com/Aleks-Levet/better-nothing-music-visualizer/blob/main/Docs/Demo-video-examples.md)
-
-### See the difference in action! [**Click here to easily browse our video demos!**](https://github.com/Aleks-Levet/better-nothing-music-visualizer/blob/main/Docs/Demo-video-examples.md)
-
-<details>
-<summary><h1><b> 📲 Supported Nothing Phone Models for Glyph Visualisation</b></h1></summary>
-
-**Currently these models are supported:**
+**Currently these Nothing Phone models are supported:**
 - Nothing phone (1)
 - Nothing phone (2)
 - Nothing phone (2a)
@@ -56,12 +52,11 @@ Even if it technically isn’t, the visual response to music just isn’t very o
 - Nothing Phone (4a)
 - Nothing Phone (4b)
 - Nothing Phone (4a pro)
+  Basically everything exept *3a lite*, because nothing didn't provide an sdk for it. 
 
 **Keep in mind that every android phone is compatible with the haptic, on-screen and flashlight visualizations.**
-</details>
 
-<details>
-<summary><h1><b><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2699_fe0f/512.gif" alt="⚙" width="25" height="25"> How it works (technically)</b></h1></summary>
+## How it works (technically)
   
 - **Deterministic**: BNMV is fully **deterministic**. Unlike the stock implementation *(or the copycat ai slop third party apps that copy our thing)* that can feel semi-random, our visualizer uses direct mathematical analysis of the audio stream to ensure every light corresponds exactly to a frequency range. This means that *if you keep the same settings*, **the same song will result in the same light pattern.**
 - A high quality audio stream is captured through the source you select
@@ -75,11 +70,15 @@ Even if it technically isn’t, the visual response to music just isn’t very o
 - For the haptic and the flashlight "visualisation":
   - Either the amplitude of the bass frequency is used to determine the brightness of the flashlight or the amplitude of the vibration motor
   - Or the derivative of the amplitude of the bass frequancies is used to detect beats, which trigger a pre-processed pattern on either the haptic motor or the flashlight.
-</details>
 
 ## 🛠️ Presets (for glyph visualization)
 The visualizer's behavior, from frequency ranges to animation smoothing, is entirely controlled by the `zones.config` file. Whether you want to tweak existing presets or add support for a new phone model, you can find everything you need in our configuration guide.
 ### 📖 [**Detailed zones.config Documentation**](Docs/ZONES_CONFIG.md)
+
+## 📖 How to use the python script? (old way to sync music to the Glyphs of Nothing Phones)
+We made a detailed wiki page which explains the installation, usage, configuration files in detail and a troubleshooting section. You can also find out how to make new presets(not yet tho). [Just click here to see how to use **musicViz.py** as a python script](https://github.com/Aleks-Levet/better-nothing-music-visualizer/wiki/). You know what's cool? You can convert an unlimited number of files in bulk without any trouble!
+
+</details>
 
 ## 📖 How to use the App?
 1. **Download the latest APK** from the releases.
@@ -87,9 +86,6 @@ The visualizer's behavior, from frequency ranges to animation smoothing, is enti
 3. **Start Visualizing**: Hit the "Start" button and play music from any app!
 4. **Adjust Latency**: If the lights aren't perfectly synced with your Bluetooth speaker or headphones, use the **Audio** tab to add or remove delay.
 5. **Have fun!**: Explore the app and its different settings to take full advantage of it!
-
-## 📖 How to use the python script? (old way to sync music to the Glyphs of Nothing Phones)
-We made a detailed wiki page which explains the installation, usage, configuration files in detail and a troubleshooting section. You can also find out how to make new presets(not yet tho). [Just click here to see how to use **musicViz.py** as a python script](https://github.com/Aleks-Levet/better-nothing-music-visualizer/wiki/). You know what's cool? You can convert an unlimited number of files in bulk without any trouble!
 
 ## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/Handshake.png" alt="Handshake" width="25" height="25" /> Join our community
 You want to talk or discuss? *Bugs, feature requests?* 
