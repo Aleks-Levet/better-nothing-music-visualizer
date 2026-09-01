@@ -1,43 +1,37 @@
 #!/usr/bin/env python3
 """
-bnmv_stream.py
+bnmv_stream_windows.py
 
-Streams this PC's currently-playing audio to Better Nothing Music Visualizer
-(BNMV) on a phone, using BNMV's "External Audio Data (UDP)" protocol.
+Streams this Windows PC's currently-playing audio to Better Nothing Music
+Visualizer (BNMV) on a phone, using BNMV's "External Audio Data (UDP)"
+protocol.
 
 Flow (per BNMV's docs):
-  1. Some app/automation on a phone sends BNMV an ACTION_CONNECT_UDP intent
-     containing this PC's LAN IP and a listen port (default 8888).
+  1. connect directly from BNMV's UI using this PC's IP and that port.
   2. BNMV then sends a UDP handshake packet containing the literal bytes
      "BNMV_DISCOVER" to that ip:port.
   3. This script is what's listening on that port. When it sees a
      handshake, it adds the sender's IP to its set of connected devices and
      streams FFT frames to it on UDP port 8889, ~60 times/sec.
 
-Any number of devices can be connected at once -- each one that sends a
-handshake gets added to the target list and receives the same audio-reactive
-stream. Since BNMV only sends the handshake once, at connection time (not
-periodically), devices are never automatically dropped -- once connected,
-a device stays in the target list until this script is restarted.
+Any number of devices can be connected at once. Since BNMV only sends the
+handshake once, at connection time (not periodically), devices are never
+automatically dropped -- once connected, a device stays in the target list
+until this script is restarted.
 
-Audio is captured continuously via PulseAudio's `parec`, reading raw mono
-float32 samples from the default sink's monitor (i.e. "what's playing"),
-regardless of whether a handshake has arrived yet -- so streaming can start
-the instant a phone connects.
-
-Only external dependency: numpy. Audio capture uses the `parec` binary
-(part of pulseaudio-utils / pipewire-pulse), not a Python audio library.
+Audio capture on Windows uses WASAPI loopback via the `soundcard` package
+(no separate "Stereo Mix" device needed -- it captures whatever the chosen
+output device is playing, directly). Dependencies: numpy, soundcard.
 """
 
 import argparse
 import socket
-import struct
-import subprocess
 import sys
 import threading
 import time
 
 import numpy as np
+import soundcard as sc
 
 DISCOVER_MAGIC = b"BNMV_DISCOVER"
 NUM_BINS = 512
@@ -50,7 +44,8 @@ PING_PORT = 8890
 
 
 def get_local_ip() -> str:
-    """Best-effort local LAN IP, used only for the optional BNMV_HOST reply."""
+    """Best-effort local LAN IP, used for on-screen info and the optional
+    BNMV_HOST reply."""
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         s.connect(("1.1.1.1", 80))
@@ -74,7 +69,6 @@ def build_bin_mapping(fft_size: int, samplerate: int) -> np.ndarray:
 
     rfft_freqs = np.fft.rfftfreq(fft_size, d=1.0 / samplerate)
 
-    # nearest-neighbor lookup for each target frequency
     idx = np.searchsorted(rfft_freqs, f_center)
     idx = np.clip(idx, 1, len(rfft_freqs) - 1)
     left = rfft_freqs[idx - 1]
@@ -102,64 +96,64 @@ def pack_frame(vals: np.ndarray) -> bytes:
     return out.tobytes()
 
 
-class AudioCapture:
-    """Continuously captures mono float32 samples from a PulseAudio source
-    (typically a sink monitor, i.e. "what's playing") via `parec`, keeping a
-    rolling window of the most recent `fft_size` samples."""
+def list_output_devices():
+    print("Available output devices (use the exact name with --device):\n")
+    default = sc.default_speaker()
+    for spk in sc.all_speakers():
+        marker = "  (default)" if spk.name == default.name else ""
+        print(f"  - {spk.name}{marker}")
 
-    def __init__(self, source: str, samplerate: int, fft_size: int, chunk_frames: int = 256):
-        self.source = source
+
+class AudioCapture:
+    """Continuously captures mono float32 samples via WASAPI loopback on a
+    chosen (or default) output device, keeping a rolling window of the most
+    recent `fft_size` samples."""
+
+    def __init__(self, device_name: str, samplerate: int, fft_size: int, chunk_frames: int = 256):
+        self.device_name = device_name
         self.samplerate = samplerate
         self.fft_size = fft_size
         self.chunk_frames = chunk_frames
         self.ring = np.zeros(fft_size, dtype=np.float32)
         self.lock = threading.Lock()
-        self.proc = None
         self._stop = threading.Event()
+        self.mic = None
+        self.speaker_label = None
 
     def start(self):
-        cmd = [
-            "parec",
-            f"--device={self.source}",
-            "--format=float32le",
-            f"--rate={self.samplerate}",
-            "--channels=1",
-            "--latency-msec=20",
-            "--raw",
-        ]
         try:
-            self.proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, bufsize=0)
-        except FileNotFoundError:
-            print("ERROR: 'parec' not found. Install pulseaudio-utils "
-                  "(or pipewire-pulse, which provides it).", file=sys.stderr)
+            speaker = sc.get_speaker(self.device_name) if self.device_name else sc.default_speaker()
+        except Exception as e:
+            print(f"ERROR: could not find output device: {e}", file=sys.stderr)
+            print("Run with --list-devices to see available device names.", file=sys.stderr)
+            sys.exit(1)
+
+        self.speaker_label = speaker.name
+
+        try:
+            self.mic = sc.get_microphone(id=str(speaker.name), include_loopback=True)
+        except Exception as e:
+            print(f"ERROR: could not open loopback capture for '{speaker.name}': {e}", file=sys.stderr)
             sys.exit(1)
 
         t = threading.Thread(target=self._read_loop, daemon=True)
         t.start()
 
     def _read_loop(self):
-        bytes_per_chunk = self.chunk_frames * 4  # float32 = 4 bytes
-        buf = b""
-        stdout = self.proc.stdout
-        while not self._stop.is_set():
-            data = stdout.read(bytes_per_chunk - len(buf))
-            if not data:
-                if self.proc.poll() is not None:
-                    print("WARNING: parec exited unexpectedly.", file=sys.stderr)
-                    time.sleep(0.5)
-                continue
-            buf += data
-            if len(buf) < bytes_per_chunk:
-                continue
-            samples = np.frombuffer(buf, dtype=np.float32)
-            buf = b""
-            n = len(samples)
-            with self.lock:
-                if n >= self.fft_size:
-                    self.ring[:] = samples[-self.fft_size:]
-                else:
-                    self.ring = np.roll(self.ring, -n)
-                    self.ring[-n:] = samples
+        try:
+            with self.mic.recorder(samplerate=self.samplerate, blocksize=self.chunk_frames) as rec:
+                while not self._stop.is_set():
+                    data = rec.record(numframes=self.chunk_frames)  # (frames, channels)
+                    mono = data.mean(axis=1) if data.ndim > 1 else data
+                    n = len(mono)
+                    with self.lock:
+                        if n >= self.fft_size:
+                            self.ring[:] = mono[-self.fft_size:]
+                        else:
+                            self.ring = np.roll(self.ring, -n)
+                            self.ring[-n:] = mono
+        except Exception as e:
+            print(f"ERROR: audio capture failed: {e}", file=sys.stderr)
 
     def snapshot(self) -> np.ndarray:
         with self.lock:
@@ -167,14 +161,12 @@ class AudioCapture:
 
     def stop(self):
         self._stop.set()
-        if self.proc:
-            self.proc.terminate()
 
 
 class BNMVStreamer:
     def __init__(self, args):
         self.args = args
-        self.capture = AudioCapture(args.source, args.samplerate, args.fft_size, args.chunk_frames)
+        self.capture = AudioCapture(args.device, args.samplerate, args.fft_size, args.chunk_frames)
         self.bin_idx = build_bin_mapping(args.fft_size, args.samplerate)
         self.window = np.hanning(args.fft_size).astype(np.float32)
 
@@ -198,10 +190,6 @@ class BNMVStreamer:
         self._stop = threading.Event()
 
         # --- slow, non-aggressive auto-gain state ---
-        # Tracks a running estimate (in dB) of the signal's peak bin level and
-        # nudges gain toward a target headroom with a multi-second time
-        # constant, so it rides out loud/quiet passages smoothly instead of
-        # pumping on every transient.
         dt = 1.0 / args.fps
         self._agc_alpha = 1.0 - np.exp(-dt / max(args.agc_tau, 0.05))
         self.agc_level_db = args.agc_target_db  # start neutral -> initial gain ~= manual gain
@@ -230,9 +218,6 @@ class BNMVStreamer:
                         count = len(self.targets)
                     print(f"[bnmv] Handshake received from {addr[0]} -> streaming to "
                           f"{addr[0]}:{self.args.send_port} ({count} device(s) connected)")
-                # Optional LAN host-discovery reply. Harmless (and ignorable
-                # by BNMV) even for the explicit ACTION_CONNECT_UDP flow,
-                # which doesn't require it.
                 self.send_host_reply(addr[0])
 
     def send_host_reply(self, ip: str):
@@ -261,21 +246,12 @@ class BNMVStreamer:
                 timestamp = text.split(";", 1)[1]
                 reply = f"BNMV_PONG;{timestamp}"
                 try:
-                    # Reply to the exact source ip AND source port of the probe.
                     self.ping_sock.sendto(reply.encode("utf-8"), addr)
                 except OSError:
                     pass
 
     # ---- auto-gain --------------------------------------------------------
     def update_autogain(self, mags: np.ndarray) -> float:
-        """
-        Slowly adapts a gain multiplier so the signal's peak bin sits near
-        `agc_target_db`. Uses a single-pole lowpass (time constant
-        `agc_tau` seconds, default several seconds) on the peak level itself,
-        so short transients don't yank the gain around -- only sustained
-        loudness changes do. The resulting gain correction is clamped to
-        [agc_min_db, agc_max_db] so it can never swing to extremes.
-        """
         peak = float(np.max(mags)) if mags.size else 0.0
         peak_db = 20.0 * np.log10(peak + 1e-9)
 
@@ -307,7 +283,6 @@ class BNMVStreamer:
             with self.targets_lock:
                 ips = list(self.targets)
             if ips:
-                # Compute the frame once, fan it out to every connected device.
                 packet = self.compute_frame_bytes()
                 for ip in ips:
                     try:
@@ -323,8 +298,17 @@ class BNMVStreamer:
 
     def run(self):
         self.capture.start()
-        # give parec a moment to spin up
         time.sleep(0.3)
+
+        device_label = self.capture.speaker_label or self.args.device or "(default output)"
+        print("==================================================================")
+        print(" BNMV PC audio streamer (Windows)")
+        print(f" Capturing from      : {device_label}")
+        print(f" This PC's LAN IP    : {self.host_ip}")
+        print(f" Listen port         : {self.args.listen_port}  (override with --listen-port)")
+        print(" Connect from BNMV using this IP and port, or point an")
+        print(" ACTION_CONNECT_UDP intent at it.")
+        print("==================================================================")
 
         listener = threading.Thread(target=self.listen_loop, daemon=True)
         listener.start()
@@ -344,9 +328,12 @@ class BNMVStreamer:
 
 
 def main():
-    p = argparse.ArgumentParser(description="Stream this PC's audio to BNMV over UDP.")
-    p.add_argument("--source", required=True,
-                    help="PulseAudio source to record from (e.g. a sink .monitor name)")
+    p = argparse.ArgumentParser(description="Stream this Windows PC's audio to BNMV over UDP.")
+    p.add_argument("--device", default=None,
+                    help="Exact name of the output device to capture (see --list-devices). "
+                         "Defaults to the current default playback device.")
+    p.add_argument("--list-devices", action="store_true",
+                    help="List available output devices and exit.")
     p.add_argument("--listen-port", type=int, default=8888,
                     help="UDP port to listen for the BNMV_DISCOVER handshake on (default 8888)")
     p.add_argument("--send-port", type=int, default=8889,
@@ -354,7 +341,7 @@ def main():
     p.add_argument("--samplerate", type=int, default=48000)
     p.add_argument("--fft-size", type=int, default=2048)
     p.add_argument("--chunk-frames", type=int, default=256,
-                    help="Samples read from parec per read() call; smaller = lower latency")
+                    help="Samples read per capture callback; smaller = lower latency")
     p.add_argument("--fps", type=float, default=60.0)
     p.add_argument("--gain", type=float, default=0.5,
                     help="Manual linear gain, applied on top of auto-gain (or alone if --no-autogain)")
@@ -375,11 +362,15 @@ def main():
                     help="dB value mapped to output 4095")
     p.add_argument("--device-name", default=socket.gethostname(),
                     help="Name reported in the optional BNMV_HOST discovery reply")
-    p.add_argument("--model", default="Linux PC",
+    p.add_argument("--model", default="Windows PC",
                     help="Model string reported in the optional BNMV_HOST discovery reply")
     p.add_argument("--host-ip", default=None,
                     help="Override the IP reported in the BNMV_HOST reply (auto-detected by default)")
     args = p.parse_args()
+
+    if args.list_devices:
+        list_output_devices()
+        return
 
     streamer = BNMVStreamer(args)
     streamer.run()
