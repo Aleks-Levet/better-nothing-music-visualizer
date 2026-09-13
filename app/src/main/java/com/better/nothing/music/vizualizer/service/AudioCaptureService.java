@@ -870,6 +870,11 @@ public class AudioCaptureService extends Service {
     public void setLatencyMs(int latencyMs) { setLatencyCompensationMs(latencyMs); }
     public void setReadMethod(AudioProcessor.ReadMethod method) { }
     public void setLatencyCompensationMs(int latencyMs) { if (mLatencyCompensationMs != latencyMs) { mLatencyCompensationMs = latencyMs; mPresetConfigVersion.incrementAndGet(); } }
+
+    private int getEffectiveLatencyMs() {
+        return (mCaptureSource == CaptureSource.MIC) ? 0 : mLatencyCompensationMs;
+    }
+
     public void setGamma(float gamma) { mGamma = gamma; if (mGlyphRenderer != null) mGlyphRenderer.setGamma(gamma); }
     public void setGlyphThreshold(float threshold) { mGlyphThreshold = threshold; }
     public void setGlyphDecaySpeed(float speed) { 
@@ -942,7 +947,7 @@ public class AudioCaptureService extends Service {
 
             mUdpSync.startListening(mNetworkHostIp, fft -> {
                 if (mCapturing && mCaptureSource == CaptureSource.NETWORK) {
-                    PendingFrame frame = new PendingFrame(fft, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
+                    PendingFrame frame = new PendingFrame(fft, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs());
                     synchronized (mVisualizerPendingFrames) {
                         mVisualizerPendingFrames.addLast(frame);
                         dispatchDueFrames(mVisualizerPendingFrames);
@@ -1519,7 +1524,7 @@ public class AudioCaptureService extends Service {
         short[] hop = new short[waveform.length]; for (int i = 0; i < waveform.length; i++) hop[i] = (short) (((waveform[i] & 0xFF) - 128) << 8);
         AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, AudioProcessor.SourceType.VIZUALIZER, mVisualizerConfig != null ? mVisualizerConfig.decay : 0.85f);
         if (result == null) return;
-        PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
+        PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs());
         synchronized (mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
     }
 
@@ -1547,7 +1552,7 @@ public class AudioCaptureService extends Service {
                     }
                 }
                 if (!hasAnySignal) {
-                    PendingFrame frame = new PendingFrame(EMPTY_FFT, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
+                    PendingFrame frame = new PendingFrame(EMPTY_FFT, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs());
                     synchronized(mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
                     continue;
                 }
@@ -1556,7 +1561,7 @@ public class AudioCaptureService extends Service {
             AudioProcessor.SourceType type = (mCaptureSource == CaptureSource.MIC) ? AudioProcessor.SourceType.MIC : AudioProcessor.SourceType.INTERNAL;
             AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, type, mVisualizerConfig != null ? mVisualizerConfig.decay : 0.85f);
             if (result == null) continue;
-            PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
+            PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs());
             synchronized(mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
         }
     }
