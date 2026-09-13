@@ -1510,7 +1510,7 @@ public class AudioCaptureService extends Service {
             }
             if (!hasAnySignal) {
                 // Still silent. Skip expensive FFT/mapping but still dispatch to keep breathing animation smooth.
-                PendingFrame frame = new PendingFrame(EMPTY_FFT, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + mLatencyCompensationMs);
+                PendingFrame frame = new PendingFrame(EMPTY_FFT, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs());
                 synchronized (mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
                 return;
             }
