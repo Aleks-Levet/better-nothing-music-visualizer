@@ -1242,6 +1242,41 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun getStatsJsonBase64(): String? {
+        return try {
+            val json = JSONObject().apply {
+                put("total_visualized_time", _totalVisualizedTime.value)
+                put("total_idle_time", _totalIdleTime.value)
+                put("total_active_time", _totalActiveTime.value)
+                put("total_glyph_time", _totalGlyphTime.value)
+                put("total_haptic_time", _totalHapticTime.value)
+                put("total_flashlight_time", _totalFlashlightTime.value)
+            }
+            android.util.Base64.encodeToString(json.toString().toByteArray(), android.util.Base64.DEFAULT)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun importStatsFromBase64(base64: String): Boolean {
+        return try {
+            val jsonString = String(android.util.Base64.decode(base64, android.util.Base64.DEFAULT))
+            val json = JSONObject(jsonString)
+            
+            _totalVisualizedTime.value = json.optLong("total_visualized_time", 0L)
+            _totalIdleTime.value = json.optLong("total_idle_time", 0L)
+            _totalActiveTime.value = json.optLong("total_active_time", 0L)
+            _totalGlyphTime.value = json.optLong("total_glyph_time", 0L)
+            _totalHapticTime.value = json.optLong("total_haptic_time", 0L)
+            _totalFlashlightTime.value = json.optLong("total_flashlight_time", 0L)
+            
+            saveStatsLocally()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     val _favoritePresets = MutableStateFlow<Set<String>>(emptySet())
     val favoritePresets = _favoritePresets.asStateFlow()
 
@@ -1573,6 +1608,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             
             if (!hasAnyOutput) {
                 android.widget.Toast.makeText(ctx, ctx.getString(R.string.toast_no_output), android.widget.Toast.LENGTH_SHORT).show()
+            }
+
+            if (selectedDevice.value != DeviceProfile.DEVICE_UNKNOWN && _glyphsEnabled.value) {
+                val configFile = File(ctx.filesDir, "zones.config")
+                if (!configFile.exists()) {
+                    updateZonesConfig()
+                }
             }
             
             _runningState.value = running

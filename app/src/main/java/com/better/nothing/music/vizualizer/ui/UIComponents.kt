@@ -39,6 +39,10 @@ import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
+
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
@@ -540,7 +544,9 @@ fun LinkCard(
     subtitle: String? = null,
     isGlowing: Boolean = false,
     glowColor: Color = Color(0xFF9146FF),
-    trailingContent: @Composable (RowScope.() -> Unit)? = null
+    trailingContent: @Composable (RowScope.() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
+    uiAmplitude: Float = 1.0f
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val haptics = LocalHapticFeedback.current
@@ -570,33 +576,74 @@ fun LinkCard(
     val titleColor = if (isGlowing) glowColor else MaterialTheme.colorScheme.onSurface
 
     Surface(
-        onClick = {
-            view.performHapticFeedback(HapticFeedbackConstants.TEXT_HANDLE_MOVE)
-            onClick()
-        },
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 72.dp)
             .then(
                 if (isGlowing) {
                     Modifier.drawBehind {
-                        val blurRadius = (12.dp + 8.dp * glowIntensity).toPx()
-                        val shadowColor = glowColor.copy(alpha = 0.25f * glowIntensity)
+                        val ampScale = if (uiAmplitude > 0f) uiAmplitude else 1.0f
+                        val baseBlur = (12.dp + 8.dp * glowIntensity).toPx() * ampScale
+                        
+                        drawIntoCanvas { canvas ->
+                            val paint = Paint().apply {
+                                color = glowColor.copy(alpha = (0.15f + 0.15f * glowIntensity) * (ampScale.coerceAtMost(1.5f)))
+                                isAntiAlias = true
+                            }
+                            @Suppress("DEPRECATION")
+                            paint.asFrameworkPaint().maskFilter = android.graphics.BlurMaskFilter(
+                                baseBlur,
+                                android.graphics.BlurMaskFilter.Blur.NORMAL
+                            )
+                            
+                            val rect = androidx.compose.ui.geometry.Rect(
+                                -baseBlur / 2f,
+                                -baseBlur / 2f,
+                                size.width + baseBlur / 2f,
+                                size.height + baseBlur / 2f
+                            )
+                            val cornerSize = 24.dp.toPx() + baseBlur / 2f
+                            canvas.drawRoundRect(
+                                left = rect.left,
+                                top = rect.top,
+                                right = rect.right,
+                                bottom = rect.bottom,
+                                radiusX = cornerSize,
+                                radiusY = cornerSize,
+                                paint = paint
+                            )
+                        }
+
+
                         drawRoundRect(
-                            color = shadowColor,
-                            size = size.copy(width = size.width + blurRadius, height = size.height + blurRadius),
-                            topLeft = Offset(-blurRadius/2, -blurRadius/2),
-                            cornerRadius = CornerRadius(24.dp.toPx() + blurRadius/2),
-                            style = Stroke(width = blurRadius)
+                            color = glowColor.copy(alpha = (0.4f + 0.3f * glowIntensity) * (ampScale.coerceAtMost(1.5f))),
+                            size = size,
+                            topLeft = Offset.Zero,
+                            cornerRadius = CornerRadius(24.dp.toPx()),
+                            style = Stroke(width = 2.dp.toPx() * ampScale)
                         )
                     }
                 } else Modifier
+            )
+            .combinedClickable(
+                interactionSource = interactionSource,
+                indication = androidx.compose.foundation.LocalIndication.current,
+                onClick = {
+                    view.performHapticFeedback(HapticFeedbackConstants.TEXT_HANDLE_MOVE)
+                    onClick()
+                },
+                onLongClick = onLongClick?.let {
+                    {
+                        view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                        it()
+                    }
+                }
             ),
         shape = RoundedCornerShape(24.dp),
         color = surfaceColor,
-        border = if (isGlowing) BorderStroke(2.dp, glowColor.copy(alpha = 0.5f + 0.3f * glowIntensity)) else null,
-        interactionSource = interactionSource
+        border = if (isGlowing) BorderStroke(2.dp, glowColor.copy(alpha = 0.5f + 0.3f * glowIntensity)) else null
     ) {
+
         Box(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.CenterStart

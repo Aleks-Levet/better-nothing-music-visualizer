@@ -594,13 +594,20 @@ internal fun SettingsScreen(
 
         // ── Links & Info ────────────────────────────────────────────────────
 
+        val uiAmplitude by viewModel.uiAmplitude.collectAsStateWithLifecycle()
+
         LinkCard(
             title = stringResource(R.string.discord_server),
             icon = ImageVector.vectorResource(id = R.drawable.ic_discord),
+            subtitle = stringResource(R.string.discord_long_press_desc),
             isGlowing = !discordClicked,
+            uiAmplitude = uiAmplitude,
             onClick = {
                 viewModel.markDiscordClicked()
                 uriHandler.openUri("https://discord.gg/h7DYNttc8K")
+            },
+            onLongClick = {
+                viewModel.markDiscordClicked()
             }
         )
 

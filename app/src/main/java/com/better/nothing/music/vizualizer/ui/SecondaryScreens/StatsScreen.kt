@@ -1,5 +1,7 @@
 package com.better.nothing.music.vizualizer.ui.SecondaryScreens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -9,17 +11,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,7 +37,11 @@ import com.better.nothing.music.vizualizer.ui.ExpressiveCard
 import com.better.nothing.music.vizualizer.ui.MainViewModel
 import com.better.nothing.music.vizualizer.ui.ScreenTitle
 import com.better.nothing.music.vizualizer.ui.SectionHeader
+import kotlinx.coroutines.launch
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
 import java.util.concurrent.TimeUnit
+import android.widget.Toast
 
 @Composable
 internal fun StatsScreen(
@@ -46,6 +56,57 @@ internal fun StatsScreen(
     val glyphTime by viewModel.totalGlyphTime.collectAsStateWithLifecycle()
     val hapticTime by viewModel.totalHapticTime.collectAsStateWithLifecycle()
     val flashlightTime by viewModel.totalFlashlightTime.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json"),
+        onResult = { uri ->
+            uri?.let {
+                scope.launch {
+                    try {
+                        val base64 = viewModel.getStatsJsonBase64()
+                        if (base64 != null) {
+                            context.contentResolver.openOutputStream(it)?.use { outputStream ->
+                                OutputStreamWriter(outputStream).use { writer ->
+                                    writer.write(base64)
+                                }
+                            }
+                        } else {
+                            Toast.makeText(context, R.string.stats_export_error, Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(context, R.string.stats_export_error, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    )
+
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri ->
+            uri?.let {
+                scope.launch {
+                    try {
+                        context.contentResolver.openInputStream(it)?.use { inputStream ->
+                            InputStreamReader(inputStream).use { reader ->
+                                val base64 = reader.readText()
+                                if (viewModel.importStatsFromBase64(base64)) {
+                                    Toast.makeText(context, R.string.stats_import_success, Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(context, R.string.stats_import_error, Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(context, R.string.stats_import_error, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    )
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -125,6 +186,31 @@ internal fun StatsScreen(
                             color = MaterialTheme.colorScheme.tertiary
                         )
                     }
+                }
+            }
+
+            // Export/Import Buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedButton(
+                    onClick = { exportLauncher.launch("stats_export.json") },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(Icons.Default.FileDownload, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.export_stats))
+                }
+                OutlinedButton(
+                    onClick = { importLauncher.launch(arrayOf("application/json", "application/octet-stream", "*/*")) },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(Icons.Default.FileUpload, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.import_stats))
                 }
             }
 
@@ -254,7 +340,9 @@ private fun formatTime(ms: Long): String {
     val hours = TimeUnit.MILLISECONDS.toHours(ms)
     val minutes = TimeUnit.MILLISECONDS.toMinutes(ms) % 60
     val seconds = TimeUnit.MILLISECONDS.toSeconds(ms) % 60
-    return if (hours > 0) "${hours}h ${minutes}m ${seconds}s"
-           else if (minutes > 0) "${minutes}m ${seconds}s"
-           else "${seconds}s"
+    val tenths = (ms / 100) % 10
+    
+    return if (hours > 0) "${hours}h ${minutes}m ${seconds}.${tenths}s"
+           else if (minutes > 0) "${minutes}m ${seconds}.${tenths}s"
+           else "${seconds}.${tenths}s"
 }
