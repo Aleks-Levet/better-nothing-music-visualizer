@@ -93,6 +93,9 @@
     <string name="flashlight_duration_label">Duration: %d ms</string>
     <string name="flashlight_duration_desc">Duration of the pulse in milliseconds.</string>
 
+    <string name="glyphify_fix_title">Glyphify Fix</string>
+    <string name="glyphify_fix_desc">Forces the Glyph session to stay open. Use this if other Glyph apps interfere with BNMV by closing its session.</string>
+
     <string name="experimental_features">Experimental Features</string>
     <string name="feature_flashlight_levels">Flashlight intensity levels</string>
     <string name="feature_supported_n">%d levels supported</string>

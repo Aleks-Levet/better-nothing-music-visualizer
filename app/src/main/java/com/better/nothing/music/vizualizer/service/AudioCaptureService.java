@@ -308,6 +308,8 @@ public class AudioCaptureService extends Service {
     private volatile float mGamma = DEFAULT_GAMMA;
     private volatile int mMaxBrightness = 4095;
 
+    private volatile boolean mGlyphifyFixEnabled = false;
+
     private boolean mIdleBreathingEnabled = false;
     private boolean mOverlayEnabled = false;
     private boolean mEdgeVisualizerEnabled = false;
@@ -466,7 +468,13 @@ public class AudioCaptureService extends Service {
         @Override public void run() {
             if (sIsRunning) {
                 long now = SystemClock.elapsedRealtime();
-                if (now - mLastNotifUpdateMs >= 1000) { refreshNotification(); mLastNotifUpdateMs = now; }
+                if (now - mLastNotifUpdateMs >= 1000) { 
+                    refreshNotification(); 
+                    mLastNotifUpdateMs = now;
+                    if (mGlyphifyFixEnabled && sIsRunning && mMaxBrightness > 0) {
+                        mWorkerHandler.post(this::ensureGlyphSession);
+                    }
+                }
 
                 if (now % 10000 < 100) {
                     Log.i(TAG, "Service Pulse: Broadcaster=" + mBroadcastEnabled + ", Clients=" + (mUdpSync != null ? mUdpSync.getClientIps().getValue().size() : 0));
@@ -573,6 +581,7 @@ public class AudioCaptureService extends Service {
             mCaptureSource = CaptureSource.INTERNAL;
         }
         mIdleBreathingEnabled = appPrefs.getBoolean("idle_breathing_enabled", false);
+        mGlyphifyFixEnabled = appPrefs.getBoolean("glyphify_fix_enabled", false);
         if (mGlyphRenderer != null) mGlyphRenderer.setAlternateMode(appPrefs.getBoolean("alternate_glyph_viz_enabled", false));
         mBroadcastEnabled = appPrefs.getBoolean("broadcast_enabled", false);
         mOverlayEnabled = appPrefs.getBoolean("overlay_enabled", false);
@@ -645,6 +654,7 @@ public class AudioCaptureService extends Service {
             mGlyphRenderer.setAlternateMode(appPrefs.getBoolean("alternate_glyph_viz_enabled", false));
             mGlyphRenderer.setIdleBreathingEnabled(mIdleBreathingEnabled);
         }
+        mGlyphifyFixEnabled = appPrefs.getBoolean("glyphify_fix_enabled", false);
         setHighQualityAnalysis(appPrefs.getBoolean("high_quality_analysis", false));
         setBroadcastEnabled(appPrefs.getBoolean("broadcast_enabled", false));
         
@@ -911,6 +921,13 @@ public class AudioCaptureService extends Service {
     public void setIdleBreathingEnabled(boolean enabled) {
         mIdleBreathingEnabled = enabled;
         if (mGlyphRenderer != null) mGlyphRenderer.setIdleBreathingEnabled(enabled);
+    }
+
+    public void setGlyphifyFixEnabled(boolean enabled) {
+        mGlyphifyFixEnabled = enabled;
+        if (enabled && sIsRunning && mMaxBrightness > 0) {
+            if (mWorkerHandler != null) mWorkerHandler.post(this::ensureGlyphSession);
+        }
     }
 
     public void setIdlePattern(String pattern) { if (mGlyphRenderer != null) mGlyphRenderer.setIdlePattern(pattern); }
@@ -1579,7 +1596,7 @@ public class AudioCaptureService extends Service {
             return; // Callback will re-invoke this
         }
 
-        if (mSessionOpen) return;
+        if (mSessionOpen && !mGlyphifyFixEnabled) return;
         try {
             if (mGM != null) {
                 mGM.openSession();

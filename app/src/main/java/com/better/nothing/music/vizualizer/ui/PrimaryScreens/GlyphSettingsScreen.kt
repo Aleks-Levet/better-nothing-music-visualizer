@@ -436,15 +436,6 @@ internal fun GlyphsScreen(
             val isUpdateAvailable =
                 remoteVersion != null && remoteVersion != "Unknown" && remoteVersion != configVersion
 
-            ExpressiveSplitButton(
-                primaryText = if (isUpdateAvailable) stringResource(R.string.update_now) else stringResource(R.string.check_github),
-                primaryIcon = if (configStatus is com.better.nothing.music.vizualizer.ui.MainViewModel.ConfigUpdateStatus.Updating) Icons.Default.Sync else Icons.Default.CloudDownload,
-                onPrimaryClick = { viewModel.updateZonesConfig() },
-                secondaryText = stringResource(R.string.local_config),
-                secondaryIcon = Icons.Default.FolderOpen,
-                onSecondaryClick = { filePickerLauncher.launch("*/*") },
-                enabled = configStatus is com.better.nothing.music.vizualizer.ui.MainViewModel.ConfigUpdateStatus.Idle,
-                modifier = Modifier.fillMaxWidth()
             )
         }
 

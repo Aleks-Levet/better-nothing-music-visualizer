@@ -222,6 +222,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
+    private val _glyphifyFixEnabled = MutableStateFlow(false)
+    val glyphifyFixEnabled = _glyphifyFixEnabled.asStateFlow()
+    fun setGlyphifyFixEnabled(enabled: Boolean) {
+        _glyphifyFixEnabled.value = enabled
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("glyphify_fix_enabled", enabled) }
+        }
+        MainActivity.serviceStatic?.setGlyphifyFixEnabled(enabled)
+    }
+
     private val _m3eEnabled = MutableStateFlow(true)
     val m3eEnabled = _m3eEnabled.asStateFlow()
     fun setM3EEnabled(enabled: Boolean) {
@@ -2313,6 +2324,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _lensColor.value = Color(get("lens_color", Color.White.toArgb()))
         _lensOpacity.value = get("lens_opacity", 1.0f)
 
+        _glyphifyFixEnabled.value = get("glyphify_fix_enabled", false)
         _alternateGlyphVizEnabled.value = get("alternate_glyph_viz_enabled", false)
         _highQualityAnalysis.value = get("high_quality_analysis", false)
         _onScreenVisualizersEnabled.value = get("on_screen_visualizers_enabled", false)

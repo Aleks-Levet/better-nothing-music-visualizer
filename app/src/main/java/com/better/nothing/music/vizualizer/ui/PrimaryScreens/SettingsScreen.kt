@@ -526,6 +526,7 @@ internal fun SettingsScreen(
             val alternateGlyphVizEnabled by viewModel.alternateGlyphVizEnabled.collectAsStateWithLifecycle()
             val highQualityAnalysis by viewModel.highQualityAnalysis.collectAsStateWithLifecycle()
             val onScreenVisualizersEnabled by viewModel.onScreenVisualizersEnabled.collectAsStateWithLifecycle()
+            val glyphifyFixEnabled by viewModel.glyphifyFixEnabled.collectAsStateWithLifecycle()
 
             FlowRow(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
@@ -564,6 +565,15 @@ internal fun SettingsScreen(
                         viewModel.setOnScreenVisualizersEnabled(!onScreenVisualizersEnabled, context, onOverlayPermissionRequest)
                     }
                 )
+
+                if (selectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
+                    OptionTile(
+                        label = stringResource(R.string.glyphify_fix_title),
+                        icon = Icons.Default.Build,
+                        isSelected = glyphifyFixEnabled,
+                        onClick = { viewModel.setGlyphifyFixEnabled(!glyphifyFixEnabled) }
+                    )
+                }
             }
             val microphoneMode by viewModel.microphoneMode.collectAsStateWithLifecycle()
             Column(
