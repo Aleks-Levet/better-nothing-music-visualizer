@@ -433,10 +433,6 @@ internal fun GlyphsScreen(
                 uri?.let { viewModel.importZonesConfig(uri) }
             }
 
-            val isUpdateAvailable =
-                remoteVersion != null && remoteVersion != "Unknown" && remoteVersion != configVersion
-
-            )
         }
 
         Spacer(modifier = Modifier.height(85.dp))

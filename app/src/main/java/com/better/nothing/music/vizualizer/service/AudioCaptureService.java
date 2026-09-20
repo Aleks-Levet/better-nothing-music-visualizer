@@ -472,7 +472,7 @@ public class AudioCaptureService extends Service {
                     refreshNotification(); 
                     mLastNotifUpdateMs = now;
                     if (mGlyphifyFixEnabled && sIsRunning && mMaxBrightness > 0) {
-                        mWorkerHandler.post(this::ensureGlyphSession);
+                        mWorkerHandler.post(AudioCaptureService.this::ensureGlyphSession);
                     }
                 }
 
@@ -827,6 +827,10 @@ public class AudioCaptureService extends Service {
         if (mGM != null) mGM.unInit(); if (mGMM != null) mGMM.unInit();
         if (mAudioManager != null) mAudioManager.unregisterAudioDeviceCallback(mAudioDeviceCallback);
         if (mWorkerThread != null) mWorkerThread.quitSafely();
+        
+        mMainHandler.removeCallbacks(mIdlePulseRunnable);
+        shutdownCaptureExecutor();
+        
         super.onDestroy();
     }
 
@@ -1338,6 +1342,7 @@ public class AudioCaptureService extends Service {
             stopForeground(STOP_FOREGROUND_REMOVE);
             setRunning(false);
             clearGlyphSession();
+            stopSelf();
         }
         updateOverlayVisibility();
     }
