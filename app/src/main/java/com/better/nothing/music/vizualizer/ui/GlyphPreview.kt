@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -66,7 +67,7 @@ fun GlyphPreview(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black)
+                    .background(MaterialTheme.colorScheme.background)
                     .clickable { isFullScreen = false },
                 contentAlignment = Alignment.Center
             ) {
@@ -257,7 +258,7 @@ fun GlyphPreviewContent(
         modifier = modifier
             .padding(horizontal = 4.dp)
             .clip(RoundedCornerShape(if (device == DeviceProfile.DEVICE_NP4A || device == DeviceProfile.DEVICE_NP4B) 16.dp else 40.dp))
-            .background(Color(0xFF0A0A0A))
+            .background(MaterialTheme.colorScheme.surface)
             // 1. Reduced inner padding for 4b / 4z / Phone (1)
             .padding(
                 when (device) {
