@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.FlashOn
@@ -24,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.ui.ExpressiveCard
+import com.better.nothing.music.vizualizer.ui.LocalUIAmplitude
 import com.better.nothing.music.vizualizer.ui.MainViewModel
 import com.better.nothing.music.vizualizer.ui.ScreenTitle
 import com.better.nothing.music.vizualizer.ui.SectionHeader
@@ -190,6 +191,8 @@ internal fun StatsScreen(
             }
 
             // Export/Import Buttons
+            val uiAmp = LocalUIAmplitude.current
+            val buttonBorderWidth = (1.dp + 2.dp * (uiAmp - 1.0f)).coerceAtLeast(1.dp)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -197,6 +200,12 @@ internal fun StatsScreen(
                 OutlinedButton(
                     onClick = { exportLauncher.launch("stats_export.json") },
                     modifier = Modifier.weight(1f),
+                    border = BorderStroke(
+                        buttonBorderWidth,
+                        MaterialTheme.colorScheme.outline.copy(
+                            alpha = (0.5f + (uiAmp - 1.0f) * 0.5f).coerceIn(0.3f, 1.0f)
+                        )
+                    ),
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Icon(Icons.Default.FileDownload, contentDescription = null)
@@ -206,6 +215,12 @@ internal fun StatsScreen(
                 OutlinedButton(
                     onClick = { importLauncher.launch(arrayOf("application/json", "application/octet-stream", "*/*")) },
                     modifier = Modifier.weight(1f),
+                    border = BorderStroke(
+                        buttonBorderWidth,
+                        MaterialTheme.colorScheme.outline.copy(
+                            alpha = (0.5f + (uiAmp - 1.0f) * 0.5f).coerceIn(0.3f, 1.0f)
+                        )
+                    ),
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Icon(Icons.Default.FileUpload, contentDescription = null)
@@ -227,11 +242,26 @@ private fun HeroStatCard(
     containerColor: Color,
     contentColor: Color
 ) {
+    val uiAmp = LocalUIAmplitude.current
+    val beatScale = 1.0f + (uiAmp - 1.0f) * 0.06f
+    val heroShapeRadius = (32.dp + 24.dp * (uiAmp - 1.0f)).coerceAtLeast(16.dp)
+    val valueWeight = FontWeight((900 + (uiAmp - 1.0f) * 350).toInt().coerceIn(500, 1000))
+    val iconSize = 28.dp * (1.0f + (uiAmp - 1.0f) * 0.2f)
+
     Surface(
-        shape = RoundedCornerShape(32.dp),
+        shape = RoundedCornerShape(heroShapeRadius),
         color = containerColor,
         contentColor = contentColor,
-        modifier = Modifier.fillMaxWidth()
+        border = BorderStroke(
+            width = (5.dp * (uiAmp - 1.0f)).coerceAtLeast(0.dp),
+            color = contentColor.copy(alpha = ((uiAmp - 1.0f) * 1.5f).coerceIn(0f, 0.6f))
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer {
+                scaleX = beatScale
+                scaleY = beatScale
+            }
     ) {
         Column(
             modifier = Modifier.padding(24.dp),
@@ -246,14 +276,19 @@ private fun HeroStatCard(
                     text = label,
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
-                    color = contentColor.copy(alpha = 0.7f)
+                    color = contentColor.copy(alpha = (0.7f + (uiAmp - 1.0f) * 0.3f).coerceIn(0.5f, 1.0f))
                 )
-                Icon(icon, null, modifier = Modifier.size(28.dp), tint = contentColor.copy(alpha = 0.7f))
+                Icon(
+                    icon,
+                    null,
+                    modifier = Modifier.size(iconSize),
+                    tint = contentColor.copy(alpha = (0.7f + (uiAmp - 1.0f) * 0.3f).coerceIn(0.5f, 1.0f))
+                )
             }
             Text(
                 text = value,
                 style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Black,
+                fontWeight = valueWeight,
                 letterSpacing = 0.sp
             )
         }
@@ -268,31 +303,50 @@ private fun EngagementCard(
     color: Color,
     modifier: Modifier = Modifier
 ) {
+    val uiAmp = LocalUIAmplitude.current
+    val cardScale = 1.0f + (uiAmp - 1.0f) * 0.05f
+    val progressHeight = (8.dp * (1.0f + (uiAmp - 1.0f) * 1.0f)).coerceAtLeast(4.dp)
+    val percentageWeight = FontWeight((800 + (uiAmp - 1.0f) * 450).toInt().coerceIn(300, 1000))
+    val timeWeight = FontWeight((400 + (uiAmp - 1.0f) * 300).toInt().coerceIn(200, 1000))
+    val dynamicBorderWidth = (1.dp + 4.dp * (uiAmp - 1.0f)).coerceAtLeast(1.dp)
+    val dynamicBorderAlpha = (0.2f + (uiAmp - 1.0f) * 0.8f).coerceIn(0.1f, 1.0f)
+
     ExpressiveCard(
-        modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-        border = BorderStroke(1.dp, color.copy(alpha = 0.2f))
+        modifier = modifier.graphicsLayer {
+            scaleX = cardScale
+            scaleY = cardScale
+        },
+        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
+            alpha = (0.3f + (uiAmp - 1.0f) * 0.3f).coerceIn(0.1f, 0.8f)
+        ),
+        border = BorderStroke(dynamicBorderWidth, color.copy(alpha = dynamicBorderAlpha))
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(label, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = color)
             Text(
                 text = "$percentage%",
                 style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Black,
+                fontWeight = percentageWeight,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = time,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                fontWeight = timeWeight,
+                color = MaterialTheme.colorScheme.onSurface.copy(
+                    alpha = (0.6f + (uiAmp - 1.0f) * 0.4f).coerceIn(0.4f, 1.0f)
+                )
             )
             
             Spacer(modifier = Modifier.height(8.dp))
             LinearProgressIndicator(
                 progress = { percentage / 100f },
-                modifier = Modifier.fillMaxWidth().height(8.dp).clip(CircleShape),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(progressHeight)
+                    .clip(CircleShape),
                 color = color,
-                trackColor = color.copy(alpha = 0.1f)
+                trackColor = color.copy(alpha = (0.1f + (uiAmp - 1.0f) * 0.2f).coerceIn(0.05f, 0.5f))
             )
         }
     }
@@ -305,6 +359,13 @@ private fun DetailedFeatureRow(
     value: String,
     color: Color
 ) {
+    val uiAmp = LocalUIAmplitude.current
+    val avatarScale = 1.0f + (uiAmp - 1.0f) * 0.18f
+    val iconScale = 1.0f + (uiAmp - 1.0f) * 0.25f
+    val valueWeight = FontWeight((800 + (uiAmp - 1.0f) * 400).toInt().coerceIn(400, 1000))
+    val labelWeight = FontWeight((700 + (uiAmp - 1.0f) * 250).toInt().coerceIn(400, 1000))
+    val bgAlpha = (0.1f + (uiAmp - 1.0f) * 0.35f).coerceIn(0.05f, 0.6f)
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -312,25 +373,42 @@ private fun DetailedFeatureRow(
     ) {
         Surface(
             shape = CircleShape,
-            color = color.copy(alpha = 0.1f),
-            modifier = Modifier.size(48.dp)
+            color = color.copy(alpha = bgAlpha),
+            modifier = Modifier
+                .size(48.dp)
+                .graphicsLayer {
+                    scaleX = avatarScale
+                    scaleY = avatarScale
+                }
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(icon, null, modifier = Modifier.size(24.dp), tint = color)
+                Icon(
+                    icon,
+                    null,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .graphicsLayer {
+                            scaleX = iconScale
+                            scaleY = iconScale
+                        },
+                    tint = color
+                )
             }
         }
         Column(modifier = Modifier.weight(1f)) {
-            Text(label, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text(label, style = MaterialTheme.typography.titleSmall, fontWeight = labelWeight)
             Text(
                 text = stringResource(R.string.total_active_use),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                color = MaterialTheme.colorScheme.onSurface.copy(
+                    alpha = (0.5f + (uiAmp - 1.0f) * 0.3f).coerceIn(0.3f, 0.9f)
+                )
             )
         }
         Text(
             text = value,
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.ExtraBold,
+            fontWeight = valueWeight,
             color = color
         )
     }
