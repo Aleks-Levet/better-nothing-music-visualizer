@@ -21,9 +21,11 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
@@ -43,6 +45,7 @@ import android.os.VibratorManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Process;
@@ -308,8 +311,6 @@ public class AudioCaptureService extends Service {
     private volatile float mGamma = DEFAULT_GAMMA;
     private volatile int mMaxBrightness = 4095;
 
-    private volatile boolean mGlyphifyFixEnabled = false;
-
     private boolean mIdleBreathingEnabled = false;
     private boolean mOverlayEnabled = false;
     private boolean mEdgeVisualizerEnabled = false;
@@ -374,6 +375,8 @@ public class AudioCaptureService extends Service {
     private UnifiedVisualizerView mUnifiedVisualizerView;
     private WindowManager.LayoutParams mUnifiedLayoutParams;
     private WindowManager mWindowManager;
+    private volatile boolean mScreenOn = true;
+    private BroadcastReceiver mScreenReceiver;
 
     private volatile boolean mHapticEnabled = false;
     private boolean mHasHapticMotor = false;
@@ -471,7 +474,7 @@ public class AudioCaptureService extends Service {
                 if (now - mLastNotifUpdateMs >= 1000) { 
                     refreshNotification(); 
                     mLastNotifUpdateMs = now;
-                    if (mGlyphifyFixEnabled && sIsRunning && mMaxBrightness > 0) {
+                    if (sIsRunning && mMaxBrightness > 0) {
                         mWorkerHandler.post(AudioCaptureService.this::ensureGlyphSession);
                     }
                 }
@@ -485,8 +488,10 @@ public class AudioCaptureService extends Service {
                 }
 
                 if (now - mLastSendMs >= MIN_SEND_INTERVAL_MS) {
-                    UnifiedVisualizerView v = mUnifiedVisualizerView;
-                    if (v != null) v.updateMagnitudes(mLatestRawFFT);
+                    if (mScreenOn) {
+                        UnifiedVisualizerView v = mUnifiedVisualizerView;
+                        if (v != null) v.updateMagnitudes(mLatestRawFFT);
+                    }
 
                     processFrame(mLatestRawFFT, mVisualizerConfig, mPresetConfigVersion.get());
                 }
@@ -556,6 +561,43 @@ public class AudioCaptureService extends Service {
         super.onCreate();
         Log.i(TAG, "onCreate: Service starting");
         sInstance = this;
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        mScreenOn = (pm == null) || pm.isInteractive();
+
+        IntentFilter screenFilter = new IntentFilter();
+        screenFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        screenFilter.addAction(Intent.ACTION_SCREEN_ON);
+        screenFilter.addAction(Intent.ACTION_USER_PRESENT);
+        mScreenReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent == null) return;
+                String action = intent.getAction();
+                if (Intent.ACTION_SCREEN_OFF.equals(action)) {
+                    mScreenOn = false;
+                    if (mWorkerHandler != null) {
+                        mWorkerHandler.post(() -> {
+                            UnifiedVisualizerView v = mUnifiedVisualizerView;
+                            if (v != null) v.setScreenOn(false);
+                        });
+                    }
+                } else if (Intent.ACTION_SCREEN_ON.equals(action) || Intent.ACTION_USER_PRESENT.equals(action)) {
+                    PowerManager pManager = (PowerManager) getSystemService(POWER_SERVICE);
+                    mScreenOn = (pManager == null) || pManager.isInteractive();
+                    if (mWorkerHandler != null) {
+                        mWorkerHandler.post(() -> {
+                            UnifiedVisualizerView v = mUnifiedVisualizerView;
+                            if (v != null) v.setScreenOn(mScreenOn);
+                        });
+                    }
+                }
+            }
+        };
+        try {
+            registerReceiver(mScreenReceiver, screenFilter);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to register screen receiver", e);
+        }
         mWorkerThread = new HandlerThread("GlyphVizWorker", Process.THREAD_PRIORITY_BACKGROUND);
         mWorkerThread.start();
         mWorkerHandler = new Handler(mWorkerThread.getLooper());
@@ -572,16 +614,15 @@ public class AudioCaptureService extends Service {
         mLatencyCompensationMs = loadLatencyCompensationMs(this, mSelectedDevice);
         mGamma = loadGamma(this);
         SharedPreferences appPrefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE);
-        mMaxBrightness = (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) ? 0 : clampGlyphBrightness(appPrefs.getInt("max_brightness", MAX_GLYPH_BRIGHTNESS));
-        mGlyphThreshold = appPrefs.getFloat("glyph_threshold", 0.0f);
-        mGlyphDecaySpeed = appPrefs.getFloat("glyph_decay_speed", 0.75f);
+        mMaxBrightness = (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) ? 0 : clampGlyphBrightness(getSafeInt(appPrefs, "max_brightness", MAX_GLYPH_BRIGHTNESS));
+        mGlyphThreshold = getSafeFloat(appPrefs, "glyph_threshold", 0.0f);
+        mGlyphDecaySpeed = getSafeFloat(appPrefs, "glyph_decay_speed", 0.75f);
         try {
             mCaptureSource = CaptureSource.valueOf(appPrefs.getString("capture_source", CaptureSource.INTERNAL.name()));
         } catch (Exception e) {
             mCaptureSource = CaptureSource.INTERNAL;
         }
         mIdleBreathingEnabled = appPrefs.getBoolean("idle_breathing_enabled", false);
-        mGlyphifyFixEnabled = appPrefs.getBoolean("glyphify_fix_enabled", false);
         if (mGlyphRenderer != null) mGlyphRenderer.setAlternateMode(appPrefs.getBoolean("alternate_glyph_viz_enabled", false));
         mBroadcastEnabled = appPrefs.getBoolean("broadcast_enabled", false);
         mOverlayEnabled = appPrefs.getBoolean("overlay_enabled", false);
@@ -595,12 +636,12 @@ public class AudioCaptureService extends Service {
             mEdgeStyle = VisualizerStyle.BARS;
             mLensStyle = VisualizerStyle.BARS;
         }
-        mOverlayWidth = appPrefs.getInt("overlay_width", 120);
-        mEmulateHdrOpacity = appPrefs.getFloat("emulate_hdr_opacity", 0f);
-        mOverlayHeight = appPrefs.getInt("overlay_height", 12);
-        mOverlayYOffset = appPrefs.getInt("overlay_y_offset", 2);
-        mOverlaySensitivity = appPrefs.getFloat("overlay_sensitivity", 1.0f);
-        mLensVisualizerWidth = appPrefs.getFloat("lens_visualizer_width", 0f);
+        mOverlayWidth = getSafeInt(appPrefs, "overlay_width", 120);
+        mEmulateHdrOpacity = getSafeFloat(appPrefs, "emulate_hdr_opacity", 0f);
+        mOverlayHeight = getSafeInt(appPrefs, "overlay_height", 12);
+        mOverlayYOffset = getSafeInt(appPrefs, "overlay_y_offset", 2);
+        mOverlaySensitivity = getSafeFloat(appPrefs, "overlay_sensitivity", 1.0f);
+        mLensVisualizerWidth = getSafeFloat(appPrefs, "lens_visualizer_width", 0f);
 
         AudioProcessor.ReadMethod readMethod;
         try {
@@ -608,7 +649,7 @@ public class AudioCaptureService extends Service {
         } catch (Exception e) {
             readMethod = AudioProcessor.ReadMethod.MAX;
         }
-        mAudioProcessor.setManualGain(appPrefs.getFloat("spectrum_gain", 4.0f));
+        mAudioProcessor.setManualGain(getSafeFloat(appPrefs, "spectrum_gain", 4.0f));
 
         mGlyphRenderer = new GlyphRenderer(mGamma, mIdleBreathingEnabled, mSelectedDevice);
         mGlyphRenderer.setMaxBrightness(mMaxBrightness);
@@ -618,10 +659,17 @@ public class AudioCaptureService extends Service {
         mFlashlightEnabled = mHasFlashlight && appPrefs.getBoolean("flashlight_enabled", false);
         refreshLatencyForCurrentAudioRoute();
         try {
-            refreshPresetCatalog();
-            if (!mAvailablePresetKeys.isEmpty()) {
-                mPresetKey = chooseDefaultPresetKey(phoneModelForDevice(mSelectedDevice), mAvailablePresetKeys);
-                mVisualizerConfig = loadVisualizerConfig(mPresetKey, SAMPLE_RATE);
+            if (mSelectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
+                refreshPresetCatalog();
+                if (!mAvailablePresetKeys.isEmpty()) {
+                    String savedPreset = appPrefs.getString("selected_preset", null);
+                    if (savedPreset != null && mAvailablePresetKeys.contains(savedPreset)) {
+                        mPresetKey = savedPreset;
+                    } else {
+                        mPresetKey = chooseDefaultPresetKey(phoneModelForDevice(mSelectedDevice), mAvailablePresetKeys);
+                    }
+                    mVisualizerConfig = loadVisualizerConfig(mPresetKey, SAMPLE_RATE);
+                }
             }
         } catch (Exception ignored) {}
         resetVisualizerState();
@@ -641,29 +689,56 @@ public class AudioCaptureService extends Service {
             }
         } catch (Exception ignored) {}
 
-        setMaxBrightness(appPrefs.getInt("max_brightness", MAX_GLYPH_BRIGHTNESS));
-        mGlyphThreshold = appPrefs.getFloat("glyph_threshold", 0.0f);
-        mGlyphDecaySpeed = appPrefs.getFloat("glyph_decay_speed", 0.75f);
+        String savedPreset = appPrefs.getString("selected_preset", null);
+        if (mSelectedDevice != DeviceProfile.DEVICE_UNKNOWN && savedPreset != null && mAvailablePresetKeys != null && mAvailablePresetKeys.contains(savedPreset) && !savedPreset.equals(mPresetKey)) {
+            applyPresetSelection(savedPreset);
+        }
+
+        setMaxBrightness(getSafeInt(appPrefs, "max_brightness", MAX_GLYPH_BRIGHTNESS));
+        mGlyphThreshold = getSafeFloat(appPrefs, "glyph_threshold", 0.0f);
+        mGlyphDecaySpeed = getSafeFloat(appPrefs, "glyph_decay_speed", 0.75f);
         setHapticMotorEnabled(mHasHapticMotor && appPrefs.getBoolean("haptic_motor_enabled", false));
+        try {
+            mHapticMode = HapticMode.valueOf(appPrefs.getString("haptic_mode", HapticMode.BASS_TO_AMPLITUDE.name()));
+        } catch (Exception ignored) {}
+        try {
+            mHapticBeatEngineMode = BeatEngineMode.valueOf(appPrefs.getString("haptic_beat_engine_mode", BeatEngineMode.SMOOTH.name()));
+        } catch (Exception ignored) {}
+        setHapticPulseDurationMs(getSafeInt(appPrefs, "haptic_pulse_duration_ms", 40));
+        setHapticBeatSensitivity(getSafeFloat(appPrefs, "haptic_beat_sensitivity", 1.5f));
+        setHapticBeatGamma(getSafeFloat(appPrefs, "haptic_beat_gamma", 8.0f));
+        setHapticFreqRange(getSafeFloat(appPrefs, "haptic_freq_min", 20f), getSafeFloat(appPrefs, "haptic_freq_max", 250f));
+        setHapticAudioGain(getSafeFloat(appPrefs, "haptic_audio_gain", 1.0f));
+
         setFlashlightEnabled(mHasFlashlight && appPrefs.getBoolean("flashlight_enabled", false));
-        setFlashlightMaxIntensity(appPrefs.getInt("flashlight_max_intensity", -1));
-        setFlashlightBeatGamma(appPrefs.getFloat("flashlight_beat_gamma", 8.0f));
+        try {
+            mFlashlightMode = TorchMode.valueOf(appPrefs.getString("flashlight_mode", TorchMode.AMPLITUDE.name()));
+        } catch (Exception ignored) {}
+        try {
+            mFlashlightBeatEngineMode = BeatEngineMode.valueOf(appPrefs.getString("flashlight_beat_engine_mode", BeatEngineMode.SMOOTH.name()));
+        } catch (Exception ignored) {}
+        setFlashlightPulseDurationMs(getSafeInt(appPrefs, "flashlight_pulse_duration_ms", 40));
+        setFlashlightBeatSensitivity(getSafeFloat(appPrefs, "flashlight_beat_sensitivity", 1.5f));
+        setFlashlightSpeedMs(getSafeFloat(appPrefs, "flashlight_speed_ms", 80f));
+        setFlashlightThreshold(getSafeFloat(appPrefs, "flashlight_threshold", 0.15f));
+        setFlashlightFreqRange(getSafeFloat(appPrefs, "flashlight_freq_min", 20f), getSafeFloat(appPrefs, "flashlight_freq_max", 250f));
+        setFlashlightMaxIntensity(getSafeInt(appPrefs, "flashlight_max_intensity", -1));
+        setFlashlightBeatGamma(getSafeFloat(appPrefs, "flashlight_beat_gamma", 8.0f));
         
         mIdleBreathingEnabled = appPrefs.getBoolean("idle_breathing_enabled", false);
         if (mGlyphRenderer != null) {
             mGlyphRenderer.setAlternateMode(appPrefs.getBoolean("alternate_glyph_viz_enabled", false));
             mGlyphRenderer.setIdleBreathingEnabled(mIdleBreathingEnabled);
         }
-        mGlyphifyFixEnabled = appPrefs.getBoolean("glyphify_fix_enabled", false);
         setHighQualityAnalysis(appPrefs.getBoolean("high_quality_analysis", false));
         setBroadcastEnabled(appPrefs.getBoolean("broadcast_enabled", false));
         
         setOverlayEnabled(appPrefs.getBoolean("overlay_enabled", false));
-        mOverlayColor = appPrefs.getInt("overlay_color", android.graphics.Color.WHITE);
+        mOverlayColor = getSafeInt(appPrefs, "overlay_color", android.graphics.Color.WHITE);
         setEdgeVisualizerEnabled(appPrefs.getBoolean("edge_visualizer_enabled", false));
-        mEdgeColor = appPrefs.getInt("edge_color", android.graphics.Color.WHITE);
+        mEdgeColor = getSafeInt(appPrefs, "edge_color", android.graphics.Color.WHITE);
         setLensVisualizerEnabled(appPrefs.getBoolean("lens_visualizer_enabled", false));
-        mLensColor = appPrefs.getInt("lens_color", android.graphics.Color.WHITE);
+        mLensColor = getSafeInt(appPrefs, "lens_color", android.graphics.Color.WHITE);
     }
 
     @Override public IBinder onBind(Intent intent) { return mBinder; }
@@ -677,10 +752,8 @@ public class AudioCaptureService extends Service {
     private void updateOverlaySize() {
         mMainHandler.post(() -> {
             if (mUnifiedVisualizerView != null && mUnifiedLayoutParams != null && mWindowManager != null) {
-                Point screenSize = new Point();
-                mWindowManager.getDefaultDisplay().getRealSize(screenSize);
                 mUnifiedLayoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
-                mUnifiedLayoutParams.height = screenSize.y;
+                mUnifiedLayoutParams.height = WindowManager.LayoutParams.MATCH_PARENT;
                 try {
                     mWindowManager.updateViewLayout(mUnifiedVisualizerView, mUnifiedLayoutParams);
                 } catch (Exception ignored) {}
@@ -783,11 +856,11 @@ public class AudioCaptureService extends Service {
                 int nextVal;
                 if (intent.hasExtra(EXTRA_ENABLED)) {
                     boolean enable = intent.getBooleanExtra(EXTRA_ENABLED, false);
-                    if (enable) nextVal = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).getInt("max_brightness_last", MAX_GLYPH_BRIGHTNESS);
+                    if (enable) nextVal = getSafeInt(getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE), "max_brightness_last", MAX_GLYPH_BRIGHTNESS);
                     else nextVal = 0;
                 } else {
                     if (mMaxBrightness > 0) nextVal = 0;
-                    else nextVal = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).getInt("max_brightness_last", MAX_GLYPH_BRIGHTNESS);
+                    else nextVal = getSafeInt(getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE), "max_brightness_last", MAX_GLYPH_BRIGHTNESS);
                 }
                 
                 setMaxBrightness(nextVal);
@@ -823,6 +896,10 @@ public class AudioCaptureService extends Service {
     @Override
     public void onDestroy() {
         sInstance = null; stopCapture(); clearGlyphSession();
+        if (mScreenReceiver != null) {
+            try { unregisterReceiver(mScreenReceiver); } catch (Exception ignored) {}
+            mScreenReceiver = null;
+        }
         if (mUdpSync != null) mUdpSync.stopBroadcasting();
         if (mGM != null) mGM.unInit(); if (mGMM != null) mGMM.unInit();
         if (mAudioManager != null) mAudioManager.unregisterAudioDeviceCallback(mAudioDeviceCallback);
@@ -927,13 +1004,6 @@ public class AudioCaptureService extends Service {
         if (mGlyphRenderer != null) mGlyphRenderer.setIdleBreathingEnabled(enabled);
     }
 
-    public void setGlyphifyFixEnabled(boolean enabled) {
-        mGlyphifyFixEnabled = enabled;
-        if (enabled && sIsRunning && mMaxBrightness > 0) {
-            if (mWorkerHandler != null) mWorkerHandler.post(this::ensureGlyphSession);
-        }
-    }
-
     public void setIdlePattern(String pattern) { if (mGlyphRenderer != null) mGlyphRenderer.setIdlePattern(pattern); }
     public void setIdleBrightness(float b) { if (mGlyphRenderer != null) mGlyphRenderer.setIdleBrightness(b); }
     public void setIdleBackgroundBrightness(float b) { if (mGlyphRenderer != null) mGlyphRenderer.setIdleBackgroundBrightness(b); }
@@ -1023,8 +1093,13 @@ public class AudioCaptureService extends Service {
                 if (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) return;
                 try {
                     refreshPresetCatalog();
-                    if (!mAvailablePresetKeys.isEmpty() && !mAvailablePresetKeys.contains(mPresetKey)) {
-                        mPresetKey = chooseDefaultPresetKey(phoneModelForDevice(mSelectedDevice), mAvailablePresetKeys);
+                    if (!mAvailablePresetKeys.isEmpty()) {
+                        String savedPreset = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).getString("selected_preset", null);
+                        if (savedPreset != null && mAvailablePresetKeys.contains(savedPreset)) {
+                            mPresetKey = savedPreset;
+                        } else if (!mAvailablePresetKeys.contains(mPresetKey)) {
+                            mPresetKey = chooseDefaultPresetKey(phoneModelForDevice(mSelectedDevice), mAvailablePresetKeys);
+                        }
                     }
                     mVisualizerConfig = loadVisualizerConfig(mPresetKey, mCurrentSampleRate);
                     mPresetConfigVersion.incrementAndGet();
@@ -1437,8 +1512,10 @@ public class AudioCaptureService extends Service {
                     mLatestUiPeakDiff = maxDiff / 2047f; // Use 2047 for diff scaling similar to GlyphRenderer
                 }
 
-                UnifiedVisualizerView v = mUnifiedVisualizerView;
-                if (v != null) v.updateMagnitudes(mLatestRawFFT);
+                if (mScreenOn) {
+                    UnifiedVisualizerView v = mUnifiedVisualizerView;
+                    if (v != null) v.updateMagnitudes(mLatestRawFFT);
+                }
 
                 float hRawPeak = getLatestHapticPeak();
                 float fRawPeak = getLatestFlashlightPeak();
@@ -1601,7 +1678,6 @@ public class AudioCaptureService extends Service {
             return; // Callback will re-invoke this
         }
 
-        if (mSessionOpen && !mGlyphifyFixEnabled) return;
         try {
             if (mGM != null) {
                 mGM.openSession();
@@ -1688,12 +1764,10 @@ public class AudioCaptureService extends Service {
                 if (mUnifiedVisualizerView == null) {
                     mUnifiedVisualizerView = new UnifiedVisualizerView(this);
                     mUnifiedVisualizerView.setAlpha(0f);
-                    Point screenSize = new Point();
-                    mWindowManager.getDefaultDisplay().getRealSize(screenSize);
 
                     mUnifiedLayoutParams = new WindowManager.LayoutParams(
                             WindowManager.LayoutParams.MATCH_PARENT,
-                            screenSize.y,
+                            WindowManager.LayoutParams.MATCH_PARENT,
                             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
                                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE |
@@ -1733,6 +1807,7 @@ public class AudioCaptureService extends Service {
             if (mUnifiedVisualizerView == null) return;
             float density = getResources().getDisplayMetrics().density;
             
+            mUnifiedVisualizerView.setScreenOn(mScreenOn);
             mUnifiedVisualizerView.setRoundedBarsEnabled(mRoundedBarsEnabled);
             
             mUnifiedVisualizerView.setEdgeProperties(
@@ -1801,9 +1876,43 @@ public class AudioCaptureService extends Service {
 
     public static void requestWidgetRefresh(Context context) { Intent intent = new Intent("com.better.nothing.music.vizualizer.REFRESH_WIDGET"); intent.setPackage(context.getPackageName()); context.sendBroadcast(intent); }
     private void requestWidgetRefresh() { requestWidgetRefresh(this); }
-    public static int loadLatencyCompensationMs(Context context, int device) { return context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).getInt("latency_device_" + device, 0); }
-    public static int loadLatencyCompensationMs(Context context, int device, String routeKey) { if (routeKey == null || routeKey.isEmpty()) return loadLatencyCompensationMs(context, device); return context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).getInt("latency_" + routeKey, loadLatencyCompensationMs(context, device)); }
-    public static float loadGamma(Context context) { return context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).getFloat("gamma_value", 2.2f); }
+    public static float getSafeFloat(SharedPreferences prefs, String key, float defValue) {
+        if (prefs == null) return defValue;
+        try {
+            return prefs.getFloat(key, defValue);
+        } catch (ClassCastException e) {
+            try {
+                Object val = prefs.getAll().get(key);
+                if (val instanceof Number) {
+                    float f = ((Number) val).floatValue();
+                    prefs.edit().putFloat(key, f).apply();
+                    return f;
+                }
+            } catch (Exception ignored) {}
+            return defValue;
+        }
+    }
+
+    public static int getSafeInt(SharedPreferences prefs, String key, int defValue) {
+        if (prefs == null) return defValue;
+        try {
+            return prefs.getInt(key, defValue);
+        } catch (ClassCastException e) {
+            try {
+                Object val = prefs.getAll().get(key);
+                if (val instanceof Number) {
+                    int i = ((Number) val).intValue();
+                    prefs.edit().putInt(key, i).apply();
+                    return i;
+                }
+            } catch (Exception ignored) {}
+            return defValue;
+        }
+    }
+
+    public static int loadLatencyCompensationMs(Context context, int device) { return getSafeInt(context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE), "latency_device_" + device, 0); }
+    public static int loadLatencyCompensationMs(Context context, int device, String routeKey) { if (routeKey == null || routeKey.isEmpty()) return loadLatencyCompensationMs(context, device); return getSafeInt(context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE), "latency_" + routeKey, loadLatencyCompensationMs(context, device)); }
+    public static float loadGamma(Context context) { return getSafeFloat(context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE), "gamma_value", 2.2f); }
 
     public static boolean isHapticEnabledGlobal(Context context) { return context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).getBoolean("haptic_motor_enabled", false); }
     public static Intent createStopIntent(Context context) { Intent intent = new Intent(context, AudioCaptureService.class); intent.setAction(ACTION_STOP); return intent; }
@@ -1957,8 +2066,16 @@ public class AudioCaptureService extends Service {
         return null;
     }
 
-    private void applyPresetSelection(String pk) { mPresetKey = pk; reloadConfig(); }
-    public void setPreset(String p) { mPresetKey = p; restartCapture(); }
+    private void applyPresetSelection(String pk) {
+        if (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) return;
+        mPresetKey = pk;
+        reloadConfig();
+    }
+    public void setPreset(String p) {
+        if (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) return;
+        mPresetKey = p;
+        restartCapture();
+    }
 
     public void connectUdp(String ip, int port) {
         Log.i(TAG, "Connecting to external UDP source: " + ip + ":" + port);
