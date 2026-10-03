@@ -8,7 +8,11 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.graphics.RectF;
+import android.os.PowerManager;
+import android.view.Display;
+import android.view.Surface;
 import android.view.View;
+import android.view.WindowManager;
 
 import java.util.Arrays;
 
@@ -92,6 +96,7 @@ public class UnifiedVisualizerView extends View {
 
     // --- Common ---
     private boolean mRoundedBarsEnabled = false;
+    private boolean mScreenOn = true;
 
     public UnifiedVisualizerView(Context context) {
         super(context);
@@ -192,10 +197,62 @@ public class UnifiedVisualizerView extends View {
             this.mLensGlowFilterInner = new BlurMaskFilter(Math.max(1f, glowRadius * 0.65f), BlurMaskFilter.Blur.NORMAL);
         }
         this.mLensStyle = style;
-        invalidate();
+        if (!isRenderingPaused()) invalidate();
+    }
+
+    public void setScreenOn(boolean screenOn) {
+        boolean wasPaused = isRenderingPaused();
+        this.mScreenOn = screenOn;
+        if (wasPaused && !isRenderingPaused()) {
+            postInvalidateOnAnimation();
+        }
+    }
+
+    public boolean isRenderingPaused() {
+        if (!mScreenOn) return true;
+        if (!isScreenInteractive()) return true;
+        if (getVisibility() != VISIBLE) return true;
+        if (getWindowVisibility() != VISIBLE) return true;
+        if (getAlpha() < 0.01f) return true;
+        if (!mEdgeEnabled && !mOverlayEnabled && !mLensEnabled) return true;
+        return false;
+    }
+
+    private boolean isScreenInteractive() {
+        try {
+            PowerManager pm = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
+            return pm == null || pm.isInteractive();
+        } catch (Exception e) {
+            return true;
+        }
+    }
+
+    @Override
+    protected void onVisibilityChanged(View changedView, int visibility) {
+        super.onVisibilityChanged(changedView, visibility);
+        if (!isRenderingPaused()) {
+            postInvalidateOnAnimation();
+        }
+    }
+
+    @Override
+    protected void onWindowVisibilityChanged(int visibility) {
+        super.onWindowVisibilityChanged(visibility);
+        if (!isRenderingPaused()) {
+            postInvalidateOnAnimation();
+        }
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if (!isRenderingPaused()) {
+            postInvalidateOnAnimation();
+        }
     }
 
     public void updateMagnitudes(int[] fftraw) {
+        if (isRenderingPaused()) return;
         if (fftraw == null || fftraw.length == 0) return;
         this.mFftRaw = fftraw;
         int focusBins = (int)(fftraw.length * 0.75f);
@@ -265,6 +322,7 @@ public class UnifiedVisualizerView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        if (isRenderingPaused()) return;
         if (mFftRaw == null) return;
 
         if (mEmulateHdrOpacity > 0.001f) {
@@ -420,20 +478,69 @@ public class UnifiedVisualizerView extends View {
         int count = mSmoothedLensMagnitudes.length;
         if (count == 0) return;
 
+        int canvasW = getWidth();
+        int canvasH = getHeight();
+        if (canvasW <= 0 || canvasH <= 0) return;
+
+        int rotation = Surface.ROTATION_0;
+        Display display = getDisplay();
+        if (display != null) {
+            rotation = display.getRotation();
+        } else {
+            WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+            if (wm != null && wm.getDefaultDisplay() != null) {
+                rotation = wm.getDefaultDisplay().getRotation();
+            }
+        }
+
+        float w0, h0;
+        if (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) {
+            w0 = canvasW;
+            h0 = canvasH;
+        } else {
+            w0 = canvasH;
+            h0 = canvasW;
+        }
+
+        float centerX, centerY, rotationDegrees;
+        switch (rotation) {
+            case Surface.ROTATION_90:
+                centerX = mLensYPos;
+                centerY = w0 - mLensXPos;
+                rotationDegrees = -90f;
+                break;
+            case Surface.ROTATION_180:
+                centerX = w0 - mLensXPos;
+                centerY = h0 - mLensYPos;
+                rotationDegrees = 180f;
+                break;
+            case Surface.ROTATION_270:
+                centerX = h0 - mLensYPos;
+                centerY = mLensXPos;
+                rotationDegrees = 90f;
+                break;
+            case Surface.ROTATION_0:
+            default:
+                centerX = mLensXPos;
+                centerY = mLensYPos;
+                rotationDegrees = 0f;
+                break;
+        }
+
         mLensPath.reset();
         if (mLensWidthPx <= 0.1f) {
-            mLensPath.addCircle(mLensXPos, mLensYPos, mLensRadiusPx, Path.Direction.CW);
+            mLensPath.addCircle(0, 0, mLensRadiusPx, Path.Direction.CW);
         } else {
             float w = mLensWidthPx;
             float r = mLensRadiusPx;
-            float left = mLensXPos - w / 2f;
-            float right = mLensXPos + w / 2f;
-            mLensPath.moveTo(left, mLensYPos - r);
-            mLensPath.lineTo(right, mLensYPos - r);
-            mArcRect.set(right - r, mLensYPos - r, right + r, mLensYPos + r);
+            float left = -w / 2f;
+            float right = w / 2f;
+            mLensPath.moveTo(left, -r);
+            mLensPath.lineTo(right, -r);
+            mArcRect.set(right - r, -r, right + r, r);
             mLensPath.arcTo(mArcRect, -90, 180, false);
-            mLensPath.lineTo(left, mLensYPos + r);
-            mArcRect.set(left - r, mLensYPos - r, left + r, mLensYPos + r);
+            mLensPath.lineTo(left, r);
+            mArcRect.set(left - r, -r, left + r, r);
             mLensPath.arcTo(mArcRect, 90, 180, false);
             mLensPath.close();
         }
@@ -463,6 +570,12 @@ public class UnifiedVisualizerView extends View {
             mPaint.setMaskFilter(null);
         }
 
+        canvas.save();
+        canvas.translate(centerX, centerY);
+        if (rotationDegrees != 0f) {
+            canvas.rotate(rotationDegrees);
+        }
+
         for (int i = 0; i < count; i++) {
             float dist = i * step;
             mPathMeasure.getPosTan(dist, mPos, mTan);
@@ -482,5 +595,7 @@ public class UnifiedVisualizerView extends View {
             }
             canvas.restore();
         }
+
+        canvas.restore();
     }
 }
