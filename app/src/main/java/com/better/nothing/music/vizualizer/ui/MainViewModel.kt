@@ -154,6 +154,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _appUpdateStatus = MutableStateFlow<AppUpdateStatus>(AppUpdateStatus.Idle)
     val appUpdateStatus = _appUpdateStatus.asStateFlow()
 
+    init {
+        checkAppUpdate()
+    }
+
     sealed class LicenseStatus {
         object Loading : LicenseStatus()
         data class Success(val content: String) : LicenseStatus()
@@ -221,17 +225,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-
-    private val _glyphifyFixEnabled = MutableStateFlow(false)
-    val glyphifyFixEnabled = _glyphifyFixEnabled.asStateFlow()
-    fun setGlyphifyFixEnabled(enabled: Boolean) {
-        _glyphifyFixEnabled.value = enabled
-        viewModelScope.launch(Dispatchers.IO) {
-            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
-                .edit { putBoolean("glyphify_fix_enabled", enabled) }
-        }
-        MainActivity.serviceStatic?.setGlyphifyFixEnabled(enabled)
-    }
 
     private val _m3eEnabled = MutableStateFlow(true)
     val m3eEnabled = _m3eEnabled.asStateFlow()
@@ -901,24 +894,199 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun checkAppUpdate() {
-        _appUpdateStatus.value = AppUpdateStatus.UpToDate
-    }
-
-    fun downloadAndInstallUpdate(apkUrl: String, versionName: String) {
+        if (_appUpdateStatus.value is AppUpdateStatus.Checking || _appUpdateStatus.value is AppUpdateStatus.Downloading) {
+            return
+        }
+        _appUpdateStatus.value = AppUpdateStatus.Checking
         viewModelScope.launch(Dispatchers.IO) {
             var connection: HttpURLConnection? = null
             try {
-                Log.d("MainViewModel", "Starting update download from $apkUrl")
-                val url = URL(apkUrl)
+                Log.d("MainViewModel", "Checking for app updates via GitHub API...")
+                val url = URL("https://api.github.com/repos/Aleks-Levet/better-nothing-music-visualizer/releases/latest")
                 connection = url.openConnection() as HttpURLConnection
-                connection.connectTimeout = 15000
-                connection.readTimeout = 60000
+                connection.setRequestProperty("Accept", "application/vnd.github+json")
+                connection.setRequestProperty("User-Agent", "BetterNothingMusicVisualizer")
+                connection.connectTimeout = 10000
+                connection.readTimeout = 10000
 
                 val responseCode = connection.responseCode
                 if (responseCode == HttpURLConnection.HTTP_OK) {
+                    val responseText = connection.inputStream.bufferedReader().use { it.readText() }
+                    val json = JSONObject(responseText)
+
+                    val rawTagName = json.optString("tag_name", "").trim()
+                    val tagName = rawTagName.removePrefix("v").removePrefix("V").trim()
+                    val htmlUrl = json.optString("html_url", "https://github.com/Aleks-Levet/better-nothing-music-visualizer/releases")
+
+                    var apkUrl: String? = null
+                    val assets = json.optJSONArray("assets")
+                    if (assets != null) {
+                        for (i in 0 until assets.length()) {
+                            val asset = assets.getJSONObject(i)
+                            val name = asset.optString("name", "")
+                            if (name.endsWith(".apk", ignoreCase = true)) {
+                                apkUrl = asset.optString("browser_download_url", null)
+                                break
+                            }
+                        }
+                    }
+
+                    // If release JSON assets didn't contain an explicit APK link, guess direct APK download links
+                    if (apkUrl.isNullOrBlank() && rawTagName.isNotBlank()) {
+                        val repoBase = "https://github.com/Aleks-Levet/better-nothing-music-visualizer/releases/download"
+                        apkUrl = "$repoBase/$rawTagName/app-release.apk"
+                    }
+
+                    val currentVersion = com.better.nothing.music.vizualizer.BuildConfig.VERSION_NAME
+                    Log.d("MainViewModel", "Latest release tag: '$tagName' (raw: '$rawTagName'), current app version: '$currentVersion', apkUrl: '$apkUrl'")
+
+                    if (tagName.isNotBlank() && isVersionNewer(tagName, currentVersion)) {
+                        _appUpdateStatus.value = AppUpdateStatus.Available(
+                            version = tagName,
+                            url = htmlUrl,
+                            apkUrl = apkUrl
+                        )
+                    } else {
+                        _appUpdateStatus.value = AppUpdateStatus.UpToDate
+                    }
+                } else {
+                    Log.w("MainViewModel", "GitHub releases check failed with HTTP $responseCode")
+                    _appUpdateStatus.value = AppUpdateStatus.Error(
+                        ctx.getString(R.string.download_failed_http, responseCode)
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Failed to check for app update", e)
+                val errorMsg = e.message ?: ctx.getString(R.string.unknown_error)
+                _appUpdateStatus.value = AppUpdateStatus.Error(errorMsg)
+            } finally {
+                connection?.disconnect()
+            }
+        }
+    }
+
+    private fun isVersionNewer(remoteVersionStr: String, localVersionStr: String): Boolean {
+        fun parseVersion(v: String): List<Int> {
+            return v.replace("o", "0")
+                .replace("O", "0")
+                .replace(Regex("[^0-9.]"), "")
+                .split(".")
+                .mapNotNull { it.toIntOrNull() }
+        }
+        val remote = parseVersion(remoteVersionStr)
+        val local = parseVersion(localVersionStr)
+        if (remote.isEmpty() || local.isEmpty()) {
+            return remoteVersionStr.trim() != localVersionStr.trim()
+        }
+        val maxLen = maxOf(remote.size, local.size)
+        for (i in 0 until maxLen) {
+            val r = remote.getOrElse(i) { 0 }
+            val l = local.getOrElse(i) { 0 }
+            if (r > l) return true
+            if (r < l) return false
+        }
+        return false
+    }
+
+    fun downloadAndInstallUpdate(apkUrl: String, versionName: String) {
+        val currentStatus = _appUpdateStatus.value
+        val fallbackAvailable = if (currentStatus is AppUpdateStatus.Available) {
+            currentStatus
+        } else {
+            AppUpdateStatus.Available(
+                version = versionName,
+                url = "https://github.com/Aleks-Levet/better-nothing-music-visualizer/releases",
+                apkUrl = apkUrl
+            )
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val destinationFile = File(ctx.externalCacheDir, "update_$versionName.apk")
+
+            // If APK file is already downloaded and non-empty, directly attempt installation
+            if (destinationFile.exists() && destinationFile.length() > 0) {
+                Log.d("MainViewModel", "APK already downloaded (${destinationFile.length()} bytes). Proceeding to install directly.")
+                withContext(Dispatchers.Main) {
+                    _appUpdateStatus.value = fallbackAvailable
+                    installApk(destinationFile)
+                }
+                return@launch
+            }
+
+            val candidateUrls = mutableListOf<String>()
+            if (apkUrl.isNotBlank()) {
+                candidateUrls.add(apkUrl)
+            }
+
+            // Generate guessed candidate URLs as fallback direct links
+            val rawTag = if (versionName.startsWith("v", ignoreCase = true)) versionName else "v$versionName"
+            val cleanTag = versionName.removePrefix("v").removePrefix("V")
+            val repoBase = "https://github.com/Aleks-Levet/better-nothing-music-visualizer/releases/download"
+
+            val guessedUrls = listOf(
+                "$repoBase/$rawTag/app-release.apk",
+                "$repoBase/$rawTag/app-debug.apk",
+                "$repoBase/$rawTag/app.apk",
+                "$repoBase/$rawTag/better-nothing-music-visualizer.apk",
+                "$repoBase/$cleanTag/app-release.apk",
+                "$repoBase/$cleanTag/app-debug.apk",
+                "$repoBase/$cleanTag/app.apk"
+            )
+            for (guessed in guessedUrls) {
+                if (!candidateUrls.contains(guessed)) {
+                    candidateUrls.add(guessed)
+                }
+            }
+
+            var connection: HttpURLConnection? = null
+            var lastResponseCode = -1
+
+            for (targetUrl in candidateUrls) {
+                try {
+                    Log.d("MainViewModel", "Attempting update download from: $targetUrl")
+                    var currentUrl = targetUrl
+                    var redirectsCount = 0
+
+                    while (redirectsCount < 5) {
+                        val conn = URL(currentUrl).openConnection() as HttpURLConnection
+                        conn.connectTimeout = 15000
+                        conn.readTimeout = 60000
+                        conn.instanceFollowRedirects = true
+                        conn.setRequestProperty("User-Agent", "BetterNothingMusicVisualizer")
+
+                        val code = conn.responseCode
+                        lastResponseCode = code
+
+                        if (code == HttpURLConnection.HTTP_OK) {
+                            connection = conn
+                            break
+                        } else if (code == HttpURLConnection.HTTP_MOVED_TEMP || code == HttpURLConnection.HTTP_MOVED_PERM || code == 307 || code == 308) {
+                            val location = conn.getHeaderField("Location")
+                            conn.disconnect()
+                            if (!location.isNullOrBlank()) {
+                                currentUrl = location
+                                redirectsCount++
+                            } else {
+                                break
+                            }
+                        } else {
+                            conn.disconnect()
+                            break
+                        }
+                    }
+
+                    if (connection != null && connection.responseCode == HttpURLConnection.HTTP_OK) {
+                        break
+                    }
+                } catch (e: Exception) {
+                    Log.w("MainViewModel", "Failed connecting to $targetUrl: ${e.message}")
+                }
+            }
+
+            try {
+                if (connection != null && connection.responseCode == HttpURLConnection.HTTP_OK) {
                     val fileLength = connection.contentLength
-                    val destinationFile = File(ctx.externalCacheDir, "update_$versionName.apk")
-                    
+
                     if (destinationFile.exists()) {
                         destinationFile.delete()
                     }
@@ -943,16 +1111,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     if (destinationFile.exists() && destinationFile.length() > 0) {
                         Log.d("MainViewModel", "Update downloaded successfully to ${destinationFile.absolutePath}")
                         withContext(Dispatchers.Main) {
+                            _appUpdateStatus.value = fallbackAvailable
                             installApk(destinationFile)
                         }
                     } else {
                         throw Exception("Downloaded file is missing or empty")
                     }
                 } else {
-                    Log.e("MainViewModel", "Download failed with HTTP $responseCode")
+                    Log.e("MainViewModel", "Download failed for all candidate URLs. Last HTTP code: $lastResponseCode")
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(ctx, ctx.getString(R.string.download_failed_http, responseCode), Toast.LENGTH_SHORT).show()
-                        _appUpdateStatus.value = AppUpdateStatus.Error(ctx.getString(R.string.download_failed_http, responseCode))
+                        Toast.makeText(ctx, ctx.getString(R.string.download_failed_http, lastResponseCode), Toast.LENGTH_SHORT).show()
+                        _appUpdateStatus.value = AppUpdateStatus.Error(ctx.getString(R.string.download_failed_http, lastResponseCode))
                     }
                 }
             } catch (e: Exception) {
@@ -2324,7 +2493,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _lensColor.value = Color(get("lens_color", Color.White.toArgb()))
         _lensOpacity.value = get("lens_opacity", 1.0f)
 
-        _glyphifyFixEnabled.value = get("glyphify_fix_enabled", false)
         _alternateGlyphVizEnabled.value = get("alternate_glyph_viz_enabled", false)
         _highQualityAnalysis.value = get("high_quality_analysis", false)
         _onScreenVisualizersEnabled.value = get("on_screen_visualizers_enabled", false)
