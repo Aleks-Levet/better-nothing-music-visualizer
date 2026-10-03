@@ -81,13 +81,16 @@ import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.Vibration
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -98,11 +101,18 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -1369,13 +1379,29 @@ fun NativeBottomBar(
                         )
                     },
                     icon = {
-                        Box(contentAlignment = Alignment.Center) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.height(32.dp)
+                        ) {
+                            val basePillWidth = 64.dp
+                            val pillWidth = basePillWidth * (1.0f + (uiAmp - 1.0f) * selectionFactor)
+
+                            Box(
+                                modifier = Modifier
+                                    .width(pillWidth * selectionFactor)
+                                    .height(32.dp)
+                                    .graphicsLayer { alpha = selectionFactor }
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                                        shape = CircleShape
+                                    )
+                            )
+
                             val iconModifier = Modifier
                                 .size(24.dp)
                                 .graphicsLayer {
-                                    val iconScale = selectionScale + (uiAmp - 1.0f) * 0.5f * selectionFactor
-                                    scaleX = iconScale
-                                    scaleY = iconScale
+                                    scaleX = selectionScale
+                                    scaleY = selectionScale
                                 }
 
                             when (tab) {
@@ -1389,7 +1415,7 @@ fun NativeBottomBar(
                         }
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                        indicatorColor = Color.Transparent,
                         selectedIconColor = MaterialTheme.colorScheme.primary,
                         unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         selectedTextColor = MaterialTheme.colorScheme.primary,
@@ -2077,5 +2103,113 @@ fun RowScope.FineTuneButton(
         }
     }
 }
+
+@Composable
+fun AppUpdateRibbon(
+    status: MainViewModel.AppUpdateStatus,
+    onUpdateClick: (MainViewModel.AppUpdateStatus.Available) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val haptics = LocalHapticFeedback.current
+
+    val ribbonBg = Color(0xFFC8102E) // Nothing Red (default theme red)
+    val darkRedButtonBg = Color(0xFF7D0014) // Darker shade of red for the button background
+    val lightRedText = Color(0xFFFFF0F0) // Light shade of red/pinkish-white for button text/icons
+    val accentRedText = Color(0xFFFFB3B3) // Soft pinkish-red for label text
+
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = ribbonBg,
+        tonalElevation = 6.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.weight(1f, fill = false)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.SystemUpdate,
+                    contentDescription = null,
+                    tint = lightRedText,
+                    modifier = Modifier.size(20.dp)
+                )
+
+                Column {
+                    when (status) {
+                        is MainViewModel.AppUpdateStatus.Available -> {
+                            Text(
+                                text = stringResource(R.string.update_available_label),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = accentRedText
+                            )
+                            Text(
+                                text = "v${status.version}",
+                                style = TextStyle(
+                                    fontFamily = NTypeFontFamily,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium
+                                ),
+                                color = lightRedText
+                            )
+                        }
+                        is MainViewModel.AppUpdateStatus.Downloading -> {
+                            val percent = (status.progress * 100).toInt()
+                            Text(
+                                text = stringResource(R.string.update_downloading, percent),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = lightRedText
+                            )
+                            LinearProgressIndicator(
+                                progress = { status.progress },
+                                modifier = Modifier
+                                    .fillMaxWidth(0.6f)
+                                    .height(4.dp)
+                                    .padding(top = 4.dp),
+                                color = lightRedText,
+                                trackColor = darkRedButtonBg
+                            )
+                        }
+                        else -> {}
+                    }
+                }
+            }
+
+            if (status is MainViewModel.AppUpdateStatus.Available) {
+                Spacer(modifier = Modifier.width(12.dp))
+                Button(
+                    onClick = {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onUpdateClick(status)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = darkRedButtonBg,
+                        contentColor = lightRedText
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                    modifier = Modifier.height(36.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.update_now),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = lightRedText
+                    )
+                }
+            }
+        }
+    }
+}
+
+
 
 
