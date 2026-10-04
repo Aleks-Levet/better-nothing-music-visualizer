@@ -752,8 +752,10 @@ public class AudioCaptureService extends Service {
     private void updateOverlaySize() {
         mMainHandler.post(() -> {
             if (mUnifiedVisualizerView != null && mUnifiedLayoutParams != null && mWindowManager != null) {
+                Point screenSize = new Point();
+                mWindowManager.getDefaultDisplay().getRealSize(screenSize);
                 mUnifiedLayoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
-                mUnifiedLayoutParams.height = WindowManager.LayoutParams.MATCH_PARENT;
+                mUnifiedLayoutParams.height = screenSize.y;
                 try {
                     mWindowManager.updateViewLayout(mUnifiedVisualizerView, mUnifiedLayoutParams);
                 } catch (Exception ignored) {}
@@ -1764,10 +1766,12 @@ public class AudioCaptureService extends Service {
                 if (mUnifiedVisualizerView == null) {
                     mUnifiedVisualizerView = new UnifiedVisualizerView(this);
                     mUnifiedVisualizerView.setAlpha(0f);
+                    Point screenSize = new Point();
+                    mWindowManager.getDefaultDisplay().getRealSize(screenSize);
 
                     mUnifiedLayoutParams = new WindowManager.LayoutParams(
                             WindowManager.LayoutParams.MATCH_PARENT,
-                            WindowManager.LayoutParams.MATCH_PARENT,
+                            screenSize.y,
                             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
                                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE |
