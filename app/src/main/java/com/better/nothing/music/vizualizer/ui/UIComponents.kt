@@ -123,6 +123,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.TransformOrigin
@@ -1291,12 +1292,29 @@ fun NativeBottomBar(
     onTabSelected: (Tab) -> Unit,
 ) {
     val haptics = LocalHapticFeedback.current
-
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    // Pull the shadow up above the bar so it casts over the screen content
+                    translationY = -12.dp.toPx()
+                }
+                .height(12.dp)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.55f)
+                        )
+                    )
+                )
+        ){}
+        Box(Modifier.background(MaterialTheme.colorScheme.surface)){
     NavigationBar(
         modifier = Modifier.fillMaxWidth()
         .padding(horizontal= 10.dp),
-        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-        tonalElevation = 8.dp,
+        containerColor = Color.Transparent,
         windowInsets = NavigationBarDefaults.windowInsets
     ) {
         val uiAmp = LocalUIAmplitude.current
@@ -1372,7 +1390,8 @@ fun NativeBottomBar(
                             modifier = Modifier.height(32.dp)
                         ) {
                             val basePillWidth = 64.dp
-                            val pillWidth = basePillWidth * (1.0f + (uiAmp - 1.0f) * selectionFactor)
+                            val pillWidth =
+                                basePillWidth * (1.0f + (uiAmp - 1.0f) * selectionFactor)
 
                             Box(
                                 modifier = Modifier
@@ -1393,12 +1412,41 @@ fun NativeBottomBar(
                                 }
 
                             when (tab) {
-                                Tab.Audio -> Icon(painter = painterResource(R.drawable.ic_notif_monochrome), contentDescription = stringResource(tab.labelRes), modifier = iconModifier)
-                                Tab.Glyphs -> Icon(painter = painterResource(R.drawable.ic_nav_glyphs), contentDescription = stringResource(tab.labelRes), modifier = iconModifier)
-                                Tab.Visuals -> Icon(Icons.Default.Layers, stringResource(tab.labelRes), modifier = iconModifier)
-                                Tab.Haptics -> Icon(Icons.Filled.Vibration, stringResource(tab.labelRes), modifier = iconModifier)
-                                Tab.Flashlight -> Icon(Icons.Filled.FlashlightOn, stringResource(tab.labelRes), modifier = iconModifier)
-                                Tab.Settings -> Icon(Icons.Filled.Settings, stringResource(tab.labelRes), modifier = iconModifier)
+                                Tab.Audio -> Icon(
+                                    painter = painterResource(R.drawable.ic_notif_monochrome),
+                                    contentDescription = stringResource(tab.labelRes),
+                                    modifier = iconModifier
+                                )
+
+                                Tab.Glyphs -> Icon(
+                                    painter = painterResource(R.drawable.ic_nav_glyphs),
+                                    contentDescription = stringResource(tab.labelRes),
+                                    modifier = iconModifier
+                                )
+
+                                Tab.Visuals -> Icon(
+                                    Icons.Default.Layers,
+                                    stringResource(tab.labelRes),
+                                    modifier = iconModifier
+                                )
+
+                                Tab.Haptics -> Icon(
+                                    Icons.Filled.Vibration,
+                                    stringResource(tab.labelRes),
+                                    modifier = iconModifier
+                                )
+
+                                Tab.Flashlight -> Icon(
+                                    Icons.Filled.FlashlightOn,
+                                    stringResource(tab.labelRes),
+                                    modifier = iconModifier
+                                )
+
+                                Tab.Settings -> Icon(
+                                    Icons.Filled.Settings,
+                                    stringResource(tab.labelRes),
+                                    modifier = iconModifier
+                                )
                             }
                         }
                     },
@@ -1412,6 +1460,8 @@ fun NativeBottomBar(
                 )
             }
         }
+    }
+    }
     }
 }
 
@@ -1766,11 +1816,13 @@ fun ExpressiveRangeSlider(
 ) {
     val startInteractionSource = remember { MutableInteractionSource() }
     val endInteractionSource = remember { MutableInteractionSource() }
+    val interactionSource = remember { MutableInteractionSource() }
     val haptics = LocalHapticFeedback.current
     val uiAmp = LocalUIAmplitude.current
 
     val startActive by startInteractionSource.collectIsPressedAsState()
     val startDragged by startInteractionSource.collectIsDraggedAsState()
+    val isDragged by interactionSource.collectIsDraggedAsState()
     val endActive by endInteractionSource.collectIsPressedAsState()
     val endDragged by endInteractionSource.collectIsDraggedAsState()
 
@@ -1800,8 +1852,26 @@ fun ExpressiveRangeSlider(
     val startThumbFactor by animateFloatAsState(if ((startActive || startDragged) && LocalM3EEnabled.current) 2.1f else 1.0f)
     val endThumbFactor by animateFloatAsState(if ((endActive || endDragged) && LocalM3EEnabled.current) 2.1f else 1.0f)
 
+    val animatedStart by animateFloatAsState(
+        targetValue = value.start,
+        animationSpec = if (isDragged) snap() else spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMediumLow
+        ),
+        label = "slider_start_animation"
+    )
+
+    val animatedEnd by animateFloatAsState(
+        targetValue = value.endInclusive,
+        animationSpec = if (isDragged) snap() else spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMediumLow
+        ),
+        label = "slider_end_animation"
+    )
+
     RangeSlider(
-        value = value,
+        value = animatedStart..animatedEnd,
         onValueChange = { newValue ->
             onValueChange(newValue)
         },
@@ -1829,7 +1899,7 @@ fun ExpressiveRangeSlider(
         startThumb = { ExpressiveThumb(factor = startThumbFactor) },
         endThumb = { ExpressiveThumb(factor = endThumbFactor) },
         track = { rangeSliderState ->
-            val trackHeight = 12.dp * animationFactor * uiAmp
+            val trackHeight = 16.dp * animationFactor * uiAmp
             SliderDefaults.Track(
                 rangeSliderState = rangeSliderState,
                 modifier = Modifier.height(trackHeight),
