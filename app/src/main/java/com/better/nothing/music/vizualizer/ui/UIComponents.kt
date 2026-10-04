@@ -578,7 +578,7 @@ fun LinkCard(
     val titleColor = if (isGlowing) glowColor else MaterialTheme.colorScheme.onSurface
 
     Surface(
-        shadowElevation = 10.dp,
+        shadowElevation = 10.dp, //fuck yeah
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 72.dp)
