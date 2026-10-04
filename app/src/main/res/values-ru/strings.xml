@@ -274,7 +274,7 @@
     <string name="widget_stop_bnmv">STOP BNMV</string>
     <!-- First Time Help -->
     <string name="first_time_help_title">Quick Tip</string>
-    <string name="first_time_help_msg">Click on the [info] buttons whenever you need help!</string>
+    <string name="first_time_help_mssg">Click on the [info] buttons whenever you need help!</string>
     <!-- Easter Eggs -->
     <string name="toast_no_output">Все выводы отключены, поэтому BNMV ничего не делает 😆</string>
     <string name="toast_audio_title_tap">Зачем ты сюда жмешь? Это ничего не делает! 😆</string>

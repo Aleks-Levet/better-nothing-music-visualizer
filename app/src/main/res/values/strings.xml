@@ -345,7 +345,7 @@
 
     <!-- First Time Help -->
     <string name="first_time_help_title">Quick Tip</string>
-    <string name="first_time_help_msg">Click on the [info] buttons whenever you need help!</string>
+    <string name="first_time_help_mssg">Click on the [info] buttons whenever you need help! And if you need more help, ask in the discord server that you can join in the settings tab!</string>
 
     <!-- Easter Eggs -->
     <string name="toast_no_output">All outputs are disabled, so BNMV will do NOTHING 😆</string>

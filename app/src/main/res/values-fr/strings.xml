@@ -274,7 +274,7 @@
     <string name="widget_stop_bnmv">ARRÊTER</string>
     <!-- First Time Help -->
     <string name="first_time_help_title">Astuce rapide</string>
-    <string name="first_time_help_msg">Cliquez sur les boutons [info] quand vous avez besoin d\'aide!</string>
+    <string name="first_time_help_mssg">Cliquez sur les boutons [info] quand vous avez besoin d\'aide!</string>
     <!-- Easter Eggs -->
     <string name="toast_no_output">Aucune sortie n\'est activée, donc BNMV ne fera NOTHING 😆</string>
     <string name="toast_audio_title_tap">Pourquoi cliquez-vous ici ??</string>
