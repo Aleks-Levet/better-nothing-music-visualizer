@@ -2511,8 +2511,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             delay(500)
             var lastUpdate = SystemClock.elapsedRealtime()
+            var lastSave = lastUpdate
             while (true) {
-                delay(1000)
+                delay(100)
                 val now = SystemClock.elapsedRealtime()
                 val delta = now - lastUpdate
                 lastUpdate = now
@@ -2533,7 +2534,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     } else {
                         _totalIdleTime.value += delta
                     }
-                    if (SystemClock.elapsedRealtime() % 5000 < 1100) saveStatsLocally()
+                    if (now - lastSave >= 5000) {
+                        lastSave = now
+                        saveStatsLocally()
+                    }
                 }
             }
         }

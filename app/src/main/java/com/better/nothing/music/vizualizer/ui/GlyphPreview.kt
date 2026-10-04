@@ -24,12 +24,11 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.vector.PathParser
@@ -248,12 +247,6 @@ fun GlyphPreviewContent(
         visibleLeds
     }
 
-    val glowPaint = remember { 
-        Paint().apply { 
-            isAntiAlias = true 
-        } 
-    }
-
     Box(
         modifier = modifier
             .padding(horizontal = 4.dp)
@@ -293,10 +286,6 @@ fun GlyphPreviewContent(
             val dy = (size.height - viewBoxH * scale) / 2
             val vbCenter = Offset(viewBoxW / 2f, viewBoxH / 2f)
 
-            val glowFilter12 = if (scale > 0f) android.graphics.BlurMaskFilter(12f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL) else null
-            val glowFilter8 = if (scale > 0f) android.graphics.BlurMaskFilter(8f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL) else null
-            val glowFilter6 = if (scale > 0f) android.graphics.BlurMaskFilter(6f * scale, android.graphics.BlurMaskFilter.Blur.NORMAL) else null
-
             // Calculate the horizontal centering offset for legacy models in square viewbox
             // Phone width was 182.
             val centeringOffset = 0f
@@ -307,14 +296,6 @@ fun GlyphPreviewContent(
             }
 
             fun drawSmoothPath(path: Path, alpha: Float) {
-                if (alpha > baseOpacity) {
-                    drawIntoCanvas { canvas ->
-                        glowPaint.color = color
-                        glowPaint.alpha = alpha * 0.45f
-                        glowPaint.nativePaint.maskFilter = glowFilter12
-                        canvas.drawPath(path, glowPaint)
-                    }
-                }
                 drawPath(path, color.copy(alpha = alpha))
             }
 
@@ -361,7 +342,7 @@ fun GlyphPreviewContent(
                                 paths["p1_ring_tr"]?.let { drawSmoothPath(it, getA(4)) }
                                 paths["p1_ring_tl"]?.let { drawSmoothPath(it, getA(5)) }
                                 paths["p1_dot"]?.let { drawSmoothPath(it, getA(6)) }
-                                paths["p1_battery"]?.let { drawPathVerticalSegments(this, it, color, 7..14, vizState, baseOpacity, glowPaint, glowFilter8) }
+                                paths["p1_battery"]?.let { drawPathVerticalSegments(this, it, color, 7..14, vizState, baseOpacity) }
                             }
                         }
                     }
@@ -374,9 +355,9 @@ fun GlyphPreviewContent(
                             paths["p2_0"]?.let { drawSmoothPath(it, getA(0)) }
                             paths["p2_1"]?.let { drawSmoothPath(it, getA(1)) }
                             paths["p2_2"]?.let { drawSmoothPath(it, getA(2)) }
-                            paths["p2_ring"]?.let { drawPathRadial(this, it, color, (3..18).toList(), vizState, baseOpacity, glowPaint, vbCenter.copy(y = vbCenter.y - 6f), glowFilter8) }
+                            paths["p2_ring"]?.let { drawPathRadial(this, it, color, (3..18).toList(), vizState, baseOpacity, vbCenter.copy(y = vbCenter.y - 6f)) }
                             for (i in 19..24) { paths["p2_$i"]?.let { drawSmoothPath(it, getA(i)) } }
-                            paths["p2_battery"]?.let { drawPathVerticalSegments(this, it, color, 25..32, vizState, baseOpacity, glowPaint, glowFilter8) }
+                            paths["p2_battery"]?.let { drawPathVerticalSegments(this, it, color, 25..32, vizState, baseOpacity) }
                         }
                     }
 
@@ -385,7 +366,7 @@ fun GlyphPreviewContent(
                         // Center is (95.5, 110.5). Centering it in a 182x182 box.
                         withTransform({ translate(-4.5f, -19.5f) }) {
                             val localVbCenter = Offset(95.5f, 110.5f)
-                            paths["p2a_large"]?.let { drawPathRadial(this, it, color, (0..23).toList(), vizState, baseOpacity, glowPaint, localVbCenter, glowFilter8) }
+                            paths["p2a_large"]?.let { drawPathRadial(this, it, color, (0..23).toList(), vizState, baseOpacity, localVbCenter) }
                             paths["p2a_medium"]?.let { drawSmoothPath(it, getA(24)) }
                             paths["p2a_small"]?.let { drawSmoothPath(it, getA(25)) }
                         }
@@ -396,9 +377,9 @@ fun GlyphPreviewContent(
                         // Center is (92.5, 76). Centering it in a 182x182 box.
                         withTransform({ translate(-1.5f, 15f) }) {
                             val localVbCenter = Offset(92.5f, 76f)
-                            paths["p3a_large"]?.let { drawPathRadial(this, it, color, (0..19).toList(), vizState, baseOpacity, glowPaint, localVbCenter, glowFilter8) }
-                            paths["p3a_medium"]?.let { drawPathRadial(this, it, color, (20..30).toList(), vizState, baseOpacity, glowPaint, localVbCenter, glowFilter8) }
-                            paths["p3a_small"]?.let { drawPathRadial(this, it, color, (31..35).toList(), vizState, baseOpacity, glowPaint, localVbCenter, glowFilter8) }
+                            paths["p3a_large"]?.let { drawPathRadial(this, it, color, (0..19).toList(), vizState, baseOpacity, localVbCenter) }
+                            paths["p3a_medium"]?.let { drawPathRadial(this, it, color, (20..30).toList(), vizState, baseOpacity, localVbCenter) }
+                            paths["p3a_small"]?.let { drawPathRadial(this, it, color, (31..35).toList(), vizState, baseOpacity, localVbCenter) }
                         }
                     }
 
@@ -416,14 +397,6 @@ fun GlyphPreviewContent(
                             val px = (viewBoxW - actualSquareSize) / 2f
                             val py = spacing + i * squareSize
 
-                            if (alpha > baseOpacity) {
-                                drawIntoCanvas { canvas ->
-                                    glowPaint.color = squareColor
-                                    glowPaint.alpha = alpha * 0.4f
-                                    glowPaint.nativePaint.maskFilter = glowFilter8
-                                    canvas.drawRect(px, py, px + actualSquareSize, py + actualSquareSize, glowPaint)
-                                }
-                            }
                             drawRect(color = squareColor, topLeft = Offset(px, py), size = Size(actualSquareSize, actualSquareSize), alpha = alpha)
                         }
                     }
@@ -433,14 +406,6 @@ fun GlyphPreviewContent(
                         matrixData?.forEach { (idx, pos, ledSize) ->
                             val value = vizState.getOrElse(idx) { 0f }
                             val a = 0.11f + (value * 0.89f)
-                            if (value > 0) {
-                                drawIntoCanvas { canvas ->
-                                    glowPaint.color = Color.White
-                                    glowPaint.alpha = a * 0.4f
-                                    glowPaint.nativePaint.maskFilter = glowFilter6
-                                    canvas.drawRect(pos.x, pos.y, pos.x + ledSize.width, pos.y + ledSize.height, glowPaint)
-                                }
-                            }
                             drawRect(color = if (value > 0) Color.White else Color(0xFF1C1C1C), topLeft = pos, size = ledSize, alpha = if (value > 0) a else 1f)
                         }
                     }

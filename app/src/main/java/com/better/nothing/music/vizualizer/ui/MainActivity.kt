@@ -90,6 +90,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.better.nothing.music.vizualizer.R
@@ -283,29 +285,32 @@ class MainActivity : AppCompatActivity() {
             val gSansSlant by viewModel.googleSansSlant.collectAsStateWithLifecycle()
             val gSansRounding by viewModel.googleSansRounding.collectAsStateWithLifecycle()
 
-            LaunchedEffect(isRunning) {
+            val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+            LaunchedEffect(isRunning, lifecycleOwner) {
                 if (isRunning) {
-                    while (true) {
-                        val s = service ?: serviceStatic
-                        if (s != null) {
-                            val lightState = s.currentLightState
-                            if (lightState != null && lightState.isNotEmpty()) {
-                                viewModel.setVisualizerState(lightState.copyOf())
+                    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        while (true) {
+                            val s = service ?: serviceStatic
+                            if (s != null) {
+                                val lightState = s.currentLightState
+                                if (lightState != null && lightState.isNotEmpty()) {
+                                    viewModel.setVisualizerState(lightState.copyOf())
+                                }
+                                val raw = s.latestRawFFT
+                                if (raw != null) {
+                                    viewModel.setFftData(raw)
+                                }
+                                viewModel.syncIntensities(
+                                    AudioCaptureService.hapticRawPeakFlow().value,
+                                    AudioCaptureService.hapticMotorIntensityFlow().value,
+                                    AudioCaptureService.flashlightRawPeakFlow().value,
+                                    AudioCaptureService.flashlightMotorIntensityFlow().value,
+                                    AudioCaptureService.hapticBeatFlow().value,
+                                    AudioCaptureService.flashlightBeatFlow().value
+                                )
                             }
-                            val raw = s.latestRawFFT
-                            if (raw != null) {
-                                viewModel.setFftData(raw)
-                            }
-                            viewModel.syncIntensities(
-                                AudioCaptureService.hapticRawPeakFlow().value,
-                                AudioCaptureService.hapticMotorIntensityFlow().value,
-                                AudioCaptureService.flashlightRawPeakFlow().value,
-                                AudioCaptureService.flashlightMotorIntensityFlow().value,
-                                AudioCaptureService.hapticBeatFlow().value,
-                                AudioCaptureService.flashlightBeatFlow().value
-                            )
+                            delay(16.milliseconds)
                         }
-                        delay(16.milliseconds)
                     }
                 } else {
                     viewModel.setFftStateEmpty()
