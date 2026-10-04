@@ -59,6 +59,7 @@ import com.better.nothing.music.vizualizer.ui.NTypeFontFamily
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
@@ -253,10 +254,21 @@ internal fun GlyphsScreen(
 
                     Spacer(modifier = Modifier.weight(1f))
 
-                    Crossfade(
+                    AnimatedContent(
                         targetState = selectedPreset,
-                        label = "desc_fade",
-                        animationSpec = spring(stiffness = Spring.StiffnessMedium),
+                        transitionSpec = {
+                            fadeIn(animationSpec = tween(200)) togetherWith fadeOut(animationSpec = tween(200)) using
+                                    SizeTransform(
+                                        clip = true,
+                                        sizeAnimationSpec = { _, _ ->
+                                            spring(
+                                                dampingRatio = Spring.DampingRatioLowBouncy,
+                                                stiffness = Spring.StiffnessLow
+                                            )
+                                        }
+                                    )
+                        },
+                        label = "PresetTransition",
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 12.dp)
@@ -266,6 +278,7 @@ internal fun GlyphsScreen(
                                 ?: presets.firstOrNull { it.key == selectedPreset }
                                 ?: presets.firstOrNull()
                         }
+
                         Column {
                             if (preset != null && preset.description != preset.key) {
                                 Text(
@@ -281,7 +294,7 @@ internal fun GlyphsScreen(
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 4.dp),
+                                    .padding(horizontal = 4.dp)
                             )
                         }
                     }
