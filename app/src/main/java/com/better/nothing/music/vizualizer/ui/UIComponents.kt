@@ -1330,14 +1330,14 @@ fun NativeBottomBar(
             )
 
             val selectionScale by animateFloatAsState(
-                targetValue = if (isSelected) 1.1f else 1.0f,
+                targetValue = if (isSelected) 1.12f else 0.95f,
                 animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMedium),
                 label = "nav_selection_scale"
             )
 
             val selectionFactor by animateFloatAsState(
                 targetValue = if (isSelected) 1.0f else 0.0f,
-                animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMedium),
+                animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessVeryLow),
                 label = "nav_selection_factor"
             )
 
@@ -1379,7 +1379,7 @@ fun NativeBottomBar(
                                     .height(32.dp)
                                     .graphicsLayer { alpha = selectionFactor }
                                     .background(
-                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                                        color = MaterialTheme.colorScheme.surfaceVariant,
                                         shape = CircleShape
                                     )
                             )
@@ -2101,7 +2101,7 @@ fun AppUpdateRibbon(
 
     val ribbonBg = Color(0xFFC8102E) // Nothing Red (default theme red)
     val darkRedButtonBg = Color(0xFF7D0014) // Darker shade of red for the button background
-    val lightRedText = Color(0xFFFFF0F0) // Light shade of red/pinkish-white for button text/icons
+    val lightRedText = Color(0xFFFFFFFF) // Light shade of red/pinkish-white for button text/icons
     val accentRedText = Color(0xFFFFB3B3) // Soft pinkish-red for label text
 
     Surface(
