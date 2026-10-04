@@ -987,7 +987,7 @@ fun CardHeader(
             }
         }
     }
-    Spacer(modifier = Modifier.height(LocalAppSpacing.current.between))
+    Spacer(modifier = Modifier.height(5.dp))
 }
 
 @Composable
@@ -1337,7 +1337,7 @@ fun NativeBottomBar(
 
             val selectionFactor by animateFloatAsState(
                 targetValue = if (isSelected) 1.0f else 0.0f,
-                animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessVeryLow),
+                animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessLow),
                 label = "nav_selection_factor"
             )
 
