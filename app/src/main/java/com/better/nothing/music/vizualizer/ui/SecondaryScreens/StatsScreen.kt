@@ -314,9 +314,7 @@ private fun EngagementCard(
             scaleX = cardScale
             scaleY = cardScale
         },
-        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
-            alpha = (0.3f + (uiAmp - 1.0f) * 0.3f).coerceIn(0.1f, 0.8f)
-        )
+        containerColor = MaterialTheme.colorScheme.surface
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(label, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = color)
