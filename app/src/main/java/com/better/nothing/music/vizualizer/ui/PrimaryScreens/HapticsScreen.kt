@@ -153,7 +153,7 @@ fun HapticsScreen(
 
                 CardHeader(
                     title = stringResource(
-                        R.string.haptics_frequency_label,
+                        R.string.haptics_frequency_label_b,
                         hapticFreqMin.toInt(),
                         hapticFreqMax.toInt()
                     )
@@ -250,59 +250,61 @@ fun HapticsScreen(
 
             AnimatedVisibility (hapticMode == HapticMode.BEAT_DETECTION) {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    if (hasAmplitudeControl) {
                         ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
                             CardHeader(title = stringResource(R.string.beat_engine_mode_label))
-                            ExpressiveSplitButton(
-                                items = BeatEngineMode.entries,
-                                selectedItem = hapticBeatEngineMode,
-                                onItemSelection = onHapticBeatEngineModeChanged,
-                                labelProvider = { mode ->
-                                    stringResource(
-                                        when (mode) {
-                                            BeatEngineMode.SMOOTH -> R.string.beat_engine_smooth
-                                            BeatEngineMode.SHORT_PULSE -> R.string.beat_engine_short
-                                        }
+                            if (hasAmplitudeControl) {
+                                ExpressiveSplitButton(
+                                    items = BeatEngineMode.entries,
+                                    selectedItem = hapticBeatEngineMode,
+                                    onItemSelection = onHapticBeatEngineModeChanged,
+                                    labelProvider = { mode ->
+                                        stringResource(
+                                            when (mode) {
+                                                BeatEngineMode.SMOOTH -> R.string.beat_engine_smooth
+                                                BeatEngineMode.SHORT_PULSE -> R.string.beat_engine_short
+                                            }
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+
+                        AnimatedVisibility(hapticBeatEngineMode == BeatEngineMode.SMOOTH && hasAmplitudeControl) {
+                            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                                Spacer(modifier = Modifier.height(15.dp))
+                                CardHeader(
+                                    title = stringResource(
+                                        R.string.haptics_speed_label,
+                                        hapticBeatGamma
                                     )
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            )
+                                )
+                                ExpressiveSlider(
+                                    value = hapticBeatGamma,
+                                    onValueChange = onHapticBeatGammaChanged,
+                                    valueRange = 4.0f..15.0f,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                        AnimatedVisibility(!(hapticBeatEngineMode == BeatEngineMode.SMOOTH && hasAmplitudeControl)) {
+                            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                                Spacer(modifier = Modifier.height(15.dp))
+                                CardHeader(
+                                    title = stringResource(
+                                        R.string.haptics_duration_label,
+                                        hapticPulseDurationMs
+                                    )
+                                )
+                                ExpressiveSlider(
+                                    value = hapticPulseDurationMs.toFloat(),
+                                    onValueChange = { onHapticPulseDurationMsChanged(it.toInt()) },
+                                    valueRange = 5f..200f,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
                         }
                     }
 
-
-                    AnimatedVisibility(hapticBeatEngineMode == BeatEngineMode.SMOOTH && hasAmplitudeControl) {
-                        ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                            CardHeader(
-                                title = stringResource(
-                                    R.string.haptics_speed_label,
-                                    hapticBeatGamma
-                                )
-                            )
-                            ExpressiveSlider(
-                                value = hapticBeatGamma,
-                                onValueChange = onHapticBeatGammaChanged,
-                                valueRange = 4.0f..15.0f,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    }
-                    AnimatedVisibility(!(hapticBeatEngineMode == BeatEngineMode.SMOOTH && hasAmplitudeControl)) {
-                        ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                            CardHeader(
-                                title = stringResource(
-                                    R.string.haptics_duration_label,
-                                    hapticPulseDurationMs
-                                )
-                            )
-                            ExpressiveSlider(
-                                value = hapticPulseDurationMs.toFloat(),
-                                onValueChange = { onHapticPulseDurationMsChanged(it.toInt()) },
-                                valueRange = 5f..200f,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    }
                     BodyText(
                         text = stringResource(R.string.haptics_beat_detection_1desc),
                         modifier = Modifier.padding(horizontal = 8.dp)
