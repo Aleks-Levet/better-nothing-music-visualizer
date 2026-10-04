@@ -22,7 +22,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -327,7 +326,6 @@ fun GlyphPreviewContent(
                 when (device) {
                     DeviceProfile.DEVICE_NP1 -> {
                         withTransform({ translate(centeringOffset, 0f) }) {
-                            val localVbCenter = vbCenter.copy(x = vbCenter.x - centeringOffset)
                             if (vizState.size <= 5) {
                                 paths["p1_cam"]?.let { drawSmoothPath(it, getA(0)) }
                                 paths["p1_slash"]?.let { drawSmoothPath(it, getA(1)) }
@@ -424,9 +422,7 @@ private fun drawPathRadial(
     indices: List<Int>,
     state: FloatArray,
     baseOpacity: Float,
-    paint: Paint,
     viewBoxCenter: Offset,
-    glowFilter: android.graphics.BlurMaskFilter?,
     clockwise: Boolean = true
 ) {
     val count = indices.size
@@ -486,25 +482,20 @@ private fun drawPathRadial(
             close()
         }
 
-        scope.drawIntoCanvas { canvas ->
-            canvas.save()
-            canvas.clipPath(sectorPath)
-
-            paint.color = color
-            paint.alpha = alpha * 0.4f
-            paint.nativePaint.maskFilter = glowFilter
-            canvas.drawPath(path, paint)
-
-            paint.alpha = alpha
-            paint.nativePaint.maskFilter = null
-            canvas.drawPath(path, paint)
-
-            canvas.restore()
+        scope.clipPath(sectorPath) {
+            drawPath(path, color.copy(alpha = alpha))
         }
     }
 }
 
-private fun drawPathVerticalSegments(scope: DrawScope, path: Path, color: Color, range: IntRange, state: FloatArray, baseOpacity: Float, paint: Paint, glowFilter: android.graphics.BlurMaskFilter?) {
+private fun drawPathVerticalSegments(
+    scope: DrawScope,
+    path: Path,
+    color: Color,
+    range: IntRange,
+    state: FloatArray,
+    baseOpacity: Float
+) {
     val b = path.getBounds()
     val count = range.last - range.first + 1
     val sliceH = b.height / count
@@ -513,26 +504,13 @@ private fun drawPathVerticalSegments(scope: DrawScope, path: Path, color: Color,
         val idx = range.first + i
         val alpha = baseOpacity + (state.getOrElse(idx) { 0f } * (1f - baseOpacity))
 
-        scope.drawIntoCanvas { canvas ->
-            canvas.save()
-
-            canvas.clipRect(
-                left = b.left,
-                top = b.bottom - (i + 1) * sliceH,
-                right = b.right,
-                bottom = b.bottom - i * sliceH
-            )
-
-            paint.color = color
-            paint.alpha = alpha * 0.4f
-            paint.nativePaint.maskFilter = glowFilter
-            canvas.drawPath(path, paint)
-
-            paint.alpha = alpha
-            paint.nativePaint.maskFilter = null
-            canvas.drawPath(path, paint)
-
-            canvas.restore()
+        scope.clipRect(
+            left = b.left,
+            top = b.bottom - (i + 1) * sliceH,
+            right = b.right,
+            bottom = b.bottom - i * sliceH
+        ) {
+            drawPath(path, color.copy(alpha = alpha))
         }
     }
 }
