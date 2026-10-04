@@ -522,6 +522,10 @@ fun ExpressiveCard(
         modifier = modifier
             .padding(vertical = 0.dp),
         shape = shape,
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 10.dp,
+            pressedElevation = 2.dp
+        ),
         colors = CardDefaults.cardColors(containerColor = containerColor)
     ) {
         Column(
@@ -574,12 +578,14 @@ fun LinkCard(
     val titleColor = if (isGlowing) glowColor else MaterialTheme.colorScheme.onSurface
 
     Surface(
+        shadowElevation = 10.dp,
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 72.dp)
             .then(
                 if (isGlowing) {
-                    Modifier.drawBehind {
+                    Modifier
+                        .drawBehind {
                         val ampScale = if (uiAmplitude > 0f) uiAmplitude else 1.0f
                         val baseBlur = (12.dp + 8.dp * glowIntensity).toPx() * ampScale
                         
@@ -753,6 +759,10 @@ fun ExpandableExpressiveCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 10.dp,
+            pressedElevation = 2.dp
+        ),
         colors = CardDefaults.cardColors(
             containerColor = if (isPressed) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
         )
@@ -1298,14 +1308,14 @@ fun NativeBottomBar(
                 .fillMaxWidth()
                 .graphicsLayer {
                     // Pull the shadow up above the bar so it casts over the screen content
-                    translationY = -12.dp.toPx()
+                    translationY = -7.dp.toPx()
                 }
-                .height(12.dp)
+                .height(7.dp)
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
                             Color.Transparent,
-                            Color.Black.copy(alpha = 0.55f)
+                            Color.Black.copy(alpha = 0.3f)
                         )
                     )
                 )
