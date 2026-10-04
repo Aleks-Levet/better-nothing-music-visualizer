@@ -34,7 +34,7 @@
     <string name="haptics_mode_bass">Ampiezza</string>
     <string name="haptics_mode_beat">Rilevamento battito</string>
     <string name="haptics_beat_detection_1desc">Vibra sui battiti rilevati all\'interno dell\'intervallo di frequenza selezionato. Più fluido ma a volte meno stabile. È una funzione beta.</string>
-    <string name="haptics_frequency_label">Frequenza: %1$d - %2$d Hz</string>
+    <string name="haptics_frequency_label_b">Frequenza: %1$d - %2$d Hz</string>
 
     <string name="haptics_amplitude_label1">Intensità: %.1fx</string>
     <string name="haptics_audio_gain_label">Guadagno: %.1fx</string>

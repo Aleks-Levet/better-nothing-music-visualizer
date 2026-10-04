@@ -25,7 +25,7 @@
 
     <!-- Haptics Screen -->
 
-    <string name="haptics_frequency_label">Frequenz: %1$d - %2$d Hz</string>
+    <string name="haptics_frequency_label_b">Frequenz: %1$d - %2$d Hz</string>
 
     <string name="haptics_amplitude_label1">Intensität: %.1fx</string>
     <string name="haptics_gamma_label">Gamma: %.1f</string>

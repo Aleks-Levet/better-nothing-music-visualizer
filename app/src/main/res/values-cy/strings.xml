@@ -29,7 +29,7 @@
     <string name="haptics_mode_bass">Osgled Bas</string>
     <string name="haptics_mode_beat">Canfod Curiad</string>
     <string name="haptics_beat_detection_1desc">Yn dirgrynu ar guriadau a ganfyddir o fewn yr ystod amlder a ddewiswyd. Yn llyfnach ond weithiau ddim mor sefydlog. Mae\'n nodwedd beta.</string>
-    <string name="haptics_frequency_label">Amlder: %1$d - %2$d Hz</string>
+    <string name="haptics_frequency_label_b">Amlder: %1$d - %2$d Hz</string>
 
     <string name="haptics_amplitude_label1">Osgled: %.1fx</string>
     <string name="haptics_gamma_label">Gamma (Ymateb): %.1f</string>

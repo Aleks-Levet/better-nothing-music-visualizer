@@ -34,7 +34,7 @@
     <string name="haptics_mode_bass">振動の強さ</string>
     <string name="haptics_mode_beat">ビート検出</string>
     <string name="haptics_beat_detection_1desc">選択した周波数範囲内で検出されたビートに合わせて振動します。よりスムーズになりますが、不安定になることがあります。これはベータ機能です。</string>
-    <string name="haptics_frequency_label">周波数： %1$d - %2$d Hz</string>
+    <string name="haptics_frequency_label_b">周波数： %1$d - %2$d Hz</string>
 
     <string name="haptics_amplitude_label1">強度： %.1fx</string>
     <string name="haptics_audio_gain_label">音量ゲイン: %.1fx</string>
