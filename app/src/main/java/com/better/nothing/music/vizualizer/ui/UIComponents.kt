@@ -1293,7 +1293,8 @@ fun NativeBottomBar(
     val haptics = LocalHapticFeedback.current
 
     NavigationBar(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth()
+        .padding(horizontal= 10.dp),
         containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
         tonalElevation = 8.dp,
         windowInsets = NavigationBarDefaults.windowInsets
