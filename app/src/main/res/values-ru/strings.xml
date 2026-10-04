@@ -33,16 +33,16 @@
     <string name="haptics_mode_label">Режим виброотклика</string>
     <string name="haptics_mode_bass">Амплитуда</string>
     <string name="haptics_mode_beat">Распознавание бита</string>
-    <string name="haptics_beat_detection_desc">Вибрация срабатывает на ритмические удары в выбранном диапазоне частот. Тактильный отклик мягче, но может работать нестабильно (бета-версия).</string>
+    <string name="haptics_beat_detection_1desc">Вибрация срабатывает на ритмические удары в выбранном диапазоне частот. Тактильный отклик мягче, но может работать нестабильно (бета-версия).</string>
     <string name="haptics_frequency_label">Частота: %1$d - %2$d Гц</string>
-    <string name="haptics_frequency_desc">Вибрация реагирует на громкость звука в этом диапазоне.</string>
-    <string name="haptics_amplitude_label">Усиление мотора: %.1fx</string>
+
+    <string name="haptics_amplitude_label1">Усиление мотора: %.1fx</string>
     <string name="haptics_audio_gain_label">Усиление звука: %.1fx</string>
     <string name="haptics_gamma_label">Гамма: %.1f</string>
     <string name="haptics_decay_label">Спад: %.2f</string>
     <string name="haptics_speed_label">Скорость: %.1f</string>
     <string name="haptics_sensitivity_label">Чувствительность: %.1f</string>
-    <string name="haptics_motor_multiplier_desc">Общий множитель силы виброотклика.</string>
+
     <string name="haptics_decay_instant">Без сглаживания (мгновенно)</string>
     <string name="haptics_decay_smooth">Сглаживание активно</string>
     <string name="haptics_duration_label">Длительность: %d мс</string>
@@ -92,7 +92,7 @@
     <string name="analytics_disclaimer_title">Аналитика</string>
     <string name="analytics_disclaimer_text">Приложение использует Google Analytics (Firebase) для сбора анонимной статистики использования и отчетов об ошибках. Персональные данные и аудиозаписи не собираются.</string>
     <string name="github_repository">Репозиторий GitHub</string>
-    <string name="version_info">Версия %s</string>
+
     <string name="zones_config_version">Версия конфига: %s</string>
     <string name="media_projection_info">Служба захвата экрана (MediaProjection) используется исключительно для работы визуализатора в реальном времени. Приложение ничего не записывает и не сохраняет.</string>
     <string name="credits">Авторы и благодарности</string>
@@ -185,7 +185,7 @@
     <string name="tile_running">Работает</string>
     <string name="tile_subtitle_default">Better Nothing Music Visualizer</string>
     <!-- Feature Monitors -->
-    <string name="haptic_monitor">Монитор вибрации</string>
+    <string name="haptic_monito">Монитор вибрации</string>
     <string name="flashlight_level_stats">УРОВЕНЬ: %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">Оверлей верхней грани</string>
@@ -218,7 +218,7 @@
     <!-- Stats Screen -->
     <string name="usage_stats">Статистика использования</string>
     <string name="total_visualization_time">Общее время визуализации</string>
-    <string name="engagement">Вовлеченность</string>
+
     <string name="active_music">Музыка активна</string>
     <string name="idle_pulse">Режим покоя</string>
     <string name="feature_breakdown">Использование функций</string>

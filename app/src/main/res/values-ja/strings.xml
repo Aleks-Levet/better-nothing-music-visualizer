@@ -33,16 +33,16 @@
     <string name="haptics_mode_label">ハプティクスエンジン・モード</string>
     <string name="haptics_mode_bass">振動の強さ</string>
     <string name="haptics_mode_beat">ビート検出</string>
-    <string name="haptics_beat_detection_desc">選択した周波数範囲内で検出されたビートに合わせて振動します。よりスムーズになりますが、不安定になることがあります。これはベータ機能です。</string>
+    <string name="haptics_beat_detection_1desc">選択した周波数範囲内で検出されたビートに合わせて振動します。よりスムーズになりますが、不安定になることがあります。これはベータ機能です。</string>
     <string name="haptics_frequency_label">周波数： %1$d - %2$d Hz</string>
-    <string name="haptics_frequency_desc">この範囲のオーディオ振幅に基づいて振動します。</string>
-    <string name="haptics_amplitude_label">強度： %.1fx</string>
+
+    <string name="haptics_amplitude_label1">強度： %.1fx</string>
     <string name="haptics_audio_gain_label">音量ゲイン: %.1fx</string>
     <string name="haptics_gamma_label">ガンマ： %.1f</string>
     <string name="haptics_decay_label">減衰： %.2f</string>
     <string name="haptics_speed_label">速度： %.1f</string>
     <string name="haptics_sensitivity_label">感度： %.1f</string>
-    <string name="haptics_motor_multiplier_desc">全体のバイブレーション強度倍率。</string>
+
     <string name="haptics_decay_instant">スムージングなし（即時）</string>
     <string name="haptics_decay_smooth">スムージング有効</string>
     <string name="haptics_duration_label">持続時間: %d ms</string>
@@ -92,7 +92,7 @@
     <string name="analytics_disclaimer_title">アナリティクス</string>
     <string name="analytics_disclaimer_text">本アプリでは、ユーザー体験の向上を目的として、Google Analytics（Firebase）により匿名の使用統計データおよびクラッシュレポートを収集しています。個人情報および音声コンテンツの収集は行われません。</string>
     <string name="github_repository">GitHubリポジトリ</string>
-    <string name="version_info">バージョン %s</string>
+
     <string name="zones_config_version">設定バージョン： %s</string>
     <string name="media_projection_info">MediaProjectionはリアルタイム・ビジュアライザーの動作にのみ使用されます。不要な録音やデータの保存は行われません。</string>
     <string name="credits">クレジット</string>
@@ -185,7 +185,7 @@
     <string name="tile_running">実行中</string>
     <string name="tile_subtitle_default">Better Nothing Music Vizualiser</string>
     <!-- Feature Monitors -->
-    <string name="haptic_monitor">ハプティックモニター</string>
+    <string name="haptic_monito">ハプティックモニター</string>
     <string name="flashlight_level_stats">レベル: %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">上端オーバーレイ</string>
@@ -218,7 +218,7 @@
     <!-- Stats Screen -->
     <string name="usage_stats">使用状況統計</string>
     <string name="total_visualization_time">ビジュアライザー総使用時間</string>
-    <string name="engagement">エンゲージメント総数</string>
+
     <string name="active_music">アクティブミュージック</string>
     <string name="idle_pulse">待機中</string>
     <string name="feature_breakdown">機能の詳細</string>

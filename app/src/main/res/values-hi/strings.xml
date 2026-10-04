@@ -33,16 +33,16 @@
     <string name="haptics_mode_label">हैप्टिक इंजन मोड</string>
     <string name="haptics_mode_bass">Amplitude</string>
     <string name="haptics_mode_beat">बीट डिटेक्शन</string>
-    <string name="haptics_beat_detection_desc">चयनित आवृत्ति सीमा के भीतर पता लगाए गए बीट्स पर कंपन करता है। स्मूथ लेकिन कभी-कभी उतना स्थिर नहीं। यह एक बीटा फीचर है।</string>
+    <string name="haptics_beat_detection_1desc">चयनित आवृत्ति सीमा के भीतर पता लगाए गए बीट्स पर कंपन करता है। स्मूथ लेकिन कभी-कभी उतना स्थिर नहीं। यह एक बीटा फीचर है।</string>
     <string name="haptics_frequency_label">आवृत्ति: %1$d - %2$d हर्ट्ज</string>
-    <string name="haptics_frequency_desc">इस सीमा में ऑडियो आयाम के आधार पर कंपन करता है।</string>
-    <string name="haptics_amplitude_label">आयाम: %.1fx</string>
+
+    <string name="haptics_amplitude_label1">आयाम: %.1fx</string>
     <string name="haptics_audio_gain_label">Audio Gain: %.1fx</string>
     <string name="haptics_gamma_label">गामा (प्रतिक्रिया): %.1f</string>
     <string name="haptics_decay_label">Decay: %.2f</string>
     <string name="haptics_speed_label">गति: %.1f</string>
     <string name="haptics_sensitivity_label">Sensitivity: %.1f</string>
-    <string name="haptics_motor_multiplier_desc">Global motor output strength multiplier.</string>
+
     <string name="haptics_decay_instant">No smoothing (Instant)</string>
     <string name="haptics_decay_smooth">Smoothing active</string>
     <string name="haptics_duration_label">Duration: %d ms</string>
@@ -92,7 +92,7 @@
     <string name="analytics_disclaimer_title">Analytics</string>
     <string name="analytics_disclaimer_text">This app uses Google Analytics (Firebase) to collect anonymous usage statistics and crash reports to help improve the app experience. No personal data or audio content is collected.</string>
     <string name="github_repository">GitHub रिपॉजिटरी</string>
-    <string name="version_info">संस्करण %s</string>
+
     <string name="zones_config_version">कॉन्फ़िगरेशन संस्करण: %s</string>
     <string name="media_projection_info">मीडियाप्रोजेक्शन का उपयोग केवल रीयल-टाइम विज़ुअलाइज़र को पावर देने के लिए किया जाता है। कोई अनावश्यक रिकॉर्डिंग या डेटा भंडारण नहीं किया जाता है।</string>
     <string name="credits">श्रेय</string>
@@ -185,7 +185,7 @@
     <string name="tile_running">Running</string>
     <string name="tile_subtitle_default">Better Nothing Music Vizualiser</string>
     <!-- Feature Monitors -->
-    <string name="haptic_monitor">Haptic Monitor</string>
+    <string name="haptic_monito">Haptic Monitor</string>
     <string name="flashlight_level_stats">LEVEL: %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">Top Edge Overlay</string>
@@ -218,7 +218,7 @@
     <!-- Stats Screen -->
     <string name="usage_stats">Usage Stats</string>
     <string name="total_visualization_time">Total Visualization Time</string>
-    <string name="engagement">Engagement</string>
+
     <string name="active_music">Active Music</string>
     <string name="idle_pulse">Idle</string>
     <string name="feature_breakdown">Feature Breakdown</string>

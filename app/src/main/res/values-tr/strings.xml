@@ -33,16 +33,16 @@
     <string name="haptics_mode_label">Titreşim Motoru Modu</string>
     <string name="haptics_mode_bass">Amplitude</string>
     <string name="haptics_mode_beat">Ritme Ayak Uydur!</string>
-    <string name="haptics_beat_detection_desc">Seçilen frekans aralığında algılanan ritimlere göre titreşir. Daha pürüzsüzdür ancak bazen o kadar kararlı değildir. Beta özelliğidir.</string>
+    <string name="haptics_beat_detection_1desc">Seçilen frekans aralığında algılanan ritimlere göre titreşir. Daha pürüzsüzdür ancak bazen o kadar kararlı değildir. Beta özelliğidir.</string>
     <string name="haptics_frequency_label">Frekans: %1$d - %2$d Hz</string>
-    <string name="haptics_frequency_desc">Bu aralıktaki ses genliğine göre titreşir.</string>
-    <string name="haptics_amplitude_label">Yoğunluk: %.1fx</string>
+
+    <string name="haptics_amplitude_label1">Yoğunluk: %.1fx</string>
     <string name="haptics_audio_gain_label">Audio Gain: %.1fx</string>
     <string name="haptics_gamma_label">Gama: %.1f</string>
     <string name="haptics_decay_label">Sönümlenme: %.2f</string>
     <string name="haptics_speed_label">Hız: %.1f</string>
     <string name="haptics_sensitivity_label">Hassasiyet: %.1f</string>
-    <string name="haptics_motor_multiplier_desc">Genel titreşim gücü çarpanı.</string>
+
     <string name="haptics_decay_instant">Yumuşatma yok (Anlık)</string>
     <string name="haptics_decay_smooth">Yumuşatma aktif</string>
     <string name="haptics_duration_label">Duration: %d ms</string>
@@ -92,7 +92,7 @@
     <string name="analytics_disclaimer_title">Analytics</string>
     <string name="analytics_disclaimer_text">This app uses Google Analytics (Firebase) to collect anonymous usage statistics and crash reports to help improve the app experience. No personal data or audio content is collected.</string>
     <string name="github_repository">GitHub Sayfası</string>
-    <string name="version_info">Sürüm %s</string>
+
     <string name="zones_config_version">Yapılandırma Sürümü: %s</string>
     <string name="media_projection_info">MediaProjection yalnızca gerçek zamanlı görselleştiriciyi çalıştırmak için kullanılır. Ekranınız veya verileriniz gereksizce kaydedilmez.</string>
     <string name="credits">Emeği Geçenler</string>
@@ -185,7 +185,7 @@
     <string name="tile_running">Running</string>
     <string name="tile_subtitle_default">Better Nothing Music Vizualiser</string>
     <!-- Feature Monitors -->
-    <string name="haptic_monitor">Haptic Monitor</string>
+    <string name="haptic_monito">Haptic Monitor</string>
     <string name="flashlight_level_stats">LEVEL: %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">Top Edge Overlay</string>
@@ -218,7 +218,7 @@
     <!-- Stats Screen -->
     <string name="usage_stats">Usage Stats</string>
     <string name="total_visualization_time">Total Visualization Time</string>
-    <string name="engagement">Engagement</string>
+
     <string name="active_music">Active Music</string>
     <string name="idle_pulse">Idle</string>
     <string name="feature_breakdown">Feature Breakdown</string>

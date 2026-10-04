@@ -26,13 +26,13 @@
     <!-- Haptics Screen -->
 
     <string name="haptics_frequency_label">Frequenz: %1$d - %2$d Hz</string>
-    <string name="haptics_frequency_desc">Vibriert basierend auf der Audioamplitude in diesem Bereich.</string>
-    <string name="haptics_amplitude_label">Intensität: %.1fx</string>
+
+    <string name="haptics_amplitude_label1">Intensität: %.1fx</string>
     <string name="haptics_gamma_label">Gamma: %.1f</string>
     <string name="haptics_decay_label">Abklingen: %.2f</string>
     <string name="haptics_speed_label">Geschwindigkeit: %.1f</string>
     <string name="haptics_sensitivity_label">Empfindlichkeit: %.1f</string>
-    <string name="haptics_motor_multiplier_desc">Globaler Multiplikator für die Vibrationsstärke.</string>
+
     <string name="haptics_decay_instant">Keine Glättung (Sofort)</string>
     <string name="haptics_decay_smooth">Glättung aktiv</string>
 
@@ -54,7 +54,7 @@
     <!-- About Screen -->
     <string name="about_title">App-Info und Updates</string>
     <string name="github_repository">GitHub-Repository</string>
-    <string name="version_info">Version %s</string>
+
     <string name="zones_config_version">Konfigurationsversion: %s</string>
     <string name="media_projection_info">MediaProjection wird nur verwendet, um den Echtzeit-Visualisierer zu betreiben. Es werden keine unnötigen Aufzeichnungen oder Datenspeicherungen durchgeführt.</string>
     <string name="credits">Mitwirkende</string>

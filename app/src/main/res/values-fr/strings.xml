@@ -33,16 +33,16 @@
     <string name="haptics_mode_label">Mode de visualisation</string>
     <string name="haptics_mode_bass">Amplitude</string>
     <string name="haptics_mode_beat">Détection du rythme</string>
-    <string name="haptics_beat_detection_desc">Vibre sur les battements détectés dans la plage de fréquences sélectionnée. Plus fluide mais souvent moins stable. (Fonctionnalité bêta)</string>
+    <string name="haptics_beat_detection_1desc">Vibre sur les battements détectés dans la plage de fréquences sélectionnée. Plus fluide mais souvent moins stable. (Fonctionnalité bêta)</string>
     <string name="haptics_frequency_label">Fréquence : %1$d - %2$d Hz</string>
-    <string name="haptics_frequency_desc">Vibre selon une plage de fréquence selectionnée.</string>
-    <string name="haptics_amplitude_label">Intensité de vibration : %.1fx</string>
+
+    <string name="haptics_amplitude_label1">Intensité de vibration : %.1fx</string>
     <string name="haptics_audio_gain_label">Volume audio : %.1fx</string>
     <string name="haptics_gamma_label">Gamma : %.1f</string>
     <string name="haptics_decay_label">Décroissance : %.2f</string>
     <string name="haptics_speed_label">Vitesse : %.1f</string>
     <string name="haptics_sensitivity_label">Sensibilité : %.1f</string>
-    <string name="haptics_motor_multiplier_desc">Ajuste l\'intensité des vibrations.</string>
+
     <string name="haptics_decay_instant">Sans lissage (Instantané)</string>
     <string name="haptics_decay_smooth">Lissage actif</string>
     <string name="haptics_duration_label">Durée : %d ms</string>
@@ -92,7 +92,7 @@
     <string name="analytics_disclaimer_title">Analyses</string>
     <string name="analytics_disclaimer_text">Cette application utilise Google Analytics (Firebase) pour collecter des statistiques d\'utilisation anonymes et des rapports de plantage afin d\'améliorer l\'expérience de l\'application. Aucune donnée personnelle ou contenu audio n\'est collectée.</string>
     <string name="github_repository">GitHub</string>
-    <string name="version_info">Version %s</string>
+
     <string name="zones_config_version">Version config : %s</string>
     <string name="media_projection_info">MediaProjection est utilisé uniquement pour l\'analyse audio en temps réel. Aucun enregistrement n\'est stocké.</string>
     <string name="credits">Remerciements</string>
@@ -185,7 +185,7 @@
     <string name="tile_running">En cours</string>
     <string name="tile_subtitle_default">Better Nothing Music Vizualiser</string>
     <!-- Feature Monitors -->
-    <string name="haptic_monitor">Vibration</string>
+    <string name="haptic_monito">Vibration</string>
     <string name="flashlight_level_stats">NIVEAU : %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">En haut de l\'écran</string>
@@ -218,7 +218,7 @@
     <!-- Stats Screen -->
     <string name="usage_stats">Statistiques d\'utilisation</string>
     <string name="total_visualization_time">Temps de visualisation total</string>
-    <string name="engagement">Engagement</string>
+
     <string name="active_music">Musique active</string>
     <string name="idle_pulse">Inactif</string>
     <string name="feature_breakdown">Répartition des fonctionnalités</string>

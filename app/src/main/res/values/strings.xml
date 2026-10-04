@@ -45,16 +45,16 @@
     <string name="haptics_mode_label">Haptic Engine Mode</string>
     <string name="haptics_mode_bass">Amplitude</string>
     <string name="haptics_mode_beat">Beat Detection</string>
-    <string name="haptics_beat_detection_desc">Vibrates on detected beats within the selected frequency range. Smoother but sometimes not as stable. It\'s a beta feature.</string>
+    <string name="haptics_beat_detection_1desc">Vibrates on detected beats within the selected frequency range. Smoother but sometimes not as stable.</string>
     <string name="haptics_frequency_label">Frequency: %1$d - %2$d Hz</string>
-    <string name="haptics_frequency_desc">Vibrates based on audio amplitude in this range.</string>
-    <string name="haptics_amplitude_label">Motor Gain: %.1fx</string>
+
+    <string name="haptics_amplitude_label1">Vibration strengh: %.1fx</string>
     <string name="haptics_audio_gain_label">Audio Gain: %.1fx</string>
     <string name="haptics_gamma_label">Gamma: %.1f</string>
     <string name="haptics_decay_label">Decay: %.2f</string>
     <string name="haptics_speed_label">Speed: %.1f</string>
     <string name="haptics_sensitivity_label">Sensitivity: %.1f</string>
-    <string name="haptics_motor_multiplier_desc">Global motor output strength multiplier.</string>
+
     <string name="haptics_decay_instant">No smoothing (Instant)</string>
     <string name="haptics_decay_smooth">Smoothing active</string>
     <string name="haptics_duration_label">Duration: %d ms</string>
@@ -112,7 +112,7 @@
     <string name="analytics_disclaimer_title">Analytics</string>
     <string name="analytics_disclaimer_text">This app uses Google Analytics (Firebase) to collect anonymous usage statistics and crash reports to help improve the app experience. No personal data or audio content is collected.</string>
     <string name="github_repository">GitHub Repository</string>
-    <string name="version_info">Version %s</string>
+    <string name="version_info">Version %s (%d)</string>
     <string name="zones_config_version">Config Version: %s</string>
     <string name="media_projection_info">MediaProjection is used only to power the real-time visualizer. No unnecessary recording or data storage is performed.</string>
     <string name="credits">Credits</string>
@@ -223,7 +223,7 @@
     <string name="tile_subtitle_default">Better Nothing Music Vizualiser</string>
 
     <!-- Feature Monitors -->
-    <string name="haptic_monitor">Haptic Monitor</string>
+    <string name="haptic_monito">Haptic Monitor</string>
     <string name="flashlight_level_stats">LEVEL: %1$d / %2$d</string>
 
     <!-- Visuals Options -->
@@ -271,13 +271,15 @@
     <!-- Stats Screen -->
     <string name="usage_stats">Usage Stats</string>
     <string name="total_visualization_time">Total Visualization Time</string>
-    <string name="engagement">Engagement</string>
+
     <string name="active_music">Active Music</string>
     <string name="idle_pulse">Idle</string>
     <string name="feature_breakdown">Feature Breakdown</string>
     <string name="glyph_interface">Glyph Interface/Matrix</string>
     <string name="haptic_feedback">Haptic Vibration</string>
     <string name="flashlight_sync_stat">Flashlight sync</string>
+    <string name="broadcasting_stat">Broadcating</string>
+    <string name="overlay_stat">Overlays</string>
     <string name="total_active_use">Total Active Use</string>
     <string name="export_stats">Export Stats</string>
     <string name="import_stats">Import Stats</string>
@@ -374,10 +376,10 @@
     <string name="help_show">Show help</string>
 
     <!-- Google Sans Flex Tuning -->
-    <string name="gsans_weight" translatable="false">Weight</string>
-    <string name="gsans_width" translatable="false">Width</string>
-    <string name="gsans_slant" translatable="false">Slant</string>
-    <string name="gsans_opsz" translatable="false">Optical Size</string>
-    <string name="gsans_grade" translatable="false">Grade</string>
-    <string name="gsans_rounding" translatable="false">Rounding</string>
+    <string name="gsans_weight_font_settings">Weight</string>
+    <string name="gsans_width_font_settings">Width</string>
+    <string name="gsans_slant_font_settings">Slant</string>
+    <string name="gsans_opsz_font_settings">Optical Size</string>
+    <string name="gsans_grade_font_settings">Grade</string>
+    <string name="gsans_rounding_font_settings">Rounding</string>
 </resources>
