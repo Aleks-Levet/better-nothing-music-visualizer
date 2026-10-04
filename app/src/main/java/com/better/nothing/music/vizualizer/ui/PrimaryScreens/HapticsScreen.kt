@@ -2,7 +2,6 @@ package com.better.nothing.music.vizualizer.ui.PrimaryScreens
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -12,12 +11,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.model.BeatEngineMode
 import com.better.nothing.music.vizualizer.model.HapticMode
@@ -36,7 +32,6 @@ import com.better.nothing.music.vizualizer.ui.invLerpLog
 import com.better.nothing.music.vizualizer.ui.lerpLog
 
 import com.better.nothing.music.vizualizer.ui.MainViewModel
-import androidx.compose.ui.platform.LocalView
 import android.view.HapticFeedbackConstants
 import android.content.Context
 import android.os.VibrationEffect
@@ -143,7 +138,7 @@ fun HapticsScreen(
             ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
                 CardHeader(
                     title = stringResource(
-                        R.string.haptics_amplitude_label,
+                        R.string.haptics_amplitude_label1,
                         hapticMultiplier
                     )
                 )
@@ -153,14 +148,9 @@ fun HapticsScreen(
                     valueRange = 0.3f..1.5f,
                     modifier = Modifier.fillMaxWidth()
                 )
-                BodyText(
-                    text = stringResource(R.string.haptics_motor_multiplier_desc),
-                    size = 12.sp,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-            }
 
-            ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
+                Spacer(modifier = Modifier.height(15.dp))
+
                 CardHeader(
                     title = stringResource(
                         R.string.haptics_frequency_label,
@@ -185,11 +175,6 @@ fun HapticsScreen(
                     valueRange = 0f..1f,
                     modifier = Modifier.fillMaxWidth()
                 )
-
-                BodyText(
-                    text = stringResource(R.string.haptics_frequency_desc),
-                    size = 12.sp
-                )
             }
 
             ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
@@ -208,10 +193,29 @@ fun HapticsScreen(
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                AnimatedVisibility (hapticMode == HapticMode.BEAT_DETECTION) {
+                    Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                        Spacer(modifier = Modifier.height(15.dp))
+
+                        CardHeader(
+                            title = stringResource(
+                                R.string.haptics_sensitivity_label,
+                                hapticBeatSensitivity
+                            )
+                        )
+                        ExpressiveSlider(
+                            value = hapticBeatSensitivity,
+                            onValueChange = onHapticBeatSensitivityChanged,
+                            valueRange = 0.3f..6.0f,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
             }
 
             AnimatedVisibility(hapticMode == HapticMode.BASS_TO_AMPLITUDE) {
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
                         CardHeader(
                             title = stringResource(
@@ -225,9 +229,9 @@ fun HapticsScreen(
                             valueRange = 0.5f..4.0f,
                             modifier = Modifier.fillMaxWidth()
                         )
-                    }
 
-                    ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
+                        Spacer(modifier = Modifier.height(3.dp))
+
                         CardHeader(
                             title = stringResource(
                                 R.string.haptics_gamma_label,
@@ -266,20 +270,6 @@ fun HapticsScreen(
                         }
                     }
 
-                    ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                        CardHeader(
-                            title = stringResource(
-                                R.string.haptics_sensitivity_label,
-                                hapticBeatSensitivity
-                            )
-                        )
-                        ExpressiveSlider(
-                            value = hapticBeatSensitivity,
-                            onValueChange = onHapticBeatSensitivityChanged,
-                            valueRange = 0.3f..6.0f,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
 
                     AnimatedVisibility(hapticBeatEngineMode == BeatEngineMode.SMOOTH && hasAmplitudeControl) {
                         ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
@@ -314,7 +304,7 @@ fun HapticsScreen(
                         }
                     }
                     BodyText(
-                        text = stringResource(R.string.haptics_beat_detection_desc),
+                        text = stringResource(R.string.haptics_beat_detection_1desc),
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
                 }
@@ -324,7 +314,7 @@ fun HapticsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 containerColor = MaterialTheme.colorScheme.surface
             ) {
-                CardHeader(title = stringResource(R.string.haptic_monitor))
+                CardHeader(title = stringResource(R.string.haptic_monito))
 
                 val isBeatDetected by isBeatDetectedFlow.collectAsStateWithLifecycle()
                 val hapticAmplitude by hapticAmplitudeFlow.collectAsStateWithLifecycle()

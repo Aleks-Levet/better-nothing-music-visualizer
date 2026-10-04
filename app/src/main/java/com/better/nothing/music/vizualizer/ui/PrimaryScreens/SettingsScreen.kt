@@ -19,7 +19,6 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -156,7 +155,7 @@ internal fun SettingsScreen(
                                 // Weight Slider
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = stringResource(R.string.gsans_weight) + ": ${weight.toInt()}",
+                                        text = stringResource(R.string.gsans_weight_font_settings) + ": ${weight.toInt()}",
                                         style = MaterialTheme.typography.labelLarge,
                                         color = MaterialTheme.colorScheme.primary
                                     )
@@ -171,7 +170,7 @@ internal fun SettingsScreen(
                                 // Width Slider
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = stringResource(R.string.gsans_width) + ": ${width.toInt()}%",
+                                        text = stringResource(R.string.gsans_width_font_settings) + ": ${width.toInt()}%",
                                         style = MaterialTheme.typography.labelLarge,
                                         color = MaterialTheme.colorScheme.primary
                                     )
@@ -192,7 +191,7 @@ internal fun SettingsScreen(
                                 // Rounding Slider
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = stringResource(R.string.gsans_rounding) + ": ${rounding.toInt()}",
+                                        text = stringResource(R.string.gsans_rounding_font_settings) + ": ${rounding.toInt()}",
                                         style = MaterialTheme.typography.labelLarge,
                                         color = MaterialTheme.colorScheme.primary
                                     )
@@ -207,7 +206,7 @@ internal fun SettingsScreen(
                                 // Slant Slider (Inverted: 0 on left, -20 on right)
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = stringResource(R.string.gsans_slant) + ": ${slant.toInt()}°",
+                                        text = stringResource(R.string.gsans_slant_font_settings) + ": ${slant.toInt()}°",
                                         style = MaterialTheme.typography.labelLarge,
                                         color = MaterialTheme.colorScheme.primary
                                     )

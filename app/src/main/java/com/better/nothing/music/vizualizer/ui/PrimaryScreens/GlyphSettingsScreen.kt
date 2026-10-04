@@ -333,12 +333,9 @@ internal fun GlyphsScreen(
             val vizStateState = viewModel.visualizerState.collectAsStateWithLifecycle()
             val previewHeight = when (selectedDevice) {
                 com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP2 -> 530.dp
-                com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP1,
                 com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP3,
-                com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4A,
-                com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4B,
-                com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4APRO -> 560.dp
-                else -> 400.dp
+                com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4APRO -> 380.dp
+                else -> 560.dp
             }
             GlyphPreview(
                 vizStateProvider = { vizStateState.value },

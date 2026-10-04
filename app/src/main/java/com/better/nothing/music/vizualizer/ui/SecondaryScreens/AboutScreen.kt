@@ -85,7 +85,7 @@ internal fun AboutScreen(
                         Text(
                             text = stringResource(
                                 R.string.version_info,
-                                BuildConfig.VERSION_NAME
+                                BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE
                             ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)

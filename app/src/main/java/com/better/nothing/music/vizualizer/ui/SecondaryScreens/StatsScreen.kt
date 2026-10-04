@@ -3,7 +3,6 @@ package com.better.nothing.music.vizualizer.ui.SecondaryScreens
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -135,7 +134,6 @@ internal fun StatsScreen(
 
             // Engagement Section
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SectionHeader(text = stringResource(R.string.engagement))
                 
                 val total = (activeTime + idleTime).coerceAtLeast(1L)
                 val activePercent = (activeTime * 100 / total).toInt()
@@ -318,8 +316,7 @@ private fun EngagementCard(
         },
         containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
             alpha = (0.3f + (uiAmp - 1.0f) * 0.3f).coerceIn(0.1f, 0.8f)
-        ),
-        border = BorderStroke(dynamicBorderWidth, color.copy(alpha = dynamicBorderAlpha))
+        )
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(label, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = color)
