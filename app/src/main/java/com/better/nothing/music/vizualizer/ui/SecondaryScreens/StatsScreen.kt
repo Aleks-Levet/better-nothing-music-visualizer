@@ -1,8 +1,10 @@
 package com.better.nothing.music.vizualizer.ui.SecondaryScreens
 
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -12,8 +14,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Vibration
+import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,7 +45,6 @@ import kotlinx.coroutines.launch
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.util.concurrent.TimeUnit
-import android.widget.Toast
 
 @Composable
 internal fun StatsScreen(
@@ -50,12 +53,30 @@ internal fun StatsScreen(
 ) {
     val scrollState = rememberScrollState()
     
+    val isRunning by viewModel.runningState.collectAsStateWithLifecycle()
+
     val totalTime by viewModel.totalVisualizedTime.collectAsStateWithLifecycle()
     val idleTime by viewModel.totalIdleTime.collectAsStateWithLifecycle()
     val activeTime by viewModel.totalActiveTime.collectAsStateWithLifecycle()
     val glyphTime by viewModel.totalGlyphTime.collectAsStateWithLifecycle()
     val hapticTime by viewModel.totalHapticTime.collectAsStateWithLifecycle()
     val flashlightTime by viewModel.totalFlashlightTime.collectAsStateWithLifecycle()
+    val broadcastTime by viewModel.totalBroadcastingTime.collectAsStateWithLifecycle()
+    val overlayTime by viewModel.totalOverlayTime.collectAsStateWithLifecycle()
+
+    val glyphsEnabled by viewModel.glyphsEnabled.collectAsStateWithLifecycle()
+    val maxBrightness by viewModel.maxBrightness.collectAsStateWithLifecycle()
+    val hapticEnabled by viewModel.hapticMotorEnabled.collectAsStateWithLifecycle()
+    val flashlightEnabled by viewModel.flashlightEnabled.collectAsStateWithLifecycle()
+    val broadcastEnabled by viewModel.broadcastEnabled.collectAsStateWithLifecycle()
+    val overlayEnabled by viewModel.overlayEnabled.collectAsStateWithLifecycle()
+    val onScreenVisualizersEnabled by viewModel.onScreenVisualizersEnabled.collectAsStateWithLifecycle()
+
+    val isGlyphActive = isRunning && glyphsEnabled && maxBrightness > 0
+    val isHapticActive = isRunning && hapticEnabled
+    val isFlashlightActive = isRunning && flashlightEnabled
+    val isBroadcastActive = isRunning && broadcastEnabled
+    val isOverlayActive = isRunning && overlayEnabled && onScreenVisualizersEnabled
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -121,7 +142,7 @@ internal fun StatsScreen(
         ) {
             Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
 
-                ScreenTitle(text = stringResource(R.string.usage_stats), modifier = Modifier.padding(bottom = 0.dp))
+            ScreenTitle(text = stringResource(R.string.usage_stats), modifier = Modifier.padding(bottom = 0.dp))
 
             // Hero Card
             HeroStatCard(
@@ -134,6 +155,7 @@ internal fun StatsScreen(
 
             // Engagement Section
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                SectionHeader(text = stringResource(R.string.engagement))
                 
                 val total = (activeTime + idleTime).coerceAtLeast(1L)
                 val activePercent = (activeTime * 100 / total).toInt()
@@ -154,7 +176,7 @@ internal fun StatsScreen(
                         label = stringResource(R.string.idle_pulse),
                         percentage = idlePercent,
                         time = formatTime(idleTime),
-                        color = MaterialTheme.colorScheme.secondary,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -170,19 +192,36 @@ internal fun StatsScreen(
                             icon = ImageVector.vectorResource(id = R.drawable.ic_nav_glyphs),
                             label = stringResource(R.string.glyph_interface),
                             value = formatTime(glyphTime),
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
+                            isActive = isGlyphActive
                         )
                         DetailedFeatureRow(
                             icon = Icons.Default.Vibration,
                             label = stringResource(R.string.haptic_feedback),
                             value = formatTime(hapticTime),
-                            color = MaterialTheme.colorScheme.secondary
+                            color = MaterialTheme.colorScheme.primary,
+                            isActive = isHapticActive
                         )
                         DetailedFeatureRow(
                             icon = Icons.Default.FlashOn,
                             label = stringResource(R.string.flashlight_sync_stat),
                             value = formatTime(flashlightTime),
-                            color = MaterialTheme.colorScheme.tertiary
+                            color = MaterialTheme.colorScheme.primary,
+                            isActive = isFlashlightActive
+                        )
+                        DetailedFeatureRow(
+                            icon = Icons.Default.Wifi,
+                            label = stringResource(R.string.broadcasting_stat),
+                            value = formatTime(broadcastTime),
+                            color = MaterialTheme.colorScheme.primary,
+                            isActive = isBroadcastActive
+                        )
+                        DetailedFeatureRow(
+                            icon = Icons.Default.Layers,
+                            label = stringResource(R.string.overlay_stat),
+                            value = formatTime(overlayTime),
+                            color = MaterialTheme.colorScheme.primary,
+                            isActive = isOverlayActive
                         )
                     }
                 }
@@ -310,11 +349,15 @@ private fun EngagementCard(
     val dynamicBorderAlpha = (0.2f + (uiAmp - 1.0f) * 0.8f).coerceIn(0.1f, 1.0f)
 
     ExpressiveCard(
-        modifier = modifier.graphicsLayer {
-            scaleX = cardScale
-            scaleY = cardScale
-        },
-        containerColor = MaterialTheme.colorScheme.surface
+        modifier = modifier
+            .border(dynamicBorderWidth, color.copy(alpha = dynamicBorderAlpha), MaterialTheme.shapes.large)
+            .graphicsLayer {
+                scaleX = cardScale
+                scaleY = cardScale
+            },
+        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
+            alpha = (0.3f + (uiAmp - 1.0f) * 0.3f).coerceIn(0.1f, 0.8f)
+        )
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(label, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = color)
@@ -352,14 +395,16 @@ private fun DetailedFeatureRow(
     icon: ImageVector,
     label: String,
     value: String,
-    color: Color
+    color: Color = MaterialTheme.colorScheme.primary,
+    isActive: Boolean = true
 ) {
-    val uiAmp = LocalUIAmplitude.current
+    val uiAmp = if (isActive) LocalUIAmplitude.current else 1.0f
     val avatarScale = 1.0f + (uiAmp - 1.0f) * 0.18f
     val iconScale = 1.0f + (uiAmp - 1.0f) * 0.25f
     val valueWeight = FontWeight((800 + (uiAmp - 1.0f) * 400).toInt().coerceIn(400, 1000))
     val labelWeight = FontWeight((700 + (uiAmp - 1.0f) * 250).toInt().coerceIn(400, 1000))
-    val bgAlpha = (0.1f + (uiAmp - 1.0f) * 0.35f).coerceIn(0.05f, 0.6f)
+    val bgAlpha = if (isActive) (0.1f + (uiAmp - 1.0f) * 0.35f).coerceIn(0.05f, 0.6f) else 0.05f
+    val activeAlpha = if (isActive) 1.0f else 0.4f
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -386,17 +431,22 @@ private fun DetailedFeatureRow(
                             scaleX = iconScale
                             scaleY = iconScale
                         },
-                    tint = color
+                    tint = color.copy(alpha = activeAlpha)
                 )
             }
         }
         Column(modifier = Modifier.weight(1f)) {
-            Text(label, style = MaterialTheme.typography.titleSmall, fontWeight = labelWeight)
+            Text(
+                label,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = labelWeight,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = activeAlpha)
+            )
             Text(
                 text = stringResource(R.string.total_active_use),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(
-                    alpha = (0.5f + (uiAmp - 1.0f) * 0.3f).coerceIn(0.3f, 0.9f)
+                    alpha = (if (isActive) (0.5f + (uiAmp - 1.0f) * 0.3f) else 0.3f).coerceIn(0.2f, 0.9f)
                 )
             )
         }
@@ -404,7 +454,7 @@ private fun DetailedFeatureRow(
             text = value,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = valueWeight,
-            color = color
+            color = color.copy(alpha = activeAlpha)
         )
     }
 }

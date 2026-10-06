@@ -271,6 +271,7 @@
     <!-- Stats Screen -->
     <string name="usage_stats">Usage Stats</string>
     <string name="total_visualization_time">Total Visualization Time</string>
+    <string name="engagement">Engagement</string>
 
     <string name="active_music">Active Music</string>
     <string name="idle_pulse">Idle</string>

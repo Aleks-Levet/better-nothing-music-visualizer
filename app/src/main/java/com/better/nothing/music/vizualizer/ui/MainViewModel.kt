@@ -143,6 +143,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _totalFlashlightTime = MutableStateFlow(0L)
     val totalFlashlightTime = _totalFlashlightTime.asStateFlow()
 
+    val _totalBroadcastingTime = MutableStateFlow(0L)
+    val totalBroadcastingTime = _totalBroadcastingTime.asStateFlow()
+
+    val _totalOverlayTime = MutableStateFlow(0L)
+    val totalOverlayTime = _totalOverlayTime.asStateFlow()
+
     sealed class AppUpdateStatus {
         object Idle : AppUpdateStatus()
         object Checking : AppUpdateStatus()
@@ -1418,6 +1424,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 .putLong("total_glyph_time", _totalGlyphTime.value)
                 .putLong("total_haptic_time", _totalHapticTime.value)
                 .putLong("total_flashlight_time", _totalFlashlightTime.value)
+                .putLong("total_broadcasting_time", _totalBroadcastingTime.value)
+                .putLong("total_overlay_time", _totalOverlayTime.value)
                 .apply()
         }
     }
@@ -1431,6 +1439,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 put("total_glyph_time", _totalGlyphTime.value)
                 put("total_haptic_time", _totalHapticTime.value)
                 put("total_flashlight_time", _totalFlashlightTime.value)
+                put("total_broadcasting_time", _totalBroadcastingTime.value)
+                put("total_overlay_time", _totalOverlayTime.value)
             }
             android.util.Base64.encodeToString(json.toString().toByteArray(), android.util.Base64.DEFAULT)
         } catch (e: Exception) {
@@ -1449,6 +1459,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _totalGlyphTime.value = json.optLong("total_glyph_time", 0L)
             _totalHapticTime.value = json.optLong("total_haptic_time", 0L)
             _totalFlashlightTime.value = json.optLong("total_flashlight_time", 0L)
+            _totalBroadcastingTime.value = json.optLong("total_broadcasting_time", 0L)
+            _totalOverlayTime.value = json.optLong("total_overlay_time", 0L)
             
             saveStatsLocally()
             true
@@ -2368,6 +2380,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _totalGlyphTime.value = get("total_glyph_time", 0L)
         _totalHapticTime.value = get("total_haptic_time", 0L)
         _totalFlashlightTime.value = get("total_flashlight_time", 0L)
+        _totalBroadcastingTime.value = get("total_broadcasting_time", 0L)
+        _totalOverlayTime.value = get("total_overlay_time", 0L)
         
         val savedSpoofLocale = get("spoof_locale", null as String?)
         _spoofLocale.value = savedSpoofLocale
@@ -2531,6 +2545,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         if (_hapticMotorEnabled.value) _totalHapticTime.value += delta
                         if (_flashlightEnabled.value) _totalFlashlightTime.value += delta
                         if (_glyphsEnabled.value && _maxBrightness.value > 0) _totalGlyphTime.value += delta
+                        if (_broadcastEnabled.value) _totalBroadcastingTime.value += delta
+                        if (_overlayEnabled.value && _onScreenVisualizersEnabled.value) _totalOverlayTime.value += delta
                     } else {
                         _totalIdleTime.value += delta
                     }
