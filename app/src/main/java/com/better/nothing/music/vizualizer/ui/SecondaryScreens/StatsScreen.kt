@@ -3,7 +3,14 @@ package com.better.nothing.music.vizualizer.ui.SecondaryScreens
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -26,6 +33,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -342,7 +353,6 @@ private fun EngagementCard(
 ) {
     val uiAmp = LocalUIAmplitude.current
     val cardScale = 1.0f + (uiAmp - 1.0f) * 0.05f
-    val progressHeight = (8.dp * (1.0f + (uiAmp - 1.0f) * 1.0f)).coerceAtLeast(4.dp)
     val percentageWeight = FontWeight((800 + (uiAmp - 1.0f) * 450).toInt().coerceIn(300, 1000))
     val timeWeight = FontWeight((400 + (uiAmp - 1.0f) * 300).toInt().coerceIn(200, 1000))
     val dynamicBorderWidth = (1.dp + 4.dp * (uiAmp - 1.0f)).coerceAtLeast(1.dp)
@@ -377,14 +387,87 @@ private fun EngagementCard(
             )
             
             Spacer(modifier = Modifier.height(8.dp))
-            LinearProgressIndicator(
-                progress = { percentage / 100f },
+            WigglyProgressIndicator(
+                progress = percentage / 100f,
+                uiAmp = uiAmp,
+                color = color,
+                trackColor = color.copy(alpha = (0.15f + (uiAmp - 1.0f) * 0.2f).coerceIn(0.1f, 0.5f)),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(progressHeight)
-                    .clip(CircleShape),
+                    .height(18.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun WigglyProgressIndicator(
+    progress: Float,
+    uiAmp: Float,
+    color: Color,
+    trackColor: Color,
+    modifier: Modifier = Modifier
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "wiggleTransition")
+    val phase by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = (2f * Math.PI).toFloat(),
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 800, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "phaseAnimation"
+    )
+
+    Canvas(modifier = modifier) {
+        val width = size.width
+        val height = size.height
+        val centerY = height / 2f
+        val strokeWidth = 5.dp.toPx()
+        val clampedProgress = progress.coerceIn(0f, 1f)
+        val activeWidth = width * clampedProgress
+
+        // Background track
+        if (width > 0) {
+            drawLine(
+                color = trackColor,
+                start = androidx.compose.ui.geometry.Offset(0f, centerY),
+                end = androidx.compose.ui.geometry.Offset(width, centerY),
+                strokeWidth = strokeWidth,
+                cap = StrokeCap.Round
+            )
+        }
+
+        // Active wiggly track
+        if (activeWidth > 0f) {
+            val baseAmplitude = 3.5.dp.toPx()
+            val ampMultiplier = (1.0f + (uiAmp - 1.0f) * 3.0f)
+            val amplitude = baseAmplitude * ampMultiplier
+            val waveLength = 28.dp.toPx()
+
+            val steps = (activeWidth / 2f).toInt().coerceAtLeast(12)
+            val path = Path()
+
+            for (i in 0..steps) {
+                val x = (i.toFloat() / steps) * activeWidth
+                val envelope = Math.sin(Math.PI * (x / activeWidth).toDouble()).toFloat().coerceIn(0f, 1f)
+                val y = centerY + amplitude * envelope * Math.sin((2.0 * Math.PI * x / waveLength) + phase).toFloat()
+
+                if (i == 0) {
+                    path.moveTo(x, y)
+                } else {
+                    path.lineTo(x, y)
+                }
+            }
+
+            drawPath(
+                path = path,
                 color = color,
-                trackColor = color.copy(alpha = (0.1f + (uiAmp - 1.0f) * 0.2f).coerceIn(0.05f, 0.5f))
+                style = Stroke(
+                    width = strokeWidth,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round
+                )
             )
         }
     }
