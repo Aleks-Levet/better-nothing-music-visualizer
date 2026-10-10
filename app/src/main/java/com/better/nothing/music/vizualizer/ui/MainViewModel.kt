@@ -2528,7 +2528,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             var lastUpdate = SystemClock.elapsedRealtime()
             var lastSave = lastUpdate
             while (true) {
-                delay(100)
+                delay(50)
                 val now = SystemClock.elapsedRealtime()
                 val delta = now - lastUpdate
                 lastUpdate = now
