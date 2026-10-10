@@ -1666,7 +1666,7 @@ fun <T> ExpressiveSplitButton(
                                     }
                                     is PressInteraction.Release -> {
                                         val elapsed = SystemClock.elapsedRealtime() - pressStartTime
-                                        val remainingDelay = 60L - elapsed
+                                        val remainingDelay = 50L - elapsed
                                         if (remainingDelay > 0) {
                                             delay(remainingDelay)
                                         }
