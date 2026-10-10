@@ -65,6 +65,8 @@
     <!-- Audio Processing -->
     <string name="microphone_mode">Microphone Capture Mode (Expert)</string>
     <string name="microphone_mode_desc">Changes how the microphone captures audio.</string>
+    <string name="mic_mode_mic">MIC</string>
+    <string name="mic_mode_mic_desc">The default mic mode for android</string>
     <string name="mic_mode_voice_comm">Voice Comm</string>
     <string name="mic_mode_voice_comm_desc">VOICE_COMMUNICATION: Usually has echo cancellation and noise suppression.</string>
     <string name="mic_mode_voice_rec">Recognition</string>

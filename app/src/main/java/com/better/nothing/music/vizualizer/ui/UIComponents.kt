@@ -48,6 +48,7 @@ import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -154,12 +155,18 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.star
 import androidx.graphics.shapes.toPath
 import com.better.nothing.music.vizualizer.R
+import com.better.nothing.music.vizualizer.model.BeatEngineMode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlin.math.exp
@@ -1649,13 +1656,20 @@ fun <T> ExpressiveSplitButton(
                         val interactionSource = remember { MutableInteractionSource() }
 
                         LaunchedEffect(interactionSource) {
+                            var pressStartTime = 0L
                             interactionSource.interactions.collect { interaction ->
                                 when (interaction) {
                                     is PressInteraction.Press -> {
+                                        pressStartTime = SystemClock.elapsedRealtime()
                                         isPressed = true
                                         view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
                                     }
                                     is PressInteraction.Release -> {
+                                        val elapsed = SystemClock.elapsedRealtime() - pressStartTime
+                                        val remainingDelay = 60L - elapsed
+                                        if (remainingDelay > 0) {
+                                            delay(remainingDelay)
+                                        }
                                         view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
                                         delay(120)
                                         isPressed = false
@@ -2277,6 +2291,8 @@ fun AppUpdateRibbon(
         }
     }
 }
+
+
 
 
 

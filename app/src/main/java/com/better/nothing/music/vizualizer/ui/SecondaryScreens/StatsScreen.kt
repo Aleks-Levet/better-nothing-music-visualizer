@@ -83,11 +83,11 @@ internal fun StatsScreen(
     val overlayEnabled by viewModel.overlayEnabled.collectAsStateWithLifecycle()
     val onScreenVisualizersEnabled by viewModel.onScreenVisualizersEnabled.collectAsStateWithLifecycle()
 
-    val isGlyphActive = isRunning && glyphsEnabled && maxBrightness > 0
-    val isHapticActive = isRunning && hapticEnabled
-    val isFlashlightActive = isRunning && flashlightEnabled
-    val isBroadcastActive = isRunning && broadcastEnabled
-    val isOverlayActive = isRunning && overlayEnabled && onScreenVisualizersEnabled
+    val isGlyphActive = !isRunning or  glyphsEnabled && maxBrightness > 0
+    val isHapticActive = !isRunning or hapticEnabled
+    val isFlashlightActive = !isRunning or  flashlightEnabled
+    val isBroadcastActive = !isRunning or  broadcastEnabled
+    val isOverlayActive = !isRunning or (overlayEnabled && onScreenVisualizersEnabled)
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -166,7 +166,6 @@ internal fun StatsScreen(
 
             // Engagement Section
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SectionHeader(text = stringResource(R.string.engagement))
                 
                 val total = (activeTime + idleTime).coerceAtLeast(1L)
                 val activePercent = (activeTime * 100 / total).toInt()
@@ -204,35 +203,40 @@ internal fun StatsScreen(
                             label = stringResource(R.string.glyph_interface),
                             value = formatTime(glyphTime),
                             color = MaterialTheme.colorScheme.primary,
-                            isActive = isGlyphActive
+                            isActive = isGlyphActive,
+                            isRunning = isRunning // Pass the running state
                         )
                         DetailedFeatureRow(
                             icon = Icons.Default.Vibration,
                             label = stringResource(R.string.haptic_feedback),
                             value = formatTime(hapticTime),
                             color = MaterialTheme.colorScheme.primary,
-                            isActive = isHapticActive
+                            isActive = isHapticActive,
+                            isRunning = isRunning // Pass the running state
                         )
                         DetailedFeatureRow(
                             icon = Icons.Default.FlashOn,
                             label = stringResource(R.string.flashlight_sync_stat),
                             value = formatTime(flashlightTime),
                             color = MaterialTheme.colorScheme.primary,
-                            isActive = isFlashlightActive
+                            isActive = isFlashlightActive,
+                            isRunning = isRunning // Pass the running state
                         )
                         DetailedFeatureRow(
                             icon = Icons.Default.Wifi,
                             label = stringResource(R.string.broadcasting_stat),
                             value = formatTime(broadcastTime),
                             color = MaterialTheme.colorScheme.primary,
-                            isActive = isBroadcastActive
+                            isActive = isBroadcastActive,
+                            isRunning = isRunning // Pass the running state
                         )
                         DetailedFeatureRow(
                             icon = Icons.Default.Layers,
                             label = stringResource(R.string.overlay_stat),
                             value = formatTime(overlayTime),
                             color = MaterialTheme.colorScheme.primary,
-                            isActive = isOverlayActive
+                            isActive = isOverlayActive,
+                            isRunning = isRunning // Pass the running state
                         )
                     }
                 }
@@ -360,14 +364,11 @@ private fun EngagementCard(
 
     ExpressiveCard(
         modifier = modifier
-            .border(dynamicBorderWidth, color.copy(alpha = dynamicBorderAlpha), MaterialTheme.shapes.large)
             .graphicsLayer {
                 scaleX = cardScale
                 scaleY = cardScale
             },
-        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
-            alpha = (0.3f + (uiAmp - 1.0f) * 0.3f).coerceIn(0.1f, 0.8f)
-        )
+        containerColor = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(label, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = color)
@@ -379,7 +380,7 @@ private fun EngagementCard(
             )
             Text(
                 text = time,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = timeWeight,
                 color = MaterialTheme.colorScheme.onSurface.copy(
                     alpha = (0.6f + (uiAmp - 1.0f) * 0.4f).coerceIn(0.4f, 1.0f)
@@ -479,7 +480,8 @@ private fun DetailedFeatureRow(
     label: String,
     value: String,
     color: Color = MaterialTheme.colorScheme.primary,
-    isActive: Boolean = true
+    isActive: Boolean = true,
+    isRunning: Boolean = true
 ) {
     val uiAmp = if (isActive) LocalUIAmplitude.current else 1.0f
     val avatarScale = 1.0f + (uiAmp - 1.0f) * 0.18f

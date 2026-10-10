@@ -1,11 +1,27 @@
 package com.better.nothing.music.vizualizer.ui.PrimaryScreens
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import android.view.HapticFeedbackConstants
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -14,33 +30,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.model.BeatEngineMode
 import com.better.nothing.music.vizualizer.model.HapticMode
-import kotlinx.coroutines.flow.StateFlow
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.better.nothing.music.vizualizer.ui.BodyText
+import com.better.nothing.music.vizualizer.ui.ActuatorSettingsLayout
 import com.better.nothing.music.vizualizer.ui.CardHeader
-import com.better.nothing.music.vizualizer.ui.ExpressiveCard
-import com.better.nothing.music.vizualizer.ui.ExpressiveRangeSlider
-import com.better.nothing.music.vizualizer.ui.ExpressiveSplitButton
 import com.better.nothing.music.vizualizer.ui.ExpressiveSlider
-import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
-import com.better.nothing.music.vizualizer.ui.MorphingPolygon
-import com.better.nothing.music.vizualizer.ui.ScreenTitle
-import com.better.nothing.music.vizualizer.ui.invLerpLog
-import com.better.nothing.music.vizualizer.ui.lerpLog
-
 import com.better.nothing.music.vizualizer.ui.MainViewModel
-import android.view.HapticFeedbackConstants
-import android.content.Context
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
-import android.os.Build
-import androidx.compose.animation.AnimatedVisibility
+import kotlinx.coroutines.flow.StateFlow
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HapticsScreen(
     viewModel: MainViewModel,
@@ -69,11 +68,9 @@ fun HapticsScreen(
     hapticAmplitudeFlow: StateFlow<Float>,
     hapticMotorIntensityFlow: StateFlow<Float>,
     isBeatDetectedFlow: StateFlow<Boolean>,
-    padding: androidx.compose.foundation.layout.PaddingValues = androidx.compose.foundation.layout.PaddingValues(),
+    padding: PaddingValues = PaddingValues(),
 ) {
-    val scrollState = rememberScrollState()
     val view = androidx.compose.ui.platform.LocalView.current
-
     val context = androidx.compose.ui.platform.LocalContext.current
     val vibrator = remember(context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -85,284 +82,162 @@ fun HapticsScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)
-            .padding(horizontal = LocalAppSpacing.current.edge)
-            .verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
+    val isBeatDetected by isBeatDetectedFlow.collectAsStateWithLifecycle()
+    val hapticAmplitude by hapticAmplitudeFlow.collectAsStateWithLifecycle()
+    val motorIntensity by hapticMotorIntensityFlow.collectAsStateWithLifecycle()
 
-        ScreenTitle(
-            text = stringResource(R.string.haptics_header),
-            onClick = {
-                viewModel.logEasterEggEvent("easter_egg_haptics")
-                android.widget.Toast.makeText(context, context.getString(R.string.toast_haptics_title_tap), android.widget.Toast.LENGTH_SHORT).show()
-                val effect = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE)
+    ActuatorSettingsLayout(
+        title = stringResource(R.string.haptics_header),
+        onTitleClick = {
+            viewModel.logEasterEggEvent("easter_egg_haptics")
+            android.widget.Toast.makeText(context, context.getString(R.string.toast_haptics_title_tap), android.widget.Toast.LENGTH_SHORT).show()
+            val effect = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE)
+            } else {
+                null
+            }
+
+            if (Build.VERSION.SDK_INT >= 33) {
+                val attr = android.os.VibrationAttributes.Builder()
+                    .setUsage(android.os.VibrationAttributes.USAGE_MEDIA)
+                    .build()
+                if (effect != null) {
+                    vibrator.vibrate(effect, attr)
+                }
+            } else {
+                val audioAttr = android.media.AudioAttributes.Builder()
+                    .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+                if (effect != null) {
+                    vibrator.vibrate(effect, audioAttr)
                 } else {
-                    null
-                }
-                
-                if (Build.VERSION.SDK_INT >= 33) {
-                    val attr = android.os.VibrationAttributes.Builder()
-                        .setUsage(android.os.VibrationAttributes.USAGE_MEDIA)
-                        .build()
-                    if (effect != null) {
-                        vibrator.vibrate(effect, attr)
-                    }
-                } else {
-                    val audioAttr = android.media.AudioAttributes.Builder()
-                        .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
-                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .build()
-                    if (effect != null) {
-                        vibrator.vibrate(effect, audioAttr)
-                    } else {
-                        @Suppress("DEPRECATION")
-                        vibrator.vibrate(1000)
-                    }
-                }
-            },
-            onLongPress = {
-                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-            }
-        )
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                CardHeader(
-                    title = stringResource(
-                        R.string.haptics_amplitude_label1,
-                        hapticMultiplier
-                    )
-                )
-                ExpressiveSlider(
-                    value = hapticMultiplier,
-                    onValueChange = onHapticMultiplierChanged,
-                    valueRange = 0.3f..1.5f,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(15.dp))
-
-                CardHeader(
-                    title = stringResource(
-                        R.string.haptics_frequency_label_b,
-                        hapticFreqMin.toInt(),
-                        hapticFreqMax.toInt()
-                    )
-                )
-
-                val currentRange =
-                    invLerpLog(hapticFreqMin, 20f, 2500f)..invLerpLog(hapticFreqMax, 20f, 2500f)
-
-                ExpressiveRangeSlider(
-                    value = currentRange,
-                    onValueChange = { newRange ->
-                        val newMin = lerpLog(newRange.start, 20f, 2500f)
-                        val newMax = lerpLog(newRange.endInclusive, 20f, 2500f)
-
-                        if (newMax - newMin >= 10f) {
-                            onHapticFreqRangeChanged(newMin, newMax)
-                        }
-                    },
-                    valueRange = 0f..1f,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                CardHeader(title = stringResource(R.string.haptics_mode_label))
-                ExpressiveSplitButton(
-                    items = HapticMode.entries,
-                    selectedItem = hapticMode,
-                    onItemSelection = onHapticModeChanged,
-                    labelProvider = { mode ->
-                        stringResource(
-                            when (mode) {
-                                HapticMode.BASS_TO_AMPLITUDE -> R.string.haptics_mode_bass
-                                HapticMode.BEAT_DETECTION -> R.string.haptics_mode_beat
-                            }
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                AnimatedVisibility (hapticMode == HapticMode.BEAT_DETECTION) {
-                    Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                        Spacer(modifier = Modifier.height(15.dp))
-
-                        CardHeader(
-                            title = stringResource(
-                                R.string.haptics_sensitivity_label,
-                                hapticBeatSensitivity
-                            )
-                        )
-                        ExpressiveSlider(
-                            value = hapticBeatSensitivity,
-                            onValueChange = onHapticBeatSensitivityChanged,
-                            valueRange = 0.3f..6.0f,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+                    @Suppress("DEPRECATION")
+                    vibrator.vibrate(1000)
                 }
             }
+        },
+        onTitleLongPress = {
+            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+        },
 
-            AnimatedVisibility(hapticMode == HapticMode.BASS_TO_AMPLITUDE) {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                        CardHeader(
-                            title = stringResource(
-                                R.string.haptics_audio_gain_label,
-                                hapticAudioGain
-                            )
-                        )
-                        ExpressiveSlider(
-                            value = hapticAudioGain,
-                            onValueChange = onHapticAudioGainChanged,
-                            valueRange = 0.5f..4.0f,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+        // Card 1: Multiplier & Frequency Range
+        intensityControl = {
+            CardHeader(
+                title = stringResource(
+                    R.string.haptics_amplitude_label1,
+                    hapticMultiplier
+                )
+            )
+            ExpressiveSlider(
+                value = hapticMultiplier,
+                onValueChange = onHapticMultiplierChanged,
+                valueRange = 0.3f..1.5f,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        freqTitle = stringResource(
+            R.string.haptics_frequency_label_b,
+            hapticFreqMin.toInt(),
+            hapticFreqMax.toInt()
+        ),
+        freqMin = hapticFreqMin,
+        freqMax = hapticFreqMax,
+        freqMinLimit = 20f,
+        freqMaxLimit = 2500f,
+        onFreqRangeChanged = onHapticFreqRangeChanged,
 
-                        Spacer(modifier = Modifier.height(3.dp))
-
-                        CardHeader(
-                            title = stringResource(
-                                R.string.haptics_gamma_label,
-                                hapticGamma
-                            )
-                        )
-                        ExpressiveSlider(
-                            value = hapticGamma,
-                            onValueChange = onHapticGammaChanged,
-                            valueRange = 1.0f..3.0f,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+        // Card 2: Mode Selection & Sensitivity
+        modeTitle = stringResource(R.string.haptics_mode_label),
+        modes = HapticMode.entries,
+        selectedMode = hapticMode,
+        onModeSelected = onHapticModeChanged,
+        modeLabelProvider = { mode ->
+            stringResource(
+                when (mode) {
+                    HapticMode.BASS_TO_AMPLITUDE -> R.string.haptics_mode_bass
+                    HapticMode.BEAT_DETECTION -> R.string.haptics_mode_beat
                 }
-            }
+            )
+        },
+        isBeatDetectionMode = (hapticMode == HapticMode.BEAT_DETECTION),
+        beatSensitivityTitle = stringResource(
+            R.string.haptics_sensitivity_label,
+            hapticBeatSensitivity
+        ),
+        beatSensitivity = hapticBeatSensitivity,
+        onBeatSensitivityChanged = onHapticBeatSensitivityChanged,
 
-            AnimatedVisibility (hapticMode == HapticMode.BEAT_DETECTION) {
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                            CardHeader(title = stringResource(R.string.beat_engine_mode_label))
-                            if (hasAmplitudeControl) {
-                                ExpressiveSplitButton(
-                                    items = BeatEngineMode.entries,
-                                    selectedItem = hapticBeatEngineMode,
-                                    onItemSelection = onHapticBeatEngineModeChanged,
-                                    labelProvider = { mode ->
-                                        stringResource(
-                                            when (mode) {
-                                                BeatEngineMode.SMOOTH -> R.string.beat_engine_smooth
-                                                BeatEngineMode.SHORT_PULSE -> R.string.beat_engine_short
-                                            }
-                                        )
-                                    },
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
+        // Card 3: Amplitude Mode Controls (Audio Gain & Gamma)
+        amplitudeModeContent = {
+            CardHeader(
+                title = stringResource(
+                    R.string.haptics_audio_gain_label,
+                    hapticAudioGain
+                )
+            )
+            ExpressiveSlider(
+                value = hapticAudioGain,
+                onValueChange = onHapticAudioGainChanged,
+                valueRange = 0.5f..4.0f,
+                modifier = Modifier.fillMaxWidth()
+            )
 
-                        AnimatedVisibility(hapticBeatEngineMode == BeatEngineMode.SMOOTH && hasAmplitudeControl) {
-                            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                                Spacer(modifier = Modifier.height(15.dp))
-                                CardHeader(
-                                    title = stringResource(
-                                        R.string.haptics_speed_label,
-                                        hapticBeatGamma
-                                    )
-                                )
-                                ExpressiveSlider(
-                                    value = hapticBeatGamma,
-                                    onValueChange = onHapticBeatGammaChanged,
-                                    valueRange = 4.0f..15.0f,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
-                        AnimatedVisibility(!(hapticBeatEngineMode == BeatEngineMode.SMOOTH && hasAmplitudeControl)) {
-                            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                                Spacer(modifier = Modifier.height(15.dp))
-                                CardHeader(
-                                    title = stringResource(
-                                        R.string.haptics_duration_label,
-                                        hapticPulseDurationMs
-                                    )
-                                )
-                                ExpressiveSlider(
-                                    value = hapticPulseDurationMs.toFloat(),
-                                    onValueChange = { onHapticPulseDurationMsChanged(it.toInt()) },
-                                    valueRange = 5f..200f,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
-                    }
+            Spacer(modifier = Modifier.height(3.dp))
 
-                    BodyText(
-                        text = stringResource(R.string.haptics_beat_detection_1desc),
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
-                }
-            }
+            CardHeader(
+                title = stringResource(
+                    R.string.haptics_gamma_label,
+                    hapticGamma
+                )
+            )
+            ExpressiveSlider(
+                value = hapticGamma,
+                onValueChange = onHapticGammaChanged,
+                valueRange = 1.0f..3.0f,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
 
-            ExpressiveCard(
-                modifier = Modifier.fillMaxWidth(),
-                containerColor = MaterialTheme.colorScheme.surface
+        // Card 4: Beat Engine Controls
+        hasMultipleIntensities = hasAmplitudeControl,
+        beatEngineMode = hapticBeatEngineMode,
+        onBeatEngineModeChanged = onHapticBeatEngineModeChanged,
+        beatGammaTitle = stringResource(
+            R.string.haptics_speed_label,
+            hapticBeatGamma
+        ),
+        beatGamma = hapticBeatGamma,
+        onBeatGammaChanged = onHapticBeatGammaChanged,
+        pulseDurationTitle = stringResource(
+            R.string.haptics_duration_label,
+            hapticPulseDurationMs
+        ),
+        pulseDurationMs = hapticPulseDurationMs,
+        onPulseDurationMsChanged = onHapticPulseDurationMsChanged,
+        beatDescription = stringResource(R.string.haptics_beat_detection_1desc),
+
+        // Card 5: Monitor Card
+        monitorTitle = stringResource(R.string.haptic_monito),
+        isBeatDetected = isBeatDetected,
+        amplitude = hapticAmplitude,
+        monitorVisualizer = {
+            Box(
+                modifier = Modifier
+                    .width(60.dp)
+                    .fillMaxHeight()
+                    .padding(vertical = 20.dp),
+                contentAlignment = Alignment.Center
             ) {
-                CardHeader(title = stringResource(R.string.haptic_monito))
-
-                val isBeatDetected by isBeatDetectedFlow.collectAsStateWithLifecycle()
-                val hapticAmplitude by hapticAmplitudeFlow.collectAsStateWithLifecycle()
-                val motorIntensity by hapticMotorIntensityFlow.collectAsStateWithLifecycle()
-
-                val flashColor by animateColorAsState(
-                    targetValue = if (isBeatDetected) Color.White else MaterialTheme.colorScheme.primary.copy(
-                        alpha = 0.8f
-                    ),
-                    animationSpec = if (isBeatDetected) snap() else spring(stiffness = Spring.StiffnessVeryLow),
-                    label = "flashColor"
+                HapticSquigglyLine(
+                    amplitude = motorIntensity,
+                    color = MaterialTheme.colorScheme.primary
                 )
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(220.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                        MorphingPolygon(
-                            isBeatDetected = isBeatDetected,
-                            amplitude = hapticAmplitude,
-                            color = flashColor,
-                            modifier = Modifier.size(110.dp)
-                        )
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .width(60.dp)
-                            .fillMaxHeight()
-                            .padding(vertical = 20.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        HapticSquigglyLine(
-                            amplitude = motorIntensity,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
             }
-        }
+        },
 
-        Spacer(modifier = Modifier.height(85.dp))
-    }
+        padding = padding
+    )
 }
 
 @Composable
@@ -403,7 +278,7 @@ fun HapticSquigglyLine(
             path = path,
             color = color,
             style = androidx.compose.ui.graphics.drawscope.Stroke(
-                width = (5+(amplitude*4)).dp.toPx(),
+                width = (5 + (amplitude * 4)).dp.toPx(),
                 cap = androidx.compose.ui.graphics.StrokeCap.Round,
                 join = androidx.compose.ui.graphics.StrokeJoin.Round
             )
