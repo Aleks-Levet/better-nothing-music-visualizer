@@ -296,7 +296,7 @@ private fun HeroStatCard(
 ) {
     val uiAmp = LocalUIAmplitude.current
     val beatScale = 1.0f + (uiAmp - 1.0f) * 0.06f
-    val heroShapeRadius = (32.dp + 24.dp * (uiAmp - 1.0f)).coerceAtLeast(16.dp)
+    val heroShapeRadius = (32.dp + 44.dp * (uiAmp - 1.0f)).coerceAtLeast(16.dp)
     val valueWeight = FontWeight((900 + (uiAmp - 1.0f) * 350).toInt().coerceIn(500, 1000))
     val iconSize = 28.dp * (1.0f + (uiAmp - 1.0f) * 0.2f)
 
@@ -304,10 +304,6 @@ private fun HeroStatCard(
         shape = RoundedCornerShape(heroShapeRadius),
         color = containerColor,
         contentColor = contentColor,
-        border = BorderStroke(
-            width = (5.dp * (uiAmp - 1.0f)).coerceAtLeast(0.dp),
-            color = contentColor.copy(alpha = ((uiAmp - 1.0f) * 1.5f).coerceIn(0f, 0.6f))
-        ),
         modifier = Modifier
             .fillMaxWidth()
             .graphicsLayer {
