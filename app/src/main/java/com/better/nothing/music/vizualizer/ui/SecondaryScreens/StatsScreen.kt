@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -149,7 +150,7 @@ internal fun StatsScreen(
                 .fillMaxSize()
                 .padding(horizontal = 20.dp)
                 .verticalScroll(scrollState),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
 
@@ -159,7 +160,6 @@ internal fun StatsScreen(
             HeroStatCard(
                 label = stringResource(R.string.total_visualization_time),
                 value = formatTime(totalTime),
-                icon = Icons.Default.Timer,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )
@@ -290,15 +290,15 @@ internal fun StatsScreen(
 private fun HeroStatCard(
     label: String,
     value: String,
-    icon: ImageVector,
     containerColor: Color,
     contentColor: Color
 ) {
     val uiAmp = LocalUIAmplitude.current
-    val beatScale = 1.0f + (uiAmp - 1.0f) * 0.06f
-    val heroShapeRadius = (32.dp + 44.dp * (uiAmp - 1.0f)).coerceAtLeast(16.dp)
+    val beatScale = 1.0f + (uiAmp - 1.0f) * 0.08f
+
+    // Pill shape (fully rounded corners) when uiAmp is 1.0, diminishing radius as uiAmp increases
+    val heroShapeRadius = (90.dp - (45.dp * (uiAmp - 1.0f))).coerceIn(12.dp, 120.dp)
     val valueWeight = FontWeight((900 + (uiAmp - 1.0f) * 350).toInt().coerceIn(500, 1000))
-    val iconSize = 28.dp * (1.0f + (uiAmp - 1.0f) * 0.2f)
 
     Surface(
         shape = RoundedCornerShape(heroShapeRadius),
@@ -313,30 +313,26 @@ private fun HeroStatCard(
     ) {
         Column(
             modifier = Modifier.padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = contentColor.copy(alpha = (0.7f + (uiAmp - 1.0f) * 0.3f).coerceIn(0.5f, 1.0f))
-                )
-                Icon(
-                    icon,
-                    null,
-                    modifier = Modifier.size(iconSize),
-                    tint = contentColor.copy(alpha = (0.7f + (uiAmp - 1.0f) * 0.3f).coerceIn(0.5f, 1.0f))
-                )
-            }
+            Text(
+                text = label,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                color = contentColor.copy(alpha = (0.7f + (uiAmp - 1.0f) * 0.3f).coerceIn(0.5f, 1.0f))
+            )
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = value,
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontFeatureSettings = "tnum" // Enables tabular (equal width) figures
+                ),
+                fontSize = 68.sp,
+                lineHeight = 74.sp, // Controls the line spacing/height for the large text
                 fontWeight = valueWeight,
+                textAlign = TextAlign.Center,
                 letterSpacing = 0.sp
             )
         }
@@ -376,7 +372,9 @@ private fun EngagementCard(
             )
             Text(
                 text = time,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontFeatureSettings = "tnum" // Enables tabular (equal width) figures
+                ),
                 fontWeight = timeWeight,
                 color = MaterialTheme.colorScheme.onSurface.copy(
                     alpha = (0.6f + (uiAmp - 1.0f) * 0.4f).coerceIn(0.4f, 1.0f)
@@ -533,7 +531,9 @@ private fun DetailedFeatureRow(
         }
         Text(
             text = value,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontFeatureSettings = "tnum" // Enables tabular (equal width) figures
+            ),
             fontWeight = valueWeight,
             color = color.copy(alpha = activeAlpha)
         )
