@@ -48,6 +48,7 @@ enum class VisualizerStyle(val labelRes: Int) {
 }
 
 enum class MicrophoneMode(val labelRes: Int, val descriptionRes: Int, val audioSource: Int) {
+    MIC(R.string.mic_mode_mic, R.string.mic_mode_mic_desc, 1),
     VOICE_COMMUNICATION(R.string.mic_mode_voice_comm, R.string.mic_mode_voice_comm_desc, 7),
     VOICE_PERFORMANCE(R.string.mic_mode_voice_perf, R.string.mic_mode_voice_perf_desc, 10),
     VOICE_RECOGNITION(R.string.mic_mode_voice_rec, R.string.mic_mode_voice_rec_desc, 6),
