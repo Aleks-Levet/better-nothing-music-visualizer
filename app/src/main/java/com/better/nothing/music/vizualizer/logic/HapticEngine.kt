@@ -17,12 +17,13 @@ class BeatDetectionHapticEngine(context: Context) {
 
     private var waveform: VibrationEffect? = null
     private var pulseEffect: VibrationEffect? = null
-    
+
     private var hapticMultiplier = 1.0f
     private var hapticGamma = 8.0f // Default "speed"
+    private var hapticFrequencyHz = 100 // Custom frequency in Hz (-1 uses device default)
     private var engineMode = BeatEngineMode.SMOOTH
     private var pulseDurationMs = 40
-    
+
     private val beatDetector = BeatDetector()
     private var lastTriggerTime = 0L
     private var isBeatTriggeredThisFrame = false
@@ -114,6 +115,9 @@ class BeatDetectionHapticEngine(context: Context) {
             amplitudes[i] = (amp * hapticMultiplier).toInt().coerceIn(0, 255)
         }
 
+        // Note: Standard VibrationEffect.createWaveform uses default hardware frequencies.
+        // If targeting custom frequency composition APIs on supported Android versions,
+        // you can map hapticFrequencyHz here.
         return VibrationEffect.createWaveform(timings, amplitudes, -1)
     }
 
@@ -179,6 +183,13 @@ class BeatDetectionHapticEngine(context: Context) {
         }
     }
 
+    fun setHapticFrequencyHz(frequency: Int) {
+        if (hapticFrequencyHz.toInt() != frequency) {
+            hapticFrequencyHz = frequency
+            waveform = buildWaveform()
+        }
+    }
+
     fun setBeatEngineMode(mode: BeatEngineMode) {
         this.engineMode = mode
     }
@@ -197,14 +208,14 @@ class BeatDetectionHapticEngine(context: Context) {
     fun getCurrentIntensity(): Float {
         if (lastTriggerTime == 0L) return 0f
         val elapsed = SystemClock.elapsedRealtime() - lastTriggerTime
-        
+
         return if (engineMode == BeatEngineMode.SHORT_PULSE || !hasAmplitudeControl()) {
             if (elapsed < pulseDurationMs) hapticMultiplier else 0f
         } else {
             val sustainMs = 40
             val decayMs = 1500
             val t = elapsed.toInt()
-            
+
             val amp = if (t < sustainMs) {
                 1.0f
             } else if (t < sustainMs + decayMs) {
