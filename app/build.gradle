@@ -13,7 +13,7 @@ android {
         applicationId "com.better.nothing.music.vizualizer"
         minSdk 26
         targetSdk 37
-        versionCode 17
+        versionCode 18
         versionName '4.1'
     }
 
@@ -107,7 +107,7 @@ dependencies {
 
     // 9. Firebase & Analytics
     implementation platform('com.google.firebase:firebase-bom:35.0.0')
-    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-analytics'
 }
 
 apply plugin: 'com.google.gms.google-services'
