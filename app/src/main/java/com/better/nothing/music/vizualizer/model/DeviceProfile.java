@@ -39,7 +39,7 @@ public final class DeviceProfile {
             return DEVICE_NP4APRO;
         } else if (Common.is23112()) {
             return DEVICE_NP3;
-        } else if (android.os.Build.MODEL.contains("26111") || android.os.Build.MODEL.toLowerCase().contains("phone 4b")) {
+        } else if (Common.is25131()) {
             return DEVICE_NP4B;
         } else {
             return DEVICE_UNKNOWN;
