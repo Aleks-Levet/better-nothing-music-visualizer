@@ -33,16 +33,16 @@
     <string name="haptics_mode_label">Modalità motore tattile</string>
     <string name="haptics_mode_bass">Ampiezza</string>
     <string name="haptics_mode_beat">Rilevamento battito</string>
-    <string name="haptics_beat_detection_1desc">Vibra sui battiti rilevati all\'interno dell\'intervallo di frequenza selezionato. Più fluido ma a volte meno stabile. È una funzione beta.</string>
-    <string name="haptics_frequency_label_b">Frequenza: %1$d - %2$d Hz</string>
-
-    <string name="haptics_amplitude_label1">Intensità: %.1fx</string>
+    <string name="haptics_beat_detection_desc">Vibra sui battiti rilevati all\'interno dell\'intervallo di frequenza selezionato. Più fluido ma a volte meno stabile. È una funzione beta.</string>
+    <string name="haptics_frequency_label">Frequenza: %1$d - %2$d Hz</string>
+    <string name="haptics_frequency_desc">Vibra in base all\'ampiezza audio in questo intervallo.</string>
+    <string name="haptics_amplitude_label">Intensità: %.1fx</string>
     <string name="haptics_audio_gain_label">Guadagno: %.1fx</string>
     <string name="haptics_gamma_label">Gamma: %.1f</string>
     <string name="haptics_decay_label">Decadimento: %.2f</string>
     <string name="haptics_speed_label">Velocità: %.1f</string>
     <string name="haptics_sensitivity_label">Sensibilità: %.1f</string>
-
+    <string name="haptics_motor_multiplier_desc">Moltiplicatore globale della forza di vibrazione.</string>
     <string name="haptics_decay_instant">Istantaneo (senza lissage)</string>
     <string name="haptics_decay_smooth">Lissage attivo</string>
     <string name="haptics_duration_label">Durata: %d ms</string>
@@ -54,6 +54,8 @@
     <string name="microphone_mode_desc">Controlla come il microfono cattura l\'audio.</string>
     <string name="mic_mode_voice_comm">Comunicazione Vocale</string>
     <string name="mic_mode_voice_comm_desc">COMUNICAZIONE_VOCALE: Solitamente include la cancellazione dell\'eco e la soppressione del rumore.</string>
+    <string name="mic_mode_voice_rec">Recognition</string>
+    <string name="mic_mode_voice_rec_desc">VOICE_RECOGNITION: Optimized for speech recognition. Usually high gain and minimal processing.</string>
     <string name="mic_mode_voice_perf">Prestazioni</string>
     <string name="mic_mode_voice_perf_desc">PRESTAZIONI VOCALI: Ottimizzate per applicazioni vocali in tempo reale. Latenza inferiore rispetto alle normali comunicazioni vocali.</string>
     <string name="mic_mode_unprocessed">Non processato</string>
@@ -92,12 +94,13 @@
     <string name="analytics_disclaimer_title">Analisi dei dati</string>
     <string name="analytics_disclaimer_text">Questa app utilizza Google Analytics (Firebase) per raccogliere statistiche di utilizzo anonime e report sui crash, al fine di migliorare l\'esperienza dell\'app. Non vengono raccolti dati personali né contenuti audio.</string>
     <string name="github_repository">Repository GitHub</string>
-
+    <string name="version_info">Versione %s</string>
     <string name="zones_config_version">Versione configurazione: %s</string>
     <string name="media_projection_info">MediaProjection viene utilizzato solo per alimentare il visualizzatore in tempo reale. Non viene eseguita alcuna registrazione o memorizzazione di dati non necessaria.</string>
     <string name="credits">Crediti</string>
     <string name="open_github_profile">Apri profilo GitHub</string>
     <string name="discord_server">Server Discord</string>
+    <string name="discord_long_press_desc">Long press if you don\'t have Discord</string>
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">Media Projection\n(predefinito, migliore)</string>
     <string name="capture_microphone">Microfono</string>
@@ -185,7 +188,7 @@
     <string name="tile_running">In esecuzione</string>
     <string name="tile_subtitle_default">Better Nothing Music Visualiser</string>
     <!-- Feature Monitors -->
-    <string name="haptic_monito">Controllo Vibrazione</string>
+    <string name="haptic_monitor">Controllo Vibrazione</string>
     <string name="flashlight_level_stats">LIVELLO: %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">Bordo Superiore Sovrapposizione</string>
@@ -218,7 +221,7 @@
     <!-- Stats Screen -->
     <string name="usage_stats">Statistiche Utilizzo</string>
     <string name="total_visualization_time">Tempo di Visualizzazione Totale</string>
-
+    <string name="engagement">Coinvolgimento</string>
     <string name="active_music">Musica Attiva</string>
     <string name="idle_pulse">Inattivo</string>
     <string name="feature_breakdown">Dettaglio Funzionalità</string>
@@ -226,6 +229,11 @@
     <string name="haptic_feedback">Vibrazione Haptic</string>
     <string name="flashlight_sync_stat">Torcia Sincronizzata</string>
     <string name="total_active_use">Utilizzo Attivo Totale</string>
+    <string name="export_stats">Export Stats</string>
+    <string name="import_stats">Import Stats</string>
+    <string name="stats_import_success">Stats imported successfully</string>
+    <string name="stats_import_error">Failed to import stats</string>
+    <string name="stats_export_error">Failed to export stats</string>
     <!-- Glyphs Screen Extra -->
     <string name="update_required">Aggiornamento Necessario</string>
     <string name="download_full_config">Scarica la configurazione complete per vedere i preset</string>
@@ -274,7 +282,7 @@
     <string name="widget_stop_bnmv">STOP BNMV</string>
     <!-- First Time Help -->
     <string name="first_time_help_title">Quick Tip</string>
-    <string name="first_time_help_mssg">Click on the [info] buttons whenever you need help!</string>
+    <string name="first_time_help_msg">Click on the [info] buttons whenever you need help!</string>
     <!-- Easter Eggs -->
     <string name="toast_no_output">Tutti gli output sono disabilitati, perciò BNMV non farà NIENTE😆</string>
     <string name="toast_audio_title_tap">Perché stai cliccando qui? Non serve a NIENTE! 😆</string>
@@ -299,4 +307,5 @@
     <string name="label_source">SORGENTE</string>
     <string name="label_output">OUTPUT</string>
     <string name="help_show">Mostra aiuto</string>
+    <!-- Google Sans Flex Tuning -->
 </resources>

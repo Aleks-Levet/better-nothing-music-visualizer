@@ -33,16 +33,16 @@
     <string name="haptics_mode_label">Режим виброотклика</string>
     <string name="haptics_mode_bass">Амплитуда</string>
     <string name="haptics_mode_beat">Распознавание бита</string>
-    <string name="haptics_beat_detection_1desc">Вибрация срабатывает на ритмические удары в выбранном диапазоне частот. Тактильный отклик мягче, но может работать нестабильно (бета-версия).</string>
-    <string name="haptics_frequency_label_b">Частота: %1$d - %2$d Гц</string>
-
-    <string name="haptics_amplitude_label1">Усиление мотора: %.1fx</string>
+    <string name="haptics_beat_detection_desc">Вибрация срабатывает на ритмические удары в выбранном диапазоне частот. Тактильный отклик мягче, но может работать нестабильно (бета-версия).</string>
+    <string name="haptics_frequency_label">Частота: %1$d - %2$d Гц</string>
+    <string name="haptics_frequency_desc">Вибрация реагирует на громкость звука в этом диапазоне.</string>
+    <string name="haptics_amplitude_label">Усиление мотора: %.1fx</string>
     <string name="haptics_audio_gain_label">Усиление звука: %.1fx</string>
     <string name="haptics_gamma_label">Гамма: %.1f</string>
     <string name="haptics_decay_label">Спад: %.2f</string>
     <string name="haptics_speed_label">Скорость: %.1f</string>
     <string name="haptics_sensitivity_label">Чувствительность: %.1f</string>
-
+    <string name="haptics_motor_multiplier_desc">Общий множитель силы виброотклика.</string>
     <string name="haptics_decay_instant">Без сглаживания (мгновенно)</string>
     <string name="haptics_decay_smooth">Сглаживание активно</string>
     <string name="haptics_duration_label">Длительность: %d мс</string>
@@ -54,6 +54,8 @@
     <string name="microphone_mode_desc">Изменяет способ захвата звука микрофоном.</string>
     <string name="mic_mode_voice_comm">Голосовая связь</string>
     <string name="mic_mode_voice_comm_desc">VOICE_COMMUNICATION: обычно использует эхоподавление и шумоподавление.</string>
+    <string name="mic_mode_voice_rec">Recognition</string>
+    <string name="mic_mode_voice_rec_desc">VOICE_RECOGNITION: Optimized for speech recognition. Usually high gain and minimal processing.</string>
     <string name="mic_mode_voice_perf">Производительность</string>
     <string name="mic_mode_voice_perf_desc">VOICE_PERFORMANCE: оптимизирован для голосовых сервисов реального времени. Задержка ниже, чем в обычном режиме связи.</string>
     <string name="mic_mode_unprocessed">Без обработки</string>
@@ -92,12 +94,13 @@
     <string name="analytics_disclaimer_title">Аналитика</string>
     <string name="analytics_disclaimer_text">Приложение использует Google Analytics (Firebase) для сбора анонимной статистики использования и отчетов об ошибках. Персональные данные и аудиозаписи не собираются.</string>
     <string name="github_repository">Репозиторий GitHub</string>
-
+    <string name="version_info">Версия %s</string>
     <string name="zones_config_version">Версия конфига: %s</string>
     <string name="media_projection_info">Служба захвата экрана (MediaProjection) используется исключительно для работы визуализатора в реальном времени. Приложение ничего не записывает и не сохраняет.</string>
     <string name="credits">Авторы и благодарности</string>
     <string name="open_github_profile">Открыть профиль на GitHub</string>
     <string name="discord_server">Помурчать в Discord</string>
+    <string name="discord_long_press_desc">Long press if you don\'t have Discord</string>
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">Захват медиапотока\n(по умолчанию, лучший)</string>
     <string name="capture_microphone">Микрофон</string>
@@ -185,7 +188,7 @@
     <string name="tile_running">Работает</string>
     <string name="tile_subtitle_default">Better Nothing Music Visualizer</string>
     <!-- Feature Monitors -->
-    <string name="haptic_monito">Монитор вибрации</string>
+    <string name="haptic_monitor">Монитор вибрации</string>
     <string name="flashlight_level_stats">УРОВЕНЬ: %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">Оверлей верхней грани</string>
@@ -218,7 +221,7 @@
     <!-- Stats Screen -->
     <string name="usage_stats">Статистика использования</string>
     <string name="total_visualization_time">Общее время визуализации</string>
-
+    <string name="engagement">Вовлеченность</string>
     <string name="active_music">Музыка активна</string>
     <string name="idle_pulse">Режим покоя</string>
     <string name="feature_breakdown">Использование функций</string>
@@ -226,6 +229,11 @@
     <string name="haptic_feedback">Тактильный виброотклик</string>
     <string name="flashlight_sync_stat">Синхронизация вспышки</string>
     <string name="total_active_use">Всего активного времени</string>
+    <string name="export_stats">Export Stats</string>
+    <string name="import_stats">Import Stats</string>
+    <string name="stats_import_success">Stats imported successfully</string>
+    <string name="stats_import_error">Failed to import stats</string>
+    <string name="stats_export_error">Failed to export stats</string>
     <!-- Glyphs Screen Extra -->
     <string name="update_required">Требуется обновление</string>
     <string name="download_full_config">Скачайте полную конфигурацию, чтобы увидеть пресеты</string>
@@ -274,7 +282,7 @@
     <string name="widget_stop_bnmv">STOP BNMV</string>
     <!-- First Time Help -->
     <string name="first_time_help_title">Quick Tip</string>
-    <string name="first_time_help_mssg">Click on the [info] buttons whenever you need help!</string>
+    <string name="first_time_help_msg">Click on the [info] buttons whenever you need help!</string>
     <!-- Easter Eggs -->
     <string name="toast_no_output">Все выводы отключены, поэтому BNMV ничего не делает 😆</string>
     <string name="toast_audio_title_tap">Зачем ты сюда жмешь? Это ничего не делает! 😆</string>
@@ -299,4 +307,5 @@
     <string name="label_source">ИСТОЧНИК</string>
     <string name="label_output">ВЫВОД</string>
     <string name="help_show">Показать справку</string>
+    <!-- Google Sans Flex Tuning -->
 </resources>

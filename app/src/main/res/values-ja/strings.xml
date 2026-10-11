@@ -33,16 +33,16 @@
     <string name="haptics_mode_label">ハプティクスエンジン・モード</string>
     <string name="haptics_mode_bass">振動の強さ</string>
     <string name="haptics_mode_beat">ビート検出</string>
-    <string name="haptics_beat_detection_1desc">選択した周波数範囲内で検出されたビートに合わせて振動します。よりスムーズになりますが、不安定になることがあります。これはベータ機能です。</string>
-    <string name="haptics_frequency_label_b">周波数： %1$d - %2$d Hz</string>
-
-    <string name="haptics_amplitude_label1">強度： %.1fx</string>
+    <string name="haptics_beat_detection_desc">選択した周波数範囲内で検出されたビートに合わせて振動します。よりスムーズになりますが、不安定になることがあります。これはベータ機能です。</string>
+    <string name="haptics_frequency_label">周波数： %1$d - %2$d Hz</string>
+    <string name="haptics_frequency_desc">この範囲のオーディオ振幅に基づいて振動します。</string>
+    <string name="haptics_amplitude_label">強度： %.1fx</string>
     <string name="haptics_audio_gain_label">音量ゲイン: %.1fx</string>
     <string name="haptics_gamma_label">ガンマ： %.1f</string>
     <string name="haptics_decay_label">減衰： %.2f</string>
     <string name="haptics_speed_label">速度： %.1f</string>
     <string name="haptics_sensitivity_label">感度： %.1f</string>
-
+    <string name="haptics_motor_multiplier_desc">全体のバイブレーション強度倍率。</string>
     <string name="haptics_decay_instant">スムージングなし（即時）</string>
     <string name="haptics_decay_smooth">スムージング有効</string>
     <string name="haptics_duration_label">持続時間: %d ms</string>
@@ -54,6 +54,8 @@
     <string name="microphone_mode_desc">マイクの音声キャプチャ方法を変更します。</string>
     <string name="mic_mode_voice_comm">音声通話</string>
     <string name="mic_mode_voice_comm_desc">音声通話:通常、エコーやノイズが抑制されます。</string>
+    <string name="mic_mode_voice_rec">Recognition</string>
+    <string name="mic_mode_voice_rec_desc">VOICE_RECOGNITION: Optimized for speech recognition. Usually high gain and minimal processing.</string>
     <string name="mic_mode_voice_perf">品質</string>
     <string name="mic_mode_voice_perf_desc">音声品質:リアルタイムの音声アプリケーション向けに最適化されています。通常の音声通話よりも遅延が小さくなります。</string>
     <string name="mic_mode_unprocessed">未処理</string>
@@ -92,12 +94,13 @@
     <string name="analytics_disclaimer_title">アナリティクス</string>
     <string name="analytics_disclaimer_text">本アプリでは、ユーザー体験の向上を目的として、Google Analytics（Firebase）により匿名の使用統計データおよびクラッシュレポートを収集しています。個人情報および音声コンテンツの収集は行われません。</string>
     <string name="github_repository">GitHubリポジトリ</string>
-
+    <string name="version_info">バージョン %s</string>
     <string name="zones_config_version">設定バージョン： %s</string>
     <string name="media_projection_info">MediaProjectionはリアルタイム・ビジュアライザーの動作にのみ使用されます。不要な録音やデータの保存は行われません。</string>
     <string name="credits">クレジット</string>
     <string name="open_github_profile">GitHubプロフィールを開く</string>
     <string name="discord_server">Discordサーバー</string>
+    <string name="discord_long_press_desc">Long press if you don\'t have Discord</string>
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">メディアプロジェクション\n（デフォルト、最適）</string>
     <string name="capture_microphone">マイク</string>
@@ -185,7 +188,7 @@
     <string name="tile_running">実行中</string>
     <string name="tile_subtitle_default">Better Nothing Music Vizualiser</string>
     <!-- Feature Monitors -->
-    <string name="haptic_monito">ハプティックモニター</string>
+    <string name="haptic_monitor">ハプティックモニター</string>
     <string name="flashlight_level_stats">レベル: %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">上端オーバーレイ</string>
@@ -218,7 +221,7 @@
     <!-- Stats Screen -->
     <string name="usage_stats">使用状況統計</string>
     <string name="total_visualization_time">ビジュアライザー総使用時間</string>
-
+    <string name="engagement">エンゲージメント総数</string>
     <string name="active_music">アクティブミュージック</string>
     <string name="idle_pulse">待機中</string>
     <string name="feature_breakdown">機能の詳細</string>
@@ -226,6 +229,11 @@
     <string name="haptic_feedback">バイブレーション</string>
     <string name="flashlight_sync_stat">フラッシュライトと同期</string>
     <string name="total_active_use">アクティブ使用の合計</string>
+    <string name="export_stats">Export Stats</string>
+    <string name="import_stats">Import Stats</string>
+    <string name="stats_import_success">Stats imported successfully</string>
+    <string name="stats_import_error">Failed to import stats</string>
+    <string name="stats_export_error">Failed to export stats</string>
     <!-- Glyphs Screen Extra -->
     <string name="update_required">アップデートが必要です</string>
     <string name="download_full_config">プリセットを表示するには完全な設定をダウンロードしてください</string>
@@ -274,7 +282,7 @@
     <string name="widget_stop_bnmv">STOP BNMV</string>
     <!-- First Time Help -->
     <string name="first_time_help_title">Quick Tip</string>
-    <string name="first_time_help_mssg">Click on the [info] buttons whenever you need help!</string>
+    <string name="first_time_help_msg">Click on the [info] buttons whenever you need help!</string>
     <!-- Easter Eggs -->
     <string name="toast_no_output">すべての出力が無効になっているため、BNMVはなにも(Nothing)しません😆</string>
     <string name="toast_audio_title_tap">なぜここをクリックしたの? それはなにも(Nothing)しません! 😆</string>
@@ -299,4 +307,5 @@
     <string name="label_source">ソース</string>
     <string name="label_output">出力</string>
     <string name="help_show">ヘルプの表示</string>
+    <!-- Google Sans Flex Tuning -->
 </resources>

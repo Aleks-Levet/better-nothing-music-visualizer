@@ -33,16 +33,16 @@
     <string name="haptics_mode_label">وضع محرك الاهتزاز</string>
     <string name="haptics_mode_bass">ارتفاع الصوت</string>
     <string name="haptics_mode_beat">التعرف على الإيقاع</string>
-    <string name="haptics_beat_detection_1desc">يهتز عند اكتشاف الإيقاعات ضمن نطاق التردد المحدد. أكثر انسيابية لكنه أحيانًا أقل ثباتًا. هذه ميزة تجريبية.</string>
-    <string name="haptics_frequency_label_b">التردد: %1$d - %2$d Hz</string>
-
-    <string name="haptics_amplitude_label1">قوة المحرك: %.1fx</string>
+    <string name="haptics_beat_detection_desc">يهتز عند اكتشاف الإيقاعات ضمن نطاق التردد المحدد. أكثر انسيابية لكنه أحيانًا أقل ثباتًا. هذه ميزة تجريبية.</string>
+    <string name="haptics_frequency_label">التردد: %1$d - %2$d Hz</string>
+    <string name="haptics_frequency_desc">يهتز بناءً على شدة الصوت ضمن هذا النطاق.</string>
+    <string name="haptics_amplitude_label">قوة المحرك: %.1fx</string>
     <string name="haptics_audio_gain_label">كسب الصوت: %.1fx</string>
     <string name="haptics_gamma_label">جاما: %.1f</string>
     <string name="haptics_decay_label">التلاشي: %.2f</string>
     <string name="haptics_speed_label">السرعة: %.1f</string>
     <string name="haptics_sensitivity_label">الحساسية: %.1f</string>
-
+    <string name="haptics_motor_multiplier_desc">مضاعف قوة إخراج المحرك العام.</string>
     <string name="haptics_decay_instant">بلا تنعيم (فوري)</string>
     <string name="haptics_decay_smooth">التنعيم مفعّل</string>
     <string name="haptics_duration_label">المدة: %d ms</string>
@@ -54,6 +54,8 @@
     <string name="microphone_mode_desc">يغير كيفية التقاط المايكروفون للصوت.</string>
     <string name="mic_mode_voice_comm">التواصل الصوتي</string>
     <string name="mic_mode_voice_comm_desc">VOICE_COMMUNICATION: في العادة يتضمن إلغاء الضجيج والصدى.</string>
+    <string name="mic_mode_voice_rec">Recognition</string>
+    <string name="mic_mode_voice_rec_desc">VOICE_RECOGNITION: Optimized for speech recognition. Usually high gain and minimal processing.</string>
     <string name="mic_mode_voice_perf">الأداء</string>
     <string name="mic_mode_voice_perf_desc">VOICE_PERFORMANCE: معد لتطبيقات الصوت الفوري. زمن تأخير أقل من VOICE_COMMUNICATIONS.</string>
     <string name="mic_mode_unprocessed">غير معالج</string>
@@ -92,12 +94,13 @@
     <string name="analytics_disclaimer_title">التحليلات</string>
     <string name="analytics_disclaimer_text">يستخدم هذا التطبيق خدمة Google Analytics (Firebase) لجمع إحصاءات استخدام مجهولة الهوية وتقارير الأعطال للمساعدة في تحسين تجربة التطبيق. لا يتم جمع أي بيانات شخصية أو محتوى صوتي.</string>
     <string name="github_repository">مستودع GitHub</string>
-
+    <string name="version_info">الإصدار %s</string>
     <string name="zones_config_version">إصدار الإعداد: %s</string>
     <string name="media_projection_info">يُستخدم MediaProjection فقط لتشغيل المصور المرئي الفوري. لا يتم إجراء أي تسجيل أو تخزين بيانات غير ضروري.</string>
     <string name="credits">شكر وتقدير</string>
     <string name="open_github_profile">فتح الملف الشخصي على GitHub</string>
     <string name="discord_server">مجتمع Discord</string>
+    <string name="discord_long_press_desc">Long press if you don\'t have Discord</string>
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">MediaProjection\n(الافتراضي، الأفضل)</string>
     <string name="capture_microphone">الميكروفون</string>
@@ -185,7 +188,7 @@
     <string name="tile_running">قيد التشغيل</string>
     <string name="tile_subtitle_default">مصور موسيقى Nothing المحسّن</string>
     <!-- Feature Monitors -->
-    <string name="haptic_monito">مراقب الاهتزاز</string>
+    <string name="haptic_monitor">مراقب الاهتزاز</string>
     <string name="flashlight_level_stats">المستوى: %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">تراكب الحافة العلوية</string>
@@ -218,7 +221,7 @@
     <!-- Stats Screen -->
     <string name="usage_stats">إحصائيات الاستخدام</string>
     <string name="total_visualization_time">إجمالي وقت التصوير المرئي</string>
-
+    <string name="engagement">التفاعل</string>
     <string name="active_music">الموسيقى النشطة</string>
     <string name="idle_pulse">الخمول</string>
     <string name="feature_breakdown">تفاصيل المزايا</string>
@@ -226,6 +229,11 @@
     <string name="haptic_feedback">الاهتزاز</string>
     <string name="flashlight_sync_stat">مزامنة الكشاف</string>
     <string name="total_active_use">إجمالي الاستخدام النشط</string>
+    <string name="export_stats">Export Stats</string>
+    <string name="import_stats">Import Stats</string>
+    <string name="stats_import_success">Stats imported successfully</string>
+    <string name="stats_import_error">Failed to import stats</string>
+    <string name="stats_export_error">Failed to export stats</string>
     <!-- Glyphs Screen Extra -->
     <string name="update_required">التحديث مطلوب</string>
     <string name="download_full_config">تحميل التكوين كاملًا لرؤية الإعدادات المسبقة</string>
@@ -274,7 +282,7 @@
     <string name="widget_stop_bnmv">STOP BNMV</string>
     <!-- First Time Help -->
     <string name="first_time_help_title">Quick Tip</string>
-    <string name="first_time_help_mssg">Click on the [info] buttons whenever you need help!</string>
+    <string name="first_time_help_msg">Click on the [info] buttons whenever you need help!</string>
     <!-- Easter Eggs -->
     <string name="toast_no_output">جميع أجهزة الإخراج معطلة، لذا BNMV will do NOTHING 😆</string>
     <string name="toast_audio_title_tap">لماذا تضغط هنا؟ It does NOTHING 😆</string>
@@ -299,4 +307,5 @@
     <string name="label_source">المصدر</string>
     <string name="label_output">المخرج</string>
     <string name="help_show">عرض المساعدة</string>
+    <!-- Google Sans Flex Tuning -->
 </resources>

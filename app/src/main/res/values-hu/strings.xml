@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Audio Screen -->
+    <string name="audio_warning_vizualizer">FIGYELEM: Ez az alap Android kimutató-szerű hangcsatornát használja. Alacsony minőségú és valószínűleg ronda.</string>
+    <string name="auto_memorize_device">Automatikus Eszközfelismerés</string>
+    <string name="saving_latency_for">Késleltetés mentése: %s</string>
+    <string name="internal_speaker">Készülék Hangszórója</string>
+    <string name="manual_mode_global_latency">Manuális mód (Univerzális késleltetés)</string>
+    <string name="latency_compensation">Manuális Késleltetés</string>
+    <string name="live_spectrum">Élő Hangskála</string>
+    <!-- Glyph Screen -->
+    <string name="glyph_controls">Glyph irányítások</string>
+    <string name="glyph_brightness">Glyph fényerő:</string>
+    <string name="threshold_label">Határ:</string>
+    <string name="speed_label">Sebesség:</string>
+    <string name="disabled">kikapcsolva</string>
+    <string name="threshold_description">Beállítja a minimum hangerőszintet ami a Glyph fények bekapcsolódásához szükséges. Magasabb értékek kiszűrik a háttérzajt, így egy tisztább kinézetet adnak.</string>
+    <string name="speed_description">Beállítja, hogy milyen gyorsan halványulnak (majd kapcsolnak ki) a Glyph fények. Magasabb értékeken pontosabbak és élesebbek lesznek a fények.</string>
+    <string name="show_more_sliders">Több csúszka...</string>
+    <string name="gamma_control">Gamma beállítás</string>
+    <string name="gamma_description">Magasabb Gamma értékek ütősebb kinézetet adnak, de általánosságban kisebb fényerővel és kevesebb pici részlettel. Alacsonyabb értékek világosabbak de kevésbé ütősek.</string>
+    <string name="light_gamma">Fény Gamma:</string>
+    <string name="visualizer_presets">Sablonok</string>
+    <string name="preset_name">Sablon Neve</string>
+    <string name="preset_description">Leírás</string>
+    <!-- Settings Screen -->
+    <string name="app_theme">Alkalmazás neve és betűtípus</string>
+    <string name="theme_normal">Eredeti</string>
+    <string name="theme_liquorice">Édesgyökérfekete</string>
+    <string name="theme_nothing_red">Nothing-piros</string>
+    <!-- Haptics Screen -->
+    <string name="haptics_header">Rezgés irányítások</string>
+    <string name="haptics_mode_label">Rezgőmotor módja</string>
+    <string name="haptics_mode_bass">Amplitúdó</string>
+    <string name="haptics_mode_beat">Ütemérzékelés</string>
+    <string name="haptics_beat_detection_desc">Az érzékelt ütemre vibrál a kiválasztott frekvenciahatárban. Simább, de kevésbé stabil (Béta).</string>
+    <string name="haptics_frequency_label">Frekvencia: %1$d - %2$d Hz</string>
+    <string name="haptics_frequency_desc">A kiválasztott határokon belüli hang amplitúdója alapján rezgeti az eszközt.</string>
+    <string name="haptics_amplitude_label">Motorerősítés: %.1fx</string>
+    <string name="haptics_audio_gain_label">Hangerősítés: %.1fx</string>
+    <string name="haptics_gamma_label">Gamma: %.1f</string>
+    <string name="haptics_decay_label">Lecsengés: %.2f</string>
+    <string name="haptics_speed_label">Sebesség: %.1f</string>
+    <string name="haptics_sensitivity_label">Érzékenység: %.1f</string>
+    <string name="haptics_motor_multiplier_desc">Univerzális rezgéserősség szorzó.</string>
+    <string name="haptics_decay_instant">Nincs kiegyenlítés (Egyből)</string>
+    <string name="haptics_decay_smooth">Kiegyenlítés aktív</string>
+    <string name="haptics_duration_label">Időtartam: %d ms</string>
+    <string name="beat_engine_mode_label">Motor Válasz</string>
+    <string name="beat_engine_smooth">Kiegyenlített Leesés</string>
+    <string name="beat_engine_short">Rövid Villanás</string>
+    <!-- Audio Processing -->
+    <string name="microphone_mode">Mikrofon alapú hangbevitel (Profi)</string>
+    <string name="microphone_mode_desc">Megváltoztatja a mikrofon hangbeviteli módját.</string>
+    <string name="mic_mode_voice_comm">Hang Komm</string>
+    <string name="mic_mode_voice_comm_desc">HANG_KOMMUNIKÁCIÓ: Visszhang-és zajszűrés.</string>
+    <string name="mic_mode_voice_rec">Beszédfelismerés</string>
+    <string name="mic_mode_voice_rec_desc">HANG_FELISMERÉS: Beszédfelismerésre optimalizált. Magas erősítés és minimális feldolgozás.</string>
+    <string name="mic_mode_voice_perf">Teljesítmény</string>
+    <string name="mic_mode_voice_perf_desc">BESZÉD_TELJESÍTMÉNY: Valós idejű beszédfelismerésre optimalizálva. Kisebb késleltetés, de kevésbé pontos.</string>
+    <string name="mic_mode_unprocessed">Feldolgozatlan</string>
+    <string name="mic_mode_unprocessed_desc">FELDOLGOZATLAN: Nyers mikrofonbemenet. Nincs erősítés, nincs zajszűrés. Jó körülmények között a legpontosabb.</string>
+    <string name="mic_mode_camcorder">Kamera</string>
+    <string name="mic_mode_camcorder_desc">KAMKORDER: Máshogy válaszol a különböző hangirányokra.</string>
+    <!-- Flashlight Screen -->
+    <string name="flashlight_header">Zseblámpa kimutatás</string>
+    <string name="flashlight_mode_label">Zseblámpa mód</string>
+    <string name="flashlight_mode_amplitude">Amplitúdó</string>
+    <string name="flashlight_mode_beat">Ütemfelismerés</string>
+    <string name="flashlight_intensity_label">Zseblámpa szintek: %1$d</string>
+    <string name="flashlight_frequency_label">Frekvencia: %1$d - %2$d</string>
+    <string name="flashlight_frequency_desc">A frekvenciahatár amiben az érzékelt hangra válaszol a zseblámpa. Alacsonyabb a basszus, magasabb az énekhang.</string>
+    <string name="flashlight_threshold_label"></string>
+    <string name="flashlight_threshold_desc">Ha a zseblámpának csak egy szintje van, ez ki-be kapcsolja.</string>
+    <string name="flashlight_beat_sensitivity_label">Ütem Érzékenység: %.1f</string>
+    <string name="flashlight_beat_sensitivity_desc">Magasabb értékek figyelmen kívül hagyják a gyengébb átmeneteket.</string>
+    <string name="flashlight_speed_label">Sebesség: %.0f ms</string>
+    <string name="flashlight_monitor_label">Zseblámpa monitor</string>
+    <string name="flashlight_duration_label">Időtartam: %d ms</string>
+    <string name="flashlight_duration_desc">A villanás időtartama, miliszekundumban megadva.</string>
+    <string name="experimental_features">Kísérleti Beállítások</string>
+    <string name="feature_flashlight_levels">Zseblámpa intenzitási szintek</string>
+    <string name="feature_supported_n">%d szint támogatott</string>
+    <string name="feature_basic">Bináris (Be/Ki)</string>
+    <string name="developer_mode">Eszközhamisítás...</string>
+    <string name="spoof_device_description">Emulál egy másik készüléket. Az alkalmazás úgy fog viselkedni, mintha ez a készülék lenne használatban.</string>
+    <string name="spoof_locale_description">Megváltoztatja az alkalmazás nyelvét.</string>
+    <string name="idle_breathing_title">Inaktív Lélegzés</string>
+    <string name="start_visualizer">Indítás</string>
+    <string name="stop_visualizer">Leállítás</string>
+    <string name="glyph_no_config">Nincs feltöltött konfiguráció. Elképzelhető, hogy az alkalmazás frissítésre szorul. A jelenlegi verziót és az elérhető frissítéseket megtekintheted a beállításokban.</string>
+    <!-- About Screen -->
+    <string name="about_title">Alkalmazás információ és frissítések</string>
+    <string name="analytics_disclaimer_title">Analitika</string>
+    <string name="analytics_disclaimer_text">Ez az alkalmazás Google Analitikát használ (Firebase) hogy névtelen felhasználási adatokat és hibajelentéseket gyűjtsön. Személyes információ és hanganyag nem kerül gyűjtésre.</string>
+    <string name="github_repository">GitHub Repozitórium:</string>
+    <string name="version_info">Verzió %s</string>
+    <string name="zones_config_version">Konfiguráció Verzió: %s</string>
+    <string name="media_projection_info">A képernyőtükrözésből csak a valós idejű zenekimutatás kerül felhasználásra. Lényegtelen adat elmentés vagy videófelvétel nem történik.</string>
+    <string name="credits">Stáblista</string>
+    <string name="open_github_profile">GitHub profil megnyitása</string>
+    <string name="discord_server">Discord Szerver</string>
+    <string name="discord_long_press_desc">Hosszan nyomd ha nincs Discord-od</string>
+    <!-- Capture Source Labels -->
+    <string name="capture_media_projection">Képernyőtükrözés\n(alap, legjobb)</string>
+    <string name="capture_microphone">Mikrofon</string>
+    <string name="capture_vizualizer">Android beépített kimutatás</string>
+    <string name="update_available">Frissítés elérhető: %s</string>
+    <string name="update_now">Frissítés Most</string>
+    <string name="idle_pattern">Inaktív Minta</string>
+    <string name="idle_pattern_pulse">Pulzálás</string>
+    <string name="idle_pattern_wave">Hullám</string>
+    <string name="idle_pattern_cylon">Ciklon</string>
+    <string name="idle_pattern_zebra">Zebra</string>
+    <string name="idle_pattern_heartbeat">Szívverés</string>
+    <string name="idle_pattern_orbit">Körpálya</string>
+    <string name="idle_pattern_rain">Eső</string>
+    <string name="idle_pulse_brightness">Villanás Fényereje: %d%%</string>
+    <string name="idle_background_brightness">Háttér Fényereje: %d%%</string>
+    <string name="cancel">Mégse</string>
+    <string name="back">Vissza</string>
+    <string name="frequency_range_label">Frekvenciahatár: %1$dHz - %2$dHz</string>
+    <string name="clear">Törlés</string>
+    <string name="sync_ui_to_beat">Kezelőfelület szinkronizálása az ütemre</string>
+    <string name="alternate_glyph_viz">Alternatív Glyph Kimutatás</string>
+    <string name="nav_overlay">Navigációs sáv</string>
+    <string name="enable_on_screen_visualizers">Képernyőn megjelenített kimutatás bekapcsolása</string>
+    <string name="higher_quality_audio_analysis">Magasabb minőségű hangáttekintés</string>
+    <string name="rounded_bars">Kerek oszlopok</string>
+    <string name="style_bars">Oszlopok</string>
+    <string name="style_rounded_bars">Kerekített</string>
+    <string name="style_glow">Ragyogás</string>
+    <string name="visualizer_style">Stílus</string>
+    <string name="visualizer_opacity">Áttetszőség</string>
+    <string name="lens_visualizer">Előlapi kamera</string>
+    <string name="lens_radius">Lencse Nagyság</string>
+    <string name="lens_bar_width">Sáv Szélesség</string>
+    <string name="lens_max_height">Maximum Sávmagasság</string>
+    <string name="lens_bar_count">Sáv mennyiség</string>
+    <string name="overlay_width">Átfedés Széleség</string>
+    <string name="overlay_height">Átfedés Magasság</string>
+    <string name="overlay_height_bottom">Alsó magasság</string>
+    <string name="overlay_top_segment">Felső rész</string>
+    <string name="overlay_bottom_segment">Alsó rész</string>
+    <string name="vertical_position">Horizontális Pozíció</string>
+    <!-- Auth -->
+    <string name="tab_glyphs">Glyph fények</string>
+    <string name="tab_visuals">Átfedések</string>
+    <string name="tab_haptics">Rezgés</string>
+    <string name="tab_flashlight">Zseblámpa</string>
+    <string name="tab_settings">Beállítások</string>
+    <string name="glyphs_disabled">Glyph kikapcsolva</string>
+    <string name="haptics_disabled">A haptikus visszajelzés ki van kapcsolva</string>
+    <string name="flashlight_disabled">A zseblámpa ki van kapcsolva</string>
+    <string name="feature_disabled">Ez a funkció ki van kapcsolva</string>
+    <string name="continue_label">Folytatás</string>
+    <string name="audio_permission_required">Hangfelvételi engedély szükséges</string>
+    <string name="screen_capture_denied">Képernyőfelvételi engedély elutasítva</string>
+    <string name="overlay_permission_denied">Átfedési engedély elutasítva</string>
+    <string name="config_update_success">Sikeres frissítés</string>
+    <string name="config_import_success">Sikeres importálás</string>
+    <string name="config_import_error">Nem sikerült olvasni a kiválasztott fájlt</string>
+    <string name="config_download_error">Sikertelen letöltés: %d</string>
+    <string name="config_error_updating">Nem sikerült frissíteni: %s</string>
+    <string name="config_error_importing">Nem sikerült importálni: %s</string>
+    <!-- License Screen -->
+    <string name="license_title">Licenc</string>
+    <string name="license_agreement">Felhasználási Szerződés</string>
+    <string name="read_license">A szoftver licenc elolvasása</string>
+    <string name="failed_load_license">A jelenlegi licenc betöltése sikertelen.</string>
+    <string name="retry">Újra</string>
+    <!-- Audio Discovery -->
+    <string name="connect_to_device">Csatlakozás Eszközhöz</string>
+    <string name="no_devices_found">Nincs található eszköz a Wi-Fi hálózaton.</string>
+    <string name="search_again">Keresés Újra</string>
+    <!-- MainViewModel Toasts & Status -->
+    <string name="download_failed_http">Sikertelen letöltés: HTTP %d</string>
+    <string name="download_error">Sikertelen letöltés: %s</string>
+    <string name="installation_failed">Sikertelen telepítés: %s</string>
+    <string name="license_load_error">Licenc betöltése sikertelen: %d</string>
+    <string name="unknown_error">Ismeretlen hiba</string>
+    <string name="update_checking">Frissítés keresése...</string>
+    <string name="update_downloading">Letöltés: %d%%</string>
+    <string name="update_uptodate">Legújabb verzió letöltve</string>
+    <string name="update_error">Hiba: %s</string>
+    <string name="check_software_updates">Frissítések keresése</string>
+    <!-- Tile Service -->
+    <string name="tile_running">Folyamatban</string>
+    <string name="tile_subtitle_default">Better Nothing Music Visualizer</string>
+    <!-- Feature Monitors -->
+    <string name="haptic_monitor">Haptikus Monitor</string>
+    <string name="flashlight_level_stats">SZINT: %1$d % %2$d</string>
+    <!-- Visuals Options -->
+    <string name="top_edge_overlay">Felső Él átfedés</string>
+    <string name="bottom_edge_overlay">Alsó Él átfedés</string>
+    <string name="edge_visualizer">Képernyő Széle</string>
+    <string name="edge_bar_height">Szélső Sávok Magassága</string>
+    <string name="top_edge_segment">Felső Élszakasz</string>
+    <string name="bottom_edge_segment">Alsó Élszakasz</string>
+    <string name="screen_corner_radius">Képernyő Sarok Nagyság</string>
+    <string name="horizontal_bar_count">Vízszintes Sáv mennyiség</string>
+    <string name="vertical_bar_count">Függőleges Sáv mennyiség</string>
+    <string name="x_position">X pozíció</string>
+    <string name="y_position">Y pozíció</string>
+    <string name="bar_height">Sávmagasság</string>
+    <string name="emulate_hdr_title">HDR szimuláció (OLED)</string>
+    <string name="emulate_hdr_description">Elsötétíti a képernyőt hogy az átfedett kimutatás \"világosabb legyen, mint a képernyő\", pont úgy, ahogy a HDR szokta. Legjobban OLED kijelzőkön működik.</string>
+    <string name="hdr_intensity">HDR Intenzitás</string>
+    <!-- Settings Extra -->
+    <string name="vizualizer_stats">Kimutatási Statisztikák</string>
+    <string name="tablet_width_title">Táblagép Lapfül szélesség</string>
+    <!-- Notification Extra -->
+    <string name="notification_channel_name">BNMV Értesítés</string>
+    <string name="notification_title">Better Nothing Music Visualizer</string>
+    <string name="notification_action_glyphs">glyph</string>
+    <string name="notification_action_haptics">rezgés</string>
+    <string name="notification_action_flash">zseblámpa</string>
+    <string name="notification_action_stop">Leállítás</string>
+    <!-- Device Names -->
+    <string name="device_unknown">Ismeretlen Eszköz</string>
+    <!-- Stats Screen -->
+    <string name="usage_stats">Felhasználási Statisztikák</string>
+    <string name="total_visualization_time">Összegzett Kimutatási Idő</string>
+    <string name="engagement">Aktivitás</string>
+    <string name="active_music">Aktív Zene</string>
+    <string name="idle_pulse">Inaktív</string>
+    <string name="feature_breakdown">funkciórészletezés</string>
+    <string name="glyph_interface">Glyph Fények/Mátrix</string>
+    <string name="haptic_feedback">Haptikus Vibrálás</string>
+    <string name="flashlight_sync_stat">Zseblámpa szinkronizáció</string>
+    <string name="total_active_use">Totál Aktív Felhasználás</string>
+    <string name="export_stats">Statisztikák exportálása</string>
+    <string name="import_stats">Statisztikák feltöltése</string>
+    <string name="stats_import_success">Sikeres statisztika feltöltés</string>
+    <string name="stats_import_error">Sikertelen statisztika feltöltés</string>
+    <string name="stats_export_error">Sikertelen statisztika exportálás</string>
+    <!-- Glyphs Screen Extra -->
+    <string name="update_required">Frissítés Szükséges</string>
+    <string name="download_full_config">Töltsd le a teljes konfigurációt hogy láthasd a sablonokat</string>
+    <string name="visualizer_configuration">Vizsualizáló Konfiguráció</string>
+    <string name="config_description">A zones.config fájl alapján jelenítődnek meg a frekvenciák a Glyph LED-eken. a GitHub-ról való frissítés biztosítja az új eszközök működését és az új sablonok elérhetőségét.</string>
+    <string name="up_to_date">Legfrissebb</string>
+    <string name="update_available_label">FRISSÍTÉS ELÉRHETŐ</string>
+    <string name="local_config">Lokális</string>
+    <string name="show_gamma_info">Gamma Információ Mutatása</string>
+    <string name="check_github">GitHub megnézése</string>
+    <!-- About Screen Extra -->
+    <string name="view_source_contributions">Források és Hozzájárulások megtekintése</string>
+    <string name="software_update">Szoftverfrissítés</string>
+    <string name="update_label">FRISSÍTÉS</string>
+    <!-- Audio Service -->
+    <string name="audio_route_none">n.a.</string>
+    <string name="output_selection">2. Válaszd ki a kimenetet</string>
+    <string name="select_capture_source">1. Válaszd ki a bemenetet</string>
+    <string name="broadcast">Más eszközök csatlakozásának engedélyezése...</string>
+    <!-- Audio Help Guides -->
+    <string name="help_source_intro">Honnan származzon a hang a kimutatáshoz:</string>
+    <string name="help_source_internal_title">Média vetítés</string>
+    <string name="help_source_internal_desc">Magas minőségű hangot vesz fel egyenesen az alkalmazásokból. A \"Képernyővetítés\" felugró ablak szükséges a hangfelvétel engedélyezéséhez. Videót nem vesz fel és akkumulátor kímélő.</string>
+    <string name="help_source_mic_title">Mikrofon</string>
+    <string name="help_source_mic_desc">Hangot vesz fel a környezetből. Hasznos partikon, ahol a zene nem a készülékből származik.</string>
+    <string name="help_source_network_title">Más eszköz vagy alkalmazás...</string>
+    <string name="help_source_network_desc">Hanganyagot kap más eszköztől ami ezzel az alkalmazással küldi ezt át.</string>
+    <string name="help_source_viz_title">Android beépített kimutatás</string>
+    <string name="help_source_viz_desc">Ezt engedi engedély nélkül használni az Android, egy alacsony minőségű hanganyagot. Legalább nem kell hozzá képernyőt tükrözni.</string>
+    <string name="help_source_privacy">Emlékeztető: hanganyag sosincs elmentve vagy tárolva az eszközön.</string>
+    <string name="help_output_intro">Hol jelenjen meg a kimutatás:</string>
+    <string name="help_output_glyphs_desc">Vizualizálja a hangot a Glyph LEDeken.</string>
+    <string name="help_output_haptics_desc">Átérezheted a zenét rezgésekkel.</string>
+    <string name="help_output_flash_desc">Ritmusra felvillantja a zseblámpát.</string>
+    <string name="help_output_broadcast_title">\"Más eszközök csatlakozásának engedélyezése...\"</string>
+    <string name="help_output_broadcast_desc">Hanganyagot küld más eszközöknek a hálózaton.</string>
+    <string name="help_sync_title">Csatlakozás más eszközhöz:</string>
+    <string name="help_sync_step1">1. \'Más eszközök csatlakozásának engedélyezése\' legyen bekapcsolva a hangadó eszközön (Hangforrás)</string>
+    <string name="help_sync_step2">2. Ezen az eszközön válaszd ki a \'Más eszköz vagy alkalmazás...\' opciót mint hangforrás majd válaszd ki a forrásnak használt eszközt.</string>
+    <string name="system_language">Rendszer Nyelve</string>
+    <string name="select_language">Nyelv Kiválasztása</string>
+    <string name="widget_m3_description">Material 3 Zenekimutató Widget (DayNight)</string>
+    <string name="idle_breathing_desc">A Glyph fények villogása amikor a kimutatás aktív de nem érzékel hangot.</string>
+    <!-- Widget -->
+    <string name="widget_start_bnmv">START BNMV</string>
+    <string name="widget_stop_bnmv">STOP BNMV</string>
+    <!-- First Time Help -->
+    <string name="first_time_help_title">Quick Tip</string>
+    <string name="first_time_help_msg">Click on the [info] buttons whenever you need help!</string>
+    <!-- Easter Eggs -->
+    <string name="toast_no_output">Minden kimenet ki van kapcsolva, úgyhogy a BNMV nem fog SEMMIT se csinálni 😆</string>
+    <string name="toast_audio_title_tap">Miért tapogatsz itt? Nem csinál SEMMIT! 😆</string>
+    <string name="easter_egg_glyph_popup_body">Ez az alkalmazásikon koncepció a Nothing közösség legnagyobb alkalmazásának, NoVolume, készítőjétől származik. Ez egy csodálatos alkalmazás, mindenképpen javaslom hogy tekintsd meg a Play Store-ban.\n\nEzt mondta:</string>
+    <string name="easter_egg_glyph_popup_quote">\"Szerintem ez az alkalmazás ikon sokkal jobban illene és sokkal többen letöltenék az alkalmazást.\"</string>
+    <string name="ok">OK</string>
+    <string name="i_dont_give_a_fuck">Leszarom</string>
+    <!-- Visualizer Color & Accessibility -->
+    <string name="visualizer_color">Kimutatás Színe</string>
+    <string name="broadcast_clients">Kliensek Közvetítése</string>
+    <string name="connected_count">%d Csatlakoztatva</string>
+    <string name="waiting_for_devices">Várás eszközökre...</string>
+    <string name="made_by_aleks">Aleks Levet készítette sok szeretettel!</string>
+    <string name="credits_extended">Nem én vagyok az egyetlen aki hozzátett ehhez a csodálatos projekthez, tekintsd meg a GitHub oldalt a teljes stáblistáért! Ezt évekig tartott elkészíteni!</string>
+    <string name="content_desc_internal_source">Belső Forrás</string>
+    <string name="content_desc_mic_source">Mikrofon Forrása</string>
+    <string name="content_desc_visualizer_source">Kimutatás Forrása</string>
+    <string name="content_desc_toggle_haptics">Rezgés kapcsolása</string>
+    <string name="content_desc_toggle_glyphs">Glyph fények kapcsolása</string>
+    <string name="content_desc_toggle_torch">Zseblámpa Kapcsolása</string>
+    <string name="content_desc_start_stop">Kimutatás Be/Ki</string>
+    <string name="label_source">FORRÁS</string>
+    <string name="label_output">KIMENET</string>
+    <string name="help_show">Segítség mutatása</string>
+    <!-- Google Sans Flex Tuning -->
+</resources>
