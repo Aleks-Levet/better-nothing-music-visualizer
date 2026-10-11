@@ -1654,7 +1654,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // ── Gamma ─────────────────────────────────────────────────────────────────
-    val _gammaValue = MutableStateFlow(2.2f)
+    val _gammaValue = MutableStateFlow(2.5f)
     val gammaValue = _gammaValue.asStateFlow()
 
     fun setGammaValue(value: Float) {
@@ -1845,13 +1845,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _hapticMotorEnabled = MutableStateFlow(false)
     val hapticMotorEnabled = _hapticMotorEnabled.asStateFlow()
 
-    val _hapticMode = MutableStateFlow(HapticMode.BASS_TO_AMPLITUDE)
+    val _hapticMode = MutableStateFlow(HapticMode.BEAT_DETECTION)
     val hapticMode = _hapticMode.asStateFlow()
 
-    val _hapticFreqMin = MutableStateFlow(20f)
+    val _hapticFreqMin = MutableStateFlow(70f)
     val hapticFreqMin = _hapticFreqMin.asStateFlow()
 
-    val _hapticFreqMax = MutableStateFlow(250f)
+    val _hapticFreqMax = MutableStateFlow(130f)
     val hapticFreqMax = _hapticFreqMax.asStateFlow()
 
     val _hapticMultiplier = MutableStateFlow(1.0f)
@@ -1863,10 +1863,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _hapticGamma = MutableStateFlow(2.0f)
     val hapticGamma = _hapticGamma.asStateFlow()
 
-    val _hapticBeatSensitivity = MutableStateFlow(1.5f)
+    val _hapticBeatSensitivity = MutableStateFlow(1.0f)
     val hapticBeatSensitivity = _hapticBeatSensitivity.asStateFlow()
 
-    val _hapticBeatGamma = MutableStateFlow(8.0f)
+    val _hapticBeatGamma = MutableStateFlow(12.0f)
     val hapticBeatGamma = _hapticBeatGamma.asStateFlow()
     
     val _hapticBeatEngineMode = MutableStateFlow(BeatEngineMode.SMOOTH)
@@ -1977,13 +1977,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _flashlightEnabled = MutableStateFlow(false)
     val flashlightEnabled = _flashlightEnabled.asStateFlow()
 
-    val _flashlightMode = MutableStateFlow(TorchMode.AMPLITUDE)
+    val _flashlightMode = MutableStateFlow(TorchMode.BEAT_DETECTION)
     val flashlightMode = _flashlightMode.asStateFlow()
 
-    val _flashlightFreqMin = MutableStateFlow(20f)
+    val _flashlightFreqMin = MutableStateFlow(70f)
     val flashlightFreqMin = _flashlightFreqMin.asStateFlow()
 
-    val _flashlightFreqMax = MutableStateFlow(250f)
+    val _flashlightFreqMax = MutableStateFlow(130f)
     val flashlightFreqMax = _flashlightFreqMax.asStateFlow()
 
     val _flashlightThreshold = MutableStateFlow(0.15f)
@@ -1992,10 +1992,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _flashlightSpeedMs = MutableStateFlow(80f)
     val flashlightSpeedMs = _flashlightSpeedMs.asStateFlow()
 
-    val _flashlightBeatSensitivity = MutableStateFlow(1.5f)
+    val _flashlightBeatSensitivity = MutableStateFlow(1.0f)
     val flashlightBeatSensitivity = _flashlightBeatSensitivity.asStateFlow()
 
-    private val _flashlightBeatGamma = MutableStateFlow(8.0f)
+    private val _flashlightBeatGamma = MutableStateFlow(12.0f)
     val flashlightBeatGamma = _flashlightBeatGamma.asStateFlow()
 
     val _flashlightBeatEngineMode = MutableStateFlow(BeatEngineMode.SMOOTH)
@@ -2405,7 +2405,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         _autoDeviceMemorize.value = get("auto_device_memorize", true)
         _m3eEnabled.value = get("m3e_enabled", true)
-        _gammaValue.value = get("gamma_value", 2.2f)
+        _gammaValue.value = get("gamma_value", 2.5f)
         _glyphThreshold.value = get("glyph_threshold", 0.0f)
         _glyphDecaySpeed.value = get("glyph_decay_speed", 0.75f)
         _spectrumGain.value = get("spectrum_gain", 4.0f)
@@ -2435,14 +2435,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         // Haptics settings
         _hapticMotorEnabled.value = get("haptic_motor_enabled", false)
-        _hapticMode.value = safeValueOf(get("haptic_mode", ""), HapticMode.BASS_TO_AMPLITUDE)
-        _hapticFreqMin.value = get("haptic_freq_min", 20).toFloat()
-        _hapticFreqMax.value = get("haptic_freq_max", 250).toFloat()
+        _hapticMode.value = safeValueOf(get("haptic_mode", ""), HapticMode.BEAT_DETECTION)
+        _hapticFreqMin.value = get("haptic_freq_min", 70).toFloat()
+        _hapticFreqMax.value = get("haptic_freq_max", 130).toFloat()
         _hapticMultiplier.value = get("haptic_multiplier", 1.0f)
         _hapticAudioGain.value = get("haptic_audio_gain", 1.0f)
         _hapticGamma.value = get("haptic_gamma", 2.0f)
-        _hapticBeatSensitivity.value = get("haptic_beat_sensitivity", 1.5f)
-        _hapticBeatGamma.value = get("haptic_beat_gamma", 8.0f)
+        _hapticBeatSensitivity.value = get("haptic_beat_sensitivity", 1.0f)
+        _hapticBeatGamma.value = get("haptic_beat_gamma", 12.0f)
 
         val defaultHapticEngineMode = if (hasAmplitudeControl) BeatEngineMode.SMOOTH else BeatEngineMode.SHORT_PULSE
         _hapticBeatEngineMode.value = safeValueOf(get("haptic_beat_engine_mode", ""), defaultHapticEngineMode)
@@ -2450,12 +2450,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         // Flashlight settings
         _flashlightEnabled.value = get("flashlight_enabled", false)
-        _flashlightMode.value = safeValueOf(get("flashlight_mode", ""), TorchMode.AMPLITUDE)
-        _flashlightFreqMin.value = get("flashlight_freq_min", 20).toFloat()
-        _flashlightFreqMax.value = get("flashlight_freq_max", 250).toFloat()
+        _flashlightMode.value = safeValueOf(get("flashlight_mode", ""), TorchMode.BEAT_DETECTION)
+        _flashlightFreqMin.value = get("flashlight_freq_min", 70).toFloat()
+        _flashlightFreqMax.value = get("flashlight_freq_max", 130).toFloat()
         _flashlightThreshold.value = get("flashlight_threshold", 0.15f)
-        _flashlightBeatSensitivity.value = get("flashlight_beat_sensitivity", 1.5f)
-        _flashlightBeatGamma.value = get("flashlight_beat_gamma", 8.0f)
+        _flashlightBeatSensitivity.value = get("flashlight_beat_sensitivity", 1.0f)
+        _flashlightBeatGamma.value = get("flashlight_beat_gamma", 12.0f)
         _flashlightSpeedMs.value = get("flashlight_speed_ms", 80f)
         _flashlightMaxIntensity.value = get("flashlight_max_intensity", -1)
         

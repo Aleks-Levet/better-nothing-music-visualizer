@@ -19,7 +19,7 @@ class BeatDetectionHapticEngine(context: Context) {
     private var pulseEffect: VibrationEffect? = null
 
     private var hapticMultiplier = 1.0f
-    private var hapticGamma = 8.0f // Default "speed"
+    private var hapticGamma = 12.0f // Default "speed"
     private var hapticFrequencyHz = 100 // Custom frequency in Hz (-1 uses device default)
     private var engineMode = BeatEngineMode.SMOOTH
     private var pulseDurationMs = 40

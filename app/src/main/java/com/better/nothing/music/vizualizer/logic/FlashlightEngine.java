@@ -31,13 +31,13 @@ public final class FlashlightEngine {
     private int maxTorchStrength = 1;
     private Integer spoofIntensityLevels = null;
 
-    private TorchMode torchMode = TorchMode.AMPLITUDE;
+    private TorchMode torchMode = TorchMode.BEAT_DETECTION;
     private BeatEngineMode beatEngineMode = BeatEngineMode.SMOOTH;
     private int pulseDurationMs = 40;
 
     private float amplitudeThresholdOrMultiplier = 0.15f;
     private float flashlightBeatSpeedMs = 90f;
-    private float flashlightBeatGamma = 8.0f;
+    private float flashlightBeatGamma = 12.0f;
     private int userMaxIntensity = -1;
 
     private final BeatDetector beatDetector = new BeatDetector();

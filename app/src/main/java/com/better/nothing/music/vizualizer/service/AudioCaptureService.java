@@ -381,29 +381,29 @@ public class AudioCaptureService extends Service {
     private volatile boolean mHapticEnabled = false;
     private boolean mHasHapticMotor = false;
     private boolean mHasFlashlight = false;
-    private volatile HapticMode mHapticMode = HapticMode.BASS_TO_AMPLITUDE;
+    private volatile HapticMode mHapticMode = HapticMode.BEAT_DETECTION;
     private volatile BeatEngineMode mHapticBeatEngineMode = BeatEngineMode.SMOOTH;
     private volatile int mHapticPulseDurationMs = 40;
-    private volatile float mHapticMinHz = 60;
-    private volatile float mHapticMaxHz = 250;
+    private volatile float mHapticMinHz = 70;
+    private volatile float mHapticMaxHz = 130;
     private volatile AudioProcessor.FrequencyRange mHapticRange;
     private volatile float mHapticAudioGain = 1.0f;
     private volatile float mHapticBeatSensitivity = 1.0f;
-    private volatile float mHapticBeatGamma = 8.0f;
+    private volatile float mHapticBeatGamma = 12.0f;
 
     private AudioProcessor.FrequencyRange mUiRange;
 
     private volatile boolean mFlashlightEnabled = false;
-    private volatile TorchMode mFlashlightMode = TorchMode.AMPLITUDE;
+    private volatile TorchMode mFlashlightMode = TorchMode.BEAT_DETECTION;
     private volatile BeatEngineMode mFlashlightBeatEngineMode = BeatEngineMode.SMOOTH;
     private volatile int mFlashlightPulseDurationMs = 40;
-    private volatile float mFlashlightMinHz = 60;
-    private volatile float mFlashlightMaxHz = 250;
+    private volatile float mFlashlightMinHz = 70;
+    private volatile float mFlashlightMaxHz = 130;
     private volatile AudioProcessor.FrequencyRange mFlashlightRange;
     private volatile float mFlashlightThreshold = 0.15f;
     private volatile float mFlashlightBeatSensitivity = 1.0f;
     private volatile float mFlashlightSpeedMs = 90f;
-    private volatile float mFlashlightBeatGamma = 8.0f;
+    private volatile float mFlashlightBeatGamma = 12.0f;
     private volatile int mFlashlightIntensityLevels = 1;
     private volatile Integer mFlashlightSpoofLevels = null;
     private volatile int mFlashlightMaxIntensity = -1;
@@ -699,31 +699,31 @@ public class AudioCaptureService extends Service {
         mGlyphDecaySpeed = getSafeFloat(appPrefs, "glyph_decay_speed", 0.75f);
         setHapticMotorEnabled(mHasHapticMotor && appPrefs.getBoolean("haptic_motor_enabled", false));
         try {
-            mHapticMode = HapticMode.valueOf(appPrefs.getString("haptic_mode", HapticMode.BASS_TO_AMPLITUDE.name()));
+            mHapticMode = HapticMode.valueOf(appPrefs.getString("haptic_mode", HapticMode.BEAT_DETECTION.name()));
         } catch (Exception ignored) {}
         try {
             mHapticBeatEngineMode = BeatEngineMode.valueOf(appPrefs.getString("haptic_beat_engine_mode", BeatEngineMode.SMOOTH.name()));
         } catch (Exception ignored) {}
         setHapticPulseDurationMs(getSafeInt(appPrefs, "haptic_pulse_duration_ms", 40));
-        setHapticBeatSensitivity(getSafeFloat(appPrefs, "haptic_beat_sensitivity", 1.5f));
-        setHapticBeatGamma(getSafeFloat(appPrefs, "haptic_beat_gamma", 8.0f));
-        setHapticFreqRange(getSafeFloat(appPrefs, "haptic_freq_min", 20f), getSafeFloat(appPrefs, "haptic_freq_max", 250f));
+        setHapticBeatSensitivity(getSafeFloat(appPrefs, "haptic_beat_sensitivity", 1.0f));
+        setHapticBeatGamma(getSafeFloat(appPrefs, "haptic_beat_gamma", 12.0f));
+        setHapticFreqRange(getSafeFloat(appPrefs, "haptic_freq_min", 70f), getSafeFloat(appPrefs, "haptic_freq_max", 130f));
         setHapticAudioGain(getSafeFloat(appPrefs, "haptic_audio_gain", 1.0f));
 
         setFlashlightEnabled(mHasFlashlight && appPrefs.getBoolean("flashlight_enabled", false));
         try {
-            mFlashlightMode = TorchMode.valueOf(appPrefs.getString("flashlight_mode", TorchMode.AMPLITUDE.name()));
+            mFlashlightMode = TorchMode.valueOf(appPrefs.getString("flashlight_mode", TorchMode.BEAT_DETECTION.name()));
         } catch (Exception ignored) {}
         try {
             mFlashlightBeatEngineMode = BeatEngineMode.valueOf(appPrefs.getString("flashlight_beat_engine_mode", BeatEngineMode.SMOOTH.name()));
         } catch (Exception ignored) {}
         setFlashlightPulseDurationMs(getSafeInt(appPrefs, "flashlight_pulse_duration_ms", 40));
-        setFlashlightBeatSensitivity(getSafeFloat(appPrefs, "flashlight_beat_sensitivity", 1.5f));
+        setFlashlightBeatSensitivity(getSafeFloat(appPrefs, "flashlight_beat_sensitivity", 1.0f));
         setFlashlightSpeedMs(getSafeFloat(appPrefs, "flashlight_speed_ms", 80f));
         setFlashlightThreshold(getSafeFloat(appPrefs, "flashlight_threshold", 0.15f));
-        setFlashlightFreqRange(getSafeFloat(appPrefs, "flashlight_freq_min", 20f), getSafeFloat(appPrefs, "flashlight_freq_max", 250f));
+        setFlashlightFreqRange(getSafeFloat(appPrefs, "flashlight_freq_min", 70f), getSafeFloat(appPrefs, "flashlight_freq_max", 130f));
         setFlashlightMaxIntensity(getSafeInt(appPrefs, "flashlight_max_intensity", -1));
-        setFlashlightBeatGamma(getSafeFloat(appPrefs, "flashlight_beat_gamma", 8.0f));
+        setFlashlightBeatGamma(getSafeFloat(appPrefs, "flashlight_beat_gamma", 12.0f));
         
         mIdleBreathingEnabled = appPrefs.getBoolean("idle_breathing_enabled", false);
         if (mGlyphRenderer != null) {
@@ -1916,7 +1916,7 @@ public class AudioCaptureService extends Service {
 
     public static int loadLatencyCompensationMs(Context context, int device) { return getSafeInt(context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE), "latency_device_" + device, 0); }
     public static int loadLatencyCompensationMs(Context context, int device, String routeKey) { if (routeKey == null || routeKey.isEmpty()) return loadLatencyCompensationMs(context, device); return getSafeInt(context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE), "latency_" + routeKey, loadLatencyCompensationMs(context, device)); }
-    public static float loadGamma(Context context) { return getSafeFloat(context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE), "gamma_value", 2.2f); }
+    public static float loadGamma(Context context) { return getSafeFloat(context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE), "gamma_value", 2.5f); }
 
     public static boolean isHapticEnabledGlobal(Context context) { return context.getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).getBoolean("haptic_motor_enabled", false); }
     public static Intent createStopIntent(Context context) { Intent intent = new Intent(context, AudioCaptureService.class); intent.setAction(ACTION_STOP); return intent; }

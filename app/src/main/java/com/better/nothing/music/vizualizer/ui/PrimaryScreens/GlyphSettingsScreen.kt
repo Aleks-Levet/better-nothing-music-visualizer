@@ -709,14 +709,15 @@ fun SpeedSlider(
     onToggleExpand: () -> Unit
 ) {
     val view = LocalView.current
-    // 1.2f is low speed (left), 0.4f is high speed (right)
-    val sliderPos = (1.2f - speedValue) / 0.8f
+    // Relative speed multiplier: default is 0.75f = 1.0x speed.
+    // 0.5x speed (left), 6.0x speed (right)
+    val currentMult = (0.75f / speedValue.coerceAtLeast(0.01f)).coerceIn(0.5f, 6.0f)
 
     CardHeader(
         title = stringResource(R.string.speed_label),
         trailingContent = {
             Text(
-                text = String.format("%.2fx", 0.75f / speedValue), // Relative to default
+                text = String.format("%.2fx", currentMult),
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                 style = MaterialTheme.typography.bodyMedium,
             )
@@ -727,12 +728,12 @@ fun SpeedSlider(
         verticalAlignment = Alignment.CenterVertically
     ) {
         ExpressiveSlider(
-            value = sliderPos.coerceIn(0f, 1f),
-            onValueChange = { pos ->
-                val newSpeed = 1.2f - pos * 0.8f
+            value = currentMult,
+            onValueChange = { mult ->
+                val newSpeed = 0.75f / mult
                 onSpeedChanged(newSpeed)
             },
-            valueRange = 0f..1f,
+            valueRange = 0.5f..6.0f,
             modifier = Modifier.weight(1f),
         )
 
