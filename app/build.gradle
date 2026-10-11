@@ -50,13 +50,13 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.compose.animation:animation-core:1.12.0'
-    implementation 'androidx.compose.foundation:foundation-layout:1.11.3'
-    implementation 'androidx.compose.foundation:foundation:1.12.0'
-    implementation 'androidx.compose.runtime:runtime:1.11.3'
-    implementation 'androidx.compose.runtime:runtime:1.11.4'
-    implementation 'androidx.compose.ui:ui-geometry:1.12.0'
-    implementation 'androidx.compose.ui:ui-text:1.11.3'
+    implementation 'androidx.compose.animation:animation-core:1.12.1'
+    implementation 'androidx.compose.foundation:foundation-layout:1.12.1'
+    implementation 'androidx.compose.foundation:foundation:1.12.1'
+    implementation 'androidx.compose.runtime:runtime:1.12.1'
+    implementation 'androidx.compose.runtime:runtime:1.12.1'
+    implementation 'androidx.compose.ui:ui-geometry:1.12.1'
+    implementation 'androidx.compose.ui:ui-text:1.12.1'
 
     // 1. Keep your local SDK
     implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'])
@@ -65,11 +65,11 @@ dependencies {
     implementation 'com.github.wendykierp:JTransforms:3.2'
 
     // 2. Compose BOM - Manages versions for all compose libs below
-    implementation platform('androidx.compose:compose-bom:2026.06.00')
+    implementation platform('androidx.compose:compose-bom:2026.09.00')
 
     // Coil for image loading
-    implementation("io.coil-kt.coil3:coil-compose:3.5.0")
-    implementation("io.coil-kt.coil3:coil-network-okhttp:3.5.0")
+    implementation("io.coil-kt.coil3:coil-compose:3.6.3")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.6.3")
 
     // 3. Core Compose Libraries (Versions handled by BOM)
     implementation 'androidx.compose.ui:ui'
@@ -98,15 +98,15 @@ dependencies {
     implementation 'androidx.compose.material:material-icons-extended'
 
     // 7. Legacy Support
-    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'androidx.appcompat:appcompat:1.8.0'
     implementation 'androidx.palette:palette-ktx:1.0.0'
-    implementation 'androidx.benchmark:benchmark-traceprocessor:1.4.1'
+    implementation 'androidx.benchmark:benchmark-traceprocessor:1.5.0'
 
     // 8. Debugging
     debugImplementation 'androidx.compose.ui:ui-tooling'
 
     // 9. Firebase & Analytics
-    implementation platform('com.google.firebase:firebase-bom:33.1.2')
+    implementation platform('com.google.firebase:firebase-bom:35.0.0')
     implementation 'com.google.firebase:firebase-analytics-ktx'
 }
 
