@@ -2369,8 +2369,29 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         // Helper to safely get values from the 'all' map
         fun <T> get(key: String, default: T): T {
+            val value = all[key] ?: return default
+            if (default != null && default::class.java.isInstance(value)) {
+                @Suppress("UNCHECKED_CAST")
+                return value as T
+            }
+            if (default is Float && value is Number) {
+                @Suppress("UNCHECKED_CAST")
+                return value.toFloat() as T
+            }
+            if (default is Int && value is Number) {
+                @Suppress("UNCHECKED_CAST")
+                return value.toInt() as T
+            }
+            if (default is Long && value is Number) {
+                @Suppress("UNCHECKED_CAST")
+                return value.toLong() as T
+            }
+            if (default is Double && value is Number) {
+                @Suppress("UNCHECKED_CAST")
+                return value.toDouble() as T
+            }
             @Suppress("UNCHECKED_CAST")
-            return (all[key] as? T) ?: default
+            return (value as? T) ?: default
         }
 
         // Stats and Basic settings

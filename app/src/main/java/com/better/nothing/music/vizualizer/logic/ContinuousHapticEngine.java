@@ -41,7 +41,7 @@ public final class ContinuousHapticEngine {
     }
 
     public synchronized void setHapticMultiplier(float multiplier) {
-        this.hapticMultiplier = Math.max(0.3f, Math.min(1.5f, multiplier));
+        this.hapticMultiplier = Math.max(0.0f, Math.min(3.0f, multiplier));
     }
 
     public synchronized void setHapticAudioGain(float gain) {
