@@ -25,8 +25,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.palette.graphics.Palette
 import androidx.core.content.FileProvider
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -117,7 +115,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun logEasterEggEvent(eventName: String) {
-        Firebase.analytics.logEvent(eventName, null)
+        try {
+            FirebaseAnalytics.getInstance(ctx).logEvent(eventName, null)
+        } catch (e: Exception) {
+            Log.w("MainViewModel", "Failed to log easter egg event", e)
+        }
     }
 
     val _flashlightIntensityLevels = MutableStateFlow(1)
