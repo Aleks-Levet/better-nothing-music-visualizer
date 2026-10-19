@@ -33,16 +33,16 @@
     <string name="haptics_mode_label">وضع محرك الاهتزاز</string>
     <string name="haptics_mode_bass">ارتفاع الصوت</string>
     <string name="haptics_mode_beat">التعرف على الإيقاع</string>
-    <string name="haptics_beat_detection_desc">يهتز عند اكتشاف الإيقاعات ضمن نطاق التردد المحدد. أكثر انسيابية لكنه أحيانًا أقل ثباتًا. هذه ميزة تجريبية.</string>
-    <string name="haptics_frequency_label">التردد: %1$d - %2$d Hz</string>
-    <string name="haptics_frequency_desc">يهتز بناءً على شدة الصوت ضمن هذا النطاق.</string>
-    <string name="haptics_amplitude_label">قوة المحرك: %.1fx</string>
+
+
+
+
     <string name="haptics_audio_gain_label">كسب الصوت: %.1fx</string>
     <string name="haptics_gamma_label">جاما: %.1f</string>
     <string name="haptics_decay_label">التلاشي: %.2f</string>
     <string name="haptics_speed_label">السرعة: %.1f</string>
     <string name="haptics_sensitivity_label">الحساسية: %.1f</string>
-    <string name="haptics_motor_multiplier_desc">مضاعف قوة إخراج المحرك العام.</string>
+
     <string name="haptics_decay_instant">بلا تنعيم (فوري)</string>
     <string name="haptics_decay_smooth">التنعيم مفعّل</string>
     <string name="haptics_duration_label">المدة: %d ms</string>
@@ -188,7 +188,7 @@
     <string name="tile_running">قيد التشغيل</string>
     <string name="tile_subtitle_default">مصور موسيقى Nothing المحسّن</string>
     <!-- Feature Monitors -->
-    <string name="haptic_monitor">مراقب الاهتزاز</string>
+
     <string name="flashlight_level_stats">المستوى: %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">تراكب الحافة العلوية</string>
@@ -282,7 +282,7 @@
     <string name="widget_stop_bnmv">STOP BNMV</string>
     <!-- First Time Help -->
     <string name="first_time_help_title">Quick Tip</string>
-    <string name="first_time_help_msg">Click on the [info] buttons whenever you need help!</string>
+
     <!-- Easter Eggs -->
     <string name="toast_no_output">جميع أجهزة الإخراج معطلة، لذا BNMV will do NOTHING 😆</string>
     <string name="toast_audio_title_tap">لماذا تضغط هنا؟ It does NOTHING 😆</string>

@@ -33,16 +33,16 @@
     <string name="haptics_mode_label">Режим виброотклика</string>
     <string name="haptics_mode_bass">Амплитуда</string>
     <string name="haptics_mode_beat">Распознавание бита</string>
-    <string name="haptics_beat_detection_desc">Вибрация срабатывает на ритмические удары в выбранном диапазоне частот. Тактильный отклик мягче, но может работать нестабильно (бета-версия).</string>
-    <string name="haptics_frequency_label">Частота: %1$d - %2$d Гц</string>
-    <string name="haptics_frequency_desc">Вибрация реагирует на громкость звука в этом диапазоне.</string>
-    <string name="haptics_amplitude_label">Усиление мотора: %.1fx</string>
+
+
+
+
     <string name="haptics_audio_gain_label">Усиление звука: %.1fx</string>
     <string name="haptics_gamma_label">Гамма: %.1f</string>
     <string name="haptics_decay_label">Спад: %.2f</string>
     <string name="haptics_speed_label">Скорость: %.1f</string>
     <string name="haptics_sensitivity_label">Чувствительность: %.1f</string>
-    <string name="haptics_motor_multiplier_desc">Общий множитель силы виброотклика.</string>
+
     <string name="haptics_decay_instant">Без сглаживания (мгновенно)</string>
     <string name="haptics_decay_smooth">Сглаживание активно</string>
     <string name="haptics_duration_label">Длительность: %d мс</string>
@@ -188,7 +188,7 @@
     <string name="tile_running">Работает</string>
     <string name="tile_subtitle_default">Better Nothing Music Visualizer</string>
     <!-- Feature Monitors -->
-    <string name="haptic_monitor">Монитор вибрации</string>
+
     <string name="flashlight_level_stats">УРОВЕНЬ: %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">Оверлей верхней грани</string>
@@ -282,7 +282,7 @@
     <string name="widget_stop_bnmv">STOP BNMV</string>
     <!-- First Time Help -->
     <string name="first_time_help_title">Quick Tip</string>
-    <string name="first_time_help_msg">Click on the [info] buttons whenever you need help!</string>
+
     <!-- Easter Eggs -->
     <string name="toast_no_output">Все выводы отключены, поэтому BNMV ничего не делает 😆</string>
     <string name="toast_audio_title_tap">Зачем ты сюда жмешь? Это ничего не делает! 😆</string>

@@ -33,16 +33,16 @@
     <string name="haptics_mode_label">Modalità motore tattile</string>
     <string name="haptics_mode_bass">Ampiezza</string>
     <string name="haptics_mode_beat">Rilevamento battito</string>
-    <string name="haptics_beat_detection_desc">Vibra sui battiti rilevati all\'interno dell\'intervallo di frequenza selezionato. Più fluido ma a volte meno stabile. È una funzione beta.</string>
-    <string name="haptics_frequency_label">Frequenza: %1$d - %2$d Hz</string>
-    <string name="haptics_frequency_desc">Vibra in base all\'ampiezza audio in questo intervallo.</string>
-    <string name="haptics_amplitude_label">Intensità: %.1fx</string>
+
+
+
+
     <string name="haptics_audio_gain_label">Guadagno: %.1fx</string>
     <string name="haptics_gamma_label">Gamma: %.1f</string>
     <string name="haptics_decay_label">Decadimento: %.2f</string>
     <string name="haptics_speed_label">Velocità: %.1f</string>
     <string name="haptics_sensitivity_label">Sensibilità: %.1f</string>
-    <string name="haptics_motor_multiplier_desc">Moltiplicatore globale della forza di vibrazione.</string>
+
     <string name="haptics_decay_instant">Istantaneo (senza lissage)</string>
     <string name="haptics_decay_smooth">Lissage attivo</string>
     <string name="haptics_duration_label">Durata: %d ms</string>
@@ -188,7 +188,7 @@
     <string name="tile_running">In esecuzione</string>
     <string name="tile_subtitle_default">Better Nothing Music Visualiser</string>
     <!-- Feature Monitors -->
-    <string name="haptic_monitor">Controllo Vibrazione</string>
+
     <string name="flashlight_level_stats">LIVELLO: %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">Bordo Superiore Sovrapposizione</string>
@@ -282,7 +282,7 @@
     <string name="widget_stop_bnmv">STOP BNMV</string>
     <!-- First Time Help -->
     <string name="first_time_help_title">Quick Tip</string>
-    <string name="first_time_help_msg">Click on the [info] buttons whenever you need help!</string>
+
     <!-- Easter Eggs -->
     <string name="toast_no_output">Tutti gli output sono disabilitati, perciò BNMV non farà NIENTE😆</string>
     <string name="toast_audio_title_tap">Perché stai cliccando qui? Non serve a NIENTE! 😆</string>

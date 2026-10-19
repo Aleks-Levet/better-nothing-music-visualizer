@@ -33,16 +33,16 @@
     <string name="haptics_mode_label">Modo del motor háptico</string>
     <string name="haptics_mode_bass">Amplitude</string>
     <string name="haptics_mode_beat">Detección de ritmo</string>
-    <string name="haptics_beat_detection_desc">Vibra con los ritmos detectados dentro del rango de frecuencia seleccionado. Más suave pero a veces no tan estable. Es una función beta.</string>
-    <string name="haptics_frequency_label">Frecuencia: %1$d - %2$d Hz</string>
-    <string name="haptics_frequency_desc">Vibra según la amplitud de audio en este rango.</string>
-    <string name="haptics_amplitude_label">Intensidad: %.1fx</string>
+
+
+
+
     <string name="haptics_audio_gain_label">Audio Gain: %.1fx</string>
     <string name="haptics_gamma_label">Gamma: %.1f</string>
     <string name="haptics_decay_label">Decaimiento: %.2f</string>
     <string name="haptics_speed_label">Velocidad: %.1f</string>
     <string name="haptics_sensitivity_label">Sensibilidad: %.1f</string>
-    <string name="haptics_motor_multiplier_desc">Multiplicador global de la fuerza de vibración.</string>
+
     <string name="haptics_decay_instant">Sin suavizado (Instantáneo)</string>
     <string name="haptics_decay_smooth">Suavizado activo</string>
     <string name="haptics_duration_label">Duration: %d ms</string>
@@ -188,7 +188,7 @@
     <string name="tile_running">Running</string>
     <string name="tile_subtitle_default">Better Nothing Music Vizualiser</string>
     <!-- Feature Monitors -->
-    <string name="haptic_monitor">Haptic Monitor</string>
+
     <string name="flashlight_level_stats">LEVEL: %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">Top Edge Overlay</string>
@@ -282,7 +282,7 @@
     <string name="widget_stop_bnmv">STOP BNMV</string>
     <!-- First Time Help -->
     <string name="first_time_help_title">Quick Tip</string>
-    <string name="first_time_help_msg">Click on the [info] buttons whenever you need help!</string>
+
     <!-- Easter Eggs -->
     <string name="toast_no_output">All outputs are disabled, so BNMV will do NOTHING 😆</string>
     <string name="toast_audio_title_tap">Why are you clicking here? It does NOTHING! 😆</string>

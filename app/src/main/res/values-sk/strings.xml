@@ -33,16 +33,16 @@
     <string name="haptics_mode_label">Režim Haptic Engine</string>
     <string name="haptics_mode_bass">Amplitúda</string>
     <string name="haptics_mode_beat">Detekcia rytmu</string>
-    <string name="haptics_beat_detection_desc">Vibruje podľa rytmu vo zvolenom frekvenčnom rozsahu. Plynulejšie, no menej stabilné. Beta funkcia.</string>
-    <string name="haptics_frequency_label">Frekvencia: %1$d - %2$d Hz</string>
-    <string name="haptics_frequency_desc">Vibruje na základe amplitúdy zvuku v tomto rozsahu.</string>
-    <string name="haptics_amplitude_label">Zosilnenie motora: %.1fx</string>
+
+
+
+
     <string name="haptics_audio_gain_label">Zosilnenie zvuku: %.1fx</string>
     <string name="haptics_gamma_label">Gamma: %.1f</string>
     <string name="haptics_decay_label">Doznievanie: %.2f</string>
     <string name="haptics_speed_label">Rýchlosť: %.1f</string>
     <string name="haptics_sensitivity_label">Citlivosť: %.1f</string>
-    <string name="haptics_motor_multiplier_desc">Globálny násobiteľ sily výstupu motora.</string>
+
     <string name="haptics_decay_instant">Bez vyhladzovania (okamžité)</string>
     <string name="haptics_decay_smooth">Vyhladzovanie aktívne</string>
     <string name="haptics_duration_label">Trvanie: %d ms</string>
@@ -188,7 +188,7 @@
     <string name="tile_running">Spustené</string>
     <string name="tile_subtitle_default">Better Nothing Music Visualizer</string>
     <!-- Feature Monitors -->
-    <string name="haptic_monitor">Monitor vibrácii</string>
+
     <string name="flashlight_level_stats">ÚROVEŇ: %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">Prekrývanie horného okraja</string>
@@ -282,7 +282,7 @@
     <string name="widget_stop_bnmv">STOP BNMV</string>
     <!-- First Time Help -->
     <string name="first_time_help_title">Quick Tip</string>
-    <string name="first_time_help_msg">Click on the [info] buttons whenever you need help!</string>
+
     <!-- Easter Eggs -->
     <string name="toast_no_output">😆Všetky výstupy sú deaktivované, takže BNMV nebude robiť NIČ 😆</string>
     <string name="toast_audio_title_tap">Prečo sem klikáš? Nič sa tým nestane! 😆</string>

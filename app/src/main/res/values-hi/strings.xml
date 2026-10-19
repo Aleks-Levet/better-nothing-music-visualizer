@@ -33,16 +33,16 @@
     <string name="haptics_mode_label">हैप्टिक इंजन मोड</string>
     <string name="haptics_mode_bass">Amplitude</string>
     <string name="haptics_mode_beat">बीट डिटेक्शन</string>
-    <string name="haptics_beat_detection_desc">चयनित आवृत्ति सीमा के भीतर पता लगाए गए बीट्स पर कंपन करता है। स्मूथ लेकिन कभी-कभी उतना स्थिर नहीं। यह एक बीटा फीचर है।</string>
-    <string name="haptics_frequency_label">आवृत्ति: %1$d - %2$d हर्ट्ज</string>
-    <string name="haptics_frequency_desc">इस सीमा में ऑडियो आयाम के आधार पर कंपन करता है।</string>
-    <string name="haptics_amplitude_label">आयाम: %.1fx</string>
+
+
+
+
     <string name="haptics_audio_gain_label">Audio Gain: %.1fx</string>
     <string name="haptics_gamma_label">गामा (प्रतिक्रिया): %.1f</string>
     <string name="haptics_decay_label">Decay: %.2f</string>
     <string name="haptics_speed_label">गति: %.1f</string>
     <string name="haptics_sensitivity_label">Sensitivity: %.1f</string>
-    <string name="haptics_motor_multiplier_desc">Global motor output strength multiplier.</string>
+
     <string name="haptics_decay_instant">No smoothing (Instant)</string>
     <string name="haptics_decay_smooth">Smoothing active</string>
     <string name="haptics_duration_label">Duration: %d ms</string>
@@ -188,7 +188,7 @@
     <string name="tile_running">Running</string>
     <string name="tile_subtitle_default">Better Nothing Music Vizualiser</string>
     <!-- Feature Monitors -->
-    <string name="haptic_monitor">Haptic Monitor</string>
+
     <string name="flashlight_level_stats">LEVEL: %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">Top Edge Overlay</string>
@@ -282,7 +282,7 @@
     <string name="widget_stop_bnmv">STOP BNMV</string>
     <!-- First Time Help -->
     <string name="first_time_help_title">Quick Tip</string>
-    <string name="first_time_help_msg">Click on the [info] buttons whenever you need help!</string>
+
     <!-- Easter Eggs -->
     <string name="toast_no_output">All outputs are disabled, so BNMV will do NOTHING 😆</string>
     <string name="toast_audio_title_tap">Why are you clicking here? It does NOTHING! 😆</string>
