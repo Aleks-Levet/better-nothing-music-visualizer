@@ -281,23 +281,30 @@ public class UnifiedVisualizerView extends View {
             }
         }
 
-        // Update Overlay smoothing
+        // Update Overlay smoothing (mirrored with bass at center)
         if (mOverlayEnabled) {
-            for (int i = 0; i < OVERLAY_NUM_BARS; i++) {
-                float t = (float) i / OVERLAY_NUM_BARS;
+            int halfBars = OVERLAY_NUM_BARS / 2;
+            for (int k = 0; k < halfBars; k++) {
+                float t = (float) k / halfBars;
                 int startBin = (int) (Math.pow(t, 1.5) * focusBins);
-                int endBin = (int) (Math.pow((float) (i + 1) / OVERLAY_NUM_BARS, 1.5) * focusBins);
+                int endBin = (int) (Math.pow((float) (k + 1) / halfBars, 1.5) * focusBins);
                 if (endBin <= startBin) endBin = startBin + 1;
                 int maxInBar = 0;
                 for (int j = startBin; j < endBin && j < fftraw.length; j++) if (fftraw[j] > maxInBar) maxInBar = fftraw[j];
                 float val = maxInBar / 4095f;
+
+                int leftIdx = (halfBars - 1) - k;
+                int rightIdx = halfBars + k;
+
                 if (mOverlayTopEnabled) {
                     float curT = val * 1.5f * mOverlaySensitivityTop;
-                    mSmoothedOverlayTop[i] = (curT > mSmoothedOverlayTop[i]) ? (mSmoothedOverlayTop[i] * 0.4f + curT * 0.6f) : (mSmoothedOverlayTop[i] * 0.7f + curT * 0.3f);
+                    mSmoothedOverlayTop[leftIdx] = (curT > mSmoothedOverlayTop[leftIdx]) ? (mSmoothedOverlayTop[leftIdx] * 0.4f + curT * 0.6f) : (mSmoothedOverlayTop[leftIdx] * 0.7f + curT * 0.3f);
+                    mSmoothedOverlayTop[rightIdx] = mSmoothedOverlayTop[leftIdx];
                 }
                 if (mOverlayBottomEnabled) {
                     float curB = val * 1.5f * mOverlaySensitivityBottom;
-                    mSmoothedOverlayBottom[i] = (curB > mSmoothedOverlayBottom[i]) ? (mSmoothedOverlayBottom[i] * 0.4f + curB * 0.6f) : (mSmoothedOverlayBottom[i] * 0.7f + curB * 0.3f);
+                    mSmoothedOverlayBottom[leftIdx] = (curB > mSmoothedOverlayBottom[leftIdx]) ? (mSmoothedOverlayBottom[leftIdx] * 0.4f + curB * 0.6f) : (mSmoothedOverlayBottom[leftIdx] * 0.7f + curB * 0.3f);
+                    mSmoothedOverlayBottom[rightIdx] = mSmoothedOverlayBottom[leftIdx];
                 }
             }
         }
