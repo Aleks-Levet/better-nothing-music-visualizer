@@ -281,7 +281,7 @@
     <string name="glyph_interface">Glyph Interface/Matrix</string>
     <string name="haptic_feedback">Haptic Vibration</string>
     <string name="flashlight_sync_stat">Flashlight sync</string>
-    <string name="broadcasting_stat">Broadcating</string>
+    <string name="broadcasting_stat">Broadcasting</string>
     <string name="overlay_stat">Overlays</string>
     <string name="total_active_use">Total Active Use</string>
     <string name="export_stats">Export Stats</string>
