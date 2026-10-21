@@ -116,7 +116,7 @@ internal fun GlyphsScreen(
 
                     AsyncImage(
                         model = "https://github.com/Aleks-Levet/better-nothing-music-visualizer/blob/main/Docs/app-icon-by-burgerkingfootlettuce-novolume-dev.jpg?raw=true",
-                        contentDescription = "Easter Egg Image",
+                        contentDescription = stringResource(R.string.easter_egg_image),
                         modifier = Modifier
                             .sizeIn(maxWidth = 400.dp, maxHeight = 400.dp)
                             .aspectRatio(1f)
@@ -400,22 +400,24 @@ internal fun GlyphsScreen(
                 ) {
                     Column {
                         Text(
-                            text = "Version: $configVersion",
+                            text = stringResource(R.string.config_version_format, configVersion),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         )
-                        if (remoteVersion != null && remoteVersion != "Unknown") {
-                            val isUpdateAvailable = remoteVersion != configVersion
+                        val targetRemoteVersion = remoteVersion
+                        if (targetRemoteVersion != null && targetRemoteVersion != "Unknown") {
+                            val isUpdateAvailable = targetRemoteVersion != configVersion
                             Text(
-                                text = if (isUpdateAvailable) "Latest: $remoteVersion" else stringResource(R.string.up_to_date),
+                                text = if (isUpdateAvailable) stringResource(R.string.latest_version_format, targetRemoteVersion) else stringResource(R.string.up_to_date),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = if (isUpdateAvailable) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
                             )
                         }
                     }
 
-                    if (remoteVersion != null && remoteVersion != "Unknown" && remoteVersion != configVersion) {
+                    val targetRemoteVersion = remoteVersion
+                    if (targetRemoteVersion != null && targetRemoteVersion != "Unknown" && targetRemoteVersion != configVersion) {
                         Surface(
                             color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
                             shape = MaterialTheme.shapes.small

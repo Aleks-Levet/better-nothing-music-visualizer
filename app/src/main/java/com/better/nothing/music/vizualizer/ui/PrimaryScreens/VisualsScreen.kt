@@ -218,7 +218,7 @@ fun VisualsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Glow blur",
+                                text = stringResource(R.string.glow_blur),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -503,7 +503,7 @@ fun VisualsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Glow blur",
+                                text = stringResource(R.string.glow_blur),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -756,7 +756,7 @@ fun VisualsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Glow blur",
+                                text = stringResource(R.string.glow_blur),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary
                             )

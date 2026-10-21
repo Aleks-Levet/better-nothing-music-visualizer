@@ -233,7 +233,7 @@ internal fun SettingsScreen(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.RestartAlt,
-                                        contentDescription = "Reset Font Settings",
+                                        contentDescription = stringResource(R.string.reset_font_settings),
                                         tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(20.dp)
                                     )

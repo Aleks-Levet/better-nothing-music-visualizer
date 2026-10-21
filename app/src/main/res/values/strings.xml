@@ -385,4 +385,12 @@
     <string name="gsans_opsz_font_settings">Optical Size</string>
     <string name="gsans_grade_font_settings">Grade</string>
     <string name="gsans_rounding_font_settings">Rounding</string>
+
+    <!-- Additional UI Labels -->
+    <string name="glow_blur">Glow blur</string>
+    <string name="easter_egg_image">Easter Egg Image</string>
+    <string name="config_version_format">Version: %s</string>
+    <string name="latest_version_format">Latest: %s</string>
+    <string name="reset_font_settings">Reset Font Settings</string>
+    <string name="latency_format"> (Latency: %dms)</string>
 </resources>

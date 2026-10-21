@@ -501,7 +501,7 @@ fun OutputSelectionCard(
                     Spacer(modifier = Modifier.height(8.dp))
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         connectedClients.forEach { (client, latency) ->
-                            val latencyText = if (latency != null) " (Latency: ${latency}ms)" else ""
+                            val latencyText = if (latency != null) stringResource(R.string.latency_format, latency) else ""
                             Text(
                                 text = "• ${client.hostAddress}$latencyText",
                                 style = MaterialTheme.typography.bodySmall,
