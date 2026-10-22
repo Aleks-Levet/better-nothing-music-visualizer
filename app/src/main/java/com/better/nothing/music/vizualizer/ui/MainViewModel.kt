@@ -1510,9 +1510,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return result
     }
 
-    val _favoritePresets = MutableStateFlow<Set<String>>(emptySet())
-    val favoritePresets = _favoritePresets.asStateFlow()
-
     val _captureSource = MutableStateFlow(AudioCaptureService.CaptureSource.INTERNAL)
     val captureSource = _captureSource.asStateFlow()
 
@@ -2433,7 +2430,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         // Stats and Basic settings
-        _favoritePresets.value = get("favorite_presets", emptySet())
         _captureSource.value = safeValueOf(get("capture_source", ""), AudioCaptureService.CaptureSource.INTERNAL)
         _uiAmplitudeSyncEnabled.value = get("ui_amplitude_sync_enabled", true)
         _totalVisualizedTime.value = get("total_visualized_time", 0L)

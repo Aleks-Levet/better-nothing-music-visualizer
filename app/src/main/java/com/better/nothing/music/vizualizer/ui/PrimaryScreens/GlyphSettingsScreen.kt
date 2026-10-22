@@ -235,17 +235,12 @@ internal fun GlyphsScreen(
                     )
                 )
 
-                val favorites by viewModel.favoritePresets.collectAsStateWithLifecycle()
-                val sortedPresets = remember(presets, favorites) {
-                    presets.sortedByDescending { favorites.contains(it.key) }
-                }
-
-                if (sortedPresets.isNotEmpty()) {
+                if (presets.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(12.dp))
                     ExpressiveSplitButton(
-                        items = sortedPresets,
-                        selectedItem = sortedPresets.firstOrNull { it.key == selectedPreset }
-                            ?: sortedPresets.first(),
+                        items = presets,
+                        selectedItem = presets.firstOrNull { it.key == selectedPreset }
+                            ?: presets.first(),
                         onItemSelection = { preset -> onPresetSelected(preset.key) },
                         labelProvider = { preset -> preset.name },
                         modifier = Modifier.fillMaxWidth(),
