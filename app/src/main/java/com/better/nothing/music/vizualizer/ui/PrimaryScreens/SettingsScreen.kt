@@ -361,6 +361,7 @@ internal fun SettingsScreen(
                     )
 
                     val patternOptions = listOf(
+                        "static" to stringResource(R.string.idle_pattern_static),
                         "pulse" to stringResource(R.string.idle_pattern_pulse),
                         "wave" to stringResource(R.string.idle_pattern_wave),
                         "rain" to stringResource(R.string.idle_pattern_rain),
