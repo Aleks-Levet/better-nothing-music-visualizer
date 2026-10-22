@@ -87,8 +87,14 @@
 
         <service
             android:name=".service.IdleBreathingService"
-            android:exported="false"
+            android:exported="true"
             android:foregroundServiceType="specialUse">
+            <intent-filter>
+                <action android:name="com.better.nothing.music.vizualizer.action.IDLE_START" />
+                <action android:name="com.better.nothing.music.vizualizer.action.IDLE_PREVIOUS_PATTERN" />
+                <action android:name="com.better.nothing.music.vizualizer.action.IDLE_NEXT_PATTERN" />
+                <action android:name="com.better.nothing.music.vizualizer.action.IDLE_STOP" />
+            </intent-filter>
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Glyph idle breathing animation" />
