@@ -339,24 +339,6 @@ internal fun SettingsScreen(
                         color = MaterialTheme.colorScheme.primary
                     )
 
-                    Text(
-                        text = stringResource(R.string.idle_breathing_tile_desc),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable(enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                val statusBarManager = context.getSystemService(StatusBarManager::class.java)
-                                if (statusBarManager != null) {
-                                    statusBarManager.requestAddTileService(
-                                        ComponentName(context, IdleBreathingTileService::class.java),
-                                        context.getString(R.string.idle_breathing_title),
-                                        Icon.createWithResource(context, R.drawable.ic_qs_tile_idle),
-                                        context.mainExecutor
-                                    ) { }
-                                }
-                            }
-                    )
 
                     Text(
                         text = stringResource(R.string.idle_pattern),
@@ -422,6 +404,24 @@ internal fun SettingsScreen(
                         valueRange = 0.5f..2.0f,
                         steps = 14,
                         modifier = Modifier.fillMaxWidth()
+                    )
+                    Text(
+                        text = stringResource(R.string.idle_breathing_tile_desc),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                val statusBarManager = context.getSystemService(StatusBarManager::class.java)
+                                if (statusBarManager != null) {
+                                    statusBarManager.requestAddTileService(
+                                        ComponentName(context, IdleBreathingTileService::class.java),
+                                        context.getString(R.string.idle_breathing_title),
+                                        Icon.createWithResource(context, R.drawable.ic_qs_tile_idle),
+                                        context.mainExecutor
+                                    ) { }
+                                }
+                            }
                     )
                 }
             }

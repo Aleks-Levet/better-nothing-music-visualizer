@@ -6,7 +6,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
@@ -33,7 +32,6 @@ public class IdleBreathingService extends Service {
     private static final String TAG = "IdleBreathingService";
     private static final String CHANNEL_ID = "idle_breathing";
     private static final int NOTIFICATION_ID = 4102;
-    private static final String PREF_IDLE_BREATHING_ACTIVE = "idle_breathing_tile_active";
     private static final String ACTION_PREVIOUS_PATTERN =
             "com.better.nothing.music.vizualizer.action.IDLE_PREVIOUS_PATTERN";
     private static final String ACTION_NEXT_PATTERN =
@@ -45,6 +43,8 @@ public class IdleBreathingService extends Service {
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final int[] mSilentFft = new int[512];
+    private final SharedPreferences.OnSharedPreferenceChangeListener mSettingsListener =
+            this::onSettingsChanged;
     private volatile boolean mStopping;
     private int mDeviceType = DeviceProfile.DEVICE_UNKNOWN;
     private boolean mSessionOpen;
@@ -135,18 +135,40 @@ public class IdleBreathingService extends Service {
         return sActive;
     }
 
-    public static boolean isActive(Context context) {
-        return sActive || context.getSharedPreferences("viz_prefs", MODE_PRIVATE)
-                .getBoolean(PREF_IDLE_BREATHING_ACTIVE, false);
-    }
-
-    public static void stop(Context context) {
-        context.stopService(new Intent(context, IdleBreathingService.class));
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
+        getSharedPreferences("viz_prefs", MODE_PRIVATE)
+                .registerOnSharedPreferenceChangeListener(mSettingsListener);
+    }
+
+    private void onSettingsChanged(SharedPreferences prefs, String key) {
+        if (mRenderer == null) return;
+
+        switch (key) {
+            case "idle_pattern" -> {
+                mRenderer.setIdlePattern(prefs.getString("idle_pattern", "pulse"));
+                refreshNotification(prefs);
+            }
+            case "idle_brightness" ->
+                    mRenderer.setIdleBrightness(prefs.getFloat("idle_brightness", 0.4f));
+            case "idle_background_brightness" ->
+                    mRenderer.setIdleBackgroundBrightness(
+                            prefs.getFloat("idle_background_brightness", 0.02f));
+            case "idle_animation_speed" ->
+                    mRenderer.setIdleAnimationSpeed(prefs.getFloat("idle_animation_speed", 1.0f));
+            case "gamma_value" ->
+                    mRenderer.setGamma(AudioCaptureService.loadGamma(this));
+            case "max_brightness" -> {
+                int brightness = prefs.getInt("max_brightness", 4095);
+                if (brightness <= 0) {
+                    stopSelf();
+                } else {
+                    mRenderer.setMaxBrightness(brightness);
+                }
+            }
+            default -> { }
+        }
     }
 
     private boolean initializeAnimation() {
@@ -195,7 +217,7 @@ public class IdleBreathingService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent != null ? intent.getAction() : null;
         if (ACTION_PREVIOUS_PATTERN.equals(action) || ACTION_NEXT_PATTERN.equals(action)) {
-            if (isActive(this)) {
+            if (sActive) {
                 changePattern(ACTION_PREVIOUS_PATTERN.equals(action) ? -1 : 1);
             } else {
                 stopSelf(startId);
@@ -208,7 +230,7 @@ public class IdleBreathingService extends Service {
             stopSelf(startId);
             return START_NOT_STICKY;
         }
-        if (isActive(this)) return START_NOT_STICKY;
+        if (sActive) return START_NOT_STICKY;
 
         startAsForegroundService();
         if (!initializeAnimation()) {
@@ -216,9 +238,6 @@ public class IdleBreathingService extends Service {
             return START_NOT_STICKY;
         }
         sActive = true;
-        getSharedPreferences("viz_prefs", MODE_PRIVATE).edit()
-                .putBoolean(PREF_IDLE_BREATHING_ACTIVE, true)
-                .apply();
         requestTileRefresh();
         return START_NOT_STICKY;
     }
@@ -239,8 +258,19 @@ public class IdleBreathingService extends Service {
         prefs.edit().putString("idle_pattern", nextPattern).apply();
         if (mRenderer != null) mRenderer.setIdlePattern(nextPattern);
 
+        refreshNotification(prefs);
+    }
+
+    private void refreshNotification(SharedPreferences prefs) {
+        if (!sActive) return;
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
-        notificationManager.notify(NOTIFICATION_ID, buildNotification());
+        if (notificationManager == null) {
+            Log.e(TAG, "NotificationManager is unavailable; cannot refresh idle notification");
+            return;
+        }
+        notificationManager.notify(
+                NOTIFICATION_ID,
+                buildNotification(prefs.getString("idle_pattern", IDLE_PATTERNS[0])));
     }
 
     private void startAsForegroundService() {
@@ -265,12 +295,10 @@ public class IdleBreathingService extends Service {
         }
     }
 
-    private Notification buildNotification() {
+    private Notification buildNotification(String currentPattern) {
         PendingIntent contentIntent = PendingIntent.getActivity(
                 this, 0, new Intent(this, MainActivity.class),
                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        String currentPattern = getSharedPreferences("viz_prefs", MODE_PRIVATE)
-                .getString("idle_pattern", IDLE_PATTERNS[0]);
         return buildNotification(contentIntent, currentPattern);
     }
 
@@ -371,6 +399,8 @@ public class IdleBreathingService extends Service {
     public void onDestroy() {
         mStopping = true;
         mHandler.removeCallbacks(mFrameRunnable);
+        getSharedPreferences("viz_prefs", MODE_PRIVATE)
+                .unregisterOnSharedPreferenceChangeListener(mSettingsListener);
         if (mSessionOpen && mGlyphManager != null) {
             try {
                 int count = DeviceProfile.getLedCount(mDeviceType);
@@ -402,9 +432,6 @@ public class IdleBreathingService extends Service {
             }
         }
         sActive = false;
-        getSharedPreferences("viz_prefs", MODE_PRIVATE).edit()
-                .putBoolean(PREF_IDLE_BREATHING_ACTIVE, false)
-                .apply();
         stopForeground(STOP_FOREGROUND_REMOVE);
         requestTileRefresh();
         super.onDestroy();

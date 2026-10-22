@@ -201,7 +201,7 @@ public class AudioCaptureService extends Service {
         sIsRunningFlow.setValue(running);
         requestWidgetRefresh(this);
         requestTileRefresh(this);
-        if (running) IdleBreathingService.stop(this);
+        if (running) stopService(new Intent(this, IdleBreathingService.class));
 
         SharedPreferences prefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE);
         prefs.edit().putBoolean(PREF_KEY_SHOULD_BE_RUNNING, running).apply();

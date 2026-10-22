@@ -24,11 +24,8 @@ public class IdleBreathingTileService extends TileService {
             return;
         }
 
-        if (IdleBreathingService.isActive(this)) {
+        if (IdleBreathingService.isActive()) {
             stopService(new Intent(this, IdleBreathingService.class));
-            getSharedPreferences("viz_prefs", MODE_PRIVATE).edit()
-                    .putBoolean("idle_breathing_tile_active", false)
-                    .apply();
             refresh(false);
         } else {
             Intent startIntent = new Intent(this, IdleBreathingService.class);
@@ -45,7 +42,7 @@ public class IdleBreathingTileService extends TileService {
         boolean captureRunning = isCaptureRunning();
         boolean glyphAvailable = DeviceProfile.detectDevice() != DeviceProfile.DEVICE_UNKNOWN
                 && getSharedPreferences("viz_prefs", MODE_PRIVATE).getInt("max_brightness", 4095) > 0;
-        boolean active = IdleBreathingService.isActive(this) && !captureRunning;
+        boolean active = IdleBreathingService.isActive() && !captureRunning;
         refresh(active, captureRunning, glyphAvailable);
     }
 
