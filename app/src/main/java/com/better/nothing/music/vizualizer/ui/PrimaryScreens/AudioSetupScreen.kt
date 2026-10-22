@@ -275,6 +275,8 @@ fun AudioScreen(
             onHapticsToggle = onHapticsEnabledChanged,
             flashlightEnabled = flashlightEnabled,
             onFlashlightToggle = onFlashlightEnabledChanged,
+            broadcastEnabled = broadcastEnabled,
+            onBroadcastToggle = onBroadcastEnabledChanged,
             overlaysEnabled = viewModel.onScreenVisualizersEnabled.collectAsState().value,
             onOverlaysToggle = {
                 viewModel.setOnScreenVisualizersEnabled(it, context, onOverlayPermissionRequest)
@@ -282,15 +284,19 @@ fun AudioScreen(
             isGlyphAvailable = isGlyphAvailable,
             hasHapticMotor = hasHapticMotor,
             hasFlashlight = hasFlashlight,
+            connectedClients = connectedClients,
+            isRunning = isRunning,
         )
         Spacer(modifier = Modifier.height(8.dp))
 
-        BroadcastCard(
-            enabled = broadcastEnabled,
-            onEnabledChanged = onBroadcastEnabledChanged,
-            connectedClients = connectedClients,
-            isRunning = isRunning
-        )
+        if (isGlyphAvailable) {
+            BroadcastCard(
+                enabled = broadcastEnabled,
+                onEnabledChanged = onBroadcastEnabledChanged,
+                connectedClients = connectedClients,
+                isRunning = isRunning
+            )
+        }
 
         AnimatedVisibility(visible = isRunning) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -401,11 +407,15 @@ fun OutputSelectionCard(
     onHapticsToggle: (Boolean) -> Unit,
     flashlightEnabled: Boolean,
     onFlashlightToggle: (Boolean) -> Unit,
+    broadcastEnabled: Boolean,
+    onBroadcastToggle: (Boolean) -> Unit,
     overlaysEnabled: Boolean,
     onOverlaysToggle: (Boolean) -> Unit,
     isGlyphAvailable: Boolean = true,
     hasHapticMotor: Boolean = true,
-    hasFlashlight: Boolean = true
+    hasFlashlight: Boolean = true,
+    connectedClients: Map<InetAddress, Int?> = emptyMap(),
+    isRunning: Boolean = false
 ) {
     var isHelpExpanded by rememberSaveable { mutableStateOf(false) }
 
@@ -439,15 +449,21 @@ fun OutputSelectionCard(
                 HelpItem(stringResource(R.string.help_output_haptics_title), stringResource(R.string.help_output_haptics_desc))
                 HelpItem(stringResource(R.string.help_output_flash_title), stringResource(R.string.help_output_flash_desc))
                 HelpItem(stringResource(R.string.help_output_overlays_title), stringResource(R.string.help_output_overlays_desc))
+                HelpItem(stringResource(R.string.help_output_broadcast_title), stringResource(R.string.help_output_broadcast_desc))
             }
         }
 
-        val outputs = listOf(
-            Triple(stringResource(R.string.tab_glyphs), ImageVector.vectorResource(R.drawable.ic_nav_glyphs), Triple(glyphsEnabled, onGlyphsToggle, isGlyphAvailable)),
-            Triple(stringResource(R.string.tab_haptics), Icons.Default.Vibration, Triple(hapticsEnabled, onHapticsToggle, hasHapticMotor)),
-            Triple(stringResource(R.string.tab_flashlight), Icons.Default.FlashlightOn, Triple(flashlightEnabled, onFlashlightToggle, hasFlashlight)),
-            Triple(stringResource(R.string.overlays), Icons.Default.Layers, Triple(overlaysEnabled, onOverlaysToggle, true))
-        )
+        val outputs = buildList {
+            if (isGlyphAvailable) {
+                add(Triple(stringResource(R.string.tab_glyphs), ImageVector.vectorResource(R.drawable.ic_nav_glyphs), Triple(glyphsEnabled, onGlyphsToggle, true)))
+            }
+            add(Triple(stringResource(R.string.tab_haptics), Icons.Default.Vibration, Triple(hapticsEnabled, onHapticsToggle, hasHapticMotor)))
+            add(Triple(stringResource(R.string.tab_flashlight), Icons.Default.FlashlightOn, Triple(flashlightEnabled, onFlashlightToggle, hasFlashlight)))
+            add(Triple(stringResource(R.string.overlays), Icons.Default.Layers, Triple(overlaysEnabled, onOverlaysToggle, true)))
+            if (!isGlyphAvailable) {
+                add(Triple(stringResource(R.string.broadcast), Icons.Default.Wifi, Triple(broadcastEnabled, onBroadcastToggle, true)))
+            }
+        }
 
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
@@ -467,6 +483,10 @@ fun OutputSelectionCard(
                     maxLines = 2
                 )
             }
+        }
+
+        if (!isGlyphAvailable && broadcastEnabled && isRunning) {
+            BroadcastClientDetails(connectedClients)
         }
 
     }
@@ -489,59 +509,67 @@ private fun BroadcastCard(
                 )
             }
         )
-
+        BodyText(
+            text = stringResource(R.string.broadcast_card_description),
+            size = 14.sp
+        )
         AnimatedVisibility(visible = enabled && isRunning) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
+            BroadcastClientDetails(connectedClients)
+        }
+    }
+}
+
+@Composable
+private fun BroadcastClientDetails(connectedClients: Map<InetAddress, Int?>) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.broadcast_clients),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Surface(
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(8.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Text(
+                    text = stringResource(R.string.connected_count, connectedClients.size),
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        if (connectedClients.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                connectedClients.forEach { (client, latency) ->
+                    val latencyText = if (latency != null) stringResource(R.string.latency_format, latency) else ""
                     Text(
-                        text = stringResource(R.string.broadcast_clients),
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Surface(
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.connected_count, connectedClients.size),
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-                
-                if (connectedClients.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        connectedClients.forEach { (client, latency) ->
-                            val latencyText = if (latency != null) stringResource(R.string.latency_format, latency) else ""
-                            Text(
-                                text = "• ${client.hostAddress}$latencyText",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                } else {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = stringResource(R.string.waiting_for_devices),
+                        text = "• ${client.hostAddress}$latencyText",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
+        } else {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = stringResource(R.string.waiting_for_devices),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            )
         }
     }
 }
