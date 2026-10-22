@@ -43,6 +43,7 @@ import androidx.compose.material.icons.filled.Cast
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Leaderboard
+import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Vibration
@@ -53,7 +54,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -138,6 +138,7 @@ fun AudioScreen(
     onFlashlightEnabledChanged: (Boolean) -> Unit = {},
     broadcastEnabled: Boolean = false,
     onBroadcastEnabledChanged: (Boolean) -> Unit = {},
+    onOverlayPermissionRequest: () -> Unit = {},
     connectedClients: Map<InetAddress, Int?> = emptyMap(),
     developerModeEnabled: Boolean = false,
     isGlyphAvailable: Boolean = true,
@@ -274,16 +275,22 @@ fun AudioScreen(
             onHapticsToggle = onHapticsEnabledChanged,
             flashlightEnabled = flashlightEnabled,
             onFlashlightToggle = onFlashlightEnabledChanged,
-            broadcastEnabled = broadcastEnabled,
-            onBroadcastToggle = onBroadcastEnabledChanged,
+            overlaysEnabled = viewModel.onScreenVisualizersEnabled.collectAsState().value,
+            onOverlaysToggle = {
+                viewModel.setOnScreenVisualizersEnabled(it, context, onOverlayPermissionRequest)
+            },
             isGlyphAvailable = isGlyphAvailable,
             hasHapticMotor = hasHapticMotor,
             hasFlashlight = hasFlashlight,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        BroadcastCard(
+            enabled = broadcastEnabled,
+            onEnabledChanged = onBroadcastEnabledChanged,
             connectedClients = connectedClients,
             isRunning = isRunning
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        
 
         AnimatedVisibility(visible = isRunning) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -394,13 +401,11 @@ fun OutputSelectionCard(
     onHapticsToggle: (Boolean) -> Unit,
     flashlightEnabled: Boolean,
     onFlashlightToggle: (Boolean) -> Unit,
-    broadcastEnabled: Boolean,
-    onBroadcastToggle: (Boolean) -> Unit,
+    overlaysEnabled: Boolean,
+    onOverlaysToggle: (Boolean) -> Unit,
     isGlyphAvailable: Boolean = true,
     hasHapticMotor: Boolean = true,
-    hasFlashlight: Boolean = true,
-    connectedClients: Map<InetAddress, Int?> = emptyMap(),
-    isRunning: Boolean = false
+    hasFlashlight: Boolean = true
 ) {
     var isHelpExpanded by rememberSaveable { mutableStateOf(false) }
 
@@ -433,7 +438,7 @@ fun OutputSelectionCard(
                 HelpItem(stringResource(R.string.help_output_glyphs_title), stringResource(R.string.help_output_glyphs_desc))
                 HelpItem(stringResource(R.string.help_output_haptics_title), stringResource(R.string.help_output_haptics_desc))
                 HelpItem(stringResource(R.string.help_output_flash_title), stringResource(R.string.help_output_flash_desc))
-                HelpItem(stringResource(R.string.help_output_broadcast_title), stringResource(R.string.help_output_broadcast_desc))
+                HelpItem(stringResource(R.string.help_output_overlays_title), stringResource(R.string.help_output_overlays_desc))
             }
         }
 
@@ -441,7 +446,7 @@ fun OutputSelectionCard(
             Triple(stringResource(R.string.tab_glyphs), ImageVector.vectorResource(R.drawable.ic_nav_glyphs), Triple(glyphsEnabled, onGlyphsToggle, isGlyphAvailable)),
             Triple(stringResource(R.string.tab_haptics), Icons.Default.Vibration, Triple(hapticsEnabled, onHapticsToggle, hasHapticMotor)),
             Triple(stringResource(R.string.tab_flashlight), Icons.Default.FlashlightOn, Triple(flashlightEnabled, onFlashlightToggle, hasFlashlight)),
-            Triple(stringResource(R.string.broadcast), Icons.Default.Wifi, Triple(broadcastEnabled, onBroadcastToggle, true))
+            Triple(stringResource(R.string.overlays), Icons.Default.Layers, Triple(overlaysEnabled, onOverlaysToggle, true))
         )
 
         FlowRow(
@@ -464,14 +469,33 @@ fun OutputSelectionCard(
             }
         }
 
-        AnimatedVisibility(visible = broadcastEnabled && isRunning) {
+    }
+}
+
+@Composable
+private fun BroadcastCard(
+    enabled: Boolean,
+    onEnabledChanged: (Boolean) -> Unit,
+    connectedClients: Map<InetAddress, Int?>,
+    isRunning: Boolean
+) {
+    ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
+        CardHeader(
+            title = stringResource(R.string.broadcast),
+            trailingContent = {
+                ExpressiveSwitch(
+                    checked = enabled,
+                    onCheckedChange = onEnabledChanged
+                )
+            }
+        )
+
+        AnimatedVisibility(visible = enabled && isRunning) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp)
+                    .padding(top = 8.dp)
             ) {
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-                Spacer(modifier = Modifier.height(12.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
