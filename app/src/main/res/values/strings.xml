@@ -147,7 +147,7 @@
     <string name="sync_ui_to_beat">Sync UI to the beat</string>
     <string name="alternate_glyph_viz">Alternate Glyph Visualizer</string>
     <string name="nav_overlay">Nav bar</string>
-    <string name="enable_on_screen_visualizers">Enable on-screen visualizers</string>
+    <string name="overlays">Overlays</string>
     <string name="higher_quality_audio_analysis">Higher quality audio analysis</string>
     <string name="rounded_bars">Rounded bars</string>
     <string name="style_bars">Bars</string>
@@ -332,6 +332,8 @@
     <string name="help_output_haptics_desc">Lets you feel the music through the haptic vibration motor.</string>
     <string name="help_output_flash_title" translatable="false">@string/tab_flashlight</string>
     <string name="help_output_flash_desc">Pulses the camera flashlight to the beat.</string>
+    <string name="help_output_overlays_title" translatable="false">@string/overlays</string>
+    <string name="help_output_overlays_desc">Enables on-screen visualizers and overlays.</string>
     <string name="help_output_broadcast_title">\"Let other devices connect...\"</string>
     <string name="help_output_broadcast_desc">Streams audio data to other devices on your network.</string>
     <string name="help_sync_title">Connecting to another device:</string>

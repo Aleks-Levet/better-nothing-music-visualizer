@@ -124,7 +124,7 @@
     <string name="sync_ui_to_beat">مزامنة الواجهة مع الإيقاع</string>
     <string name="alternate_glyph_viz">مصور Glyph بديل</string>
     <string name="nav_overlay">شريط التنقل</string>
-    <string name="enable_on_screen_visualizers">تشغيل المصور المرئي على الشاشة</string>
+    <string name="overlays">تشغيل المصور المرئي على الشاشة</string>
     <string name="higher_quality_audio_analysis">تحليل صوتي بجودة أعلى</string>
     <string name="rounded_bars">أشرطة مستديرة</string>
     <string name="style_bars">أشرطة</string>

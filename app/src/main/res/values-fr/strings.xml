@@ -124,7 +124,7 @@
     <string name="sync_ui_to_beat">Interface animée</string>
     <string name="alternate_glyph_viz">Visualiseur glyph alternatif</string>
     <string name="nav_overlay">Barre de navigation</string>
-    <string name="enable_on_screen_visualizers">Visualiseurs sur l\'écran</string>
+    <string name="overlays">Visualiseurs sur l\'écran</string>
     <string name="higher_quality_audio_analysis">Analyse audio HD</string>
     <string name="rounded_bars">Barres arrondies</string>
     <string name="style_bars">Barres</string>

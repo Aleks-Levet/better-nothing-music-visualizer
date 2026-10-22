@@ -124,7 +124,7 @@
     <string name="sync_ui_to_beat">Kezelőfelület szinkronizálása az ütemre</string>
     <string name="alternate_glyph_viz">Alternatív Glyph Kimutatás</string>
     <string name="nav_overlay">Navigációs sáv</string>
-    <string name="enable_on_screen_visualizers">Képernyőn megjelenített kimutatás bekapcsolása</string>
+    <string name="overlays">Képernyőn megjelenített kimutatás bekapcsolása</string>
     <string name="higher_quality_audio_analysis">Magasabb minőségű hangáttekintés</string>
     <string name="rounded_bars">Kerek oszlopok</string>
     <string name="style_bars">Oszlopok</string>

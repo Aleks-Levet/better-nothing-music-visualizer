@@ -124,7 +124,7 @@
     <string name="sync_ui_to_beat">Sincronizza interfaccia con il ritmo</string>
     <string name="alternate_glyph_viz">Visualizzatore Glyph Alternativo</string>
     <string name="nav_overlay">Barra di navigazione</string>
-    <string name="enable_on_screen_visualizers">Abilita visualizzatori a schermo</string>
+    <string name="overlays">Abilita visualizzatori a schermo</string>
     <string name="higher_quality_audio_analysis">Analisi audio di qualità superiore</string>
     <string name="rounded_bars">Barre arrotondate</string>
     <string name="style_bars">Barre</string>
