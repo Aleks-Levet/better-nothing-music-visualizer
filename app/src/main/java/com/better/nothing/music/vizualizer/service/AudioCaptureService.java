@@ -312,6 +312,7 @@ public class AudioCaptureService extends Service {
     private volatile int mMaxBrightness = 4095;
 
     private boolean mIdleBreathingEnabled = false;
+    private PowerManager.WakeLock mIdleBreathingWakeLock;
     private boolean mOverlayEnabled = false;
     private boolean mEdgeVisualizerEnabled = false;
     private boolean mLensVisualizerEnabled = false;
@@ -565,6 +566,10 @@ public class AudioCaptureService extends Service {
         sInstance = this;
         PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
         mScreenOn = (pm == null) || pm.isInteractive();
+        if (pm != null) {
+            mIdleBreathingWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "BetterNothingMusicVisualizer:IdleBreathingWakeLock");
+            mIdleBreathingWakeLock.setReferenceCounted(false);
+        }
 
         IntentFilter screenFilter = new IntentFilter();
         screenFilter.addAction(Intent.ACTION_SCREEN_OFF);
@@ -902,6 +907,7 @@ public class AudioCaptureService extends Service {
     @Override
     public void onDestroy() {
         sInstance = null; stopCapture(); clearGlyphSession();
+        updateIdleBreathingWakeLock(false);
         if (mScreenReceiver != null) {
             try { unregisterReceiver(mScreenReceiver); } catch (Exception ignored) {}
             mScreenReceiver = null;
@@ -1008,6 +1014,9 @@ public class AudioCaptureService extends Service {
     public void setIdleBreathingEnabled(boolean enabled) {
         mIdleBreathingEnabled = enabled;
         if (mGlyphRenderer != null) mGlyphRenderer.setIdleBreathingEnabled(enabled);
+        if (!enabled) {
+            updateIdleBreathingWakeLock(false);
+        }
     }
 
     public void setIdlePattern(String pattern) { if (mGlyphRenderer != null) mGlyphRenderer.setIdlePattern(pattern); }
@@ -1394,6 +1403,7 @@ public class AudioCaptureService extends Service {
     private void stopCaptureLocked(boolean stopService) {
         mCapturing = false;
         releaseVisualizer();
+        updateIdleBreathingWakeLock(false);
         if (mUdpSync != null) mUdpSync.stopListening();
         if (mFlashlightEngine != null) mFlashlightEngine.stopFlashlight();
         if (mContinuousHapticEngine != null) mContinuousHapticEngine.stopHaptics();
@@ -1483,6 +1493,7 @@ public class AudioCaptureService extends Service {
                     }
 
                     int[] frameColors = mGlyphRenderer.processFrame(processedFft, config, now);
+                    updateIdleBreathingWakeLock(mIdleBreathingEnabled && mGlyphRenderer.isBreathing());
                     if (frameColors != null) {
                         try {
                             if (DeviceProfile.getMatrixWidth(mSelectedDevice) > 0) {
@@ -1697,6 +1708,7 @@ public class AudioCaptureService extends Service {
     private void clearGlyphSession() {
         try {
             turnOffGlyphs();
+            updateIdleBreathingWakeLock(false);
             if (mSessionOpen) {
                 if (DeviceProfile.getMatrixWidth(mSelectedDevice) > 0) {
                     if (mGMM != null) {
@@ -1712,6 +1724,25 @@ public class AudioCaptureService extends Service {
     }
 
     private boolean canPushGlyphFrames() { if (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) return false; if (DeviceProfile.getMatrixWidth(mSelectedDevice) > 0) return mGMM != null; return mGM != null && mSessionOpen; }
+
+    private void updateIdleBreathingWakeLock(boolean shouldHold) {
+        if (mIdleBreathingWakeLock == null) return;
+        try {
+            if (shouldHold) {
+                if (!mIdleBreathingWakeLock.isHeld()) {
+                    mIdleBreathingWakeLock.acquire();
+                    Log.d(TAG, "Acquired WakeLock for idle breathing animation");
+                }
+            } else {
+                if (mIdleBreathingWakeLock.isHeld()) {
+                    mIdleBreathingWakeLock.release();
+                    Log.d(TAG, "Released WakeLock for idle breathing animation");
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error updating idle breathing WakeLock", e);
+        }
+    }
 
     private int resolveGlyphCount() { return mVisualizerConfig != null ? mVisualizerConfig.zones.length : DeviceProfile.getLedCount(mSelectedDevice); }
 

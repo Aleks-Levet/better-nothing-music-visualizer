@@ -93,7 +93,7 @@ public class GlyphRenderer {
     public float[] getCurrentLightState() { return mCurrentLightState; }
 
     public boolean isBreathing() {
-        return mBreathingEnvelope > 0.01f;
+        return mIdleBreathingEnabled && mBreathingEnvelope > 0.01f;
     }
 
     public boolean isDeeplySilent() {
