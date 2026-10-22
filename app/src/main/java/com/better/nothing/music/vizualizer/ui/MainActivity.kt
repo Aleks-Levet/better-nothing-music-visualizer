@@ -1097,6 +1097,7 @@ private fun TabContent(
                 onFlashlightEnabledChanged = { viewModel.setFlashlightEnabled(it) },
                 broadcastEnabled = viewModel.broadcastEnabled.collectAsStateWithLifecycle().value,
                 onBroadcastEnabledChanged = { viewModel.setBroadcastEnabled(it) },
+                onOverlayPermissionRequest = onOverlayPermissionRequest,
                 connectedClients = connectedClients,
                 developerModeEnabled = developerModeEnabled,
                 isGlyphAvailable = selectedDevice != com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_UNKNOWN,
@@ -1269,7 +1270,6 @@ private fun TabContent(
                 },
                 idlePattern = idlePattern,
                 onIdlePatternChanged = { viewModel.setIdlePattern(it) },
-                onOverlayPermissionRequest = onOverlayPermissionRequest,
                 padding = padding,
                 isTablet = isTablet
             )
