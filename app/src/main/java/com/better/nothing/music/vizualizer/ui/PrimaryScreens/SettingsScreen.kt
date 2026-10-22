@@ -44,7 +44,6 @@ internal fun SettingsScreen(
     onIdleBreathingEnabledChanged: (Boolean) -> Unit,
     idlePattern: String,
     onIdlePatternChanged: (String) -> Unit,
-    onOverlayPermissionRequest: () -> Unit,
     padding: PaddingValues = PaddingValues(),
     isTablet: Boolean = false,
 ) {
@@ -540,8 +539,6 @@ internal fun SettingsScreen(
         ) {
             val alternateGlyphVizEnabled by viewModel.alternateGlyphVizEnabled.collectAsStateWithLifecycle()
             val highQualityAnalysis by viewModel.highQualityAnalysis.collectAsStateWithLifecycle()
-            val onScreenVisualizersEnabled by viewModel.onScreenVisualizersEnabled.collectAsStateWithLifecycle()
-
             FlowRow(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 maxItemsInEachRow = 2,
@@ -570,15 +567,6 @@ internal fun SettingsScreen(
                         onClick = { viewModel.setAlternateGlyphVizEnabled(!alternateGlyphVizEnabled) }
                     )
                 }
-
-                OptionTile(
-                    label = stringResource(R.string.enable_on_screen_visualizers),
-                    icon = Icons.Default.Layers,
-                    isSelected = onScreenVisualizersEnabled,
-                    onClick = {
-                        viewModel.setOnScreenVisualizersEnabled(!onScreenVisualizersEnabled, context, onOverlayPermissionRequest)
-                    }
-                )
 
             }
             val microphoneMode by viewModel.microphoneMode.collectAsStateWithLifecycle()
@@ -631,4 +619,3 @@ internal fun SettingsScreen(
         Spacer(modifier = Modifier.height(85.dp))
     }
 }
-
