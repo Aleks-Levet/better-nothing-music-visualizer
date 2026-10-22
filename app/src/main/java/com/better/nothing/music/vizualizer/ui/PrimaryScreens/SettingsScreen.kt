@@ -8,6 +8,8 @@ import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.clickable
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -27,6 +29,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.delay
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.ui.MicrophoneMode
 import com.better.nothing.music.vizualizer.model.DeviceProfile
@@ -57,7 +60,9 @@ internal fun SettingsScreen(
     val idleBrightness by viewModel.idleBrightness.collectAsStateWithLifecycle()
     val idleBackgroundBrightness by viewModel.idleBackgroundBrightness.collectAsStateWithLifecycle()
     val idleAnimationSpeed by viewModel.idleAnimationSpeed.collectAsStateWithLifecycle()
+    val expandIdleBreathingSettings by viewModel.expandIdleBreathingSettings.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
+    val idleBreathingBringIntoViewRequester = remember { BringIntoViewRequester() }
 
     val selectedTheme by viewModel.selectedTheme.collectAsStateWithLifecycle()
     val selectedFont by viewModel.selectedFont.collectAsStateWithLifecycle()
@@ -92,6 +97,14 @@ internal fun SettingsScreen(
         )
 
         var expandedCardId by remember { mutableStateOf<String?>(null) }
+        LaunchedEffect(expandIdleBreathingSettings) {
+            if (expandIdleBreathingSettings) {
+                expandedCardId = "idle"
+                delay(350)
+                idleBreathingBringIntoViewRequester.bringIntoView()
+                viewModel.consumeIdleBreathingSettingsExpansion()
+            }
+        }
 
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -323,6 +336,7 @@ internal fun SettingsScreen(
                 icon = Icons.Default.Air,
                 expanded = expandedCardId == "idle",
                 onExpandedChange = { expandedCardId = if (it) "idle" else null },
+                modifier = Modifier.bringIntoViewRequester(idleBreathingBringIntoViewRequester),
                 trailingContent = {
                     ExpressiveSwitch(
                         checked = idleBreathingEnabled,

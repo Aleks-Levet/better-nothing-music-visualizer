@@ -115,6 +115,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_REQUEST_START = "request_start"
+        const val EXTRA_OPEN_IDLE_BREATHING_SETTINGS = "open_idle_breathing_settings"
         var serviceStatic: AudioCaptureService? = null
     }
 
@@ -239,6 +240,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
         super.onCreate(savedInstanceState)
+        if (intent.getBooleanExtra(EXTRA_OPEN_IDLE_BREATHING_SETTINGS, false)) {
+            viewModel.openIdleBreathingSettings()
+        }
         
         if (isTrampoline) {
             pendingVisualizerStart = true
@@ -618,6 +622,9 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        if (intent.getBooleanExtra(EXTRA_OPEN_IDLE_BREATHING_SETTINGS, false)) {
+            viewModel.openIdleBreathingSettings()
+        }
         if (intent.getBooleanExtra(EXTRA_REQUEST_START, false)) {
             if (bound) {
                 toggleVisualizer()

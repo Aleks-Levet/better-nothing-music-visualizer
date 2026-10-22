@@ -25,7 +25,7 @@ public class IdleBreathingTileService extends TileService {
         }
 
         if (IdleBreathingService.isActive()) {
-            stopService(new Intent(this, IdleBreathingService.class));
+            IdleBreathingService.requestStop(this);
             refresh(false);
         } else {
             Intent startIntent = new Intent(this, IdleBreathingService.class);

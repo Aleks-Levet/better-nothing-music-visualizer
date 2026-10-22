@@ -262,6 +262,7 @@
     <string name="notification_action_stop">Stop BNMV</string>
     <string name="notification_action_previous">Previous</string>
     <string name="notification_action_next">Next</string>
+    <string name="idle_breathing_action_stop">Stop</string>
 
     <!-- Device Names -->
     <string name="device_np1" translatable="false">Nothing Phone (1)</string>

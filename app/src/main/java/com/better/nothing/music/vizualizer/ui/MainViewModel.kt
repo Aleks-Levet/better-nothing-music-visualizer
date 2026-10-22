@@ -1537,6 +1537,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _selectedTab = MutableStateFlow(Tab.Audio)
     val selectedTab = _selectedTab.asStateFlow()
     private val tabHistory = mutableListOf<Tab>()
+    private val _expandIdleBreathingSettings = MutableStateFlow(false)
+    val expandIdleBreathingSettings = _expandIdleBreathingSettings.asStateFlow()
+
+    fun openIdleBreathingSettings() {
+        selectTab(Tab.Settings)
+        _expandIdleBreathingSettings.value = true
+    }
+
+    fun consumeIdleBreathingSettingsExpansion() {
+        _expandIdleBreathingSettings.value = false
+    }
 
     fun selectTab(tab: Tab, recordHistory: Boolean = true) {
         if (selectedDevice.value == DeviceProfile.DEVICE_UNKNOWN && tab == Tab.Glyphs) return

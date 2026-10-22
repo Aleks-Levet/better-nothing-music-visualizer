@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
@@ -31,10 +32,15 @@ public class IdleBreathingService extends Service {
     private static final String TAG = "IdleBreathingService";
     private static final String CHANNEL_ID = "idle_breathing";
     private static final int NOTIFICATION_ID = 4102;
-    private static final String ACTION_PREVIOUS_PATTERN =
+    public static final String ACTION_START =
+            "com.better.nothing.music.vizualizer.action.IDLE_START";
+    public static final String ACTION_PREVIOUS_PATTERN =
             "com.better.nothing.music.vizualizer.action.IDLE_PREVIOUS_PATTERN";
-    private static final String ACTION_NEXT_PATTERN =
+    public static final String ACTION_NEXT_PATTERN =
             "com.better.nothing.music.vizualizer.action.IDLE_NEXT_PATTERN";
+    public static final String ACTION_STOP =
+            "com.better.nothing.music.vizualizer.action.IDLE_STOP";
+    private static final long FADE_DURATION_MS = 500L;
     private static final String[] IDLE_PATTERNS = {
             "pulse", "wave", "rain", "zebra", "orbit", "heartbeat", "scanner"
     };
@@ -47,6 +53,9 @@ public class IdleBreathingService extends Service {
     private int mDeviceType = DeviceProfile.DEVICE_UNKNOWN;
     private boolean mSessionOpen;
     private boolean mMatrixConnected;
+    private boolean mFadeOutStarted;
+    private boolean mFadeInStarted;
+    private long mFadeStartUptimeMs;
     private GlyphManager mGlyphManager;
     private GlyphMatrixManager mMatrixManager;
     private IdleBreathingRenderer mRenderer;
@@ -60,8 +69,7 @@ public class IdleBreathingService extends Service {
             if (mStopping) return;
             if (AudioCaptureService.isRunning()
                     || getSharedPreferences("viz_prefs", MODE_PRIVATE).getBoolean("should_be_running", false)) {
-                stopSelf();
-                return;
+                beginFadeOut();
             }
 
             if (mSessionOpen && mRenderer != null) {
@@ -69,6 +77,10 @@ public class IdleBreathingService extends Service {
                         DeviceProfile.getLedCount(mDeviceType),
                         mMaxBrightness,
                         SystemClock.elapsedRealtime());
+                float fadeMultiplier = getFadeMultiplier();
+                for (int i = 0; i < colors.length; i++) {
+                    colors[i] = Math.round(colors[i] * fadeMultiplier);
+                }
                 try {
                     if (DeviceProfile.getMatrixWidth(mDeviceType) > 0) {
                         if (mMatrixConnected && mMatrixManager != null) {
@@ -82,6 +94,10 @@ public class IdleBreathingService extends Service {
                     stopSelf();
                     return;
                 }
+            }
+            if (mFadeOutStarted && getFadeMultiplier() <= 0f) {
+                stopSelf();
+                return;
             }
             scheduleNextFrame();
         }
@@ -134,6 +150,17 @@ public class IdleBreathingService extends Service {
         return sActive;
     }
 
+    public static void requestStop(Context context) {
+        if (sActive) {
+            Intent stopIntent = new Intent(context, IdleBreathingService.class).setAction(ACTION_STOP);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(stopIntent);
+            } else {
+                context.startService(stopIntent);
+            }
+        }
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -159,7 +186,7 @@ public class IdleBreathingService extends Service {
             case "max_brightness" -> {
                 int brightness = prefs.getInt("max_brightness", 4095);
                 if (brightness <= 0) {
-                    stopSelf();
+                    beginFadeOut();
                 } else {
                     mMaxBrightness = Math.max(50, Math.min(5000, brightness));
                 }
@@ -202,6 +229,20 @@ public class IdleBreathingService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent != null ? intent.getAction() : null;
+        if (ACTION_STOP.equals(action)) {
+            if (sActive) {
+                beginFadeOut();
+            } else {
+                stopSelf(startId);
+            }
+            return START_NOT_STICKY;
+        }
+        if (action != null && !ACTION_START.equals(action)
+                && !ACTION_PREVIOUS_PATTERN.equals(action)
+                && !ACTION_NEXT_PATTERN.equals(action)) {
+            stopSelf(startId);
+            return START_NOT_STICKY;
+        }
         if (ACTION_PREVIOUS_PATTERN.equals(action) || ACTION_NEXT_PATTERN.equals(action)) {
             if (sActive) {
                 changePattern(ACTION_PREVIOUS_PATTERN.equals(action) ? -1 : 1);
@@ -269,7 +310,7 @@ public class IdleBreathingService extends Service {
         }
 
         PendingIntent contentIntent = PendingIntent.getActivity(
-                this, 0, new Intent(this, MainActivity.class),
+                this, 0, createSettingsIntent(),
                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         SharedPreferences prefs = getSharedPreferences("viz_prefs", MODE_PRIVATE);
         String currentPattern = prefs.getString("idle_pattern", IDLE_PATTERNS[0]);
@@ -283,7 +324,7 @@ public class IdleBreathingService extends Service {
 
     private Notification buildNotification(String currentPattern) {
         PendingIntent contentIntent = PendingIntent.getActivity(
-                this, 0, new Intent(this, MainActivity.class),
+                this, 0, createSettingsIntent(),
                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         return buildNotification(contentIntent, currentPattern);
     }
@@ -299,6 +340,11 @@ public class IdleBreathingService extends Service {
                 2,
                 new Intent(this, IdleBreathingService.class).setAction(ACTION_NEXT_PATTERN),
                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent stopIntent = PendingIntent.getService(
+                this,
+                3,
+                new Intent(this, IdleBreathingService.class).setAction(ACTION_STOP),
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(getString(R.string.idle_breathing_title))
@@ -310,7 +356,14 @@ public class IdleBreathingService extends Service {
                 .setOnlyAlertOnce(true)
                 .addAction(android.R.drawable.ic_media_previous, getString(R.string.notification_action_previous), previousIntent)
                 .addAction(android.R.drawable.ic_media_next, getString(R.string.notification_action_next), nextIntent)
+                .addAction(android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.idle_breathing_action_stop), stopIntent)
                 .build();
+    }
+
+    private Intent createSettingsIntent() {
+        return new Intent(this, MainActivity.class)
+                .putExtra(MainActivity.EXTRA_OPEN_IDLE_BREATHING_SETTINGS, true)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
     }
 
     private String getPatternLabel(String pattern) {
@@ -347,9 +400,39 @@ public class IdleBreathingService extends Service {
     private void maybeStartAnimation() {
         if (!mSessionOpen || (DeviceProfile.getMatrixWidth(mDeviceType) > 0 && !mMatrixConnected)) return;
         mHandler.removeCallbacks(mFrameRunnable);
+        if (!mFadeInStarted) {
+            mFadeStartUptimeMs = SystemClock.uptimeMillis();
+            mFadeInStarted = true;
+        }
         mFrameEpochUptimeMs = SystemClock.uptimeMillis();
         mNextFrameNumber = 0;
         mHandler.post(mFrameRunnable);
+    }
+
+    private float getFadeMultiplier() {
+        float progress = (SystemClock.uptimeMillis() - mFadeStartUptimeMs)
+                / (float) FADE_DURATION_MS;
+        return mFadeOutStarted
+                ? Math.max(0f, 1f - progress)
+                : Math.min(1f, Math.max(0f, progress));
+    }
+
+    private void beginFadeOut() {
+        if (mFadeOutStarted) return;
+        mFadeOutStarted = true;
+        mFadeStartUptimeMs = SystemClock.uptimeMillis();
+        mHandler.postDelayed(mStopAfterFadeRunnable, FADE_DURATION_MS);
+    }
+
+    private final Runnable mStopAfterFadeRunnable = this::stopAfterFade;
+
+    private void stopAfterFade() {
+        if (!mFadeOutStarted) return;
+        if (getFadeMultiplier() <= 0f) {
+            stopSelf();
+        } else {
+            mHandler.postDelayed(mStopAfterFadeRunnable, 16L);
+        }
     }
 
     private void scheduleNextFrame() {
@@ -385,6 +468,7 @@ public class IdleBreathingService extends Service {
     public void onDestroy() {
         mStopping = true;
         mHandler.removeCallbacks(mFrameRunnable);
+        mHandler.removeCallbacks(mStopAfterFadeRunnable);
         getSharedPreferences("viz_prefs", MODE_PRIVATE)
                 .unregisterOnSharedPreferenceChangeListener(mSettingsListener);
         if (mSessionOpen && mGlyphManager != null) {
