@@ -26,6 +26,44 @@ From version 4.0.1 of the app:
 
 * `com.better.nothing.music.vizualizer.ACTION_TOGGLE_LENS`
 
+### Idle Breathing Quick Settings:
+
+These are public **service intents**, not broadcasts. Start the service with an explicit
+component (`com.better.nothing.music.vizualizer/.service.IdleBreathingService`) and one of
+the following action strings:
+
+* `com.better.nothing.music.vizualizer.action.IDLE_START` — start idle breathing.
+* `com.better.nothing.music.vizualizer.action.IDLE_PREVIOUS_PATTERN` — select the previous
+  saved idle-breathing pattern.
+* `com.better.nothing.music.vizualizer.action.IDLE_NEXT_PATTERN` — select the next saved
+  idle-breathing pattern.
+* `com.better.nothing.music.vizualizer.action.IDLE_STOP` — fade out and stop idle breathing.
+
+On Android 8.0 and newer, use `startForegroundService()` to send these intents. The service
+refuses to run while the main visualizer is active; start requests in that state are ignored.
+Pattern actions update the shared idle-breathing setting, and stop requests fade the Glyphs
+out over 500 ms.
+
+Example (Kotlin):
+
+```kotlin
+val intent = Intent("com.better.nothing.music.vizualizer.action.IDLE_START").apply {
+    component = ComponentName(
+        "com.better.nothing.music.vizualizer",
+        "com.better.nothing.music.vizualizer.service.IdleBreathingService"
+    )
+}
+if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+    context.startForegroundService(intent)
+} else {
+    context.startService(intent)
+}
+```
+
+To open BNMV directly to the Settings tab with Idle Breathing expanded, launch
+`.ui.MainActivity` with the boolean extra `open_idle_breathing_settings` set to `true`.
+This extra is exposed in code as `MainActivity.EXTRA_OPEN_IDLE_BREATHING_SETTINGS`.
+
 ### Source & Presets:
 
 * `com.better.nothing.music.vizualizer.ACTION_SET_SOURCE` (String extra source: `INTERNAL`, `MIC`, `VIZUALIZER`, `NETWORK`)
