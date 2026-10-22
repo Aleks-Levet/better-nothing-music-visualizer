@@ -1,6 +1,11 @@
 package com.better.nothing.music.vizualizer.ui.PrimaryScreens
 
+import android.app.StatusBarManager
+import android.content.ComponentName
+import android.graphics.drawable.Icon
+import android.os.Build
 import android.view.HapticFeedbackConstants
+import androidx.compose.foundation.clickable
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -35,6 +40,7 @@ import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
 import com.better.nothing.music.vizualizer.ui.MainViewModel
 import com.better.nothing.music.vizualizer.ui.OptionTile
 import com.better.nothing.music.vizualizer.ui.ScreenTitle
+import com.better.nothing.music.vizualizer.service.IdleBreathingTileService
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -331,6 +337,25 @@ internal fun SettingsScreen(
                         text = stringResource(R.string.idle_breathing_desc),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Text(
+                        text = stringResource(R.string.idle_breathing_tile_desc),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                val statusBarManager = context.getSystemService(StatusBarManager::class.java)
+                                if (statusBarManager != null) {
+                                    statusBarManager.requestAddTileService(
+                                        ComponentName(context, IdleBreathingTileService::class.java),
+                                        context.getString(R.string.idle_breathing_title),
+                                        Icon.createWithResource(context, R.drawable.ic_qs_tile_idle),
+                                        context.mainExecutor
+                                    ) { }
+                                }
+                            }
                     )
 
                     Text(

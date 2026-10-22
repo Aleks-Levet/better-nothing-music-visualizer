@@ -18,6 +18,8 @@ import android.os.SystemClock;
 import android.service.quicksettings.TileService;
 import android.util.Log;
 
+import androidx.core.app.NotificationCompat;
+
 import com.better.nothing.music.vizualizer.R;
 import com.better.nothing.music.vizualizer.logic.AudioProcessor;
 import com.better.nothing.music.vizualizer.logic.GlyphRenderer;
@@ -31,7 +33,14 @@ public class IdleBreathingService extends Service {
     private static final String TAG = "IdleBreathingService";
     private static final String CHANNEL_ID = "idle_breathing";
     private static final int NOTIFICATION_ID = 4102;
-    private static final int FRAME_INTERVAL_MS = 33;
+    private static final String PREF_IDLE_BREATHING_ACTIVE = "idle_breathing_tile_active";
+    private static final String ACTION_PREVIOUS_PATTERN =
+            "com.better.nothing.music.vizualizer.action.IDLE_PREVIOUS_PATTERN";
+    private static final String ACTION_NEXT_PATTERN =
+            "com.better.nothing.music.vizualizer.action.IDLE_NEXT_PATTERN";
+    private static final String[] IDLE_PATTERNS = {
+            "pulse", "wave", "rain", "zebra", "orbit", "heartbeat", "scanner"
+    };
     private static volatile boolean sActive;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
@@ -44,6 +53,8 @@ public class IdleBreathingService extends Service {
     private GlyphMatrixManager mMatrixManager;
     private GlyphRenderer mRenderer;
     private AudioProcessor.VisualizerConfig mIdleConfig;
+    private long mFrameEpochUptimeMs;
+    private long mNextFrameNumber;
 
     private final Runnable mFrameRunnable = new Runnable() {
         @Override
@@ -73,7 +84,7 @@ public class IdleBreathingService extends Service {
                     }
                 }
             }
-            mHandler.postDelayed(this, FRAME_INTERVAL_MS);
+            scheduleNextFrame();
         }
     };
 
@@ -124,6 +135,11 @@ public class IdleBreathingService extends Service {
         return sActive;
     }
 
+    public static boolean isActive(Context context) {
+        return sActive || context.getSharedPreferences("viz_prefs", MODE_PRIVATE)
+                .getBoolean(PREF_IDLE_BREATHING_ACTIVE, false);
+    }
+
     public static void stop(Context context) {
         context.stopService(new Intent(context, IdleBreathingService.class));
     }
@@ -133,27 +149,24 @@ public class IdleBreathingService extends Service {
         super.onCreate();
     }
 
-    private void initializeAnimation() {
+    private boolean initializeAnimation() {
         mDeviceType = DeviceProfile.detectDevice();
         if (mDeviceType == DeviceProfile.DEVICE_UNKNOWN) {
             Log.w(TAG, "Idle breathing is unavailable on this device");
-            stopSelf();
-            return;
+            return false;
         }
 
         SharedPreferences prefs = getSharedPreferences("viz_prefs", MODE_PRIVATE);
         int brightness = prefs.getInt("max_brightness", 4095);
         if (brightness <= 0) {
             Log.i(TAG, "Idle breathing is disabled because Glyph brightness is off");
-            stopSelf();
-            return;
+            return false;
         }
 
         int count = DeviceProfile.getLedCount(mDeviceType);
         if (count <= 0) {
             Log.e(TAG, "No Glyph zones are available for device " + mDeviceType);
-            stopSelf();
-            return;
+            return false;
         }
 
         AudioProcessor.ZoneSpec[] zones = new AudioProcessor.ZoneSpec[count];
@@ -175,23 +188,59 @@ public class IdleBreathingService extends Service {
         mRenderer.setIdleAnimationSpeed(prefs.getFloat("idle_animation_speed", 1.0f));
         mRenderer.startIdleBreathingAnimation(SystemClock.elapsedRealtime());
 
-        initializeGlyphManagers();
+        return initializeGlyphManagers();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        String action = intent != null ? intent.getAction() : null;
+        if (ACTION_PREVIOUS_PATTERN.equals(action) || ACTION_NEXT_PATTERN.equals(action)) {
+            if (isActive(this)) {
+                changePattern(ACTION_PREVIOUS_PATTERN.equals(action) ? -1 : 1);
+            } else {
+                stopSelf(startId);
+            }
+            return START_NOT_STICKY;
+        }
+
         if (AudioCaptureService.isRunning()
                 || getSharedPreferences("viz_prefs", MODE_PRIVATE).getBoolean("should_be_running", false)) {
             stopSelf(startId);
             return START_NOT_STICKY;
         }
-        if (sActive) return START_NOT_STICKY;
+        if (isActive(this)) return START_NOT_STICKY;
 
         startAsForegroundService();
+        if (!initializeAnimation()) {
+            stopSelf(startId);
+            return START_NOT_STICKY;
+        }
         sActive = true;
+        getSharedPreferences("viz_prefs", MODE_PRIVATE).edit()
+                .putBoolean(PREF_IDLE_BREATHING_ACTIVE, true)
+                .apply();
         requestTileRefresh();
-        initializeAnimation();
         return START_NOT_STICKY;
+    }
+
+    private void changePattern(int direction) {
+        SharedPreferences prefs = getSharedPreferences("viz_prefs", MODE_PRIVATE);
+        String currentPattern = prefs.getString("idle_pattern", IDLE_PATTERNS[0]);
+        int currentIndex = 0;
+        for (int i = 0; i < IDLE_PATTERNS.length; i++) {
+            if (IDLE_PATTERNS[i].equals(currentPattern)) {
+                currentIndex = i;
+                break;
+            }
+        }
+
+        int nextIndex = (currentIndex + direction + IDLE_PATTERNS.length) % IDLE_PATTERNS.length;
+        String nextPattern = IDLE_PATTERNS[nextIndex];
+        prefs.edit().putString("idle_pattern", nextPattern).apply();
+        if (mRenderer != null) mRenderer.setIdlePattern(nextPattern);
+
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        notificationManager.notify(NOTIFICATION_ID, buildNotification());
     }
 
     private void startAsForegroundService() {
@@ -206,14 +255,9 @@ public class IdleBreathingService extends Service {
         PendingIntent contentIntent = PendingIntent.getActivity(
                 this, 0, new Intent(this, MainActivity.class),
                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification.Builder builder = new Notification.Builder(this, CHANNEL_ID)
-                .setContentTitle(getString(R.string.idle_breathing_title))
-                .setContentText(getString(R.string.tile_running))
-                .setSmallIcon(R.drawable.ic_notif_monochrome)
-                .setContentIntent(contentIntent)
-                .setOngoing(true)
-                .setSilent(true);
-        Notification notification = builder.build();
+        SharedPreferences prefs = getSharedPreferences("viz_prefs", MODE_PRIVATE);
+        String currentPattern = prefs.getString("idle_pattern", IDLE_PATTERNS[0]);
+        Notification notification = buildNotification(contentIntent, currentPattern);
         if (Build.VERSION.SDK_INT >= 34) {
             startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
         } else {
@@ -221,7 +265,54 @@ public class IdleBreathingService extends Service {
         }
     }
 
-    private void initializeGlyphManagers() {
+    private Notification buildNotification() {
+        PendingIntent contentIntent = PendingIntent.getActivity(
+                this, 0, new Intent(this, MainActivity.class),
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        String currentPattern = getSharedPreferences("viz_prefs", MODE_PRIVATE)
+                .getString("idle_pattern", IDLE_PATTERNS[0]);
+        return buildNotification(contentIntent, currentPattern);
+    }
+
+    private Notification buildNotification(PendingIntent contentIntent, String currentPattern) {
+        PendingIntent previousIntent = PendingIntent.getService(
+                this,
+                1,
+                new Intent(this, IdleBreathingService.class).setAction(ACTION_PREVIOUS_PATTERN),
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent nextIntent = PendingIntent.getService(
+                this,
+                2,
+                new Intent(this, IdleBreathingService.class).setAction(ACTION_NEXT_PATTERN),
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+
+        return new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle(getString(R.string.idle_breathing_title))
+                .setContentText(getString(R.string.idle_pattern) + ": " + getPatternLabel(currentPattern))
+                .setSmallIcon(R.drawable.ic_notif_monochrome)
+                .setContentIntent(contentIntent)
+                .setOngoing(true)
+                .setSilent(true)
+                .setOnlyAlertOnce(true)
+                .addAction(android.R.drawable.ic_media_previous, getString(R.string.notification_action_previous), previousIntent)
+                .addAction(android.R.drawable.ic_media_next, getString(R.string.notification_action_next), nextIntent)
+                .build();
+    }
+
+    private String getPatternLabel(String pattern) {
+        int labelResource = switch (pattern) {
+            case "wave" -> R.string.idle_pattern_wave;
+            case "rain" -> R.string.idle_pattern_rain;
+            case "zebra" -> R.string.idle_pattern_zebra;
+            case "orbit" -> R.string.idle_pattern_orbit;
+            case "heartbeat" -> R.string.idle_pattern_heartbeat;
+            case "scanner" -> R.string.idle_pattern_cylon;
+            default -> R.string.idle_pattern_pulse;
+        };
+        return getString(labelResource);
+    }
+
+    private boolean initializeGlyphManagers() {
         try {
             mGlyphManager = GlyphManager.getInstance(getApplicationContext());
             if (mGlyphManager == null) throw new IllegalStateException("GlyphManager is unavailable");
@@ -232,16 +323,29 @@ public class IdleBreathingService extends Service {
                 if (mMatrixManager == null) throw new IllegalStateException("GlyphMatrixManager is unavailable");
                 mMatrixManager.init(mMatrixCallback);
             }
+            return true;
         } catch (Exception e) {
             Log.e(TAG, "Failed to initialize Glyph managers", e);
-            stopSelf();
+            return false;
         }
     }
 
     private void maybeStartAnimation() {
         if (!mSessionOpen || (DeviceProfile.getMatrixWidth(mDeviceType) > 0 && !mMatrixConnected)) return;
         mHandler.removeCallbacks(mFrameRunnable);
+        mFrameEpochUptimeMs = SystemClock.uptimeMillis();
+        mNextFrameNumber = 0;
         mHandler.post(mFrameRunnable);
+    }
+
+    private void scheduleNextFrame() {
+        long now = SystemClock.uptimeMillis();
+        mNextFrameNumber = Math.max(
+                mNextFrameNumber + 1,
+                ((now - mFrameEpochUptimeMs) * 60 / 1000) + 1);
+        mHandler.postAtTime(
+                mFrameRunnable,
+                mFrameEpochUptimeMs + mNextFrameNumber * 1000 / 60);
     }
 
     private String getGlyphDeviceName() {
@@ -298,6 +402,9 @@ public class IdleBreathingService extends Service {
             }
         }
         sActive = false;
+        getSharedPreferences("viz_prefs", MODE_PRIVATE).edit()
+                .putBoolean(PREF_IDLE_BREATHING_ACTIVE, false)
+                .apply();
         stopForeground(STOP_FOREGROUND_REMOVE);
         requestTileRefresh();
         super.onDestroy();

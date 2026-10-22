@@ -24,8 +24,12 @@ public class IdleBreathingTileService extends TileService {
             return;
         }
 
-        if (IdleBreathingService.isActive()) {
+        if (IdleBreathingService.isActive(this)) {
             stopService(new Intent(this, IdleBreathingService.class));
+            getSharedPreferences("viz_prefs", MODE_PRIVATE).edit()
+                    .putBoolean("idle_breathing_tile_active", false)
+                    .apply();
+            refresh(false);
         } else {
             Intent startIntent = new Intent(this, IdleBreathingService.class);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -33,24 +37,35 @@ public class IdleBreathingTileService extends TileService {
             } else {
                 startService(startIntent);
             }
+            refresh(true);
         }
-        refresh();
     }
 
     private void refresh() {
-        Tile tile = getQsTile();
-        if (tile == null) return;
-
         boolean captureRunning = isCaptureRunning();
         boolean glyphAvailable = DeviceProfile.detectDevice() != DeviceProfile.DEVICE_UNKNOWN
                 && getSharedPreferences("viz_prefs", MODE_PRIVATE).getInt("max_brightness", 4095) > 0;
-        boolean active = IdleBreathingService.isActive() && !captureRunning;
+        boolean active = IdleBreathingService.isActive(this) && !captureRunning;
+        refresh(active, captureRunning, glyphAvailable);
+    }
+
+    private void refresh(boolean active) {
+        boolean captureRunning = isCaptureRunning();
+        boolean glyphAvailable = DeviceProfile.detectDevice() != DeviceProfile.DEVICE_UNKNOWN
+                && getSharedPreferences("viz_prefs", MODE_PRIVATE).getInt("max_brightness", 4095) > 0;
+        refresh(active, captureRunning, glyphAvailable);
+    }
+
+    private void refresh(boolean active, boolean captureRunning, boolean glyphAvailable) {
+        Tile tile = getQsTile();
+        if (tile == null) return;
+        boolean activeState = active && !captureRunning && glyphAvailable;
         tile.setState(captureRunning || !glyphAvailable
                 ? Tile.STATE_UNAVAILABLE
-                : active ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
+                : activeState ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
         tile.setLabel(getString(R.string.idle_breathing_title));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            tile.setSubtitle(active
+            tile.setSubtitle(activeState
                     ? getString(R.string.tile_running)
                     : getString(R.string.tile_subtitle_default));
         }

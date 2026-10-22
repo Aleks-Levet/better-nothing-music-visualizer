@@ -3,6 +3,7 @@ package com.better.nothing.music.vizualizer.ui
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.SystemClock
 import android.os.Vibrator
@@ -1360,6 +1361,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val _idlePattern = MutableStateFlow("pulse")
     val idlePattern = _idlePattern.asStateFlow()
+    private val idlePatternPreferenceListener =
+        SharedPreferences.OnSharedPreferenceChangeListener { preferences, key ->
+            if (key == "idle_pattern") {
+                preferences.getString(key, null)?.let { pattern ->
+                    _idlePattern.value = pattern
+                    MainActivity.serviceStatic?.setIdlePattern(pattern)
+                }
+            }
+        }
 
     fun setIdlePattern(pattern: String) {
         _idlePattern.value = pattern
@@ -2523,6 +2533,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         // Overlay and other visual settings
         _idleBreathingEnabled.value = get("idle_breathing_enabled", false)
         _idlePattern.value = get("idle_pattern", "pulse")
+        prefs.registerOnSharedPreferenceChangeListener(idlePatternPreferenceListener)
         _idleBrightness.value = get("idle_brightness", 0.4f)
         _idleBackgroundBrightness.value = get("idle_background_brightness", 0.02f)
         _idleAnimationSpeed.value = get("idle_animation_speed", 1.0f).coerceIn(0.5f, 2.0f)
@@ -2640,6 +2651,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     override fun onCleared() {
         super.onCleared()
+        ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+            .unregisterOnSharedPreferenceChangeListener(idlePatternPreferenceListener)
         saveStatsLocally()
     }
 }
