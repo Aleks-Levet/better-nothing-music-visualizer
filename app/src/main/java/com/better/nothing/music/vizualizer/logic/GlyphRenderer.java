@@ -1,7 +1,6 @@
 package com.better.nothing.music.vizualizer.logic;
 
 import com.better.nothing.music.vizualizer.model.DeviceProfile;
-import android.os.SystemClock;
 import android.util.Log;
 import java.util.Arrays;
 
@@ -11,16 +10,11 @@ import java.util.Arrays;
 public class GlyphRenderer {
 
     private static final int MAX_BRIGHTNESS_LIMIT = 5000;
-    private static final long BREATH_DELAY_MS = 2500L;
 
     private float mGamma;
     private int mMaxBrightness = 4095;
-    private boolean mIdleBreathingEnabled;
+    private final IdleBreathingRenderer mIdleBreathingRenderer;
     private int mDeviceType;
-    private String mIdlePattern = "pulse";
-    private float mIdleBrightness = 0.4f;
-    private float mIdleBackgroundBrightness = 0.02f;
-    private float mIdleAnimationSpeed = 1.0f;
     private boolean mAlternateMode = false;
     private int[] mPreviousFftRaw = null;
     private float[] mSmoothedFft = null;
@@ -28,35 +22,29 @@ public class GlyphRenderer {
 
     private float[] mCurrentLightState = new float[0];
     private float[] mRangeDecayState = new float[0];
+    private boolean[] mAlwaysOnZones = new boolean[0];
     private int mLastHash = Integer.MIN_VALUE;
-    private long mSilenceStartTimeMs = 0;
-    private long mLastFrameMs = 0;
-    private float mBreathingEnvelope = 0f;
 
     public GlyphRenderer(float gamma, boolean idleBreathingEnabled, int deviceType) {
         this.mGamma = gamma;
-        this.mIdleBreathingEnabled = idleBreathingEnabled;
         this.mDeviceType = deviceType;
+        this.mIdleBreathingRenderer = new IdleBreathingRenderer(deviceType, idleBreathingEnabled);
     }
 
     public void setIdleBreathingEnabled(boolean enabled) {
-        mIdleBreathingEnabled = enabled;
-        if (!enabled) mSilenceStartTimeMs = 0;
+        mIdleBreathingRenderer.setEnabled(enabled);
     }
 
     public void startIdleBreathingAnimation(long nowMs) {
-        mIdleBreathingEnabled = true;
-        mSilenceStartTimeMs = nowMs - BREATH_DELAY_MS - 1;
-        mLastFrameMs = nowMs;
-        mBreathingEnvelope = 1f;
+        mIdleBreathingRenderer.start(nowMs);
         mLastHash = Integer.MIN_VALUE;
     }
 
-    public void setIdlePattern(String pattern) { this.mIdlePattern = pattern; }
+    public void setIdlePattern(String pattern) { mIdleBreathingRenderer.setPattern(pattern); }
 
-    public void setIdleBrightness(float brightness) { this.mIdleBrightness = brightness; }
-    public void setIdleBackgroundBrightness(float brightness) { this.mIdleBackgroundBrightness = brightness; }
-    public void setIdleAnimationSpeed(float speed) { this.mIdleAnimationSpeed = Math.max(0.5f, Math.min(2.0f, speed)); }
+    public void setIdleBrightness(float brightness) { mIdleBreathingRenderer.setBrightness(brightness); }
+    public void setIdleBackgroundBrightness(float brightness) { mIdleBreathingRenderer.setBackgroundBrightness(brightness); }
+    public void setIdleAnimationSpeed(float speed) { mIdleBreathingRenderer.setAnimationSpeed(speed); }
 
     public void setAlternateMode(boolean enabled) {
         this.mAlternateMode = enabled;
@@ -83,6 +71,7 @@ public class GlyphRenderer {
 
     public void setDeviceType(int deviceType) {
         this.mDeviceType = deviceType;
+        mIdleBreathingRenderer.setDeviceType(deviceType);
         mLastHash = Integer.MIN_VALUE;
     }
 
@@ -90,24 +79,29 @@ public class GlyphRenderer {
         if (config == null) {
             mCurrentLightState = new float[0];
             mRangeDecayState = new float[0];
+            mAlwaysOnZones = new boolean[0];
         } else {
             mCurrentLightState = new float[config.zones.length];
             mRangeDecayState = new float[config.uniqueRanges.length];
+            mAlwaysOnZones = new boolean[config.zones.length];
+            for (int i = 0; i < config.zones.length; i++) {
+                AudioProcessor.ZoneSpec zone = config.zones[i];
+                mAlwaysOnZones[i] = zone.hasPercentSlice()
+                        && zone.lowPercent == 0f && zone.highPercent == 0f;
+            }
         }
         mLastHash = Integer.MIN_VALUE;
-        mSilenceStartTimeMs = 0;
-        mLastFrameMs = 0;
-        mBreathingEnvelope = 0f;
+        mIdleBreathingRenderer.reset();
     }
 
     public float[] getCurrentLightState() { return mCurrentLightState; }
 
     public boolean isBreathing() {
-        return mIdleBreathingEnabled && mBreathingEnvelope > 0.01f;
+        return mIdleBreathingRenderer.isBreathing();
     }
 
     public boolean isDeeplySilent() {
-        return mSilenceStartTimeMs > 0 && (SystemClock.elapsedRealtime() - mSilenceStartTimeMs) > BREATH_DELAY_MS;
+        return mIdleBreathingRenderer.isDeeplySilent();
     }
 
     public int[] processFrame(int[] fftraw, AudioProcessor.VisualizerConfig config, long nowMs, boolean isSilent) {
@@ -199,7 +193,7 @@ public class GlyphRenderer {
                 }
             }
 
-            applyIdleBreathing(mCurrentLightState, config, nowMs, isSilent);
+            mIdleBreathingRenderer.apply(mCurrentLightState, mAlwaysOnZones, nowMs, isSilent);
 
             int[] frameColors = buildFrameColors(mCurrentLightState, zoneCount);
             int frameHash = Arrays.hashCode(frameColors);
@@ -217,152 +211,6 @@ public class GlyphRenderer {
             Log.e("GlyphRenderer", "processFrame failed", e);
             return new int[0];
         }
-    }
-
-    private void applyIdleBreathing(float[] state, AudioProcessor.VisualizerConfig config, long nowMs, boolean isSilent) {
-        long deltaMs = (mLastFrameMs > 0) ? (nowMs - mLastFrameMs) : 16;
-        mLastFrameMs = nowMs;
-
-        if (isSilent) {
-            if (mSilenceStartTimeMs == 0) mSilenceStartTimeMs = nowMs;
-        } else {
-            mSilenceStartTimeMs = 0;
-        }
-
-        long silenceDuration = (mSilenceStartTimeMs > 0) ? (nowMs - mSilenceStartTimeMs) : 0;
-        boolean shouldBreathe = mIdleBreathingEnabled && (silenceDuration > BREATH_DELAY_MS);
-        float targetEnvelope = shouldBreathe ? 1.0f : 0.0f;
-
-        if (mBreathingEnvelope < targetEnvelope) {
-            mBreathingEnvelope += (float) deltaMs * mIdleAnimationSpeed / 2500f;
-            if (mBreathingEnvelope > targetEnvelope) mBreathingEnvelope = targetEnvelope;
-        } else if (mBreathingEnvelope > targetEnvelope) {
-            mBreathingEnvelope -= (float) deltaMs * mIdleAnimationSpeed / 300f;
-            if (mBreathingEnvelope < targetEnvelope) mBreathingEnvelope = targetEnvelope;
-        }
-
-        if (mBreathingEnvelope > 0.01f) {
-            int zoneCount = state.length;
-            for (int i = 0; i < zoneCount; i++) {
-                int effectiveIndex = i;
-                if (mDeviceType == DeviceProfile.DEVICE_NP3A) {
-                    if (i >= 20 && i <= 30) {
-                        effectiveIndex = i - 20; // A1-A11 -> 0-10
-                    } else if (i >= 31 && i <= 35) {
-                        effectiveIndex = 11 + (i - 31); // B1-B5 -> 11-15
-                    } else if (i >= 0 && i <= 19) {
-                        effectiveIndex = 16 + i; // C1-C20 -> 16-35
-                    }
-                }
-                float intensity = getIdleIntensity(effectiveIndex, zoneCount, nowMs);
-                
-                // Breath value interpolates between background and peak brightness
-                float breathVal = (mIdleBackgroundBrightness + intensity * (mIdleBrightness - mIdleBackgroundBrightness)) * mBreathingEnvelope;
-
-                // Check if this is an "always on" zone (0,0 percentage range)
-                boolean isAlwaysOn = false;
-                if (config != null && i < config.zones.length) {
-                    AudioProcessor.ZoneSpec spec = config.zones[i];
-                    if (spec.hasPercentSlice() && spec.lowPercent == 0f && spec.highPercent == 0f) {
-                        isAlwaysOn = true;
-                    }
-                }
-
-                if (isAlwaysOn) {
-                    // For always-on LEDs, smoothly transition from the signal state (which is 1.0)
-                    // to the idle breath state as the envelope grows.
-                    state[i] = (state[i] * (1.0f - mBreathingEnvelope)) + (breathVal * mBreathingEnvelope);
-                } else {
-                    if (state[i] < breathVal) state[i] = breathVal;
-                }
-            }
-        }
-    }
-
-    private float getIdleIntensity(int i, int zoneCount, long nowMs) {
-        double animationTimeMs = nowMs * mIdleAnimationSpeed;
-        return switch (mIdlePattern) {
-            case "pulse" -> {
-                double timeProg = (animationTimeMs % 3000.0) / 3000.0;
-                yield (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * timeProg - Math.PI / 2.0));
-            }
-            case "wave" -> {
-                double timeProg = (animationTimeMs % 2000.0) / 2000.0;
-                float phaseShift = (float) i / zoneCount;
-                yield (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * (timeProg - phaseShift)));
-            }
-            case "scanner" -> {
-                double timeProg = (animationTimeMs % 2500.0) / 2500.0;
-                float scannerPos = (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * timeProg));
-                float ledPos = (float) i / zoneCount;
-                float dist = Math.abs(ledPos - scannerPos);
-                yield (float) Math.exp(-dist * dist * 40.0);
-            }
-            case "zebra" -> {
-                double timeProg = (animationTimeMs % 1500.0) / 1500.0;
-                boolean even = (i % 2 == 0);
-                double sinVal = Math.sin(2.0 * Math.PI * timeProg);
-                yield even ? (float) (0.5 + 0.5 * sinVal) : (float) (0.5 - 0.5 * sinVal);
-            }
-            case "heartbeat" -> {
-                double t = (animationTimeMs % 2000.0) / 2000.0;
-                if (t < 0.12) yield (float) Math.sin(Math.PI * t / 0.12);
-                else if (t > 0.22 && t < 0.34) yield (float) Math.sin(Math.PI * (t - 0.22) / 0.12) * 0.7f;
-                yield 0f;
-            }
-            case "orbit" -> {
-                double t = (animationTimeMs % 4000.0) / 4000.0;
-                float center = (float) (0.5 + 0.4 * Math.sin(2.0 * Math.PI * t));
-                float ledPos = (float) i / zoneCount;
-                float dist = Math.abs(ledPos - center);
-                if (dist > 0.5f) dist = 1.0f - dist;
-                yield (float) Math.exp(-dist * dist * 80.0);
-            }
-            case "rain" -> {
-                int width = DeviceProfile.getMatrixWidth(mDeviceType);
-                if (width > 0) {
-                    // Matrix Rain Effect (Falling drops)
-                    int height = DeviceProfile.getMatrixHeight(mDeviceType);
-                    int x = i % width;
-                    int y = i / width;
-
-                    // Column-based pseudo-randomness for speed and timing
-                    double colHash = Math.abs(Math.sin(x * 12.9898 + 7.23)) * 43758.5453;
-                    colHash = colHash - (long) colHash;
-
-                    double speed = 0.1 + colHash * 0.2;
-                    double time = animationTimeMs * speed * 0.05;
-                    double dropY = time % (height + 20); // 20 units of padding between drops
-
-                    double dist = y - dropY;
-                    if (dist <= 0 && dist > -8) {
-                        // Head is brightest, 8-pixel tail
-                        yield (float) Math.pow((8.0 + dist) / 8.0, 2.0);
-                    }
-                    yield 0.0f;
-                } else {
-                    // Discrete Glyph Rain (Sparse slow sparkles/raindrops)
-                    double zoneHash = Math.abs(Math.sin(i * 43.123 + 9.87)) * 1234.56;
-                    zoneHash = zoneHash - (long) zoneHash;
-
-                    // Each zone has a different period and offset for natural look
-                    double period = 2500.0 + zoneHash * 4500.0;
-                    double offset = zoneHash * 10000.0;
-                    double t = ((animationTimeMs + offset) % period) / period;
-
-                    // Pulse active during the first 15% of its period
-                    if (t < 0.15) {
-                        yield (float) Math.pow(Math.sin(Math.PI * (t / 0.15)), 3.0);
-                    }
-                    yield 0.0f;
-                }
-            }
-            default -> {
-                double timeProg = (animationTimeMs % 3000.0) / 3000.0;
-                float phaseShift = (float) i * 0.02f;
-                yield (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * (timeProg + phaseShift) - Math.PI / 2.0));
-            }
-        };
     }
 
     private int[] buildFrameColors(float[] normalizedLightState, int expectedLength) {

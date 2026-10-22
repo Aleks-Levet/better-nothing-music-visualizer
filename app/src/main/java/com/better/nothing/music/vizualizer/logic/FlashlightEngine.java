@@ -93,10 +93,15 @@ public final class FlashlightEngine {
 
     public synchronized int getCurrentLevel() {
         if (spoofIntensityLevels != null) return lastLevel;
-        if (cameraId != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (torchActive && hasTorchStrength && cameraId != null
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             try {
                 return cameraManager.getTorchStrengthLevel(cameraId);
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                hasTorchStrength = false;
+                maxTorchStrength = 1;
+                Log.w(TAG, "Torch strength reads are unsupported; using the last submitted level", e);
+            }
         }
         return lastLevel;
     }

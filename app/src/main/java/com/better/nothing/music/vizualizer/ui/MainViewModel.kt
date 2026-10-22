@@ -2631,10 +2631,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             delay(1000)
             while (true) {
-                if (hasFlashlight || _spoofFlashlightLevels.value != null) {
-                    MainActivity.serviceStatic?.let { s ->
+                MainActivity.serviceStatic?.let { s ->
+                    if ((hasFlashlight || _spoofFlashlightLevels.value != null)
+                        && _flashlightEnabled.value
+                        && s.isVisualizerRunning()
+                    ) {
                         _flashlightIntensityLevels.value = s.flashlightIntensityLevels
                         _flashlightLevel.value = s.flashlightCurrentLevel
+                    } else {
+                        _flashlightLevel.value = 0
                     }
                 }
                 delay(100)

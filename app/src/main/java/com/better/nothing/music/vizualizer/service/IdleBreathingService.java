@@ -20,8 +20,7 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 
 import com.better.nothing.music.vizualizer.R;
-import com.better.nothing.music.vizualizer.logic.AudioProcessor;
-import com.better.nothing.music.vizualizer.logic.GlyphRenderer;
+import com.better.nothing.music.vizualizer.logic.IdleBreathingRenderer;
 import com.better.nothing.music.vizualizer.model.DeviceProfile;
 import com.better.nothing.music.vizualizer.ui.MainActivity;
 import com.nothing.ketchum.Glyph;
@@ -42,7 +41,6 @@ public class IdleBreathingService extends Service {
     private static volatile boolean sActive;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
-    private final int[] mSilentFft = new int[512];
     private final SharedPreferences.OnSharedPreferenceChangeListener mSettingsListener =
             this::onSettingsChanged;
     private volatile boolean mStopping;
@@ -51,8 +49,8 @@ public class IdleBreathingService extends Service {
     private boolean mMatrixConnected;
     private GlyphManager mGlyphManager;
     private GlyphMatrixManager mMatrixManager;
-    private GlyphRenderer mRenderer;
-    private AudioProcessor.VisualizerConfig mIdleConfig;
+    private IdleBreathingRenderer mRenderer;
+    private int mMaxBrightness;
     private long mFrameEpochUptimeMs;
     private long mNextFrameNumber;
 
@@ -67,21 +65,22 @@ public class IdleBreathingService extends Service {
             }
 
             if (mSessionOpen && mRenderer != null) {
-                int[] colors = mRenderer.processFrame(mSilentFft, mIdleConfig, SystemClock.elapsedRealtime(), true);
-                if (colors != null) {
-                    try {
-                        if (DeviceProfile.getMatrixWidth(mDeviceType) > 0) {
-                            if (mMatrixConnected && mMatrixManager != null) {
-                                mMatrixManager.setAppMatrixFrame(colors);
-                            }
-                        } else if (mGlyphManager != null) {
-                            mGlyphManager.setFrameColors(colors);
+                int[] colors = mRenderer.renderFrame(
+                        DeviceProfile.getLedCount(mDeviceType),
+                        mMaxBrightness,
+                        SystemClock.elapsedRealtime());
+                try {
+                    if (DeviceProfile.getMatrixWidth(mDeviceType) > 0) {
+                        if (mMatrixConnected && mMatrixManager != null) {
+                            mMatrixManager.setAppMatrixFrame(colors);
                         }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Failed to update idle Glyph frame", e);
-                        stopSelf();
-                        return;
+                    } else if (mGlyphManager != null) {
+                        mGlyphManager.setFrameColors(colors);
                     }
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to update idle Glyph frame", e);
+                    stopSelf();
+                    return;
                 }
             }
             scheduleNextFrame();
@@ -147,24 +146,22 @@ public class IdleBreathingService extends Service {
 
         switch (key) {
             case "idle_pattern" -> {
-                mRenderer.setIdlePattern(prefs.getString("idle_pattern", "pulse"));
+                mRenderer.setPattern(prefs.getString("idle_pattern", "pulse"));
                 refreshNotification(prefs);
             }
             case "idle_brightness" ->
-                    mRenderer.setIdleBrightness(prefs.getFloat("idle_brightness", 0.4f));
+                    mRenderer.setBrightness(prefs.getFloat("idle_brightness", 0.4f));
             case "idle_background_brightness" ->
-                    mRenderer.setIdleBackgroundBrightness(
+                    mRenderer.setBackgroundBrightness(
                             prefs.getFloat("idle_background_brightness", 0.02f));
             case "idle_animation_speed" ->
-                    mRenderer.setIdleAnimationSpeed(prefs.getFloat("idle_animation_speed", 1.0f));
-            case "gamma_value" ->
-                    mRenderer.setGamma(AudioCaptureService.loadGamma(this));
+                    mRenderer.setAnimationSpeed(prefs.getFloat("idle_animation_speed", 1.0f));
             case "max_brightness" -> {
                 int brightness = prefs.getInt("max_brightness", 4095);
                 if (brightness <= 0) {
                     stopSelf();
                 } else {
-                    mRenderer.setMaxBrightness(brightness);
+                    mMaxBrightness = Math.max(50, Math.min(5000, brightness));
                 }
             }
             default -> { }
@@ -191,24 +188,13 @@ public class IdleBreathingService extends Service {
             return false;
         }
 
-        AudioProcessor.ZoneSpec[] zones = new AudioProcessor.ZoneSpec[count];
-        int[][] zoneToRanges = new int[count][];
-        for (int i = 0; i < count; i++) {
-            zones[i] = new AudioProcessor.ZoneSpec(1f, 1f, Float.NaN, Float.NaN);
-            zoneToRanges[i] = new int[0];
-        }
-        mIdleConfig = new AudioProcessor.VisualizerConfig(
-                "idle", "Idle Breathing", "", 0.85f, zones,
-                new AudioProcessor.FrequencyRange[0], zoneToRanges);
-
-        mRenderer = new GlyphRenderer(AudioCaptureService.loadGamma(this), true, mDeviceType);
-        mRenderer.resetState(mIdleConfig);
-        mRenderer.setMaxBrightness(brightness);
-        mRenderer.setIdlePattern(prefs.getString("idle_pattern", "pulse"));
-        mRenderer.setIdleBrightness(prefs.getFloat("idle_brightness", 0.4f));
-        mRenderer.setIdleBackgroundBrightness(prefs.getFloat("idle_background_brightness", 0.02f));
-        mRenderer.setIdleAnimationSpeed(prefs.getFloat("idle_animation_speed", 1.0f));
-        mRenderer.startIdleBreathingAnimation(SystemClock.elapsedRealtime());
+        mMaxBrightness = Math.max(50, Math.min(5000, brightness));
+        mRenderer = new IdleBreathingRenderer(mDeviceType, true);
+        mRenderer.setPattern(prefs.getString("idle_pattern", "pulse"));
+        mRenderer.setBrightness(prefs.getFloat("idle_brightness", 0.4f));
+        mRenderer.setBackgroundBrightness(prefs.getFloat("idle_background_brightness", 0.02f));
+        mRenderer.setAnimationSpeed(prefs.getFloat("idle_animation_speed", 1.0f));
+        mRenderer.start(SystemClock.elapsedRealtime());
 
         return initializeGlyphManagers();
     }
@@ -256,7 +242,7 @@ public class IdleBreathingService extends Service {
         int nextIndex = (currentIndex + direction + IDLE_PATTERNS.length) % IDLE_PATTERNS.length;
         String nextPattern = IDLE_PATTERNS[nextIndex];
         prefs.edit().putString("idle_pattern", nextPattern).apply();
-        if (mRenderer != null) mRenderer.setIdlePattern(nextPattern);
+        if (mRenderer != null) mRenderer.setPattern(nextPattern);
 
         refreshNotification(prefs);
     }
