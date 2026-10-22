@@ -201,6 +201,7 @@ public class AudioCaptureService extends Service {
         sIsRunningFlow.setValue(running);
         requestWidgetRefresh(this);
         requestTileRefresh(this);
+        if (running) IdleBreathingService.stop(this);
 
         SharedPreferences prefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE);
         prefs.edit().putBoolean(PREF_KEY_SHOULD_BE_RUNNING, running).apply();
@@ -422,6 +423,7 @@ public class AudioCaptureService extends Service {
     private volatile long mLastSendMs = 0L;
     private long mCaptureStartTimeMs = 0L;
     private volatile int[] mLatestRawFFT = new int[512];
+    private volatile boolean mIsSilent = true;
     private int[] mPreviousRawFFT = new int[512];
     private volatile float mLatestUiPeakDiff = 0f;
     private final Object mFftLock = new Object();
@@ -496,7 +498,7 @@ public class AudioCaptureService extends Service {
                         if (v != null) v.updateMagnitudes(mLatestRawFFT);
                     }
 
-                    processFrame(mLatestRawFFT, mVisualizerConfig, mPresetConfigVersion.get());
+                    processFrame(mLatestRawFFT, mVisualizerConfig, mPresetConfigVersion.get(), mIsSilent);
                 }
 
                 mMainHandler.postDelayed(this, 16);
@@ -519,12 +521,14 @@ public class AudioCaptureService extends Service {
         final AudioProcessor.VisualizerConfig config;
         final int configVersion;
         final long dueAtMs;
+        final boolean isSilent;
 
-        PendingFrame(int[] fftraw, AudioProcessor.VisualizerConfig config, int configVersion, long dueAtMs) {
+        PendingFrame(int[] fftraw, AudioProcessor.VisualizerConfig config, int configVersion, long dueAtMs, boolean isSilent) {
             this.fftraw = fftraw;
             this.config = config;
             this.configVersion = configVersion;
             this.dueAtMs = dueAtMs;
+            this.isSilent = isSilent;
         }
     }
 
@@ -660,6 +664,7 @@ public class AudioCaptureService extends Service {
 
         mGlyphRenderer = new GlyphRenderer(mGamma, mIdleBreathingEnabled, mSelectedDevice);
         mGlyphRenderer.setMaxBrightness(mMaxBrightness);
+        mGlyphRenderer.setIdleAnimationSpeed(getSafeFloat(appPrefs, "idle_animation_speed", 1.0f));
         mHasHapticMotor = hasHapticMotor(this);
         mHasFlashlight = hasFlashlight(this);
         mHapticEnabled = mHasHapticMotor && appPrefs.getBoolean("haptic_motor_enabled", false);
@@ -738,6 +743,7 @@ public class AudioCaptureService extends Service {
         if (mGlyphRenderer != null) {
             mGlyphRenderer.setAlternateMode(appPrefs.getBoolean("alternate_glyph_viz_enabled", false));
             mGlyphRenderer.setIdleBreathingEnabled(mIdleBreathingEnabled);
+            mGlyphRenderer.setIdleAnimationSpeed(getSafeFloat(appPrefs, "idle_animation_speed", 1.0f));
         }
         setHighQualityAnalysis(appPrefs.getBoolean("high_quality_analysis", false));
         setBroadcastEnabled(appPrefs.getBoolean("broadcast_enabled", false));
@@ -1022,6 +1028,7 @@ public class AudioCaptureService extends Service {
     public void setIdlePattern(String pattern) { if (mGlyphRenderer != null) mGlyphRenderer.setIdlePattern(pattern); }
     public void setIdleBrightness(float b) { if (mGlyphRenderer != null) mGlyphRenderer.setIdleBrightness(b); }
     public void setIdleBackgroundBrightness(float b) { if (mGlyphRenderer != null) mGlyphRenderer.setIdleBackgroundBrightness(b); }
+    public void setIdleAnimationSpeed(float speed) { if (mGlyphRenderer != null) mGlyphRenderer.setIdleAnimationSpeed(speed); }
 
     public void setBroadcastEnabled(boolean enabled) {
         Log.i(TAG, "setBroadcastEnabled: " + enabled);
@@ -1053,7 +1060,7 @@ public class AudioCaptureService extends Service {
 
             mUdpSync.startListening(mNetworkHostIp, fft -> {
                 if (mCapturing && mCaptureSource == CaptureSource.NETWORK) {
-                    PendingFrame frame = new PendingFrame(fft, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs());
+                    PendingFrame frame = new PendingFrame(fft, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs(), isFftSilent(fft));
                     synchronized (mVisualizerPendingFrames) {
                         mVisualizerPendingFrames.addLast(frame);
                         dispatchDueFrames(mVisualizerPendingFrames);
@@ -1412,6 +1419,7 @@ public class AudioCaptureService extends Service {
         synchronized (mFftLock) {
             mLatestRawFFT = EMPTY_FFT;
         }
+        mIsSilent = true;
 
         if (mAudioRecord != null) {
             try {
@@ -1453,7 +1461,7 @@ public class AudioCaptureService extends Service {
         }
     }
 
-    private void processFrame(int[] fftraw, AudioProcessor.VisualizerConfig config, int configVersion) {
+    private void processFrame(int[] fftraw, AudioProcessor.VisualizerConfig config, int configVersion, boolean isSilent) {
         try {
             long now = SystemClock.elapsedRealtime();
             if (now - mLastSendMs < MIN_SEND_INTERVAL_MS) return;
@@ -1492,7 +1500,7 @@ public class AudioCaptureService extends Service {
                         }
                     }
 
-                    int[] frameColors = mGlyphRenderer.processFrame(processedFft, config, now);
+                    int[] frameColors = mGlyphRenderer.processFrame(processedFft, config, now, isSilent);
                     updateIdleBreathingWakeLock(mIdleBreathingEnabled && mGlyphRenderer.isBreathing());
                     if (frameColors != null) {
                         try {
@@ -1510,6 +1518,14 @@ public class AudioCaptureService extends Service {
         } catch (Exception e) { Log.e(TAG, "processFrame error", e); }
     }
 
+    private static boolean isFftSilent(int[] fftraw) {
+        if (fftraw == null) return true;
+        for (int value : fftraw) {
+            if (value > 20) return false;
+        }
+        return true;
+    }
+
     private void dispatchDueFrames(ArrayDeque<PendingFrame> pendingFrames) {
         if (pendingFrames == null) return; long nowMs = SystemClock.elapsedRealtime(); PendingFrame latestDueFrame = null;
         while (!pendingFrames.isEmpty()) { PendingFrame frame = pendingFrames.peekFirst(); if (frame == null || frame.dueAtMs > nowMs) break; latestDueFrame = pendingFrames.removeFirst(); }
@@ -1519,6 +1535,7 @@ public class AudioCaptureService extends Service {
                     mPreviousRawFFT = mLatestRawFFT.clone();
                     mLatestRawFFT = latestDueFrame.fftraw;
                 }
+                mIsSilent = latestDueFrame.isSilent;
 
                 if (mUiRange != null) {
                     int maxDiff = 0;
@@ -1567,7 +1584,7 @@ public class AudioCaptureService extends Service {
                     sFlashlightBeatFlow.setValue(false);
                 }
 
-                processFrame(latestDueFrame.fftraw, latestDueFrame.config, latestDueFrame.configVersion);
+                processFrame(latestDueFrame.fftraw, latestDueFrame.config, latestDueFrame.configVersion, latestDueFrame.isSilent);
             } catch (Exception e) { Log.e(TAG, "Error dispatching frame", e); }
         }
     }
@@ -1613,23 +1630,21 @@ public class AudioCaptureService extends Service {
 
     private void processVisualizerWaveform(byte[] waveform, int samplingRate) {
         if (!mCapturing) return;
-        
-        // Cheap signal check if we are in idle breathing to save CPU
+
+        boolean hasSignal = false;
+        for (byte b : waveform) {
+            if (Math.abs((b & 0xFF) - 128) > 3) {
+                hasSignal = true;
+                break;
+            }
+        }
+        boolean isSilent = !hasSignal;
+
         boolean deepSilence = mGlyphRenderer != null && mGlyphRenderer.isDeeplySilent();
-        if (deepSilence) {
-            boolean hasAnySignal = false;
-            for (byte b : waveform) {
-                if (Math.abs((b & 0xFF) - 128) > 3) {
-                    hasAnySignal = true;
-                    break;
-                }
-            }
-            if (!hasAnySignal) {
-                // Still silent. Skip expensive FFT/mapping but still dispatch to keep breathing animation smooth.
-                PendingFrame frame = new PendingFrame(EMPTY_FFT, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs());
-                synchronized (mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
-                return;
-            }
+        if (deepSilence && isSilent) {
+            PendingFrame frame = new PendingFrame(EMPTY_FFT, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs(), true);
+            synchronized (mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
+            return;
         }
 
         // Robust sampling rate detection: handle both Hz (most devices) and mHz (docs)
@@ -1640,7 +1655,7 @@ public class AudioCaptureService extends Service {
         short[] hop = new short[waveform.length]; for (int i = 0; i < waveform.length; i++) hop[i] = (short) (((waveform[i] & 0xFF) - 128) << 8);
         AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, AudioProcessor.SourceType.VIZUALIZER, mVisualizerConfig != null ? mVisualizerConfig.decay : 0.85f);
         if (result == null) return;
-        PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs());
+        PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs(), isSilent);
         synchronized (mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
     }
 
@@ -1656,28 +1671,27 @@ public class AudioCaptureService extends Service {
             }
             if (read == 0) continue;
 
-            // Cheap signal check if we are in idle breathing
+            int silThreshold = (mCaptureSource == CaptureSource.INTERNAL) ? 50 : 250;
+            boolean hasSignal = false;
+            for (int i = 0; i < read; i++) {
+                if (Math.abs(hop[i]) > silThreshold) {
+                    hasSignal = true;
+                    break;
+                }
+            }
+            boolean isSilent = !hasSignal;
+
             boolean deepSilence = mGlyphRenderer != null && mGlyphRenderer.isDeeplySilent();
-            if (deepSilence) {
-                boolean hasAnySignal = false;
-                int silThreshold = (mCaptureSource == CaptureSource.INTERNAL) ? 50 : 250;
-                for (short s : hop) {
-                    if (Math.abs(s) > silThreshold) { // Lowered for better mic sensitivity
-                        hasAnySignal = true;
-                        break;
-                    }
-                }
-                if (!hasAnySignal) {
-                    PendingFrame frame = new PendingFrame(EMPTY_FFT, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs());
-                    synchronized(mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
-                    continue;
-                }
+            if (deepSilence && isSilent) {
+                PendingFrame frame = new PendingFrame(EMPTY_FFT, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs(), true);
+                synchronized(mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
+                continue;
             }
 
             AudioProcessor.SourceType type = (mCaptureSource == CaptureSource.MIC) ? AudioProcessor.SourceType.MIC : AudioProcessor.SourceType.INTERNAL;
             AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, type, mVisualizerConfig != null ? mVisualizerConfig.decay : 0.85f);
             if (result == null) continue;
-            PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs());
+            PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs(), isSilent);
             synchronized(mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
         }
     }
@@ -1907,6 +1921,7 @@ public class AudioCaptureService extends Service {
 
     public static void requestTileRefresh(Context context) {
         TileService.requestListeningState(context, new ComponentName(context, VisualizerTileService.class));
+        TileService.requestListeningState(context, new ComponentName(context, IdleBreathingTileService.class));
     }
 
     private void requestTileRefresh() {

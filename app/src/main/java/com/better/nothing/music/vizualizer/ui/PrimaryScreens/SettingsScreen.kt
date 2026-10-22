@@ -51,6 +51,7 @@ internal fun SettingsScreen(
     val uiAmplitudeSyncEnabled by viewModel.uiAmplitudeSyncEnabled.collectAsStateWithLifecycle()
     val idleBrightness by viewModel.idleBrightness.collectAsStateWithLifecycle()
     val idleBackgroundBrightness by viewModel.idleBackgroundBrightness.collectAsStateWithLifecycle()
+    val idleAnimationSpeed by viewModel.idleAnimationSpeed.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
 
     val selectedTheme by viewModel.selectedTheme.collectAsStateWithLifecycle()
@@ -383,6 +384,19 @@ internal fun SettingsScreen(
                         value = idleBackgroundBrightness,
                         onValueChange = { viewModel.setIdleBackgroundBrightness(it) },
                         valueRange = 0.0f..0.15f,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Text(
+                        text = stringResource(R.string.idle_animation_speed, idleAnimationSpeed),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    ExpressiveSlider(
+                        value = idleAnimationSpeed,
+                        onValueChange = { viewModel.setIdleAnimationSpeed(it) },
+                        valueRange = 0.5f..2.0f,
+                        steps = 14,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

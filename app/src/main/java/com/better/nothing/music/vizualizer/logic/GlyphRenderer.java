@@ -1,6 +1,7 @@
 package com.better.nothing.music.vizualizer.logic;
 
 import com.better.nothing.music.vizualizer.model.DeviceProfile;
+import android.os.SystemClock;
 import android.util.Log;
 import java.util.Arrays;
 
@@ -10,7 +11,6 @@ import java.util.Arrays;
 public class GlyphRenderer {
 
     private static final int MAX_BRIGHTNESS_LIMIT = 5000;
-    private static final float SILENCE_THRESHOLD = 20f; // in 0-4095 range
     private static final long BREATH_DELAY_MS = 2500L;
 
     private float mGamma;
@@ -20,6 +20,7 @@ public class GlyphRenderer {
     private String mIdlePattern = "pulse";
     private float mIdleBrightness = 0.4f;
     private float mIdleBackgroundBrightness = 0.02f;
+    private float mIdleAnimationSpeed = 1.0f;
     private boolean mAlternateMode = false;
     private int[] mPreviousFftRaw = null;
     private float[] mSmoothedFft = null;
@@ -43,10 +44,19 @@ public class GlyphRenderer {
         if (!enabled) mSilenceStartTimeMs = 0;
     }
 
+    public void startIdleBreathingAnimation(long nowMs) {
+        mIdleBreathingEnabled = true;
+        mSilenceStartTimeMs = nowMs - BREATH_DELAY_MS - 1;
+        mLastFrameMs = nowMs;
+        mBreathingEnvelope = 1f;
+        mLastHash = Integer.MIN_VALUE;
+    }
+
     public void setIdlePattern(String pattern) { this.mIdlePattern = pattern; }
 
     public void setIdleBrightness(float brightness) { this.mIdleBrightness = brightness; }
     public void setIdleBackgroundBrightness(float brightness) { this.mIdleBackgroundBrightness = brightness; }
+    public void setIdleAnimationSpeed(float speed) { this.mIdleAnimationSpeed = Math.max(0.5f, Math.min(2.0f, speed)); }
 
     public void setAlternateMode(boolean enabled) {
         this.mAlternateMode = enabled;
@@ -97,10 +107,10 @@ public class GlyphRenderer {
     }
 
     public boolean isDeeplySilent() {
-        return mSilenceStartTimeMs > 0 && (System.currentTimeMillis() - mSilenceStartTimeMs) > BREATH_DELAY_MS;
+        return mSilenceStartTimeMs > 0 && (SystemClock.elapsedRealtime() - mSilenceStartTimeMs) > BREATH_DELAY_MS;
     }
 
-    public int[] processFrame(int[] fftraw, AudioProcessor.VisualizerConfig config, long nowMs) {
+    public int[] processFrame(int[] fftraw, AudioProcessor.VisualizerConfig config, long nowMs, boolean isSilent) {
         if (config == null || fftraw == null) return new int[0];
 
         int[] actualFft = fftraw;
@@ -189,7 +199,7 @@ public class GlyphRenderer {
                 }
             }
 
-            applyIdleBreathing(mCurrentLightState, fftraw, config, nowMs);
+            applyIdleBreathing(mCurrentLightState, config, nowMs, isSilent);
 
             int[] frameColors = buildFrameColors(mCurrentLightState, zoneCount);
             int frameHash = Arrays.hashCode(frameColors);
@@ -209,17 +219,9 @@ public class GlyphRenderer {
         }
     }
 
-    private void applyIdleBreathing(float[] state, int[] fftraw, AudioProcessor.VisualizerConfig config, long nowMs) {
+    private void applyIdleBreathing(float[] state, AudioProcessor.VisualizerConfig config, long nowMs, boolean isSilent) {
         long deltaMs = (mLastFrameMs > 0) ? (nowMs - mLastFrameMs) : 16;
         mLastFrameMs = nowMs;
-
-        boolean isSilent = true;
-        for (int val : fftraw) {
-            if (val > SILENCE_THRESHOLD) {
-                isSilent = false;
-                break;
-            }
-        }
 
         if (isSilent) {
             if (mSilenceStartTimeMs == 0) mSilenceStartTimeMs = nowMs;
@@ -232,10 +234,10 @@ public class GlyphRenderer {
         float targetEnvelope = shouldBreathe ? 1.0f : 0.0f;
 
         if (mBreathingEnvelope < targetEnvelope) {
-            mBreathingEnvelope += (float) deltaMs / 2500f;
+            mBreathingEnvelope += (float) deltaMs * mIdleAnimationSpeed / 2500f;
             if (mBreathingEnvelope > targetEnvelope) mBreathingEnvelope = targetEnvelope;
         } else if (mBreathingEnvelope > targetEnvelope) {
-            mBreathingEnvelope -= (float) deltaMs / 300f;
+            mBreathingEnvelope -= (float) deltaMs * mIdleAnimationSpeed / 300f;
             if (mBreathingEnvelope < targetEnvelope) mBreathingEnvelope = targetEnvelope;
         }
 
@@ -278,37 +280,38 @@ public class GlyphRenderer {
     }
 
     private float getIdleIntensity(int i, int zoneCount, long nowMs) {
+        double animationTimeMs = nowMs * mIdleAnimationSpeed;
         return switch (mIdlePattern) {
             case "pulse" -> {
-                double timeProg = (double) (nowMs % 3000L) / 3000L;
+                double timeProg = (animationTimeMs % 3000.0) / 3000.0;
                 yield (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * timeProg - Math.PI / 2.0));
             }
             case "wave" -> {
-                double timeProg = (double) (nowMs % 2000L) / 2000L;
+                double timeProg = (animationTimeMs % 2000.0) / 2000.0;
                 float phaseShift = (float) i / zoneCount;
                 yield (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * (timeProg - phaseShift)));
             }
             case "scanner" -> {
-                double timeProg = (double) (nowMs % 2500L) / 2500L;
+                double timeProg = (animationTimeMs % 2500.0) / 2500.0;
                 float scannerPos = (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * timeProg));
                 float ledPos = (float) i / zoneCount;
                 float dist = Math.abs(ledPos - scannerPos);
                 yield (float) Math.exp(-dist * dist * 40.0);
             }
             case "zebra" -> {
-                double timeProg = (double) (nowMs % 1500L) / 1500L;
+                double timeProg = (animationTimeMs % 1500.0) / 1500.0;
                 boolean even = (i % 2 == 0);
                 double sinVal = Math.sin(2.0 * Math.PI * timeProg);
                 yield even ? (float) (0.5 + 0.5 * sinVal) : (float) (0.5 - 0.5 * sinVal);
             }
             case "heartbeat" -> {
-                double t = (double) (nowMs % 2000L) / 2000L;
+                double t = (animationTimeMs % 2000.0) / 2000.0;
                 if (t < 0.12) yield (float) Math.sin(Math.PI * t / 0.12);
                 else if (t > 0.22 && t < 0.34) yield (float) Math.sin(Math.PI * (t - 0.22) / 0.12) * 0.7f;
                 yield 0f;
             }
             case "orbit" -> {
-                double t = (double) (nowMs % 4000L) / 4000L;
+                double t = (animationTimeMs % 4000.0) / 4000.0;
                 float center = (float) (0.5 + 0.4 * Math.sin(2.0 * Math.PI * t));
                 float ledPos = (float) i / zoneCount;
                 float dist = Math.abs(ledPos - center);
@@ -328,7 +331,7 @@ public class GlyphRenderer {
                     colHash = colHash - (long) colHash;
 
                     double speed = 0.1 + colHash * 0.2;
-                    double time = nowMs * speed * 0.05;
+                    double time = animationTimeMs * speed * 0.05;
                     double dropY = time % (height + 20); // 20 units of padding between drops
 
                     double dist = y - dropY;
@@ -345,7 +348,7 @@ public class GlyphRenderer {
                     // Each zone has a different period and offset for natural look
                     double period = 2500.0 + zoneHash * 4500.0;
                     double offset = zoneHash * 10000.0;
-                    double t = ((nowMs + offset) % period) / period;
+                    double t = ((animationTimeMs + offset) % period) / period;
 
                     // Pulse active during the first 15% of its period
                     if (t < 0.15) {
@@ -355,7 +358,7 @@ public class GlyphRenderer {
                 }
             }
             default -> {
-                double timeProg = (double) (nowMs % 3000L) / 3000L;
+                double timeProg = (animationTimeMs % 3000.0) / 3000.0;
                 float phaseShift = (float) i * 0.02f;
                 yield (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * (timeProg + phaseShift) - Math.PI / 2.0));
             }

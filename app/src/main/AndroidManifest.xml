@@ -85,6 +85,29 @@
                 android:value="true" />
         </service>
 
+        <service
+            android:name=".service.IdleBreathingService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Glyph idle breathing animation" />
+        </service>
+
+        <service
+            android:name=".service.IdleBreathingTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_qs_tile_idle"
+            android:label="@string/idle_breathing_title"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.ACTIVE_TILE"
+                android:value="true" />
+        </service>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

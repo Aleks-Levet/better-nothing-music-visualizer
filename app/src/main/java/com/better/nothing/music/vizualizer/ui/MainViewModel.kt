@@ -1394,6 +1394,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    val _idleAnimationSpeed = MutableStateFlow(1.0f)
+    val idleAnimationSpeed = _idleAnimationSpeed.asStateFlow()
+
+    fun setIdleAnimationSpeed(value: Float) {
+        val clampedValue = value.coerceIn(0.5f, 2.0f)
+        _idleAnimationSpeed.value = clampedValue
+        MainActivity.serviceStatic?.setIdleAnimationSpeed(clampedValue)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("idle_animation_speed", clampedValue) }
+        }
+    }
+
 
     val _musicThemeColor = MutableStateFlow(Color(0xFFD71921))
     val musicThemeColor = _musicThemeColor.asStateFlow()
@@ -1445,7 +1458,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 put("total_broadcasting_time", _totalBroadcastingTime.value)
                 put("total_overlay_time", _totalOverlayTime.value)
             }
-            android.util.Base64.encodeToString(json.toString().toByteArray(), android.util.Base64.DEFAULT)
+            q7(json.toString())
         } catch (e: Exception) {
             null
         }
@@ -1453,7 +1466,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun importStatsFromBase64(base64: String): Boolean {
         return try {
-            val jsonString = String(android.util.Base64.decode(base64, android.util.Base64.DEFAULT))
+            val jsonString = w2(base64)
             val json = JSONObject(jsonString)
             
             _totalVisualizedTime.value = json.optLong("total_visualized_time", 0L)
@@ -1470,6 +1483,31 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         } catch (e: Exception) {
             false
         }
+    }
+
+    private fun q7(value: String): String {
+        var result = value
+        repeat(5) {
+            result = android.util.Base64.encodeToString(
+                result.toByteArray(Charsets.UTF_8),
+                android.util.Base64.NO_WRAP
+            ).map { (it.code + 3).toChar() }.joinToString("")
+        }
+        return result
+    }
+
+    private fun w2(value: String): String {
+        var result = value
+        repeat(5) {
+            result = String(
+                android.util.Base64.decode(
+                    result.map { (it.code - 3).toChar() }.joinToString(""),
+                    android.util.Base64.NO_WRAP
+                ),
+                Charsets.UTF_8
+            )
+        }
+        return result
     }
 
     val _favoritePresets = MutableStateFlow<Set<String>>(emptySet())
@@ -2491,6 +2529,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _idlePattern.value = get("idle_pattern", "pulse")
         _idleBrightness.value = get("idle_brightness", 0.4f)
         _idleBackgroundBrightness.value = get("idle_background_brightness", 0.02f)
+        _idleAnimationSpeed.value = get("idle_animation_speed", 1.0f).coerceIn(0.5f, 2.0f)
         _overlayEnabled.value = get("overlay_enabled", false)
         _overlayTopEnabled.value = get("overlay_top_enabled", true)
         _overlayBottomEnabled.value = get("overlay_bottom_enabled", false)

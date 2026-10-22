@@ -139,6 +139,7 @@
     <string name="idle_pattern_rain">Rain</string>
     <string name="idle_pulse_brightness">Pulse Brightness: %d%%</string>
     <string name="idle_background_brightness">Background Brightness: %d%%</string>
+    <string name="idle_animation_speed">Animation Speed: %.1fx</string>
     <string name="cancel">Cancel</string>
     <string name="back">Back</string>
     <string name="frequency_range_label">Frequency Range: %1$dHz - %2$dHz</string>
