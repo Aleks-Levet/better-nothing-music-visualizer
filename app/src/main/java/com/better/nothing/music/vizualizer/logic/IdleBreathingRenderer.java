@@ -19,6 +19,16 @@ public final class IdleBreathingRenderer {
     private long mLastFrameMs;
     private float mBreathingEnvelope;
     private float[] mStandaloneState = new float[0];
+    private int[] mStandaloneColors = new int[0];
+    private int mCachedDeviceType = DeviceProfile.DEVICE_UNKNOWN;
+    private int mCachedZoneCount = -1;
+    private int mMatrixWidth;
+    private int mMatrixHeight;
+    private int[] mEffectiveIndices = new int[0];
+    private float[] mZonePositions = new float[0];
+    private double[] mRainParameters = new double[0];
+    private double[] mRainPeriods = new double[0];
+    private double[] mRainOffsets = new double[0];
 
     public IdleBreathingRenderer(int deviceType, boolean enabled) {
         mDeviceType = deviceType;
@@ -32,6 +42,7 @@ public final class IdleBreathingRenderer {
 
     public void setDeviceType(int deviceType) {
         mDeviceType = deviceType;
+        mCachedZoneCount = -1;
     }
 
     public void start(long nowMs) {
@@ -74,6 +85,9 @@ public final class IdleBreathingRenderer {
     }
 
     public void apply(float[] state, boolean[] alwaysOnZones, long nowMs, boolean isSilent) {
+        int zoneCount = state.length;
+        ensureZoneCache(zoneCount);
+
         long deltaMs = mLastFrameMs > 0 ? nowMs - mLastFrameMs : 16;
         mLastFrameMs = nowMs;
 
@@ -96,20 +110,47 @@ public final class IdleBreathingRenderer {
 
         if (mBreathingEnvelope <= 0.01f) return;
 
-        int zoneCount = state.length;
-        for (int i = 0; i < zoneCount; i++) {
-            int effectiveIndex = i;
-            if (mDeviceType == DeviceProfile.DEVICE_NP3A) {
-                if (i >= 20 && i <= 30) {
-                    effectiveIndex = i - 20;
-                } else if (i >= 31 && i <= 35) {
-                    effectiveIndex = 11 + (i - 31);
-                } else if (i >= 0 && i <= 19) {
-                    effectiveIndex = 16 + i;
+        double animationTimeMs = nowMs * mAnimationSpeed;
+        String pattern = mPattern;
+        double frameTime = 0.0;
+        float sharedValue = 0f;
+        float frameCenter = 0f;
+        switch (pattern) {
+            case "static" -> { }
+            case "pulse" -> {
+                frameTime = (animationTimeMs % 3000.0) / 3000.0;
+                sharedValue = (float) (0.5 + 0.5
+                        * Math.sin(2.0 * Math.PI * frameTime - Math.PI / 2.0));
+            }
+            case "wave" -> frameTime = (animationTimeMs % 2000.0) / 2000.0;
+            case "scanner" -> {
+                frameTime = (animationTimeMs % 2500.0) / 2500.0;
+                frameCenter = (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * frameTime));
+            }
+            case "zebra" -> {
+                frameTime = (animationTimeMs % 1500.0) / 1500.0;
+                sharedValue = (float) Math.sin(2.0 * Math.PI * frameTime);
+            }
+            case "heartbeat" -> {
+                frameTime = (animationTimeMs % 2000.0) / 2000.0;
+                if (frameTime < 0.12) {
+                    sharedValue = (float) Math.sin(Math.PI * frameTime / 0.12);
+                } else if (frameTime > 0.22 && frameTime < 0.34) {
+                    sharedValue = (float) Math.sin(
+                            Math.PI * (frameTime - 0.22) / 0.12) * 0.7f;
                 }
             }
-
-            float intensity = getIntensity(effectiveIndex, zoneCount, nowMs);
+            case "orbit" -> {
+                frameTime = (animationTimeMs % 4000.0) / 4000.0;
+                frameCenter = (float) (0.5 + 0.4 * Math.sin(2.0 * Math.PI * frameTime));
+            }
+            case "rain" -> { }
+            default -> frameTime = (animationTimeMs % 3000.0) / 3000.0;
+        }
+        for (int i = 0; i < zoneCount; i++) {
+            float intensity = getIntensity(
+                    pattern, mEffectiveIndices[i], i, frameTime, frameCenter, sharedValue,
+                    mZonePositions[i], animationTimeMs);
             float breathValue = (mBackgroundBrightness
                     + intensity * (mBrightness - mBackgroundBrightness)) * mBreathingEnvelope;
 
@@ -126,90 +167,113 @@ public final class IdleBreathingRenderer {
     }
 
     public int[] renderFrame(int zoneCount, int maxBrightness, long nowMs) {
+        return renderFrame(zoneCount, maxBrightness, nowMs, 1f);
+    }
+
+    public int[] renderFrame(int zoneCount, int maxBrightness, long nowMs, float fadeMultiplier) {
         if (zoneCount <= 0) return new int[0];
         if (mStandaloneState.length != zoneCount) {
             mStandaloneState = new float[zoneCount];
-        } else {
-            Arrays.fill(mStandaloneState, 0f);
         }
+        Arrays.fill(mStandaloneState, 0f);
+        if (mStandaloneColors.length != zoneCount) mStandaloneColors = new int[zoneCount];
 
         apply(mStandaloneState, null, nowMs, true);
-        int[] colors = new int[zoneCount];
         for (int i = 0; i < zoneCount; i++) {
-            colors[i] = Math.max(0, Math.min(4095,
-                    Math.round(mStandaloneState[i] * maxBrightness)));
+            mStandaloneColors[i] = Math.max(0, Math.min(4095,
+                    Math.round(mStandaloneState[i] * maxBrightness * fadeMultiplier)));
         }
-        return colors;
+        return mStandaloneColors;
     }
 
-    private float getIntensity(int index, int zoneCount, long nowMs) {
-        double animationTimeMs = nowMs * mAnimationSpeed;
-        return switch (mPattern) {
-            case "pulse" -> {
-                double time = (animationTimeMs % 3000.0) / 3000.0;
-                yield (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * time - Math.PI / 2.0));
+    private void ensureZoneCache(int zoneCount) {
+        if (mCachedDeviceType == mDeviceType && mCachedZoneCount == zoneCount) return;
+
+        mCachedDeviceType = mDeviceType;
+        mCachedZoneCount = zoneCount;
+        mMatrixWidth = DeviceProfile.getMatrixWidth(mDeviceType);
+        mMatrixHeight = DeviceProfile.getMatrixHeight(mDeviceType);
+        mEffectiveIndices = new int[zoneCount];
+        mZonePositions = new float[zoneCount];
+        mRainParameters = new double[zoneCount];
+        mRainPeriods = new double[zoneCount];
+        mRainOffsets = new double[zoneCount];
+
+        for (int i = 0; i < zoneCount; i++) {
+            int effectiveIndex = i;
+            if (mDeviceType == DeviceProfile.DEVICE_NP3A) {
+                if (i >= 20 && i <= 30) {
+                    effectiveIndex = i - 20;
+                } else if (i >= 31 && i <= 35) {
+                    effectiveIndex = 11 + (i - 31);
+                } else if (i <= 19) {
+                    effectiveIndex = 16 + i;
+                }
             }
-            case "wave" -> {
-                double time = (animationTimeMs % 2000.0) / 2000.0;
-                float phase = (float) index / zoneCount;
-                yield (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * (time - phase)));
+            mEffectiveIndices[i] = effectiveIndex;
+            mZonePositions[i] = (float) effectiveIndex / zoneCount;
+
+            if (mMatrixWidth > 0) {
+                int x = effectiveIndex % mMatrixWidth;
+                double hash = Math.abs(Math.sin(x * 12.9898 + 7.23)) * 43758.5453;
+                hash -= (long) hash;
+                mRainParameters[i] = 0.1 + hash * 0.2;
+            } else {
+                double hash = Math.abs(Math.sin(effectiveIndex * 43.123 + 9.87)) * 1234.56;
+                hash -= (long) hash;
+                mRainParameters[i] = hash;
+                mRainPeriods[i] = 2500.0 + hash * 4500.0;
+                mRainOffsets[i] = hash * 10000.0;
             }
+        }
+    }
+
+    private float getIntensity(
+            String pattern,
+            int index,
+            int zoneSlot,
+            double frameTime,
+            float frameCenter,
+            float sharedValue,
+            float position,
+            double animationTimeMs) {
+        return switch (pattern) {
+            case "static" -> 1f;
+            case "pulse" -> sharedValue;
+            case "wave" ->
+                    (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * (frameTime - position)));
             case "scanner" -> {
-                double time = (animationTimeMs % 2500.0) / 2500.0;
-                float scannerPosition = (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * time));
-                float distance = Math.abs((float) index / zoneCount - scannerPosition);
+                float distance = Math.abs(position - frameCenter);
                 yield (float) Math.exp(-distance * distance * 40.0);
             }
-            case "zebra" -> {
-                double time = (animationTimeMs % 1500.0) / 1500.0;
-                double value = Math.sin(2.0 * Math.PI * time);
-                yield index % 2 == 0 ? (float) (0.5 + 0.5 * value) : (float) (0.5 - 0.5 * value);
-            }
-            case "heartbeat" -> {
-                double time = (animationTimeMs % 2000.0) / 2000.0;
-                if (time < 0.12) yield (float) Math.sin(Math.PI * time / 0.12);
-                if (time > 0.22 && time < 0.34) {
-                    yield (float) Math.sin(Math.PI * (time - 0.22) / 0.12) * 0.7f;
-                }
-                yield 0f;
-            }
+            case "zebra" -> index % 2 == 0
+                    ? (float) (0.5 + 0.5 * sharedValue)
+                    : (float) (0.5 - 0.5 * sharedValue);
+            case "heartbeat" -> sharedValue;
             case "orbit" -> {
-                double time = (animationTimeMs % 4000.0) / 4000.0;
-                float center = (float) (0.5 + 0.4 * Math.sin(2.0 * Math.PI * time));
-                float distance = Math.abs((float) index / zoneCount - center);
+                float distance = Math.abs(position - frameCenter);
                 if (distance > 0.5f) distance = 1f - distance;
                 yield (float) Math.exp(-distance * distance * 80.0);
             }
-            case "rain" -> getRainIntensity(index, zoneCount, animationTimeMs);
-            default -> {
-                double time = (animationTimeMs % 3000.0) / 3000.0;
-                float phase = index * 0.02f;
-                yield (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * (time + phase) - Math.PI / 2.0));
-            }
+            case "rain" -> getRainIntensity(zoneSlot, index, animationTimeMs);
+            default -> (float) (0.5 + 0.5 * Math.sin(
+                    2.0 * Math.PI * (frameTime + index * 0.02f) - Math.PI / 2.0));
         };
     }
 
-    private float getRainIntensity(int index, int zoneCount, double animationTimeMs) {
-        int width = DeviceProfile.getMatrixWidth(mDeviceType);
-        if (width > 0) {
-            int height = DeviceProfile.getMatrixHeight(mDeviceType);
-            int x = index % width;
-            int y = index / width;
-            double columnHash = Math.abs(Math.sin(x * 12.9898 + 7.23)) * 43758.5453;
-            columnHash -= (long) columnHash;
-            double speed = 0.1 + columnHash * 0.2;
-            double dropY = animationTimeMs * speed * 0.05 % (height + 20);
+    private float getRainIntensity(int zoneSlot, int effectiveIndex, double animationTimeMs) {
+        if (mMatrixWidth > 0) {
+            int y = effectiveIndex / mMatrixWidth;
+            double dropY = animationTimeMs * mRainParameters[zoneSlot] * 0.05
+                    % (mMatrixHeight + 20);
             double distance = y - dropY;
             return distance <= 0 && distance > -8
                     ? (float) Math.pow((8.0 + distance) / 8.0, 2.0)
                     : 0f;
         }
 
-        double hash = Math.abs(Math.sin(index * 43.123 + 9.87)) * 1234.56;
-        hash -= (long) hash;
-        double period = 2500.0 + hash * 4500.0;
-        double offset = hash * 10000.0;
-        double time = (animationTimeMs + offset) % period / period;
+        double time = (animationTimeMs + mRainOffsets[zoneSlot]) % mRainPeriods[zoneSlot]
+                / mRainPeriods[zoneSlot];
         return time < 0.15 ? (float) Math.pow(Math.sin(Math.PI * time / 0.15), 3.0) : 0f;
     }
 }

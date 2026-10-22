@@ -131,6 +131,7 @@
     <string name="update_now">Update Now</string>
 
     <string name="idle_pattern">Idle Pattern</string>
+    <string name="idle_pattern_static">Static</string>
     <string name="idle_pattern_pulse">Pulse</string>
     <string name="idle_pattern_wave">Wave</string>
     <string name="idle_pattern_cylon">Cylon</string>

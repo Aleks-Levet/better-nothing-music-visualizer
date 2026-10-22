@@ -12,8 +12,9 @@ import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Looper;
+import android.os.Process;
 import android.os.SystemClock;
 import android.service.quicksettings.TileService;
 import android.util.Log;
@@ -42,24 +43,30 @@ public class IdleBreathingService extends Service {
             "com.better.nothing.music.vizualizer.action.IDLE_STOP";
     private static final long FADE_DURATION_MS = 500L;
     private static final String[] IDLE_PATTERNS = {
-            "pulse", "wave", "rain", "zebra", "orbit", "heartbeat", "scanner"
+            "static", "pulse", "wave", "rain", "zebra", "orbit", "heartbeat", "scanner"
     };
     private static volatile boolean sActive;
 
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private HandlerThread mAnimationThread;
+    private Handler mHandler;
     private final SharedPreferences.OnSharedPreferenceChangeListener mSettingsListener =
             this::onSettingsChanged;
     private volatile boolean mStopping;
+    private volatile boolean mCaptureShouldBeRunning;
     private int mDeviceType = DeviceProfile.DEVICE_UNKNOWN;
-    private boolean mSessionOpen;
-    private boolean mMatrixConnected;
-    private boolean mFadeOutStarted;
+    private volatile boolean mSessionOpen;
+    private volatile boolean mMatrixConnected;
+    private volatile boolean mFadeOutStarted;
     private boolean mFadeInStarted;
-    private long mFadeStartUptimeMs;
-    private GlyphManager mGlyphManager;
-    private GlyphMatrixManager mMatrixManager;
-    private IdleBreathingRenderer mRenderer;
-    private int mMaxBrightness;
+    private volatile long mFadeStartUptimeMs;
+    private volatile GlyphManager mGlyphManager;
+    private volatile GlyphMatrixManager mMatrixManager;
+    private volatile IdleBreathingRenderer mRenderer;
+    private volatile int mMaxBrightness;
+    private int mLedCount;
+    private boolean mMatrixDevice;
+    private int[] mLastFrameColors;
+    private boolean mHasLastFrameColors;
     private long mFrameEpochUptimeMs;
     private long mNextFrameNumber;
 
@@ -67,35 +74,35 @@ public class IdleBreathingService extends Service {
         @Override
         public void run() {
             if (mStopping) return;
-            if (AudioCaptureService.isRunning()
-                    || getSharedPreferences("viz_prefs", MODE_PRIVATE).getBoolean("should_be_running", false)) {
+            if (AudioCaptureService.isRunning() || mCaptureShouldBeRunning) {
                 beginFadeOut();
             }
 
+            float fadeMultiplier = getFadeMultiplier();
             if (mSessionOpen && mRenderer != null) {
                 int[] colors = mRenderer.renderFrame(
-                        DeviceProfile.getLedCount(mDeviceType),
+                        mLedCount,
                         mMaxBrightness,
-                        SystemClock.elapsedRealtime());
-                float fadeMultiplier = getFadeMultiplier();
-                for (int i = 0; i < colors.length; i++) {
-                    colors[i] = Math.round(colors[i] * fadeMultiplier);
-                }
-                try {
-                    if (DeviceProfile.getMatrixWidth(mDeviceType) > 0) {
-                        if (mMatrixConnected && mMatrixManager != null) {
+                        SystemClock.elapsedRealtime(),
+                        fadeMultiplier);
+                boolean canSendFrame = mMatrixDevice
+                        ? mMatrixConnected && mMatrixManager != null
+                        : mGlyphManager != null;
+                if (canSendFrame && frameChanged(colors)) {
+                    try {
+                        if (mMatrixDevice) {
                             mMatrixManager.setAppMatrixFrame(colors);
+                        } else if (mGlyphManager != null) {
+                            mGlyphManager.setFrameColors(colors);
                         }
-                    } else if (mGlyphManager != null) {
-                        mGlyphManager.setFrameColors(colors);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Failed to update idle Glyph frame", e);
+                        stopSelf();
+                        return;
                     }
-                } catch (Exception e) {
-                    Log.e(TAG, "Failed to update idle Glyph frame", e);
-                    stopSelf();
-                    return;
                 }
             }
-            if (mFadeOutStarted && getFadeMultiplier() <= 0f) {
+            if (mFadeOutStarted && fadeMultiplier <= 0f) {
                 stopSelf();
                 return;
             }
@@ -164,25 +171,48 @@ public class IdleBreathingService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        getSharedPreferences("viz_prefs", MODE_PRIVATE)
-                .registerOnSharedPreferenceChangeListener(mSettingsListener);
+        mAnimationThread = new HandlerThread(
+                "IdleBreathing", Process.THREAD_PRIORITY_DISPLAY);
+        mAnimationThread.start();
+        mHandler = new Handler(mAnimationThread.getLooper());
+        SharedPreferences prefs = getSharedPreferences("viz_prefs", MODE_PRIVATE);
+        mCaptureShouldBeRunning = prefs.getBoolean("should_be_running", false);
+        prefs.registerOnSharedPreferenceChangeListener(mSettingsListener);
     }
 
     private void onSettingsChanged(SharedPreferences prefs, String key) {
+        if ("should_be_running".equals(key)) {
+            mCaptureShouldBeRunning = prefs.getBoolean("should_be_running", false);
+            return;
+        }
         if (mRenderer == null) return;
 
         switch (key) {
             case "idle_pattern" -> {
-                mRenderer.setPattern(prefs.getString("idle_pattern", "pulse"));
+                String pattern = prefs.getString("idle_pattern", "pulse");
+                mHandler.post(() -> {
+                    if (mRenderer != null) mRenderer.setPattern(pattern);
+                });
                 refreshNotification(prefs);
             }
-            case "idle_brightness" ->
-                    mRenderer.setBrightness(prefs.getFloat("idle_brightness", 0.4f));
-            case "idle_background_brightness" ->
-                    mRenderer.setBackgroundBrightness(
-                            prefs.getFloat("idle_background_brightness", 0.02f));
-            case "idle_animation_speed" ->
-                    mRenderer.setAnimationSpeed(prefs.getFloat("idle_animation_speed", 1.0f));
+            case "idle_brightness" -> {
+                float brightness = prefs.getFloat("idle_brightness", 0.4f);
+                mHandler.post(() -> {
+                    if (mRenderer != null) mRenderer.setBrightness(brightness);
+                });
+            }
+            case "idle_background_brightness" -> {
+                float brightness = prefs.getFloat("idle_background_brightness", 0.02f);
+                mHandler.post(() -> {
+                    if (mRenderer != null) mRenderer.setBackgroundBrightness(brightness);
+                });
+            }
+            case "idle_animation_speed" -> {
+                float speed = prefs.getFloat("idle_animation_speed", 1.0f);
+                mHandler.post(() -> {
+                    if (mRenderer != null) mRenderer.setAnimationSpeed(speed);
+                });
+            }
             case "max_brightness" -> {
                 int brightness = prefs.getInt("max_brightness", 4095);
                 if (brightness <= 0) {
@@ -215,6 +245,10 @@ public class IdleBreathingService extends Service {
             return false;
         }
 
+        mLedCount = count;
+        mMatrixDevice = DeviceProfile.getMatrixWidth(mDeviceType) > 0;
+        mLastFrameColors = new int[count];
+        mHasLastFrameColors = false;
         mMaxBrightness = Math.max(50, Math.min(5000, brightness));
         mRenderer = new IdleBreathingRenderer(mDeviceType, true);
         mRenderer.setPattern(prefs.getString("idle_pattern", "pulse"));
@@ -224,6 +258,26 @@ public class IdleBreathingService extends Service {
         mRenderer.start(SystemClock.elapsedRealtime());
 
         return initializeGlyphManagers();
+    }
+
+    private boolean frameChanged(int[] colors) {
+        if (mLastFrameColors == null || mLastFrameColors.length != colors.length) {
+            mLastFrameColors = new int[colors.length];
+            mHasLastFrameColors = false;
+        }
+        if (mHasLastFrameColors) {
+            for (int i = 0; i < colors.length; i++) {
+                if (colors[i] != mLastFrameColors[i]) {
+                    System.arraycopy(colors, 0, mLastFrameColors, 0, colors.length);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        System.arraycopy(colors, 0, mLastFrameColors, 0, colors.length);
+        mHasLastFrameColors = true;
+        return true;
     }
 
     @Override
@@ -283,7 +337,11 @@ public class IdleBreathingService extends Service {
         int nextIndex = (currentIndex + direction + IDLE_PATTERNS.length) % IDLE_PATTERNS.length;
         String nextPattern = IDLE_PATTERNS[nextIndex];
         prefs.edit().putString("idle_pattern", nextPattern).apply();
-        if (mRenderer != null) mRenderer.setPattern(nextPattern);
+        if (mRenderer != null) {
+            mHandler.post(() -> {
+                if (mRenderer != null) mRenderer.setPattern(nextPattern);
+            });
+        }
 
         refreshNotification(prefs);
     }
@@ -368,6 +426,7 @@ public class IdleBreathingService extends Service {
 
     private String getPatternLabel(String pattern) {
         int labelResource = switch (pattern) {
+            case "static" -> R.string.idle_pattern_static;
             case "wave" -> R.string.idle_pattern_wave;
             case "rain" -> R.string.idle_pattern_rain;
             case "zebra" -> R.string.idle_pattern_zebra;
@@ -398,7 +457,7 @@ public class IdleBreathingService extends Service {
     }
 
     private void maybeStartAnimation() {
-        if (!mSessionOpen || (DeviceProfile.getMatrixWidth(mDeviceType) > 0 && !mMatrixConnected)) return;
+        if (!mSessionOpen || (mMatrixDevice && !mMatrixConnected)) return;
         mHandler.removeCallbacks(mFrameRunnable);
         if (!mFadeInStarted) {
             mFadeStartUptimeMs = SystemClock.uptimeMillis();
@@ -417,7 +476,7 @@ public class IdleBreathingService extends Service {
                 : Math.min(1f, Math.max(0f, progress));
     }
 
-    private void beginFadeOut() {
+    private synchronized void beginFadeOut() {
         if (mFadeOutStarted) return;
         mFadeOutStarted = true;
         mFadeStartUptimeMs = SystemClock.uptimeMillis();
@@ -471,6 +530,15 @@ public class IdleBreathingService extends Service {
         mHandler.removeCallbacks(mStopAfterFadeRunnable);
         getSharedPreferences("viz_prefs", MODE_PRIVATE)
                 .unregisterOnSharedPreferenceChangeListener(mSettingsListener);
+        mHandler.post(this::closeGlyphManagers);
+        mAnimationThread.quitSafely();
+        sActive = false;
+        stopForeground(STOP_FOREGROUND_REMOVE);
+        requestTileRefresh();
+        super.onDestroy();
+    }
+
+    private void closeGlyphManagers() {
         if (mSessionOpen && mGlyphManager != null) {
             try {
                 int count = DeviceProfile.getLedCount(mDeviceType);
@@ -501,10 +569,6 @@ public class IdleBreathingService extends Service {
                 Log.e(TAG, "Failed to release Glyph Matrix manager", e);
             }
         }
-        sActive = false;
-        stopForeground(STOP_FOREGROUND_REMOVE);
-        requestTileRefresh();
-        super.onDestroy();
     }
 
     @Override
