@@ -320,7 +320,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val _edgeStyle = MutableStateFlow(VisualizerStyle.BARS)
+    private val _edgeStyle = MutableStateFlow(VisualizerStyle.GLOW)
     val edgeStyle = _edgeStyle.asStateFlow()
     fun setEdgeStyle(style: VisualizerStyle) {
         _edgeStyle.value = style
@@ -559,7 +559,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val _edgeBarCountHoriz = MutableStateFlow(20)
+    private val _edgeBarCountHoriz = MutableStateFlow(45)
     val edgeBarCountHoriz = _edgeBarCountHoriz.asStateFlow()
     fun setEdgeBarCountHoriz(count: Int) {
         _edgeBarCountHoriz.value = count
@@ -570,7 +570,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val _edgeBarCountVert = MutableStateFlow(40)
+    private val _edgeBarCountVert = MutableStateFlow(45)
     val edgeBarCountVert = _edgeBarCountVert.asStateFlow()
     fun setEdgeBarCountVert(count: Int) {
         _edgeBarCountVert.value = count
@@ -594,7 +594,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val _edgeCornerRadius = MutableStateFlow(2f)
+    private val _edgeCornerRadius = MutableStateFlow(0f)
     val edgeCornerRadius = _edgeCornerRadius.asStateFlow()
     fun setEdgeCornerRadius(radius: Float) {
         _edgeCornerRadius.value = radius
@@ -2567,9 +2567,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _edgeThickness.value = get("edge_thickness", 12)
         _edgeSensitivity.value = get("edge_sensitivity", 1.0f)
         _edgeGlowBlurRadius.value = get("edge_glow_blur_radius", 24f)
-        _edgeBarCountHoriz.value = get("edge_bar_count_horiz", 20)
-        _edgeBarCountVert.value = get("edge_bar_count_vert", 40)
-        _edgeCornerRadius.value = get("edge_corner_radius", 2f)
+        _edgeBarCountHoriz.value = get("edge_bar_count_horiz", 45)
+        _edgeBarCountVert.value = get("edge_bar_count_vert", 45)
+        _edgeCornerRadius.value = get("edge_corner_radius", 0f)
         _edgeTopEnabled.value = get("edge_top_enabled", true)
         _edgeBottomEnabled.value = get("edge_bottom_enabled", true)
         _edgeColor.value = Color(get("edge_color", Color.White.toArgb()))
@@ -2592,7 +2592,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _highQualityAnalysis.value = get("high_quality_analysis", false)
         _onScreenVisualizersEnabled.value = get("on_screen_visualizers_enabled", false)
         _overlayStyle.value = safeValueOf(get("overlay_style", ""), VisualizerStyle.BARS)
-        _edgeStyle.value = safeValueOf(get("edge_style", ""), VisualizerStyle.BARS)
+        _edgeStyle.value = safeValueOf(get("edge_style", ""), VisualizerStyle.GLOW)
         _lensStyle.value = safeValueOf(get("lens_style", ""), VisualizerStyle.BARS)
         _roundedBarsEnabled.value = get("rounded_bars_enabled", false)
 

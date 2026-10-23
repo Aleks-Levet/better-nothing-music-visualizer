@@ -361,15 +361,15 @@ public class AudioCaptureService extends Service {
     private float mOverlayOpacity = 1.0f;
     public boolean mRoundedBarsEnabled = false;
     private VisualizerStyle mOverlayStyle = VisualizerStyle.BARS;
-    private VisualizerStyle mEdgeStyle = VisualizerStyle.BARS;
+    private VisualizerStyle mEdgeStyle = VisualizerStyle.GLOW;
     private VisualizerStyle mLensStyle = VisualizerStyle.BARS;
 
     private int mEdgeThickness = 12;
     private float mEdgeSensitivity = 1.0f;
     private float mEdgeGlowBlurRadius = 24f;
-    private int mEdgeBarCountHoriz = 20;
-    private int mEdgeBarCountVert = 40;
-    private float mEdgeCornerRadius = 2f;
+    private int mEdgeBarCountHoriz = 45;
+    private int mEdgeBarCountVert = 45;
+    private float mEdgeCornerRadius = 0f;
     private boolean mEdgeTopEnabled = true;
     private boolean mEdgeBottomEnabled = true;
     private int mEdgeColor = android.graphics.Color.WHITE;
@@ -640,11 +640,11 @@ public class AudioCaptureService extends Service {
         mRoundedBarsEnabled = appPrefs.getBoolean("rounded_bars_enabled", false);
         try {
             mOverlayStyle = VisualizerStyle.valueOf(appPrefs.getString("overlay_style", VisualizerStyle.BARS.name()));
-            mEdgeStyle = VisualizerStyle.valueOf(appPrefs.getString("edge_style", VisualizerStyle.BARS.name()));
+            mEdgeStyle = VisualizerStyle.valueOf(appPrefs.getString("edge_style", VisualizerStyle.GLOW.name()));
             mLensStyle = VisualizerStyle.valueOf(appPrefs.getString("lens_style", VisualizerStyle.BARS.name()));
         } catch (Exception e) {
             mOverlayStyle = VisualizerStyle.BARS;
-            mEdgeStyle = VisualizerStyle.BARS;
+            mEdgeStyle = VisualizerStyle.GLOW;
             mLensStyle = VisualizerStyle.BARS;
         }
         mOverlayWidth = getSafeInt(appPrefs, "overlay_width", 120);
