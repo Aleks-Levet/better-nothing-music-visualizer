@@ -71,6 +71,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
@@ -923,25 +924,36 @@ internal fun BetterVizApp(
                                 .horizontalScroll(scrollState)
                                 .pointerInput(scrollState) {
                                     awaitEachGesture {
-                                        val down = awaitFirstDown(requireUnconsumed = false)
-                                        if (down.type != PointerType.Mouse) {
+                                        val down = awaitFirstDown(
+                                            requireUnconsumed = false,
+                                            pass = PointerEventPass.Final
+                                        )
+                                        if (down.type != PointerType.Mouse || down.isConsumed) {
                                             return@awaitEachGesture
                                         }
 
                                         var previousX = down.position.x
                                         var dragging = false
                                         while (true) {
-                                            val event = awaitPointerEvent()
+                                            val event = awaitPointerEvent(PointerEventPass.Final)
                                             val change = event.changes.firstOrNull { it.id == down.id } ?: break
                                             if (!change.pressed) break
+                                            if (change.isConsumed) break
 
                                             val deltaX = change.position.x - previousX
                                             previousX = change.position.x
-                                            if (!dragging && kotlin.math.abs(change.position.x - down.position.x) > viewConfiguration.touchSlop) {
-                                                dragging = true
+                                            if (!dragging) {
+                                                val deltaY = change.position.y - down.position.y
+                                                if (kotlin.math.abs(deltaY) > viewConfiguration.touchSlop &&
+                                                    kotlin.math.abs(deltaY) > kotlin.math.abs(change.position.x - down.position.x)
+                                                ) {
+                                                    break
+                                                }
+                                                if (kotlin.math.abs(change.position.x - down.position.x) > viewConfiguration.touchSlop) {
+                                                    dragging = true
+                                                }
                                             }
                                             if (dragging) {
-                                                change.consume()
                                                 scrollState.dispatchRawDelta(-deltaX)
                                             }
                                         }
