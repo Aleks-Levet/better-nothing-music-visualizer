@@ -6,39 +6,39 @@ plugins {
 }
 
 android {
-    namespace 'com.better.nothing.music.vizualizer'
-    compileSdk 37
+    namespace = 'com.better.nothing.music.vizualizer'
+    compileSdk = 37
 
     defaultConfig {
-        applicationId "com.better.nothing.music.vizualizer"
-        minSdk 26
-        targetSdk 37
-        versionCode 18
-        versionName '4.1'
+        applicationId = "com.better.nothing.music.vizualizer"
+        minSdk = 26
+        targetSdk = 37
+        versionCode = 19
+        versionName = '4.1'
     }
 
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            debuggable true
+            debuggable = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            applicationIdSuffix ".debug"
-            versionNameSuffix '.debug'
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = '.debug'
         }
     }
 
     buildFeatures {
-        compose true
-        buildConfig true
+        compose = true
+        buildConfig = true
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlin {
