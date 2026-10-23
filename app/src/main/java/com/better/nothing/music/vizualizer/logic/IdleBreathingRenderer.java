@@ -1,7 +1,6 @@
 package com.better.nothing.music.vizualizer.logic;
 
 import android.os.SystemClock;
-import android.util.MathUtils;
 
 import com.better.nothing.music.vizualizer.model.DeviceProfile;
 
@@ -491,7 +490,7 @@ public final class IdleBreathingRenderer {
     }
 
     private static float sin(float value) {
-        return MathUtils.sin(value);
+        return (float) Math.sin(value);
     }
 
     private static float cycleProgress(float timeMs, float reciprocalPeriod) {
