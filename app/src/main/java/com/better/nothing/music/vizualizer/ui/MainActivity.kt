@@ -37,6 +37,9 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Box
@@ -70,6 +73,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.input.pointer.consume
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalView
@@ -917,7 +924,34 @@ internal fun BetterVizApp(
                     .padding(padding)
                     .then(
                         if (tabletTabWidth > 0) {
-                            Modifier.horizontalScroll(scrollState)
+                            Modifier
+                                .horizontalScroll(scrollState)
+                                .pointerInput(scrollState) {
+                                    awaitEachGesture {
+                                        val down = awaitFirstDown(requireUnconsumed = false)
+                                        if (down.type != PointerType.Mouse) {
+                                            return@awaitEachGesture
+                                        }
+
+                                        var previousX = down.position.x
+                                        var dragging = false
+                                        while (true) {
+                                            val event = awaitPointerEvent()
+                                            val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                                            if (!change.pressed) break
+
+                                            val deltaX = change.position.x - previousX
+                                            previousX = change.position.x
+                                            if (!dragging && kotlin.math.abs(change.position.x - down.position.x) > viewConfiguration.touchSlop) {
+                                                dragging = true
+                                            }
+                                            if (dragging) {
+                                                change.consume()
+                                                scrollState.scrollBy(-deltaX)
+                                            }
+                                        }
+                                    }
+                                }
                         } else {
                             Modifier
                         }
