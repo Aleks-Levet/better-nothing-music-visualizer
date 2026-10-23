@@ -10,3 +10,4 @@ app/build/
 app/build/outputs/*
 app/build/outputs/
 app/build/outputs/apk/
+.kotlin/
