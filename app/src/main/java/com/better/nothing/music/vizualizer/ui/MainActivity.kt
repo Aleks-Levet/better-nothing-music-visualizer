@@ -39,7 +39,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Box
@@ -54,7 +53,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -238,7 +236,7 @@ class MainActivity : AppCompatActivity() {
         if (isTrampoline) {
             setTheme(R.style.Theme_Transparent)
             if (Build.VERSION.SDK_INT >= 34) {
-                overrideActivityTransition(android.app.Activity.OVERRIDE_TRANSITION_OPEN, 0, 0)
+                overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, 0, 0)
             } else {
                 @Suppress("DEPRECATION")
                 overridePendingTransition(0, 0)
@@ -359,9 +357,9 @@ class MainActivity : AppCompatActivity() {
                                 backProgress = value
                             }
                             // Keep it off-screen for a moment to let AnimatedVisibility finish its fade out
-                            delay(200)
+                            delay(200.milliseconds)
                         }
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         // Gesture canceled
                         if (backProgress > 0f) {
                             animate(
@@ -427,7 +425,7 @@ class MainActivity : AppCompatActivity() {
                 val saved = prefs.getString("capture_source", AudioCaptureService.CaptureSource.INTERNAL.name)
                 try {
                     AudioCaptureService.CaptureSource.valueOf(saved ?: AudioCaptureService.CaptureSource.INTERNAL.name)
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     AudioCaptureService.CaptureSource.INTERNAL
                 }
             } else {
@@ -690,7 +688,6 @@ fun AudioDeviceInfo.toAudioRoute(): AudioRoute {
 }
 
 @SuppressLint("FrequentlyChangingValue")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun BetterVizApp(
     viewModel: MainViewModel,
@@ -945,7 +942,7 @@ internal fun BetterVizApp(
                                             }
                                             if (dragging) {
                                                 change.consume()
-                                                scrollState.scrollBy(-deltaX)
+                                                scrollState.dispatchRawDelta(-deltaX)
                                             }
                                         }
                                     }
@@ -1085,7 +1082,7 @@ private fun TabContent(
     LaunchedEffect(Unit) {
         if (!hasBeenVisible) {
             // Tiny delay for non-active tabs to let the main UI render first
-            delay(100)
+            delay(100.milliseconds)
             hasBeenVisible = true
         }
     }
@@ -1194,8 +1191,6 @@ private fun TabContent(
             val hapticGamma by viewModel.hapticGamma.collectAsStateWithLifecycle()
             val hapticBeatSensitivity by viewModel.hapticBeatSensitivity.collectAsStateWithLifecycle()
             val hapticBeatGamma by viewModel.hapticBeatGamma.collectAsStateWithLifecycle()
-            val isBeatDetected by viewModel.isBeatDetected.collectAsStateWithLifecycle()
-            val hapticAmplitude by viewModel.hapticAmplitude.collectAsStateWithLifecycle()
 
             HapticsScreen(
                 viewModel = viewModel,
@@ -1251,8 +1246,6 @@ private fun TabContent(
             val flashlightIntensityLevels by viewModel.flashlightIntensityLevels.collectAsStateWithLifecycle()
             val flashlightMaxIntensity by viewModel.flashlightMaxIntensity.collectAsStateWithLifecycle()
             val flashlightLevel by viewModel.flashlightLevel.collectAsStateWithLifecycle()
-            val isFlashlightBeatDetected by viewModel.isFlashlightBeatDetected.collectAsStateWithLifecycle()
-            val flashlightAmplitude by viewModel.flashlightAmplitude.collectAsStateWithLifecycle()
 
             FlashlightScreen(
                 flashlightEnabled = flashlightEnabledInternal,
