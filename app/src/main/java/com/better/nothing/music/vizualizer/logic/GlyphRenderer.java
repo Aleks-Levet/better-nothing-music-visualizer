@@ -72,6 +72,8 @@ public class GlyphRenderer {
     public void setDeviceType(int deviceType) {
         this.mDeviceType = deviceType;
         mIdleBreathingRenderer.setDeviceType(deviceType);
+        mIdleBreathingRenderer.prepareZoneCount(
+                Math.max(mCurrentLightState.length, DeviceProfile.getLedCount(deviceType)));
         mLastHash = Integer.MIN_VALUE;
     }
 
@@ -90,6 +92,8 @@ public class GlyphRenderer {
                         && zone.lowPercent == 0f && zone.highPercent == 0f;
             }
         }
+        mIdleBreathingRenderer.prepareZoneCount(
+                Math.max(mCurrentLightState.length, DeviceProfile.getLedCount(mDeviceType)));
         mLastHash = Integer.MIN_VALUE;
         mIdleBreathingRenderer.reset();
     }
@@ -140,6 +144,7 @@ public class GlyphRenderer {
 
             if (mCurrentLightState.length != zoneCount) {
                 mCurrentLightState = new float[zoneCount];
+                mIdleBreathingRenderer.prepareZoneCount(zoneCount);
             }
 
             if (mRangeDecayState.length != config.uniqueRanges.length) {
