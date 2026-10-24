@@ -195,8 +195,8 @@ fun <M> ActuatorSettingsLayout(
             AnimatedVisibility(isBeatDetectionMode) {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
-                        CardHeader(title = stringResource(R.string.beat_engine_mode_label))
                         if (hasMultipleIntensities) {
+                            CardHeader(title = stringResource(R.string.h_beat_engine_mode_label))
                             ExpressiveSplitButton(
                                 items = BeatEngineMode.entries,
                                 selectedItem = beatEngineMode,
