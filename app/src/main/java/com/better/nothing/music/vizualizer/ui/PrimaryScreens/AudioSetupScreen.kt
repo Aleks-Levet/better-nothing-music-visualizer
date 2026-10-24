@@ -509,6 +509,7 @@ private fun BroadcastCard(
                 )
             }
         )
+        Spacer(modifier = Modifier.height(7.dp))
         BodyText(
             text = stringResource(R.string.broadcast_card_description),
             size = 14.sp
