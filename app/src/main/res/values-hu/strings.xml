@@ -46,7 +46,7 @@
     <string name="haptics_decay_instant">Nincs kiegyenlítés (Egyből)</string>
     <string name="haptics_decay_smooth">Kiegyenlítés aktív</string>
     <string name="haptics_duration_label">Időtartam: %d ms</string>
-    <string name="beat_engine_mode_label">Motor Válasz</string>
+    <string name="h_beat_engine_mode_label">Motor Válasz</string>
     <string name="beat_engine_smooth">Kiegyenlített Leesés</string>
     <string name="beat_engine_short">Rövid Villanás</string>
     <!-- Audio Processing -->
@@ -67,7 +67,7 @@
     <string name="flashlight_mode_label">Zseblámpa mód</string>
     <string name="flashlight_mode_amplitude">Amplitúdó</string>
     <string name="flashlight_mode_beat">Ütemfelismerés</string>
-    <string name="flashlight_intensity_label">Zseblámpa szintek: %1$d</string>
+    <string name="flashlight_better_intensity_label">Zseblámpa szintek: %1$d</string>
     <string name="flashlight_frequency_label">Frekvencia: %1$d - %2$d</string>
     <string name="flashlight_frequency_desc">A frekvenciahatár amiben az érzékelt hangra válaszol a zseblámpa. Alacsonyabb a basszus, magasabb az énekhang.</string>
     <string name="flashlight_threshold_label"></string>

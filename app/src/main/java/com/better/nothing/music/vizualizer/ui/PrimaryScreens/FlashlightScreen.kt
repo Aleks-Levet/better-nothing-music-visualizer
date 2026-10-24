@@ -86,7 +86,7 @@ fun FlashlightScreen(
                 val displayIntensity = if (flashlightMaxIntensity > 0) flashlightMaxIntensity else flashlightIntensityLevels
                 CardHeader(
                     title = stringResource(
-                        R.string.flashlight_intensity_label,
+                        R.string.flashlight_better_intensity_label,
                         displayIntensity
                     )
                 )

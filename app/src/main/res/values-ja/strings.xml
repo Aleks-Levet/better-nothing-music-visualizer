@@ -46,7 +46,7 @@
     <string name="haptics_decay_instant">スムージングなし（即時）</string>
     <string name="haptics_decay_smooth">スムージング有効</string>
     <string name="haptics_duration_label">持続時間: %d ms</string>
-    <string name="beat_engine_mode_label">振動タイプ</string>
+    <string name="h_beat_engine_mode_label">振動タイプ</string>
     <string name="beat_engine_smooth">スムーズフォールアウト</string>
     <string name="beat_engine_short">短いパルス</string>
     <!-- Audio Processing -->
@@ -67,7 +67,7 @@
     <string name="flashlight_mode_label">フラッシュエンジンモード</string>
     <string name="flashlight_mode_amplitude">強さ</string>
     <string name="flashlight_mode_beat">ビート検出</string>
-    <string name="flashlight_intensity_label">明るさレベル: %1$d</string>
+    <string name="flashlight_better_intensity_label">明るさレベル: %1$d</string>
     <string name="flashlight_frequency_label">周波数： %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">フラッシュライトが反応するHz範囲です。低音には低く、スネアやボーカルには高く設定します。</string>
     <string name="flashlight_threshold_label">しきい値: %.2f</string>

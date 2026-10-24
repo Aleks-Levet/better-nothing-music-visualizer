@@ -46,7 +46,7 @@
     <string name="haptics_decay_instant">No smoothing (Instant)</string>
     <string name="haptics_decay_smooth">Smoothing active</string>
     <string name="haptics_duration_label">Duration: %d ms</string>
-    <string name="beat_engine_mode_label">Engine Response</string>
+    <string name="h_beat_engine_mode_label">Engine Response</string>
     <string name="beat_engine_smooth">Smooth Falloff</string>
     <string name="beat_engine_short">Short Pulse</string>
     <!-- Audio Processing -->
@@ -67,7 +67,7 @@
     <string name="flashlight_mode_label">Flashlight Engine Mode</string>
     <string name="flashlight_mode_amplitude">Amplitude</string>
     <string name="flashlight_mode_beat">Beat Detection</string>
-    <string name="flashlight_intensity_label">Torch levels: %1$d</string>
+    <string name="flashlight_better_intensity_label">Torch levels: %1$d</string>
     <string name="flashlight_frequency_label">आवृत्ति: %1$d - %2$d हर्ट्ज</string>
     <string name="flashlight_frequency_desc">वह हर्ट्ज रेंज जिस पर टॉर्च प्रतिक्रिया करेगी। बास के लिए कम, स्नेयर/वोकल्स के लिए उच्च।</string>
     <string name="flashlight_threshold_label">Threshold: %.2f</string>

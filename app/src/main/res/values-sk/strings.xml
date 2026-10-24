@@ -46,7 +46,7 @@
     <string name="haptics_decay_instant">Bez vyhladzovania (okamžité)</string>
     <string name="haptics_decay_smooth">Vyhladzovanie aktívne</string>
     <string name="haptics_duration_label">Trvanie: %d ms</string>
-    <string name="beat_engine_mode_label">Reakcia vibrácií</string>
+    <string name="h_beat_engine_mode_label">Reakcia vibrácií</string>
     <string name="beat_engine_smooth">Hladký útlm</string>
     <string name="beat_engine_short">Krátky pulz</string>
     <!-- Audio Processing -->
@@ -67,7 +67,7 @@
     <string name="flashlight_mode_label">Režim motora baterky</string>
     <string name="flashlight_mode_amplitude">Amplitúda</string>
     <string name="flashlight_mode_beat">Detekcia rytmu</string>
-    <string name="flashlight_intensity_label">Úrovne baterky: %1$d</string>
+    <string name="flashlight_better_intensity_label">Úrovne baterky: %1$d</string>
     <string name="flashlight_frequency_label">Frekvencia: %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">Frekvenčný rozsah, na ktorý bude baterka reagovať. Nižšie hodnoty pre basy, vyššie pre malý bubon alebo vokály.</string>
     <string name="flashlight_threshold_label">Prahová hodnota: %.2f</string>

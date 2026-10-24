@@ -46,7 +46,7 @@
     <string name="haptics_decay_instant">Без сглаживания (мгновенно)</string>
     <string name="haptics_decay_smooth">Сглаживание активно</string>
     <string name="haptics_duration_label">Длительность: %d мс</string>
-    <string name="beat_engine_mode_label">Характер отклика</string>
+    <string name="h_beat_engine_mode_label">Характер отклика</string>
     <string name="beat_engine_smooth">Плавный спад</string>
     <string name="beat_engine_short">Короткий импульс</string>
     <!-- Audio Processing -->
@@ -67,7 +67,7 @@
     <string name="flashlight_mode_label">Режим работы вспышки</string>
     <string name="flashlight_mode_amplitude">Амплитуда</string>
     <string name="flashlight_mode_beat">Распознавание бита</string>
-    <string name="flashlight_intensity_label">Уровней яркости фонарика: %1$d</string>
+    <string name="flashlight_better_intensity_label">Уровней яркости фонарика: %1$d</string>
     <string name="flashlight_frequency_label">Частота: %1$d - %2$d Гц</string>
     <string name="flashlight_frequency_desc">Диапазон частот, на который реагирует вспышка. Низкие — для баса, высокие — для вокала и снейра.</string>
     <string name="flashlight_threshold_label">Порог: %.2f</string>

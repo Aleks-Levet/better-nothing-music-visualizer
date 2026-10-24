@@ -46,7 +46,7 @@
     <string name="haptics_decay_instant">بلا تنعيم (فوري)</string>
     <string name="haptics_decay_smooth">التنعيم مفعّل</string>
     <string name="haptics_duration_label">المدة: %d ms</string>
-    <string name="beat_engine_mode_label">زمن استجابة المحرك</string>
+    <string name="h_beat_engine_mode_label">زمن استجابة المحرك</string>
     <string name="beat_engine_smooth">تلاشي سلس</string>
     <string name="beat_engine_short">نبض قصير</string>
     <!-- Audio Processing -->
@@ -67,7 +67,7 @@
     <string name="flashlight_mode_label">وضع محرك الكشاف</string>
     <string name="flashlight_mode_amplitude">شدة الصوت</string>
     <string name="flashlight_mode_beat">كشف الإيقاع</string>
-    <string name="flashlight_intensity_label">مستويات الشعلة: %1$d</string>
+    <string name="flashlight_better_intensity_label">مستويات الشعلة: %1$d</string>
     <string name="flashlight_frequency_label">التردد: %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">نطاق التردد بالهرتز الذي سيستجيب له الكشاف. أقل للجهير، وأعلى للطبل الخفيف/الأصوات.</string>
     <string name="flashlight_threshold_label">العتبة: %.2f</string>
