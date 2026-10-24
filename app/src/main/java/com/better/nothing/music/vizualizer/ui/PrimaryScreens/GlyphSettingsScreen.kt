@@ -476,7 +476,7 @@ fun BrightnessCard(
 ) {
 
     val MIN_BRIGHTNESS = 50
-    val MAX_BRIGHTNESS = 5000
+    val MAX_BRIGHTNESS = 6143
 
     var isMoreSlidersExpanded by rememberSaveable { mutableStateOf(false) }
     var isThresholdExpanded by rememberSaveable { mutableStateOf(false) }

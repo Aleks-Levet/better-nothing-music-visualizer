@@ -9,7 +9,7 @@ import java.util.Arrays;
  */
 public class GlyphRenderer {
 
-    private static final int MAX_BRIGHTNESS_LIMIT = 5000;
+    private static final int MAX_BRIGHTNESS_LIMIT = 6143;
 
     private float mGamma;
     private int mMaxBrightness = 4095;
