@@ -46,6 +46,11 @@ public class IdleBreathingService extends Service {
             "static", "pulse", "wave", "rain", "zebra", "orbit", "heartbeat", "scanner"
     };
     private static volatile boolean sActive;
+    private static volatile boolean sViewModelActive;
+
+    public static void setViewModelActive(boolean active) {
+        sViewModelActive = active;
+    }
 
     private HandlerThread mAnimationThread;
     private Handler mHandler;
@@ -69,6 +74,7 @@ public class IdleBreathingService extends Service {
     private boolean mHasLastFrameColors;
     private long mFrameEpochUptimeMs;
     private long mNextFrameNumber;
+    private long mLastStatsUpdateUptimeMs;
 
     private final Runnable mFrameRunnable = new Runnable() {
         @Override
@@ -106,6 +112,7 @@ public class IdleBreathingService extends Service {
                 stopSelf();
                 return;
             }
+            updateStatsIfNeeded();
             scheduleNextFrame();
         }
     };
@@ -218,7 +225,7 @@ public class IdleBreathingService extends Service {
                 if (brightness <= 0) {
                     beginFadeOut();
                 } else {
-                    mMaxBrightness = Math.max(50, Math.min(5000, brightness));
+                    mMaxBrightness = Math.max(50, Math.min(6143, brightness));
                 }
             }
             default -> { }
@@ -249,7 +256,7 @@ public class IdleBreathingService extends Service {
         mMatrixDevice = DeviceProfile.getMatrixWidth(mDeviceType) > 0;
         mLastFrameColors = new int[count];
         mHasLastFrameColors = false;
-        mMaxBrightness = Math.max(50, Math.min(5000, brightness));
+        mMaxBrightness = Math.max(50, Math.min(6143, brightness));
         mRenderer = new IdleBreathingRenderer(mDeviceType, true);
         mRenderer.setPattern(prefs.getString("idle_pattern", "pulse"));
         mRenderer.setBrightness(prefs.getFloat("idle_brightness", 0.4f));
@@ -280,11 +287,54 @@ public class IdleBreathingService extends Service {
         return true;
     }
 
+    private void updateStatsIfNeeded() {
+        if (!sActive || mStopping || mFadeOutStarted) return;
+        long now = SystemClock.uptimeMillis();
+        if (mLastStatsUpdateUptimeMs == 0) {
+            mLastStatsUpdateUptimeMs = now;
+            return;
+        }
+        long delta = now - mLastStatsUpdateUptimeMs;
+        if (delta >= 1000) {
+            mLastStatsUpdateUptimeMs = now;
+            if (!sViewModelActive) {
+                SharedPreferences prefs = getSharedPreferences("viz_prefs", MODE_PRIVATE);
+                long totalViz = prefs.getLong("total_visualized_time", 0L) + delta;
+                long totalIdle = prefs.getLong("total_idle_time", 0L) + delta;
+                long totalGlyph = prefs.getLong("total_glyph_time", 0L) + delta;
+                prefs.edit()
+                        .putLong("total_visualized_time", totalViz)
+                        .putLong("total_idle_time", totalIdle)
+                        .putLong("total_glyph_time", totalGlyph)
+                        .apply();
+            }
+        }
+    }
+
+    private void flushFinalStats() {
+        if (mLastStatsUpdateUptimeMs > 0) {
+            long now = SystemClock.uptimeMillis();
+            long delta = now - mLastStatsUpdateUptimeMs;
+            mLastStatsUpdateUptimeMs = 0;
+            if (!sViewModelActive && delta > 0) {
+                SharedPreferences prefs = getSharedPreferences("viz_prefs", MODE_PRIVATE);
+                long totalViz = prefs.getLong("total_visualized_time", 0L) + delta;
+                long totalIdle = prefs.getLong("total_idle_time", 0L) + delta;
+                long totalGlyph = prefs.getLong("total_glyph_time", 0L) + delta;
+                prefs.edit()
+                        .putLong("total_visualized_time", totalViz)
+                        .putLong("total_idle_time", totalIdle)
+                        .putLong("total_glyph_time", totalGlyph)
+                        .apply();
+            }
+        }
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent != null ? intent.getAction() : null;
         if (ACTION_STOP.equals(action)) {
-            if (sActive) {
+            if (sActive || mFadeOutStarted) {
                 beginFadeOut();
             } else {
                 stopSelf(startId);
@@ -298,7 +348,7 @@ public class IdleBreathingService extends Service {
             return START_NOT_STICKY;
         }
         if (ACTION_PREVIOUS_PATTERN.equals(action) || ACTION_NEXT_PATTERN.equals(action)) {
-            if (sActive) {
+            if (sActive && !mFadeOutStarted) {
                 changePattern(ACTION_PREVIOUS_PATTERN.equals(action) ? -1 : 1);
             } else {
                 stopSelf(startId);
@@ -311,14 +361,30 @@ public class IdleBreathingService extends Service {
             stopSelf(startId);
             return START_NOT_STICKY;
         }
-        if (sActive) return START_NOT_STICKY;
 
-        startAsForegroundService();
-        if (!initializeAnimation()) {
-            stopSelf(startId);
+        if (mFadeOutStarted) {
+            mFadeOutStarted = false;
+            mStopping = false;
+            mHandler.removeCallbacks(mStopAfterFadeRunnable);
+        } else if (sActive && mSessionOpen) {
             return START_NOT_STICKY;
         }
+
+        mStopping = false;
+        startAsForegroundService();
+        if (mRenderer == null) {
+            if (!initializeAnimation()) {
+                sActive = false;
+                stopSelf(startId);
+                return START_NOT_STICKY;
+            }
+        } else {
+            tryOpenSessionDirectly();
+            mFadeStartUptimeMs = SystemClock.uptimeMillis();
+            maybeStartAnimation();
+        }
         sActive = true;
+        mLastStatsUpdateUptimeMs = SystemClock.uptimeMillis();
         requestTileRefresh();
         return START_NOT_STICKY;
     }
@@ -449,10 +515,35 @@ public class IdleBreathingService extends Service {
                 if (mMatrixManager == null) throw new IllegalStateException("GlyphMatrixManager is unavailable");
                 mMatrixManager.init(mMatrixCallback);
             }
+            tryOpenSessionDirectly();
             return true;
         } catch (Exception e) {
             Log.e(TAG, "Failed to initialize Glyph managers", e);
             return false;
+        }
+    }
+
+    private void tryOpenSessionDirectly() {
+        if (mGlyphManager == null) return;
+        try {
+            mGlyphManager.register(getGlyphDeviceName());
+            mGlyphManager.openSession();
+            mSessionOpen = true;
+            if (mMatrixDevice && mMatrixManager != null) {
+                try {
+                    if (mDeviceType == DeviceProfile.DEVICE_NP3) {
+                        mMatrixManager.register(Glyph.DEVICE_23112);
+                    } else if (mDeviceType == DeviceProfile.DEVICE_NP4APRO) {
+                        mMatrixManager.register(Glyph.DEVICE_25111p);
+                    } else {
+                        mMatrixManager.register(getGlyphDeviceName());
+                    }
+                    mMatrixConnected = true;
+                } catch (Exception ignored) {}
+            }
+            maybeStartAnimation();
+        } catch (Exception ignored) {
+            // Callback will handle session opening when connected if not ready yet
         }
     }
 
@@ -479,7 +570,10 @@ public class IdleBreathingService extends Service {
     private synchronized void beginFadeOut() {
         if (mFadeOutStarted) return;
         mFadeOutStarted = true;
+        sActive = false;
         mFadeStartUptimeMs = SystemClock.uptimeMillis();
+        flushFinalStats();
+        requestTileRefresh();
         mHandler.postDelayed(mStopAfterFadeRunnable, FADE_DURATION_MS);
     }
 
@@ -526,13 +620,14 @@ public class IdleBreathingService extends Service {
     @Override
     public void onDestroy() {
         mStopping = true;
+        sActive = false;
         mHandler.removeCallbacks(mFrameRunnable);
         mHandler.removeCallbacks(mStopAfterFadeRunnable);
+        flushFinalStats();
         getSharedPreferences("viz_prefs", MODE_PRIVATE)
                 .unregisterOnSharedPreferenceChangeListener(mSettingsListener);
-        mHandler.post(this::closeGlyphManagers);
+        closeGlyphManagers();
         mAnimationThread.quitSafely();
-        sActive = false;
         stopForeground(STOP_FOREGROUND_REMOVE);
         requestTileRefresh();
         super.onDestroy();

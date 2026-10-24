@@ -21,6 +21,7 @@ import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.logic.*
 import com.better.nothing.music.vizualizer.model.*
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
+import com.better.nothing.music.vizualizer.service.IdleBreathingService
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.palette.graphics.Palette
@@ -1812,7 +1813,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setMaxBrightness(value: Int) {
-        val clamped = value.coerceIn(50, 5000)
+        val clamped = value.coerceIn(50, 6143)
         _maxBrightness.value = clamped
         MainActivity.serviceStatic?.setMaxBrightness(clamped)
         viewModelScope.launch(Dispatchers.IO) {
@@ -2420,6 +2421,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     init {
+        IdleBreathingService.setViewModelActive(true)
         val prefs = ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
         val all = prefs.all
 
@@ -2490,9 +2492,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         
         val savedBrightness = get("max_brightness", 4095)
         if (savedBrightness > 0) {
-            _maxBrightness.value = savedBrightness.coerceIn(50, 5000)
+            _maxBrightness.value = savedBrightness.coerceIn(50, 6143)
         } else {
-            _maxBrightness.value = get("max_brightness_last", 4095).coerceIn(50, 5000)
+            _maxBrightness.value = get("max_brightness_last", 4095).coerceIn(50, 6143)
         }
 
         _flashlightIntensityLevels.value = FlashlightEngine.detectTorchIntensityLevels(ctx)
@@ -2613,7 +2615,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val delta = now - lastUpdate
                 lastUpdate = now
 
-                if (_runningState.value) {
+                val isCapturing = _runningState.value
+                val isIdleBreathingActive = IdleBreathingService.isActive()
+
+                if (isCapturing) {
                     _totalVisualizedTime.value += delta
                     val service = MainActivity.serviceStatic
                     val hasActivity = if (service != null) {
@@ -2630,7 +2635,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         if (_overlayEnabled.value && _onScreenVisualizersEnabled.value) _totalOverlayTime.value += delta
                     } else {
                         _totalIdleTime.value += delta
+                        if (_idleBreathingEnabled.value && _glyphsEnabled.value && _maxBrightness.value > 0) {
+                            _totalGlyphTime.value += delta
+                        }
                     }
+                    if (now - lastSave >= 5000) {
+                        lastSave = now
+                        saveStatsLocally()
+                    }
+                } else if (isIdleBreathingActive) {
+                    _totalVisualizedTime.value += delta
+                    _totalIdleTime.value += delta
+                    _totalGlyphTime.value += delta
                     if (now - lastSave >= 5000) {
                         lastSave = now
                         saveStatsLocally()
@@ -2667,6 +2683,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     override fun onCleared() {
         super.onCleared()
+        IdleBreathingService.setViewModelActive(false)
         ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
             .unregisterOnSharedPreferenceChangeListener(idlePatternPreferenceListener)
         saveStatsLocally()
