@@ -192,7 +192,9 @@ public class AudioProcessor {
         double p2 = Math.log10(8000.0);
 
         for (int i = 0; i < 512; i++) {
-            float fCenter = (FFT_FREQ_RANGES[i][0] + FFT_FREQ_RANGES[i][1]) / 2f;
+            float fLow = FFT_FREQ_RANGES[i][0];
+            float fHigh = FFT_FREQ_RANGES[i][1];
+            float fCenter = (fLow + fHigh) / 2f;
             double logF = Math.log10(Math.max(1.0, fCenter));
             
             float interpolatedGain;
@@ -207,13 +209,46 @@ public class AudioProcessor {
             
             float gain = interpolatedGain * mManualGain;
 
-            float continuousBin = fCenter / hzPerBin;
-            int b0 = (int) continuousBin;
-            int b1 = Math.min(b0 + 1, magnitude.length - 1);
-            float t = continuousBin - b0;
-            float logMag = magnitude[b0] * (1f - t) + magnitude[b1] * t;
-            
-            int rawVal = (int) Math.min(4095, logMag * 4095f * gain);
+            int rawVal;
+            if (mHighQualityAnalysis) {
+                // FFT Bin Aggregation over [fLow, fHigh]
+                int startBin = Math.max(0, (int) (fLow / hzPerBin));
+                int endBin = Math.min(magnitude.length - 1, (int) Math.ceil(fHigh / hzPerBin));
+                float maxMag = 0f;
+                for (int b = startBin; b <= endBin; b++) {
+                    if (magnitude[b] > maxMag) {
+                        maxMag = magnitude[b];
+                    }
+                }
+
+                float continuousBin = fCenter / hzPerBin;
+                int b0 = Math.min((int) continuousBin, magnitude.length - 1);
+                int b1 = Math.min(b0 + 1, magnitude.length - 1);
+                float t = continuousBin - b0;
+                float interpolatedMag = magnitude[b0] * (1f - t) + magnitude[b1] * t;
+
+                float magVal = Math.max(maxMag, interpolatedMag);
+                float scaledMag = magVal * gain;
+
+                // Decibel (dB) Conversion (-40 dB to 0 dB mapped to 0..4095)
+                float db = (float) (20.0 * Math.log10(scaledMag + 1e-9));
+                float dbMin = -40.0f;
+                float dbMax = 0.0f;
+                float norm = (db - dbMin) / (dbMax - dbMin);
+                if (norm < 0f) norm = 0f;
+                if (norm > 1f) norm = 1f;
+
+                rawVal = (int) (norm * 4095f);
+            } else {
+                float continuousBin = fCenter / hzPerBin;
+                int b0 = (int) continuousBin;
+                int b1 = Math.min(b0 + 1, magnitude.length - 1);
+                float t = continuousBin - b0;
+                float logMag = magnitude[b0] * (1f - t) + magnitude[b1] * t;
+
+                rawVal = (int) Math.min(4095, logMag * 4095f * gain);
+            }
+
             mRawFFT[i] = rawVal;
         }
 
