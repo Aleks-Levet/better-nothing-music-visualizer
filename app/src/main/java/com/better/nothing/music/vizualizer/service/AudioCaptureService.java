@@ -2149,6 +2149,6 @@ public class AudioCaptureService extends Service {
         }
     }
 
-    private int clampGlyphBrightness(int b) { return Math.max(0, Math.min(4095, b)); }
+    private int clampGlyphBrightness(int b) { return Math.max(0, Math.min(6143, b)); }
     private void resetVisualizerState() { if (mGlyphRenderer != null) mGlyphRenderer.resetState(mVisualizerConfig); }
 }
