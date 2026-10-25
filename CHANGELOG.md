@@ -29,7 +29,7 @@
   - Fixed settings not saving sometimes.
   - Improved light-theme , glyph and glyph matrix previews, the navigation bar, and card/slider animations.
   - Refined settings UI and navigation.
-  - Changed the default font to te rounded Google Sans Flex.
+  - Changed the default font to the rounded Google Sans Flex.
 - **Statistics and updates**
   - Included idle-breathing-only sessions in usage statistics.
   - Expanded the stats screen with overlay and broadcasting times, beat-reactive visuals, and other refinements.
