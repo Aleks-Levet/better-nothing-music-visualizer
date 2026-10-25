@@ -5,6 +5,25 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.compose'
 }
 
+def versionCodeFile = rootProject.file('version-code.txt')
+def readVersionCode = {
+    if (!versionCodeFile.isFile()) {
+        throw new GradleException("Version code file not found: ${versionCodeFile}")
+    }
+
+    def versionCodeText = versionCodeFile.text.trim()
+    if (!(versionCodeText ==~ /\d+/)) {
+        throw new GradleException("Version code in ${versionCodeFile} must be a positive integer")
+    }
+
+    try {
+        versionCodeText.toInteger()
+    } catch (NumberFormatException exception) {
+        throw new GradleException("Version code in ${versionCodeFile} is too large", exception)
+    }
+}
+def configuredVersionCode = readVersionCode()
+
 android {
     namespace = 'com.better.nothing.music.vizualizer'
     compileSdk = 37
@@ -13,7 +32,7 @@ android {
         applicationId = "com.better.nothing.music.vizualizer"
         minSdk = 26
         targetSdk = 37
-        versionCode = 19
+        versionCode = configuredVersionCode
         versionName = '4.1'
     }
 
@@ -46,6 +65,34 @@ android {
             jvmTarget.set(JvmTarget.JVM_17)
             // Change JVM_1_8 to JVM_11 or JVM_17 depending on your project needs
         }
+    }
+}
+
+def bumpReleaseVersionCode = tasks.register('bumpReleaseVersionCode') {
+    onlyIf {
+        ['assembleRelease', 'bundleRelease'].any { releaseTaskName ->
+            def releaseTask = tasks.findByName(releaseTaskName)
+            releaseTask != null && releaseTask.state.executed && releaseTask.state.failure == null
+        }
+    }
+
+    doLast {
+        def currentVersionCode = readVersionCode()
+
+        if (currentVersionCode != configuredVersionCode) {
+            throw new GradleException(
+                    "Version code changed during the release build (expected ${configuredVersionCode}, found ${currentVersionCode})"
+            )
+        }
+
+        versionCodeFile.text = "${currentVersionCode + 1}\n"
+        logger.lifecycle("Next release version code: ${currentVersionCode + 1}")
+    }
+}
+
+tasks.configureEach {
+    if (name in ['assembleRelease', 'bundleRelease']) {
+        finalizedBy(bumpReleaseVersionCode)
     }
 }
 
