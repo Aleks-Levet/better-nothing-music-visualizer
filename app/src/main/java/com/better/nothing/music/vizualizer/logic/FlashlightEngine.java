@@ -57,6 +57,7 @@ public final class FlashlightEngine {
         Context appContext = Objects.requireNonNull(context, "context").getApplicationContext();
         this.cameraManager = (CameraManager) appContext.getSystemService(Context.CAMERA_SERVICE);
         initCamera();
+        amplitudeThresholdOrMultiplier = getTorchIntensityLevels() <= 1 ? 0.8f : 0.15f;
     }
 
     public static int detectTorchIntensityLevels(Context context) {
