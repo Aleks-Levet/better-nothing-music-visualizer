@@ -33,25 +33,25 @@
     <string name="haptics_mode_label">Modalità motore tattile</string>
     <string name="haptics_mode_bass">Ampiezza</string>
     <string name="haptics_mode_beat">Rilevamento battito</string>
-
-
-
-
+    <string name="haptics_beat_detection_1desc">Vibrates on detected beats within the selected frequency range. Smoother but sometimes not as stable.</string>
+    <string name="haptics_frequency_label_b">Frequency range: %1$d - %2$d Hz</string>
+    <string name="haptics_amplitude_label1">Vibration strengh: %.1fx</string>
     <string name="haptics_audio_gain_label">Guadagno: %.1fx</string>
     <string name="haptics_gamma_label">Gamma: %.1f</string>
     <string name="haptics_decay_label">Decadimento: %.2f</string>
     <string name="haptics_speed_label">Velocità: %.1f</string>
     <string name="haptics_sensitivity_label">Sensibilità: %.1f</string>
-
     <string name="haptics_decay_instant">Istantaneo (senza lissage)</string>
     <string name="haptics_decay_smooth">Lissage attivo</string>
     <string name="haptics_duration_label">Durata: %d ms</string>
-    <string name="h_beat_engine_mode_label">Risposta Engine:</string>
+    <string name="h_beat_engine_mode_label">Style:</string>
     <string name="beat_engine_smooth">Dissolvenza Graduale</string>
     <string name="beat_engine_short">Impulso Breve</string>
     <!-- Audio Processing -->
     <string name="microphone_mode">Modalità Acquisizione Microfono (Esperto)</string>
     <string name="microphone_mode_desc">Controlla come il microfono cattura l\'audio.</string>
+    <string name="mic_mode_mic">MIC</string>
+    <string name="mic_mode_mic_desc">The default mic mode for android</string>
     <string name="mic_mode_voice_comm">Comunicazione Vocale</string>
     <string name="mic_mode_voice_comm_desc">COMUNICAZIONE_VOCALE: Solitamente include la cancellazione dell\'eco e la soppressione del rumore.</string>
     <string name="mic_mode_voice_rec">Recognition</string>
@@ -67,7 +67,7 @@
     <string name="flashlight_mode_label">Modalità Engine Torcia</string>
     <string name="flashlight_mode_amplitude">Ampiezza</string>
     <string name="flashlight_mode_beat">Rilevamento Beat</string>
-    <string name="flashlight_better_intensity_label">Livelli Torcia: %1$d</string>
+    <string name="flashlight_better_intensity_label">Flash brightness: %1$d</string>
     <string name="flashlight_frequency_label">Frequenza: %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">L\'intervallo di Hz a cui reagirà la torcia. Più basso per i bassi, più alto per rullante/voci.</string>
     <string name="flashlight_threshold_label">Soglia: %.2f</string>
@@ -86,6 +86,7 @@
     <string name="spoof_device_description">Forza l\'app a comportarsi come se fosse in esecuzione sul dispositivo selezionato.</string>
     <string name="spoof_locale_description">Cambia la lingua dell\'applicazione ai fini di test.</string>
     <string name="idle_breathing_title">Respiro a riposo</string>
+    <string name="idle_breathing_tile_desc">Add and use the Idle Breathing Quick Settings tile to quickly start or stop the animation whenever BNMV is stopped. Tap here to add the tile.</string>
     <string name="start_visualizer">Avvia</string>
     <string name="stop_visualizer">Ferma</string>
     <string name="glyph_no_config">Nessuna configurazione caricata. Verifica gli aggiornamenti nelle Impostazioni per scaricare i predefiniti più recenti.</string>
@@ -94,7 +95,7 @@
     <string name="analytics_disclaimer_title">Analisi dei dati</string>
     <string name="analytics_disclaimer_text">Questa app utilizza Google Analytics (Firebase) per raccogliere statistiche di utilizzo anonime e report sui crash, al fine di migliorare l\'esperienza dell\'app. Non vengono raccolti dati personali né contenuti audio.</string>
     <string name="github_repository">Repository GitHub</string>
-    <string name="version_info">Versione %s</string>
+    <string name="version_info">Version %s (%d)</string>
     <string name="zones_config_version">Versione configurazione: %s</string>
     <string name="media_projection_info">MediaProjection viene utilizzato solo per alimentare il visualizzatore in tempo reale. Non viene eseguita alcuna registrazione o memorizzazione di dati non necessaria.</string>
     <string name="credits">Crediti</string>
@@ -108,6 +109,7 @@
     <string name="update_available">Aggiornamento disponibile: %s</string>
     <string name="update_now">Aggiorna ora</string>
     <string name="idle_pattern">Modello a riposo</string>
+    <string name="idle_pattern_static">Static</string>
     <string name="idle_pattern_pulse">Pulsazione</string>
     <string name="idle_pattern_wave">Onda</string>
     <string name="idle_pattern_cylon">Cylon</string>
@@ -117,6 +119,7 @@
     <string name="idle_pattern_rain">Pioggia</string>
     <string name="idle_pulse_brightness">Luminosità Impulso: %d%%</string>
     <string name="idle_background_brightness">Luminosità Sfondo: %d%%</string>
+    <string name="idle_animation_speed">Animation Speed: %.1fx</string>
     <string name="cancel">Annulla</string>
     <string name="back">Indietro</string>
     <string name="frequency_range_label">Intervallo di frequenza: %1$dHz - %2$dHz</string>
@@ -124,7 +127,7 @@
     <string name="sync_ui_to_beat">Sincronizza interfaccia con il ritmo</string>
     <string name="alternate_glyph_viz">Visualizzatore Glyph Alternativo</string>
     <string name="nav_overlay">Barra di navigazione</string>
-    <string name="overlays">Abilita visualizzatori a schermo</string>
+    <string name="overlays">Overlays</string>
     <string name="higher_quality_audio_analysis">Analisi audio di qualità superiore</string>
     <string name="rounded_bars">Barre arrotondate</string>
     <string name="style_bars">Barre</string>
@@ -188,7 +191,7 @@
     <string name="tile_running">In esecuzione</string>
     <string name="tile_subtitle_default">Better Nothing Music Visualiser</string>
     <!-- Feature Monitors -->
-
+    <string name="haptic_monito">Haptic Monitor</string>
     <string name="flashlight_level_stats">LIVELLO: %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">Bordo Superiore Sovrapposizione</string>
@@ -216,6 +219,9 @@
     <string name="notification_action_haptics">vibrazione</string>
     <string name="notification_action_flash">torcia</string>
     <string name="notification_action_stop">Stop BNMV</string>
+    <string name="notification_action_previous">Previous</string>
+    <string name="notification_action_next">Next</string>
+    <string name="idle_breathing_action_stop">Stop</string>
     <!-- Device Names -->
     <string name="device_unknown">Dispositivo Sconosciuto</string>
     <!-- Stats Screen -->
@@ -228,6 +234,8 @@
     <string name="glyph_interface">Interfaccia Glyph/Matrix</string>
     <string name="haptic_feedback">Vibrazione Haptic</string>
     <string name="flashlight_sync_stat">Torcia Sincronizzata</string>
+    <string name="broadcasting_stat">Broadcasting</string>
+    <string name="overlay_stat">Overlays</string>
     <string name="total_active_use">Utilizzo Attivo Totale</string>
     <string name="export_stats">Export Stats</string>
     <string name="import_stats">Import Stats</string>
@@ -253,6 +261,7 @@
     <string name="output_selection">2. Seleziona gli output</string>
     <string name="select_capture_source">1. Seleziona la sorgente audio</string>
     <string name="broadcast">Consenti la connessione di altri dispositivi...</string>
+    <string name="broadcast_card_description">Other devices that have BNMV installed will be able to connect to you for an even better experience</string>
     <!-- Audio Help Guides -->
     <string name="help_source_intro">Scegli da dove acquisire l\'audio per la visualizzazione:</string>
     <string name="help_source_internal_title">Condivisione schermo</string>
@@ -268,6 +277,7 @@
     <string name="help_output_glyphs_desc">Visualizza l\'audio utilizzando l\'interfaccia Glyph / LED Matrix.</string>
     <string name="help_output_haptics_desc">Ti consente di sentire la musica tramite la vibrazione.</string>
     <string name="help_output_flash_desc">Fa lampeggiare la torcia della fotocamera a ritmo di beat.</string>
+    <string name="help_output_overlays_desc">Enables on-screen visualizers and overlays.</string>
     <string name="help_output_broadcast_title">\"Consenti la connessione di altri dispositivi...\"</string>
     <string name="help_output_broadcast_desc">Trasmette dati audio ad altri dispositivi sulla rete.</string>
     <string name="help_sync_title">Connessione al dispositivo:</string>
@@ -282,7 +292,7 @@
     <string name="widget_stop_bnmv">STOP BNMV</string>
     <!-- First Time Help -->
     <string name="first_time_help_title">Quick Tip</string>
-
+    <string name="first_time_help_mssg">Click on the [info] buttons whenever you need help! And if you need more help, ask in the discord server that you can join in the settings tab!</string>
     <!-- Easter Eggs -->
     <string name="toast_no_output">Tutti gli output sono disabilitati, perciò BNMV non farà NIENTE😆</string>
     <string name="toast_audio_title_tap">Perché stai cliccando qui? Non serve a NIENTE! 😆</string>
@@ -308,4 +318,17 @@
     <string name="label_output">OUTPUT</string>
     <string name="help_show">Mostra aiuto</string>
     <!-- Google Sans Flex Tuning -->
+    <string name="gsans_weight_font_settings">Weight</string>
+    <string name="gsans_width_font_settings">Width</string>
+    <string name="gsans_slant_font_settings">Slant</string>
+    <string name="gsans_opsz_font_settings">Optical Size</string>
+    <string name="gsans_grade_font_settings">Grade</string>
+    <string name="gsans_rounding_font_settings">Rounding</string>
+    <!-- Additional UI Labels -->
+    <string name="glow_blur">Glow blur</string>
+    <string name="easter_egg_image">Easter Egg Image</string>
+    <string name="config_version_format">Version: %s</string>
+    <string name="latest_version_format">Latest: %s</string>
+    <string name="reset_font_settings">Reset Font Settings</string>
+    <string name="latency_format"> (Latency: %dms)</string>
 </resources>

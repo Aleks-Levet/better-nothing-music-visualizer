@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Audio Screen -->
-    <string name="audio_warning_vizualizer">警告：このソースは標準的なAndroidビジュアライザースタイルのオーディオストリームを使用しています。精度が低く、品質が劣る可能性があります。</string>
+    <string name="audio_warning_vizualizer">警告：このソースはAndroid標準ビジュアライザースタイルのオーディオストリームを使用しています。精度が低く、品質が劣る可能性があります。</string>
     <string name="auto_memorize_device">デバイスを自動記憶</string>
     <string name="saving_latency_for">レイテンシを保存中： %s</string>
     <string name="internal_speaker">内蔵スピーカー</string>
@@ -33,41 +33,41 @@
     <string name="haptics_mode_label">ハプティクスエンジン・モード</string>
     <string name="haptics_mode_bass">振動の強さ</string>
     <string name="haptics_mode_beat">ビート検出</string>
-
-
-
-
+    <string name="haptics_beat_detection_1desc">選択した周波数範囲内のビートを検出して振動します。動作はスムーズですが、不安定になる場合があります。</string>
+    <string name="haptics_frequency_label_b">Frequency range: %1$d - %2$d Hz</string>
+    <string name="haptics_amplitude_label1">Vibration strengh: %.1fx</string>
     <string name="haptics_audio_gain_label">音量ゲイン: %.1fx</string>
     <string name="haptics_gamma_label">ガンマ： %.1f</string>
     <string name="haptics_decay_label">減衰： %.2f</string>
     <string name="haptics_speed_label">速度： %.1f</string>
     <string name="haptics_sensitivity_label">感度： %.1f</string>
-
     <string name="haptics_decay_instant">スムージングなし（即時）</string>
     <string name="haptics_decay_smooth">スムージング有効</string>
     <string name="haptics_duration_label">持続時間: %d ms</string>
-    <string name="h_beat_engine_mode_label">振動タイプ</string>
+    <string name="h_beat_engine_mode_label">Style:</string>
     <string name="beat_engine_smooth">スムーズフォールアウト</string>
-    <string name="beat_engine_short">短いパルス</string>
+    <string name="beat_engine_short">ショートパルス</string>
     <!-- Audio Processing -->
     <string name="microphone_mode">マイクキャプチャモード (エキスパート)</string>
     <string name="microphone_mode_desc">マイクの音声キャプチャ方法を変更します。</string>
+    <string name="mic_mode_mic">MIC</string>
+    <string name="mic_mode_mic_desc">The default mic mode for android</string>
     <string name="mic_mode_voice_comm">音声通話</string>
-    <string name="mic_mode_voice_comm_desc">音声通話:通常、エコーやノイズが抑制されます。</string>
-    <string name="mic_mode_voice_rec">Recognition</string>
-    <string name="mic_mode_voice_rec_desc">VOICE_RECOGNITION: Optimized for speech recognition. Usually high gain and minimal processing.</string>
-    <string name="mic_mode_voice_perf">品質</string>
-    <string name="mic_mode_voice_perf_desc">音声品質:リアルタイムの音声アプリケーション向けに最適化されています。通常の音声通話よりも遅延が小さくなります。</string>
-    <string name="mic_mode_unprocessed">未処理</string>
-    <string name="mic_mode_unprocessed_desc">未処理: マイクからの生音声。ゲイン調整、ノイズ抑制なし。正確な音楽ビジュアライゼーションに最適です。</string>
+    <string name="mic_mode_voice_comm_desc">ボイスコム:通常、エコーやノイズが抑制されます。</string>
+    <string name="mic_mode_voice_rec">謝辞</string>
+    <string name="mic_mode_voice_rec_desc">ボイスレコグナイゼーション:音声認識のために最適化されています。ゲインが高く処理が最小限に抑えられています。</string>
+    <string name="mic_mode_voice_perf">パフォーマンス</string>
+    <string name="mic_mode_voice_perf_desc">パフォーマンス:リアルタイムの音声アプリケーション向けに最適化されています。通常の音声通話よりも遅延が小さくなります。</string>
+    <string name="mic_mode_unprocessed">RAW</string>
+    <string name="mic_mode_unprocessed_desc">RAW: マイクからの生音声。ゲイン調整やノイズ抑制がないです。正確な音楽ビジュアライゼーションに最適です。</string>
     <string name="mic_mode_camcorder">カメラ</string>
-    <string name="mic_mode_camcorder_desc">ビデオカメラ: 指向性オーディオに合わせたチューニングが施されていることが多いです。</string>
+    <string name="mic_mode_camcorder_desc">ビデオカメラ: 指向性オーディオに合わせたチューニングが施されていることが多いモードです。</string>
     <!-- Flashlight Screen -->
     <string name="flashlight_header">フラッシュライトビジュアライザー</string>
     <string name="flashlight_mode_label">フラッシュエンジンモード</string>
     <string name="flashlight_mode_amplitude">強さ</string>
     <string name="flashlight_mode_beat">ビート検出</string>
-    <string name="flashlight_better_intensity_label">明るさレベル: %1$d</string>
+    <string name="flashlight_better_intensity_label">Flash brightness: %1$d</string>
     <string name="flashlight_frequency_label">周波数： %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">フラッシュライトが反応するHz範囲です。低音には低く、スネアやボーカルには高く設定します。</string>
     <string name="flashlight_threshold_label">しきい値: %.2f</string>
@@ -77,7 +77,7 @@
     <string name="flashlight_speed_label">スピード: %.0f ms</string>
     <string name="flashlight_monitor_label">フラッシュライトモニター</string>
     <string name="flashlight_duration_label">持続時間: %d ms</string>
-    <string name="flashlight_duration_desc">ミリ秒単位のパルスの持続時間。</string>
+    <string name="flashlight_duration_desc">ミリ秒単位のパルスの持続時間</string>
     <string name="experimental_features">実験的機能</string>
     <string name="feature_flashlight_levels">フラッシュライトの輝度レベル</string>
     <string name="feature_supported_n">%d 段階の調整に対応しています</string>
@@ -86,6 +86,7 @@
     <string name="spoof_device_description">選択したデバイス上で動作しているかのようにアプリを強制的に動作させます。</string>
     <string name="spoof_locale_description">ローカライズテスト用に言語を変更します。</string>
     <string name="idle_breathing_title">待機時の呼吸</string>
+    <string name="idle_breathing_tile_desc">Add and use the Idle Breathing Quick Settings tile to quickly start or stop the animation whenever BNMV is stopped. Tap here to add the tile.</string>
     <string name="start_visualizer">開始</string>
     <string name="stop_visualizer">停止</string>
     <string name="glyph_no_config">設定が読み込まれていません。設定からアップデートを確認し、最新のビジュアライザー・プリセットをダウンロードしてください。</string>
@@ -94,13 +95,13 @@
     <string name="analytics_disclaimer_title">アナリティクス</string>
     <string name="analytics_disclaimer_text">本アプリでは、ユーザー体験の向上を目的として、Google Analytics（Firebase）により匿名の使用統計データおよびクラッシュレポートを収集しています。個人情報および音声コンテンツの収集は行われません。</string>
     <string name="github_repository">GitHubリポジトリ</string>
-    <string name="version_info">バージョン %s</string>
+    <string name="version_info">Version %s (%d)</string>
     <string name="zones_config_version">設定バージョン： %s</string>
     <string name="media_projection_info">MediaProjectionはリアルタイム・ビジュアライザーの動作にのみ使用されます。不要な録音やデータの保存は行われません。</string>
     <string name="credits">クレジット</string>
     <string name="open_github_profile">GitHubプロフィールを開く</string>
     <string name="discord_server">Discordサーバー</string>
-    <string name="discord_long_press_desc">Long press if you don\'t have Discord</string>
+    <string name="discord_long_press_desc">Discordを使用していない場合、長押ししてください</string>
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">メディアプロジェクション\n（デフォルト、最適）</string>
     <string name="capture_microphone">マイク</string>
@@ -108,6 +109,7 @@
     <string name="update_available">アップデートがあります： %s</string>
     <string name="update_now">今すぐアップデート</string>
     <string name="idle_pattern">待機時のパターン</string>
+    <string name="idle_pattern_static">Static</string>
     <string name="idle_pattern_pulse">パルス</string>
     <string name="idle_pattern_wave">ウェーブ</string>
     <string name="idle_pattern_cylon">サイロン</string>
@@ -117,6 +119,7 @@
     <string name="idle_pattern_rain">雨</string>
     <string name="idle_pulse_brightness">パルスの明るさ: %d%%</string>
     <string name="idle_background_brightness">背景の明るさ: %d%%</string>
+    <string name="idle_animation_speed">Animation Speed: %.1fx</string>
     <string name="cancel">キャンセル</string>
     <string name="back">戻る</string>
     <string name="frequency_range_label">周波数範囲：%1$dHz - %2$dHz</string>
@@ -124,7 +127,7 @@
     <string name="sync_ui_to_beat">UIをビートと同期</string>
     <string name="alternate_glyph_viz">グリフビジュアライザーの代替</string>
     <string name="nav_overlay">ナビゲーションバー</string>
-    <string name="overlays">オンスクリーンビジュアライザーを有効化</string>
+    <string name="overlays">Overlays</string>
     <string name="higher_quality_audio_analysis">高品質のオーディオ解析</string>
     <string name="rounded_bars">丸いバー</string>
     <string name="style_bars">バー</string>
@@ -188,7 +191,7 @@
     <string name="tile_running">実行中</string>
     <string name="tile_subtitle_default">Better Nothing Music Vizualiser</string>
     <!-- Feature Monitors -->
-
+    <string name="haptic_monito">Haptic Monitor</string>
     <string name="flashlight_level_stats">レベル: %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">上端オーバーレイ</string>
@@ -216,6 +219,9 @@
     <string name="notification_action_haptics">ハプティクス</string>
     <string name="notification_action_flash">フラッシュ</string>
     <string name="notification_action_stop">BNMVを停止</string>
+    <string name="notification_action_previous">Previous</string>
+    <string name="notification_action_next">Next</string>
+    <string name="idle_breathing_action_stop">Stop</string>
     <!-- Device Names -->
     <string name="device_unknown">不明なデバイス</string>
     <!-- Stats Screen -->
@@ -228,12 +234,14 @@
     <string name="glyph_interface">Glyph Interface/Matrix</string>
     <string name="haptic_feedback">バイブレーション</string>
     <string name="flashlight_sync_stat">フラッシュライトと同期</string>
+    <string name="broadcasting_stat">Broadcasting</string>
+    <string name="overlay_stat">Overlays</string>
     <string name="total_active_use">アクティブ使用の合計</string>
-    <string name="export_stats">Export Stats</string>
-    <string name="import_stats">Import Stats</string>
-    <string name="stats_import_success">Stats imported successfully</string>
-    <string name="stats_import_error">Failed to import stats</string>
-    <string name="stats_export_error">Failed to export stats</string>
+    <string name="export_stats">統計情報をエクスポート</string>
+    <string name="import_stats">統計情報をインポート</string>
+    <string name="stats_import_success">統計情報は正常にインポートされました</string>
+    <string name="stats_import_error">統計情報のインポートに失敗しました</string>
+    <string name="stats_export_error">統計情報のエクスポートに失敗しました</string>
     <!-- Glyphs Screen Extra -->
     <string name="update_required">アップデートが必要です</string>
     <string name="download_full_config">プリセットを表示するには完全な設定をダウンロードしてください</string>
@@ -253,6 +261,7 @@
     <string name="output_selection">2.出力を選択</string>
     <string name="select_capture_source">1. オーディオソースを選択</string>
     <string name="broadcast">他のデバイスを接続...</string>
+    <string name="broadcast_card_description">Other devices that have BNMV installed will be able to connect to you for an even better experience</string>
     <!-- Audio Help Guides -->
     <string name="help_source_intro">ビジュアライゼーション用のオーディオをキャプチャする場所を選択してください:</string>
     <string name="help_source_internal_title">メディアプロジェクション</string>
@@ -268,6 +277,7 @@
     <string name="help_output_glyphs_desc">Glyph Interface / Matrix LEDを使用して音声をビジュアライズします。</string>
     <string name="help_output_haptics_desc">振動モーターを通して音楽を感じることができます。</string>
     <string name="help_output_flash_desc">カメラのフラッシュライトを拍に合わせてに点滅させます。</string>
+    <string name="help_output_overlays_desc">Enables on-screen visualizers and overlays.</string>
     <string name="help_output_broadcast_title">「他デバイスからの接続を許可...」</string>
     <string name="help_output_broadcast_desc">ネットワーク上の他デバイスに音声データをストリーミングします。</string>
     <string name="help_sync_title">別デバイスに接続中:</string>
@@ -282,7 +292,7 @@
     <string name="widget_stop_bnmv">STOP BNMV</string>
     <!-- First Time Help -->
     <string name="first_time_help_title">Quick Tip</string>
-
+    <string name="first_time_help_mssg">Click on the [info] buttons whenever you need help! And if you need more help, ask in the discord server that you can join in the settings tab!</string>
     <!-- Easter Eggs -->
     <string name="toast_no_output">すべての出力が無効になっているため、BNMVはなにも(Nothing)しません😆</string>
     <string name="toast_audio_title_tap">なぜここをクリックしたの? それはなにも(Nothing)しません! 😆</string>
@@ -308,4 +318,17 @@
     <string name="label_output">出力</string>
     <string name="help_show">ヘルプの表示</string>
     <!-- Google Sans Flex Tuning -->
+    <string name="gsans_weight_font_settings">Weight</string>
+    <string name="gsans_width_font_settings">Width</string>
+    <string name="gsans_slant_font_settings">Slant</string>
+    <string name="gsans_opsz_font_settings">Optical Size</string>
+    <string name="gsans_grade_font_settings">Grade</string>
+    <string name="gsans_rounding_font_settings">Rounding</string>
+    <!-- Additional UI Labels -->
+    <string name="glow_blur">Glow blur</string>
+    <string name="easter_egg_image">Easter Egg Image</string>
+    <string name="config_version_format">Version: %s</string>
+    <string name="latest_version_format">Latest: %s</string>
+    <string name="reset_font_settings">Reset Font Settings</string>
+    <string name="latency_format"> (Latency: %dms)</string>
 </resources>

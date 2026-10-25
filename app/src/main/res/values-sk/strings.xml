@@ -33,29 +33,29 @@
     <string name="haptics_mode_label">Režim Haptic Engine</string>
     <string name="haptics_mode_bass">Amplitúda</string>
     <string name="haptics_mode_beat">Detekcia rytmu</string>
-
-
-
-
+    <string name="haptics_beat_detection_1desc">Vibruje podľa rytmu vo zvolenom frekvenčnom rozsahu. Plynulejšie, no menej stabilné.</string>
+    <string name="haptics_frequency_label_b">Frekvencia: %1$d - %2$d Hz</string>
+    <string name="haptics_amplitude_label1">Sila vibrácií: %.1fx</string>
     <string name="haptics_audio_gain_label">Zosilnenie zvuku: %.1fx</string>
     <string name="haptics_gamma_label">Gamma: %.1f</string>
     <string name="haptics_decay_label">Doznievanie: %.2f</string>
     <string name="haptics_speed_label">Rýchlosť: %.1f</string>
     <string name="haptics_sensitivity_label">Citlivosť: %.1f</string>
-
     <string name="haptics_decay_instant">Bez vyhladzovania (okamžité)</string>
     <string name="haptics_decay_smooth">Vyhladzovanie aktívne</string>
     <string name="haptics_duration_label">Trvanie: %d ms</string>
-    <string name="h_beat_engine_mode_label">Reakcia vibrácií</string>
+    <string name="h_beat_engine_mode_label">Style:</string>
     <string name="beat_engine_smooth">Hladký útlm</string>
     <string name="beat_engine_short">Krátky pulz</string>
     <!-- Audio Processing -->
     <string name="microphone_mode">Režim snímania mikrofónu (pre pokročilých)</string>
     <string name="microphone_mode_desc">Mení spôsob, akým mikrofón sníma zvuk.</string>
+    <string name="mic_mode_mic">Mikrofón</string>
+    <string name="mic_mode_mic_desc">Predvolený režim mikrofónu pre Android</string>
     <string name="mic_mode_voice_comm">Hlasová komunikácia</string>
     <string name="mic_mode_voice_comm_desc">HLASOVÁ_KOMUNIKÁCIA: Zvyčajne zahŕňa potlačenie ozveny a potlačenie šumu.</string>
-    <string name="mic_mode_voice_rec">Recognition</string>
-    <string name="mic_mode_voice_rec_desc">VOICE_RECOGNITION: Optimized for speech recognition. Usually high gain and minimal processing.</string>
+    <string name="mic_mode_voice_rec">Rozpoznávanie</string>
+    <string name="mic_mode_voice_rec_desc">VOICE_RECOGNITION: Optimalizované pre rozpoznávanie reči. Zvyčajne vysoký zisk a minimálne spracovanie.</string>
     <string name="mic_mode_voice_perf">Výkon</string>
     <string name="mic_mode_voice_perf_desc">VOICE_PERFORMANCE: Optimalizované pre hlasové aplikácie v reálnom čase. Nižšie oneskorenie než pri bežnej hlasovej komunikácii.</string>
     <string name="mic_mode_unprocessed">Nespracované</string>
@@ -67,7 +67,7 @@
     <string name="flashlight_mode_label">Režim motora baterky</string>
     <string name="flashlight_mode_amplitude">Amplitúda</string>
     <string name="flashlight_mode_beat">Detekcia rytmu</string>
-    <string name="flashlight_better_intensity_label">Úrovne baterky: %1$d</string>
+    <string name="flashlight_better_intensity_label">Flash brightness: %1$d</string>
     <string name="flashlight_frequency_label">Frekvencia: %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">Frekvenčný rozsah, na ktorý bude baterka reagovať. Nižšie hodnoty pre basy, vyššie pre malý bubon alebo vokály.</string>
     <string name="flashlight_threshold_label">Prahová hodnota: %.2f</string>
@@ -86,6 +86,7 @@
     <string name="spoof_device_description">Vynúti správanie aplikácie tak, akoby bežala na vybranom zariadení.</string>
     <string name="spoof_locale_description">Zmení jazyk aplikácie na účely testovania lokalizácie.</string>
     <string name="idle_breathing_title">Nečinné dýchanie</string>
+    <string name="idle_breathing_tile_desc">Pridajte a používajte funkciu „Idle Breathing“ v rýchlych nastaveniach, vďaka ktorej môžete rýchlo spustiť alebo zastaviť animáciu vždy, keď je BNMV pozastavené. Klepnutím sem pridáte túto dlaždicu.</string>
     <string name="start_visualizer">Spustiť</string>
     <string name="stop_visualizer">Zastaviť</string>
     <string name="glyph_no_config">Nebola načítaná žiadna konfigurácia. Skontrolujte aktualizácie v Nastaveniach a stiahnite si najnovšie predvoľby vizualizéra.</string>
@@ -94,13 +95,13 @@
     <string name="analytics_disclaimer_title">Štatistika</string>
     <string name="analytics_disclaimer_text">Táto aplikácia používa Google Analytics (Firebase) na zhromažďovanie anonymných štatistík používania a hlásení o zlyhaní s cieľom zlepšiť používateľský zážitok z aplikácie. Nezhromažďujú sa žiadne osobné údaje ani zvukový obsah.</string>
     <string name="github_repository">GitHub repozitár</string>
-    <string name="version_info">Verzia %s</string>
+    <string name="version_info">Verzia %s (%d)</string>
     <string name="zones_config_version">Verzia konfigurácie: %s</string>
     <string name="media_projection_info">MediaProjection sa používa výhradne na zabezpečenie fungovania vizualizéra v reálnom čase. Nedochádza k žiadnemu zbytočnému nahrávaniu ani ukladaniu údajov.</string>
     <string name="credits">Autori</string>
     <string name="open_github_profile">Otvoriť profil na GitHube</string>
     <string name="discord_server">Discord Server</string>
-    <string name="discord_long_press_desc">Long press if you don\'t have Discord</string>
+    <string name="discord_long_press_desc">Ak nemáte Discord, stlačte a podržte tlačidlo</string>
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">Mediálna projekcia\n(predvolené, najlepšie)</string>
     <string name="capture_microphone">Mikrofón</string>
@@ -108,6 +109,7 @@
     <string name="update_available">Dostupná aktualizácia: %s</string>
     <string name="update_now">Aktualizovať teraz</string>
     <string name="idle_pattern">Režim voľnobehu</string>
+    <string name="idle_pattern_static">Statické</string>
     <string name="idle_pattern_pulse">Pulz</string>
     <string name="idle_pattern_wave">Vlna</string>
     <string name="idle_pattern_cylon">Cylon</string>
@@ -117,6 +119,7 @@
     <string name="idle_pattern_rain">Dážď</string>
     <string name="idle_pulse_brightness">Jas impulzu: %d %%</string>
     <string name="idle_background_brightness">Jas pozadia: %d %%</string>
+    <string name="idle_animation_speed">Rýchlosť animácie: %.1fx</string>
     <string name="cancel">Zrušiť</string>
     <string name="back">Naspäť</string>
     <string name="frequency_range_label">Frekvencia: %1$d - %2$d Hz</string>
@@ -124,7 +127,7 @@
     <string name="sync_ui_to_beat">Synchronizujte používateľské rozhranie s rytmom</string>
     <string name="alternate_glyph_viz">Vizualizátor alternatívnych glyph</string>
     <string name="nav_overlay">Navigačný panel</string>
-    <string name="overlays">Povoliť vizualizácie na obrazovke</string>
+    <string name="overlays">Prekrytie</string>
     <string name="higher_quality_audio_analysis">Kvalitnejšia analýza zvuku</string>
     <string name="rounded_bars">Zaoblené stĺpce</string>
     <string name="style_bars">Bary</string>
@@ -188,7 +191,7 @@
     <string name="tile_running">Spustené</string>
     <string name="tile_subtitle_default">Better Nothing Music Visualizer</string>
     <!-- Feature Monitors -->
-
+    <string name="haptic_monito">Monitor vibrácii</string>
     <string name="flashlight_level_stats">ÚROVEŇ: %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">Prekrývanie horného okraja</string>
@@ -216,6 +219,9 @@
     <string name="notification_action_haptics">haptika</string>
     <string name="notification_action_flash">blikať</string>
     <string name="notification_action_stop">Zastaviť BNMV</string>
+    <string name="notification_action_previous">Predchádzajúce</string>
+    <string name="notification_action_next">Ďalšie</string>
+    <string name="idle_breathing_action_stop">Zastaviť</string>
     <!-- Device Names -->
     <string name="device_unknown">Neznáme zariadenie</string>
     <!-- Stats Screen -->
@@ -228,12 +234,14 @@
     <string name="glyph_interface">Rozhranie Glyph/Matrix</string>
     <string name="haptic_feedback">Haptické vibrácie</string>
     <string name="flashlight_sync_stat">Synchronizácia svietidiel</string>
+    <string name="broadcasting_stat">Vysielanie</string>
+    <string name="overlay_stat">Prekrytie</string>
     <string name="total_active_use">Celkové aktívne využitie</string>
-    <string name="export_stats">Export Stats</string>
-    <string name="import_stats">Import Stats</string>
-    <string name="stats_import_success">Stats imported successfully</string>
-    <string name="stats_import_error">Failed to import stats</string>
-    <string name="stats_export_error">Failed to export stats</string>
+    <string name="export_stats">Export štatistík</string>
+    <string name="import_stats">Import štatistík</string>
+    <string name="stats_import_success">Štatistiky boli úspešne importované</string>
+    <string name="stats_import_error">Import štatistík sa nepodaril</string>
+    <string name="stats_export_error">Export štatistík sa nepodaril</string>
     <!-- Glyphs Screen Extra -->
     <string name="update_required">Je potrebná aktualizácia</string>
     <string name="download_full_config">Stiahnite si kompletnú konfiguráciu, aby ste videli prednastavenia</string>
@@ -253,6 +261,7 @@
     <string name="output_selection">2. Vyberte výstupy</string>
     <string name="select_capture_source">1. Vyberte zdroj zvuku</string>
     <string name="broadcast">Nech sa pripoja ďalšie zariadenia...</string>
+    <string name="broadcast_card_description">Ostatné zariadenia, v ktorých je nainštalovaný BNMV, sa k vám budú môcť pripojiť, čo prinesie ešte lepší zážitok</string>
     <!-- Audio Help Guides -->
     <string name="help_source_intro">Vyberte, odkiaľ chcete zaznamenať zvuk na účely vizualizácie:</string>
     <string name="help_source_internal_title">Projekcia médií</string>
@@ -268,6 +277,7 @@
     <string name="help_output_glyphs_desc">Vizualizuje zvuk pomocou rozhrania Glyph / matrix LED diód.</string>
     <string name="help_output_haptics_desc">Vďaka haptickému vibračnému motoru vám umožňuje vnímať hudbu.</string>
     <string name="help_output_flash_desc">Bliká blesk fotoaparátu v rytme hudby.</string>
+    <string name="help_output_overlays_desc">Aktivuje vizualizátory a prekrývacie vrstvy na obrazovke.</string>
     <string name="help_output_broadcast_title">\"Nech sa pripoja ďalšie zariadenia…\"</string>
     <string name="help_output_broadcast_desc">Prenáša zvukové dáta do iných zariadení vo vašej sieti.</string>
     <string name="help_sync_title">Pripojenie k inému zariadeniu:</string>
@@ -282,7 +292,7 @@
     <string name="widget_stop_bnmv">STOP BNMV</string>
     <!-- First Time Help -->
     <string name="first_time_help_title">Quick Tip</string>
-
+    <string name="first_time_help_mssg">Ak potrebujete pomoc, kliknite na tlačidlá [info]! A ak potrebujete ďalšiu pomoc, opýtajte sa na serveri Discord, ku ktorému sa môžete pripojiť v záložke „Nastavenia“!</string>
     <!-- Easter Eggs -->
     <string name="toast_no_output">😆Všetky výstupy sú deaktivované, takže BNMV nebude robiť NIČ 😆</string>
     <string name="toast_audio_title_tap">Prečo sem klikáš? Nič sa tým nestane! 😆</string>
@@ -309,4 +319,17 @@
     <string name="label_output">VÝSTUP</string>
     <string name="help_show">Zobraziť pomoc</string>
     <!-- Google Sans Flex Tuning -->
+    <string name="gsans_weight_font_settings">Váha</string>
+    <string name="gsans_width_font_settings">Šírka</string>
+    <string name="gsans_slant_font_settings">Skosenie</string>
+    <string name="gsans_opsz_font_settings">Optická veľkosť</string>
+    <string name="gsans_grade_font_settings">Hodnotenie</string>
+    <string name="gsans_rounding_font_settings">Zaokrúhľovanie</string>
+    <!-- Additional UI Labels -->
+    <string name="glow_blur">Rozmazanie s žiarivým efektom</string>
+    <string name="easter_egg_image">Easter Egg</string>
+    <string name="config_version_format">Verzia: %s</string>
+    <string name="latest_version_format">Posledná: %s</string>
+    <string name="reset_font_settings">Obnoviť nastavenia písma</string>
+    <string name="latency_format"> (Oneskorenie: %dms)</string>
 </resources>

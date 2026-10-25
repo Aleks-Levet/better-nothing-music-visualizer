@@ -33,29 +33,29 @@
     <string name="haptics_mode_label">وضع محرك الاهتزاز</string>
     <string name="haptics_mode_bass">ارتفاع الصوت</string>
     <string name="haptics_mode_beat">التعرف على الإيقاع</string>
-
-
-
-
+    <string name="haptics_beat_detection_1desc">يهتز عند اكتشاف الإيقاعات ضمن نطاق التردد المحدد. أكثر انسيابية لكن أحيانًا أقل استقرارًا.</string>
+    <string name="haptics_frequency_label_b">نطاق التردد: %1$d Hz - %2$d Hz</string>
+    <string name="haptics_amplitude_label1">شدة الاهتزاز: %.1fx</string>
     <string name="haptics_audio_gain_label">كسب الصوت: %.1fx</string>
     <string name="haptics_gamma_label">جاما: %.1f</string>
     <string name="haptics_decay_label">التلاشي: %.2f</string>
     <string name="haptics_speed_label">السرعة: %.1f</string>
     <string name="haptics_sensitivity_label">الحساسية: %.1f</string>
-
     <string name="haptics_decay_instant">بلا تنعيم (فوري)</string>
     <string name="haptics_decay_smooth">التنعيم مفعّل</string>
     <string name="haptics_duration_label">المدة: %d ms</string>
-    <string name="h_beat_engine_mode_label">زمن استجابة المحرك</string>
+    <string name="h_beat_engine_mode_label">المظهر:</string>
     <string name="beat_engine_smooth">تلاشي سلس</string>
     <string name="beat_engine_short">نبض قصير</string>
     <!-- Audio Processing -->
     <string name="microphone_mode">وضع التقاط المايكروفون (متقدم)</string>
     <string name="microphone_mode_desc">يغير كيفية التقاط المايكروفون للصوت.</string>
+    <string name="mic_mode_mic">مايكروفون</string>
+    <string name="mic_mode_mic_desc">وضع الميكروفون الافتراضي لـAndroid</string>
     <string name="mic_mode_voice_comm">التواصل الصوتي</string>
     <string name="mic_mode_voice_comm_desc">VOICE_COMMUNICATION: في العادة يتضمن إلغاء الضجيج والصدى.</string>
-    <string name="mic_mode_voice_rec">Recognition</string>
-    <string name="mic_mode_voice_rec_desc">VOICE_RECOGNITION: Optimized for speech recognition. Usually high gain and minimal processing.</string>
+    <string name="mic_mode_voice_rec">التعرف</string>
+    <string name="mic_mode_voice_rec_desc">VOICE_RECOGNITION: محسّن للتعرف على الكلام. مقدار معالجة بسيط وارتفاع أعلى للصوت في الغالب.</string>
     <string name="mic_mode_voice_perf">الأداء</string>
     <string name="mic_mode_voice_perf_desc">VOICE_PERFORMANCE: معد لتطبيقات الصوت الفوري. زمن تأخير أقل من VOICE_COMMUNICATIONS.</string>
     <string name="mic_mode_unprocessed">غير معالج</string>
@@ -67,7 +67,7 @@
     <string name="flashlight_mode_label">وضع محرك الكشاف</string>
     <string name="flashlight_mode_amplitude">شدة الصوت</string>
     <string name="flashlight_mode_beat">كشف الإيقاع</string>
-    <string name="flashlight_better_intensity_label">مستويات الشعلة: %1$d</string>
+    <string name="flashlight_better_intensity_label">سطوع الكشاف: %1$d</string>
     <string name="flashlight_frequency_label">التردد: %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">نطاق التردد بالهرتز الذي سيستجيب له الكشاف. أقل للجهير، وأعلى للطبل الخفيف/الأصوات.</string>
     <string name="flashlight_threshold_label">العتبة: %.2f</string>
@@ -86,6 +86,7 @@
     <string name="spoof_device_description">يجبر التطبيق على التصرف كما لو كان يعمل على الجهاز المحدد.</string>
     <string name="spoof_locale_description">إجبار التطبيق على استخدام لغة معينة لأغراض الاختبار.</string>
     <string name="idle_breathing_title">التنفّس عند الخمول</string>
+    <string name="idle_breathing_tile_desc">أضف واستخدم مربع الإعداد السريع لبدء وإيقاف النمط المتحرك بشكل أسرع عندما يتوقف BNMV. اضغط هنا لإضافة مربع الإعداد السريع.</string>
     <string name="start_visualizer">بدء</string>
     <string name="stop_visualizer">إيقاف</string>
     <string name="glyph_no_config">لم يتم تحميل أي إعداد. يُرجى التحقق من التحديثات في الإعدادات لتنزيل أحدث الإعدادات المسبقة للمصور المرئي.</string>
@@ -94,13 +95,13 @@
     <string name="analytics_disclaimer_title">التحليلات</string>
     <string name="analytics_disclaimer_text">يستخدم هذا التطبيق خدمة Google Analytics (Firebase) لجمع إحصاءات استخدام مجهولة الهوية وتقارير الأعطال للمساعدة في تحسين تجربة التطبيق. لا يتم جمع أي بيانات شخصية أو محتوى صوتي.</string>
     <string name="github_repository">مستودع GitHub</string>
-    <string name="version_info">الإصدار %s</string>
+    <string name="version_info">الإصدار: %s (%d)</string>
     <string name="zones_config_version">إصدار الإعداد: %s</string>
     <string name="media_projection_info">يُستخدم MediaProjection فقط لتشغيل المصور المرئي الفوري. لا يتم إجراء أي تسجيل أو تخزين بيانات غير ضروري.</string>
     <string name="credits">شكر وتقدير</string>
     <string name="open_github_profile">فتح الملف الشخصي على GitHub</string>
     <string name="discord_server">مجتمع Discord</string>
-    <string name="discord_long_press_desc">Long press if you don\'t have Discord</string>
+    <string name="discord_long_press_desc">اضغط مطولاً إذا لا تملك Discord</string>
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">MediaProjection\n(الافتراضي، الأفضل)</string>
     <string name="capture_microphone">الميكروفون</string>
@@ -108,6 +109,7 @@
     <string name="update_available">تحديث متاح: %s</string>
     <string name="update_now">التحديث الآن</string>
     <string name="idle_pattern">نمط الخمول</string>
+    <string name="idle_pattern_static">ساكن</string>
     <string name="idle_pattern_pulse">نبض</string>
     <string name="idle_pattern_wave">موجة</string>
     <string name="idle_pattern_cylon">سايلون</string>
@@ -117,6 +119,7 @@
     <string name="idle_pattern_rain">مطر</string>
     <string name="idle_pulse_brightness">سطوع النبض: %d%%</string>
     <string name="idle_background_brightness">سطوع الخلفية: %d%%</string>
+    <string name="idle_animation_speed">سرعة الحركة: %.1fx</string>
     <string name="cancel">إلغاء</string>
     <string name="back">رجوع</string>
     <string name="frequency_range_label">نطاق التردد: %1$d هرتز - %2$d Hz</string>
@@ -124,7 +127,7 @@
     <string name="sync_ui_to_beat">مزامنة الواجهة مع الإيقاع</string>
     <string name="alternate_glyph_viz">مصور Glyph بديل</string>
     <string name="nav_overlay">شريط التنقل</string>
-    <string name="overlays">تشغيل المصور المرئي على الشاشة</string>
+    <string name="overlays">التراكبات</string>
     <string name="higher_quality_audio_analysis">تحليل صوتي بجودة أعلى</string>
     <string name="rounded_bars">أشرطة مستديرة</string>
     <string name="style_bars">أشرطة</string>
@@ -188,7 +191,7 @@
     <string name="tile_running">قيد التشغيل</string>
     <string name="tile_subtitle_default">مصور موسيقى Nothing المحسّن</string>
     <!-- Feature Monitors -->
-
+    <string name="haptic_monito">مراقب الاهتزاز</string>
     <string name="flashlight_level_stats">المستوى: %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">تراكب الحافة العلوية</string>
@@ -216,6 +219,9 @@
     <string name="notification_action_haptics">الاهتزاز</string>
     <string name="notification_action_flash">الكشاف</string>
     <string name="notification_action_stop">إيقاف BNMV</string>
+    <string name="notification_action_previous">السابق</string>
+    <string name="notification_action_next">التالي</string>
+    <string name="idle_breathing_action_stop">إيقاف</string>
     <!-- Device Names -->
     <string name="device_unknown">جهاز غير معروف</string>
     <!-- Stats Screen -->
@@ -228,12 +234,14 @@
     <string name="glyph_interface">واجهة/مصفوفة Glyph</string>
     <string name="haptic_feedback">الاهتزاز</string>
     <string name="flashlight_sync_stat">مزامنة الكشاف</string>
+    <string name="broadcasting_stat">جارٍ البث</string>
+    <string name="overlay_stat">التراكبات</string>
     <string name="total_active_use">إجمالي الاستخدام النشط</string>
-    <string name="export_stats">Export Stats</string>
-    <string name="import_stats">Import Stats</string>
-    <string name="stats_import_success">Stats imported successfully</string>
-    <string name="stats_import_error">Failed to import stats</string>
-    <string name="stats_export_error">Failed to export stats</string>
+    <string name="export_stats">تصدير الإحصائيات</string>
+    <string name="import_stats">استيراد الإحصائيات</string>
+    <string name="stats_import_success">تم استيراد الإحصائيات بنجاح</string>
+    <string name="stats_import_error">فشل استيراد الإحصائيات</string>
+    <string name="stats_export_error">فشل تصدير الإحصائيات</string>
     <!-- Glyphs Screen Extra -->
     <string name="update_required">التحديث مطلوب</string>
     <string name="download_full_config">تحميل التكوين كاملًا لرؤية الإعدادات المسبقة</string>
@@ -253,6 +261,7 @@
     <string name="output_selection">٢. اختر المخارج</string>
     <string name="select_capture_source">١. اختر مصدر الصوت</string>
     <string name="broadcast">السماح للأجهزة الأخرى بالاتصال...</string>
+    <string name="broadcast_card_description">الأجهزة الأخرى التي تم تثبيت BNMV عليها ستكون قادرة على الاتصال بجهازك للحصول على تجربة أفضل</string>
     <!-- Audio Help Guides -->
     <string name="help_source_intro">اختر مكان التقاط الصوت للتصوير المرئي:</string>
     <string name="help_source_internal_title">عرض الوسائط</string>
@@ -268,6 +277,7 @@
     <string name="help_output_glyphs_desc">يصور الصوت مرئيًا باستخدام مصابيح LED في واجهة/مصفوفة Glyph.</string>
     <string name="help_output_haptics_desc">يشعرك بالموسيقى عن طريق محرك الاهتزاز.</string>
     <string name="help_output_flash_desc">ينبض ضوء الكشاف مع الإيقاع.</string>
+    <string name="help_output_overlays_desc">يفعل المرئيات والتراكبات على الشاشة.</string>
     <string name="help_output_broadcast_title">\"السماح للأجهزة الأخرى بالاتصال...\"</string>
     <string name="help_output_broadcast_desc">يبث الصوت إلى أجهزة أخرى على شبكتك المحلية.</string>
     <string name="help_sync_title">الاتصال بجهاز آخر:</string>
@@ -282,7 +292,7 @@
     <string name="widget_stop_bnmv">STOP BNMV</string>
     <!-- First Time Help -->
     <string name="first_time_help_title">Quick Tip</string>
-
+    <string name="first_time_help_mssg">انقر فوق أزرار [info] كلما احتجت إلى المساعدة! وإذا كنت بحاجة إلى المزيد من المساعدة، اسأل في مجتمع Discord الذي يمكنك الانضمام إليه في علامة التبويب الإعدادات!</string>
     <!-- Easter Eggs -->
     <string name="toast_no_output">جميع أجهزة الإخراج معطلة، لذا BNMV will do NOTHING 😆</string>
     <string name="toast_audio_title_tap">لماذا تضغط هنا؟ It does NOTHING 😆</string>
@@ -308,4 +318,17 @@
     <string name="label_output">المخرج</string>
     <string name="help_show">عرض المساعدة</string>
     <!-- Google Sans Flex Tuning -->
+    <string name="gsans_weight_font_settings">الوزن</string>
+    <string name="gsans_width_font_settings">العرض</string>
+    <string name="gsans_slant_font_settings">الإمالة</string>
+    <string name="gsans_opsz_font_settings">الحجم البصري</string>
+    <string name="gsans_grade_font_settings">المستوى</string>
+    <string name="gsans_rounding_font_settings">التقريب</string>
+    <!-- Additional UI Labels -->
+    <string name="glow_blur">ضبابية التوهج</string>
+    <string name="easter_egg_image">صورة بيضة عيد الفصح</string>
+    <string name="config_version_format">الإصدار: %s</string>
+    <string name="latest_version_format">الأحدث: %s</string>
+    <string name="reset_font_settings">إعادة ضبط إعدادات الخط</string>
+    <string name="latency_format"> (زمن الاستجابة: %dms)</string>
 </resources>

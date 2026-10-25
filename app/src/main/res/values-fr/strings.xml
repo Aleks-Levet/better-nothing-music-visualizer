@@ -33,29 +33,29 @@
     <string name="haptics_mode_label">Mode de visualisation</string>
     <string name="haptics_mode_bass">Amplitude</string>
     <string name="haptics_mode_beat">Détection du rythme</string>
-
-
-
-
+    <string name="haptics_beat_detection_1desc">Vibre sur les battements détectés dans la plage de fréquences sélectionnée. Plus fluide mais souvent moins précis.</string>
+    <string name="haptics_frequency_label_b">Plage de fréquence : %1$d - %2$d Hz</string>
+    <string name="haptics_amplitude_label1">Force de vibration : %.1fx</string>
     <string name="haptics_audio_gain_label">Volume audio : %.1fx</string>
     <string name="haptics_gamma_label">Gamma : %.1f</string>
     <string name="haptics_decay_label">Décroissance : %.2f</string>
     <string name="haptics_speed_label">Vitesse : %.1f</string>
     <string name="haptics_sensitivity_label">Sensibilité : %.1f</string>
-
     <string name="haptics_decay_instant">Sans lissage (Instantané)</string>
     <string name="haptics_decay_smooth">Lissage actif</string>
     <string name="haptics_duration_label">Durée : %d ms</string>
-    <string name="h_beat_engine_mode_label">Mode de vibration</string>
+    <string name="h_beat_engine_mode_label">Style :</string>
     <string name="beat_engine_smooth">Fluide</string>
     <string name="beat_engine_short">Pas fluide</string>
     <!-- Audio Processing -->
     <string name="microphone_mode">Mode de capture du microphone (expert)</string>
     <string name="microphone_mode_desc">Modifie la façon dont le microphone capture l\'audio.</string>
+    <string name="mic_mode_mic">MICRO</string>
+    <string name="mic_mode_mic_desc">Le mode micro par défaut pour Android</string>
     <string name="mic_mode_voice_comm">Comm vocale</string>
     <string name="mic_mode_voice_comm_desc">VOICE_COMMUNICATION : Il a pour effet d\'annuler l\'écho et de supprimer le bruit.</string>
-    <string name="mic_mode_voice_rec">Recognition</string>
-    <string name="mic_mode_voice_rec_desc">VOICE_RECOGNITION: Optimized for speech recognition. Usually high gain and minimal processing.</string>
+    <string name="mic_mode_voice_rec">Reconnaissance voc</string>
+    <string name="mic_mode_voice_rec_desc">VOICE_RECOGNITION: Optimisé pour la reconnaissance vocale. Souvent une sensibilité élevée.</string>
     <string name="mic_mode_voice_perf">Performance</string>
     <string name="mic_mode_voice_perf_desc">VOICE_PERFORMANCE: Optimisé pour les applications vocales en temps réel. Plus faible latence que Comm Vocale.</string>
     <string name="mic_mode_unprocessed">Brut</string>
@@ -67,7 +67,7 @@
     <string name="flashlight_mode_label">Mode du visualiseur Flash</string>
     <string name="flashlight_mode_amplitude">Amplitude</string>
     <string name="flashlight_mode_beat">Détection du rythme</string>
-    <string name="flashlight_better_intensity_label">Niveaux de luminosité : %1$d</string>
+    <string name="flashlight_better_intensity_label">Luminosité du flash : %1$d</string>
     <string name="flashlight_frequency_label">Fréquence : %1$d - %2$d Hz</string>
     <string name="flashlight_frequency_desc">La plage de fréquences (Hz) à laquelle le flash réagira. Privilégiez les basses fréquences pour les kicks.</string>
     <string name="flashlight_threshold_label">Seuil : %.2f</string>
@@ -85,7 +85,8 @@
     <string name="developer_mode">Émuler un appareil...</string>
     <string name="spoof_device_description">Force l\'application à se comporter comme si elle tournait sur l\'appareil sélectionné.</string>
     <string name="spoof_locale_description">Force l\'application à utiliser une langue spécifique.</string>
-    <string name="idle_breathing_title">Animation au repos</string>
+    <string name="idle_breathing_title">Animation de silence</string>
+    <string name="idle_breathing_tile_desc">Ajoutez et utilisez le bouton des réglages rapides (quick settings) pour démarrer ou arrêter rapidement l\'animation lorsque BNMV est arrêté. Appuyez ici pour ajouter le bouton dans vos réglages rapides.</string>
     <string name="start_visualizer">Démarrer</string>
     <string name="stop_visualizer">Arrêter</string>
     <string name="glyph_no_config">Aucune configuration chargée. Vérifiez les mises à jour dans les paramètres pour télécharger les derniers préréglages.</string>
@@ -94,13 +95,13 @@
     <string name="analytics_disclaimer_title">Analyses</string>
     <string name="analytics_disclaimer_text">Cette application utilise Google Analytics (Firebase) pour collecter des statistiques d\'utilisation anonymes et des rapports de plantage afin d\'améliorer l\'expérience de l\'application. Aucune donnée personnelle ou contenu audio n\'est collectée.</string>
     <string name="github_repository">GitHub</string>
-    <string name="version_info">Version %s</string>
+    <string name="version_info">Version %s (%d)</string>
     <string name="zones_config_version">Version config : %s</string>
     <string name="media_projection_info">MediaProjection est utilisé uniquement pour l\'analyse audio en temps réel. Aucun enregistrement n\'est stocké.</string>
     <string name="credits">Remerciements</string>
     <string name="open_github_profile">Ouvrir le profil GitHub</string>
     <string name="discord_server">Serveur Discord</string>
-    <string name="discord_long_press_desc">Long press if you don\'t have Discord</string>
+    <string name="discord_long_press_desc">Appuyez de manière prolongée si vous n\'avez pas Discord</string>
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">Audio interne\n(recommandé)</string>
     <string name="capture_microphone">Microphone</string>
@@ -108,6 +109,7 @@
     <string name="update_available">Mise à jour disponible : %s</string>
     <string name="update_now">Mettre à jour</string>
     <string name="idle_pattern">Animation au repos</string>
+    <string name="idle_pattern_static">Statique</string>
     <string name="idle_pattern_pulse">Lent</string>
     <string name="idle_pattern_wave">Vague</string>
     <string name="idle_pattern_cylon">Cycle</string>
@@ -117,6 +119,7 @@
     <string name="idle_pattern_rain">Pluie</string>
     <string name="idle_pulse_brightness">Luminosité de l\'animation : %d%%</string>
     <string name="idle_background_brightness">Luminosité de l\'arrière-plan : %d%%</string>
+    <string name="idle_animation_speed">Vitesse d\'animation : %.1fx</string>
     <string name="cancel">Annuler</string>
     <string name="back">Retour</string>
     <string name="frequency_range_label">Fréquences : %1$d Hz - %2$d Hz</string>
@@ -124,7 +127,7 @@
     <string name="sync_ui_to_beat">Interface animée</string>
     <string name="alternate_glyph_viz">Visualiseur glyph alternatif</string>
     <string name="nav_overlay">Barre de navigation</string>
-    <string name="overlays">Visualiseurs sur l\'écran</string>
+    <string name="overlays">Affichages</string>
     <string name="higher_quality_audio_analysis">Analyse audio HD</string>
     <string name="rounded_bars">Barres arrondies</string>
     <string name="style_bars">Barres</string>
@@ -188,7 +191,7 @@
     <string name="tile_running">En cours</string>
     <string name="tile_subtitle_default">Better Nothing Music Vizualiser</string>
     <!-- Feature Monitors -->
-
+    <string name="haptic_monito">Vibration</string>
     <string name="flashlight_level_stats">NIVEAU : %1$d / %2$d</string>
     <!-- Visuals Options -->
     <string name="top_edge_overlay">En haut de l\'écran</string>
@@ -216,6 +219,9 @@
     <string name="notification_action_haptics">vibrations</string>
     <string name="notification_action_flash">flash</string>
     <string name="notification_action_stop">Arrêter</string>
+    <string name="notification_action_previous">Précédent</string>
+    <string name="notification_action_next">Suivant</string>
+    <string name="idle_breathing_action_stop">Arrêter</string>
     <!-- Device Names -->
     <string name="device_unknown">Appareil Inconnu</string>
     <!-- Stats Screen -->
@@ -228,12 +234,14 @@
     <string name="glyph_interface">Glyph Interface/Matrix</string>
     <string name="haptic_feedback">Vibration</string>
     <string name="flashlight_sync_stat">Synchro Flash</string>
+    <string name="broadcasting_stat">Diffusion</string>
+    <string name="overlay_stat">Affichages</string>
     <string name="total_active_use">Total de l\'utilisation active</string>
-    <string name="export_stats">Export Stats</string>
-    <string name="import_stats">Import Stats</string>
-    <string name="stats_import_success">Stats imported successfully</string>
-    <string name="stats_import_error">Failed to import stats</string>
-    <string name="stats_export_error">Failed to export stats</string>
+    <string name="export_stats">Exporter</string>
+    <string name="import_stats">Importer</string>
+    <string name="stats_import_success">Statistiques importées avec succès</string>
+    <string name="stats_import_error">Échec lors de l\'importation des statistiques</string>
+    <string name="stats_export_error">Échec lors de l\'exportation des statistiques</string>
     <!-- Glyphs Screen Extra -->
     <string name="update_required">Mise à jour requise</string>
     <string name="download_full_config">Télécharger la configuration complète pour voir les préréglages</string>
@@ -253,6 +261,7 @@
     <string name="output_selection">2. Sélectionnez les sorties</string>
     <string name="select_capture_source">1. Sélectionnez la source audio</string>
     <string name="broadcast">Laisser d\'autres appareils se connecter...</string>
+    <string name="broadcast_card_description">D\'autres appareils qui ont installé BNMV pourront se connecter à vous pour une expérience encore plus cool</string>
     <!-- Audio Help Guides -->
     <string name="help_source_intro">Choisir où capturer l\'audio pour la visualisation :</string>
     <string name="help_source_internal_title">Audio interne</string>
@@ -268,6 +277,7 @@
     <string name="help_output_glyphs_desc">Visualise l\'audio à l\'aide des LEDs Glyph Interface / Matrice.</string>
     <string name="help_output_haptics_desc">Vous permet de ressentir la musique à travers le moteur de vibration haptique.</string>
     <string name="help_output_flash_desc">Synchronise votre flash avec la musique !</string>
+    <string name="help_output_overlays_desc">Active les visualiseurs et superpositions à l\'écran.</string>
     <string name="help_output_broadcast_title">\"Permettre à d\'autres appareils de se connecter...\"</string>
     <string name="help_output_broadcast_desc">Diffuse les données audio vers d\'autres appareils de votre réseau utilisant BNMV pour pouvoir les synchroniser ensemble. Essayez, c\'est cool !</string>
     <string name="help_sync_title">Connexion à un autre appareil :</string>
@@ -282,7 +292,7 @@
     <string name="widget_stop_bnmv">ARRÊTER</string>
     <!-- First Time Help -->
     <string name="first_time_help_title">Astuce rapide</string>
-
+    <string name="first_time_help_mssg">Cliquez sur les boutons [info] chaque fois que vous avez besoin d\'aide ! Et si vous avez besoin de plus d\'aide, demandez dans notre serveur discord que vous pouvez rejoindre dans l\'onglet Paramètres !</string>
     <!-- Easter Eggs -->
     <string name="toast_no_output">Aucune sortie n\'est activée, donc BNMV ne fera NOTHING 😆</string>
     <string name="toast_audio_title_tap">Pourquoi cliquez-vous ici ??</string>
@@ -308,4 +318,17 @@
     <string name="label_output">SORTIE</string>
     <string name="help_show">Afficher l’aide</string>
     <!-- Google Sans Flex Tuning -->
+    <string name="gsans_weight_font_settings">Niveau de gras</string>
+    <string name="gsans_width_font_settings">Épaisseur</string>
+    <string name="gsans_slant_font_settings">Italique</string>
+    <string name="gsans_opsz_font_settings">Taille Visuelle</string>
+    <string name="gsans_grade_font_settings">Euh ce texte ne devrait pas apparaître...</string>
+    <string name="gsans_rounding_font_settings">Arrondi</string>
+    <!-- Additional UI Labels -->
+    <string name="glow_blur">Glow trop cool</string>
+    <string name="easter_egg_image">Image surprise</string>
+    <string name="config_version_format">Version : %s</string>
+    <string name="latest_version_format">Dernière version : %s</string>
+    <string name="reset_font_settings">Réinitialiser les paramètres des polices</string>
+    <string name="latency_format"> (Latence : %dms)</string>
 </resources>
