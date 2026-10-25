@@ -19,6 +19,7 @@
   - Overlays aren't experimental anymore, yay!!
   - Fixed camera overlay rotation and reduced its battery use.
   - Mirrored the frequency display in the navigation bar visualizer.
+  - Made the max corner rounding for the edge overlay higher.
   - Fixed clipping in on-screen overlay visualizers (they should look better now)
 - **Controls and integrations**
   - Added public intents for automation apps and a Quick Settings tile for idle-breathing-only mode.
