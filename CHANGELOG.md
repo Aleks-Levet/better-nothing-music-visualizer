@@ -1,5 +1,41 @@
 # Changelog
 
+## V4.1 [2026-10-24]
+
+- **Audio processing and capture**
+  - Added a new microphone mode and fixed microphone latency.
+  - Improved high-quality audio analysis by a lot, enable it in Experimental Settings (treble and details are more noticeabe now for example)
+  - Improved network audio synchronization and latency handling.
+  - Added Linux and Windows PC streaming tools so computer audio can be sent to BNMV over the local network (Check them in the github repo).
+- **Glyphs and device compatibility**
+  - Added an **idle-breathing-only** mode and a static animation mode for a dim glyph flashlight.
+  - Improved breathing animations, reduced their energy use, and fixed breathing stopping over time.
+  - Fixed Phone (4b) detection.
+  - Improved glyph configuration downloading and version updates.
+  - Raised the configurable maximum glyph brightness to 150%.
+  - Added a **workaround for Glyphify** stopping the service and fixed cases where the service stayed active unnecessarily.
+  - Updated the interface for devices without a glyph interface and fixed horizontal scrolling on Waydroid.
+- **Overlays**
+  - Overlays aren't experimental anymore, yay!!
+  - Fixed camera overlay rotation and reduced its battery use.
+  - Mirrored the frequency display in the navigation bar visualizer.
+  - Fixed clipping in on-screen overlay visualizers (they should look better now)
+- **Controls and integrations**
+  - Added public intents for automation apps and a Quick Settings tile for idle-breathing-only mode.
+  - Continued tuning haptic modes and streamlined haptic and flashlight controls.
+- **Settings and interface**
+  - ***Improved default settings for new users!!***
+  - Fixed settings not saving sometimes.
+  - Improved light-theme , glyph and glyph matrix previews, the navigation bar, and card/slider animations.
+  - Refined settings UI and navigation.
+- **Statistics and updates**
+  - Included idle-breathing-only sessions in usage statistics.
+  - Expanded the stats screen with overlay and broadcasting times, beat-reactive visuals, and other refinements.
+  - Added and improved the in-app update flow, including configuration updates.
+  - Encrypted stats exports are now possible (if you need to switch devices) and made performance optimizations.
+- **Maintenance and localization**
+  - Updated dependencies, the Glyph SDK, Gradle, and translations, including adding Hungarian and Slovak one.
+
 ## V4.o [2026-08-23]
 
 - **General**

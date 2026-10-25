@@ -525,6 +525,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _edgeVisualizerEnabled = MutableStateFlow(false)
     val edgeVisualizerEnabled = _edgeVisualizerEnabled.asStateFlow()
     fun setEdgeVisualizerEnabled(enabled: Boolean, fromService: Boolean = false) {
+        if (fromService && !_onScreenVisualizersEnabled.value) return
         if (_edgeVisualizerEnabled.value == enabled) return
         _edgeVisualizerEnabled.value = enabled
         if (_onScreenVisualizersEnabled.value && !fromService) {
@@ -664,6 +665,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _lensVisualizerEnabled = MutableStateFlow(false)
     val lensVisualizerEnabled = _lensVisualizerEnabled.asStateFlow()
     fun setLensVisualizerEnabled(enabled: Boolean, fromService: Boolean = false) {
+        if (fromService && !_onScreenVisualizersEnabled.value) return
         if (_lensVisualizerEnabled.value == enabled) return
         _lensVisualizerEnabled.value = enabled
         if (_onScreenVisualizersEnabled.value && !fromService) {
@@ -1336,6 +1338,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val overlayEnabled = _overlayEnabled.asStateFlow()
 
     fun setOverlayEnabled(enabled: Boolean, fromService: Boolean = false) {
+        if (fromService && !_onScreenVisualizersEnabled.value) return
         if (_overlayEnabled.value == enabled) return
         _overlayEnabled.value = enabled
         if (_onScreenVisualizersEnabled.value && !fromService) {
