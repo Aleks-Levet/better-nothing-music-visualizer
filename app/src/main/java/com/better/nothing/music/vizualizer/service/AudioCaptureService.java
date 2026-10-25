@@ -1780,22 +1780,34 @@ public class AudioCaptureService extends Service {
         int addedButtons = 0;
         if (mSelectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
             String label = getString(R.string.notification_action_glyphs);
-            builder.addAction(0, mMaxBrightness > 0 ? label.toUpperCase(Locale.ROOT) : label, PendingIntent.getService(this, 10, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_GLYPHS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
+            PendingIntent pi = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                    ? PendingIntent.getForegroundService(this, 10, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_GLYPHS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT)
+                    : PendingIntent.getService(this, 10, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_GLYPHS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.addAction(0, mMaxBrightness > 0 ? label.toUpperCase(Locale.ROOT) : label, pi);
             addedButtons++;
         }
         if (mHasHapticMotor) {
             String label = getString(R.string.notification_action_haptics);
-            builder.addAction(0, mHapticEnabled ? label.toUpperCase(Locale.ROOT) : label, PendingIntent.getService(this, 11, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_HAPTICS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
+            PendingIntent pi = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                    ? PendingIntent.getForegroundService(this, 11, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_HAPTICS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT)
+                    : PendingIntent.getService(this, 11, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_HAPTICS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.addAction(0, mHapticEnabled ? label.toUpperCase(Locale.ROOT) : label, pi);
             addedButtons++;
         }
         if (mHasFlashlight) {
             String label = getString(R.string.notification_action_flash);
-            builder.addAction(0, mFlashlightEnabled ? label.toUpperCase(Locale.ROOT) : label, PendingIntent.getService(this, 12, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_TORCH), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
+            PendingIntent pi = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                    ? PendingIntent.getForegroundService(this, 12, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_TORCH), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT)
+                    : PendingIntent.getService(this, 12, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_TORCH), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.addAction(0, mFlashlightEnabled ? label.toUpperCase(Locale.ROOT) : label, pi);
             addedButtons++;
         }
         
         if (addedButtons <= 2) {
-            builder.addAction(android.R.drawable.ic_media_pause, getString(R.string.notification_action_stop), PendingIntent.getService(this, 1, createStopIntent(this), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
+            PendingIntent stopPi = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                    ? PendingIntent.getForegroundService(this, 1, createStopIntent(this), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT)
+                    : PendingIntent.getService(this, 1, createStopIntent(this), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.addAction(android.R.drawable.ic_media_pause, getString(R.string.notification_action_stop), stopPi);
         }
 
         return builder.build();

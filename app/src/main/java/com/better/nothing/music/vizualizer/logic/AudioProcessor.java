@@ -136,7 +136,7 @@ public class AudioProcessor {
             float mag = (float) (Math.hypot(re, im) / (analysisWindow / 2.0));
             float freq = i * hzPerBin;
             
-            float boost = 1f + (freq / 10000f) * 4f;
+            float boost = mHighQualityAnalysis ? 1f : (1f + (freq / 10000f) * 4f);
             float rawMag = mag * boost;
             
             if (i < magnitude.length) {
@@ -228,17 +228,7 @@ public class AudioProcessor {
                 float interpolatedMag = magnitude[b0] * (1f - t) + magnitude[b1] * t;
 
                 float magVal = Math.max(maxMag, interpolatedMag);
-                float scaledMag = magVal * gain;
-
-                // Decibel (dB) Conversion (-40 dB to 0 dB mapped to 0..4095)
-                float db = (float) (20.0 * Math.log10(scaledMag + 1e-9));
-                float dbMin = -40.0f;
-                float dbMax = 0.0f;
-                float norm = (db - dbMin) / (dbMax - dbMin);
-                if (norm < 0f) norm = 0f;
-                if (norm > 1f) norm = 1f;
-
-                rawVal = (int) (norm * 4095f);
+                rawVal = (int) Math.min(4095, magVal * 4095f * gain);
             } else {
                 float continuousBin = fCenter / hzPerBin;
                 int b0 = (int) continuousBin;
