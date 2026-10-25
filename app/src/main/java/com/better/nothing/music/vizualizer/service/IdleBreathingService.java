@@ -454,21 +454,30 @@ public class IdleBreathingService extends Service {
     }
 
     private Notification buildNotification(PendingIntent contentIntent, String currentPattern) {
-        PendingIntent previousIntent = PendingIntent.getService(
-                this,
-                1,
-                new Intent(this, IdleBreathingService.class).setAction(ACTION_PREVIOUS_PATTERN),
-                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent nextIntent = PendingIntent.getService(
-                this,
-                2,
-                new Intent(this, IdleBreathingService.class).setAction(ACTION_NEXT_PATTERN),
-                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent stopIntent = PendingIntent.getService(
-                this,
-                3,
-                new Intent(this, IdleBreathingService.class).setAction(ACTION_STOP),
-                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent previousIntent;
+        PendingIntent nextIntent;
+        PendingIntent stopIntent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            previousIntent = PendingIntent.getForegroundService(
+                    this, 1, new Intent(this, IdleBreathingService.class).setAction(ACTION_PREVIOUS_PATTERN),
+                    PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+            nextIntent = PendingIntent.getForegroundService(
+                    this, 2, new Intent(this, IdleBreathingService.class).setAction(ACTION_NEXT_PATTERN),
+                    PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+            stopIntent = PendingIntent.getForegroundService(
+                    this, 3, new Intent(this, IdleBreathingService.class).setAction(ACTION_STOP),
+                    PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        } else {
+            previousIntent = PendingIntent.getService(
+                    this, 1, new Intent(this, IdleBreathingService.class).setAction(ACTION_PREVIOUS_PATTERN),
+                    PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+            nextIntent = PendingIntent.getService(
+                    this, 2, new Intent(this, IdleBreathingService.class).setAction(ACTION_NEXT_PATTERN),
+                    PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+            stopIntent = PendingIntent.getService(
+                    this, 3, new Intent(this, IdleBreathingService.class).setAction(ACTION_STOP),
+                    PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        }
 
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(getString(R.string.idle_breathing_title))
