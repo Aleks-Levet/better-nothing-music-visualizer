@@ -734,7 +734,8 @@ public class AudioCaptureService extends Service {
         setFlashlightPulseDurationMs(getSafeInt(appPrefs, "flashlight_pulse_duration_ms", 40));
         setFlashlightBeatSensitivity(getSafeFloat(appPrefs, "flashlight_beat_sensitivity", 1.0f));
         setFlashlightSpeedMs(getSafeFloat(appPrefs, "flashlight_speed_ms", 80f));
-        setFlashlightThreshold(getSafeFloat(appPrefs, "flashlight_threshold", 0.15f));
+        float defaultFlashlightThreshold = mFlashlightEngine.getTorchIntensityLevels() <= 1 ? 0.8f : 0.15f;
+        setFlashlightThreshold(getSafeFloat(appPrefs, "flashlight_threshold", defaultFlashlightThreshold));
         setFlashlightFreqRange(getSafeFloat(appPrefs, "flashlight_freq_min", 70f), getSafeFloat(appPrefs, "flashlight_freq_max", 130f));
         setFlashlightMaxIntensity(getSafeInt(appPrefs, "flashlight_max_intensity", -1));
         setFlashlightBeatGamma(getSafeFloat(appPrefs, "flashlight_beat_gamma", 12.0f));

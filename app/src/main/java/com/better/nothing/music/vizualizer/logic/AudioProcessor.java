@@ -230,9 +230,9 @@ public class AudioProcessor {
                 float magVal = Math.max(maxMag, interpolatedMag);
                 float scaledMag = magVal * gain;
 
-                // Decibel (dB) Conversion (-24 dB floor to 0 dB peak mapped to 0..4095)
+                // Decibel (dB) Conversion (-30 dB floor to 0 dB peak mapped to 0..4095)
                 float db = (float) (20.0 * Math.log10(scaledMag + 1e-9));
-                float dbMin = -24.0f;
+                float dbMin = -30.0f;
                 float dbMax = 0.0f;
                 float norm = (db - dbMin) / (dbMax - dbMin);
                 if (norm < 0f) norm = 0f;

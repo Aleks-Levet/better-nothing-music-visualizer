@@ -2045,7 +2045,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val _flashlightFreqMax = MutableStateFlow(130f)
     val flashlightFreqMax = _flashlightFreqMax.asStateFlow()
 
-    val _flashlightThreshold = MutableStateFlow(0.15f)
+    val _flashlightThreshold = MutableStateFlow(0.8f)
     val flashlightThreshold = _flashlightThreshold.asStateFlow()
 
     val _flashlightSpeedMs = MutableStateFlow(80f)
@@ -2533,7 +2533,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _flashlightMode.value = safeValueOf(get("flashlight_mode", ""), TorchMode.BEAT_DETECTION)
         _flashlightFreqMin.value = get("flashlight_freq_min", 70).toFloat()
         _flashlightFreqMax.value = get("flashlight_freq_max", 130).toFloat()
-        _flashlightThreshold.value = get("flashlight_threshold", 0.15f)
+        val defaultFlashlightThreshold =
+            if (_flashlightIntensityLevels.value <= 1) 0.8f else 0.15f
+        _flashlightThreshold.value = get("flashlight_threshold", defaultFlashlightThreshold)
         _flashlightBeatSensitivity.value = get("flashlight_beat_sensitivity", 1.0f)
         _flashlightBeatGamma.value = get("flashlight_beat_gamma", 12.0f)
         _flashlightSpeedMs.value = get("flashlight_speed_ms", 80f)
