@@ -2625,6 +2625,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
                 if (isCapturing) {
                     _totalVisualizedTime.value += delta
+                    if (
+                        _onScreenVisualizersEnabled.value &&
+                        (_overlayEnabled.value || _edgeVisualizerEnabled.value || _lensVisualizerEnabled.value)
+                    ) {
+                        _totalOverlayTime.value += delta
+                    }
                     val service = MainActivity.serviceStatic
                     val hasActivity = if (service != null) {
                         service.latestMagnitudes.any { it > 4 }
@@ -2637,7 +2643,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         if (_flashlightEnabled.value) _totalFlashlightTime.value += delta
                         if (_glyphsEnabled.value && _maxBrightness.value > 0) _totalGlyphTime.value += delta
                         if (_broadcastEnabled.value) _totalBroadcastingTime.value += delta
-                        if (_overlayEnabled.value && _onScreenVisualizersEnabled.value) _totalOverlayTime.value += delta
                     } else {
                         _totalIdleTime.value += delta
                         if (_idleBreathingEnabled.value && _glyphsEnabled.value && _maxBrightness.value > 0) {

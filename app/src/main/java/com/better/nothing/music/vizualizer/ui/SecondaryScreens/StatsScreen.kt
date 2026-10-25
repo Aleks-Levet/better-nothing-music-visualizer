@@ -82,13 +82,18 @@ internal fun StatsScreen(
     val flashlightEnabled by viewModel.flashlightEnabled.collectAsStateWithLifecycle()
     val broadcastEnabled by viewModel.broadcastEnabled.collectAsStateWithLifecycle()
     val overlayEnabled by viewModel.overlayEnabled.collectAsStateWithLifecycle()
+    val edgeVisualizerEnabled by viewModel.edgeVisualizerEnabled.collectAsStateWithLifecycle()
+    val lensVisualizerEnabled by viewModel.lensVisualizerEnabled.collectAsStateWithLifecycle()
     val onScreenVisualizersEnabled by viewModel.onScreenVisualizersEnabled.collectAsStateWithLifecycle()
 
     val isGlyphActive = !isRunning or  glyphsEnabled && maxBrightness > 0
     val isHapticActive = !isRunning or hapticEnabled
     val isFlashlightActive = !isRunning or  flashlightEnabled
     val isBroadcastActive = !isRunning or  broadcastEnabled
-    val isOverlayActive = !isRunning or (overlayEnabled && onScreenVisualizersEnabled)
+    val isOverlayActive = !isRunning or (
+        onScreenVisualizersEnabled &&
+            (overlayEnabled || edgeVisualizerEnabled || lensVisualizerEnabled)
+        )
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
