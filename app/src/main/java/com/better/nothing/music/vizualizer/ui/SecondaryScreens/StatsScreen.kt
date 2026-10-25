@@ -302,7 +302,7 @@ private fun HeroStatCard(
     val beatScale = 1.0f + (uiAmp - 1.0f) * 0.08f
 
     // Pill shape (fully rounded corners) when uiAmp is 1.0, diminishing radius as uiAmp increases
-    val heroShapeRadius = (90.dp - (45.dp * (uiAmp - 1.0f))).coerceIn(12.dp, 120.dp)
+    val heroShapeRadius = (70.dp - (45.dp * (uiAmp - 1.0f))).coerceIn(12.dp, 120.dp)
     val valueWeight = FontWeight((900 + (uiAmp - 1.0f) * 350).toInt().coerceIn(500, 1000))
 
     Surface(
@@ -334,8 +334,8 @@ private fun HeroStatCard(
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontFeatureSettings = "tnum" // Enables tabular (equal width) figures
                 ),
-                fontSize = 68.sp,
-                lineHeight = 74.sp, // Controls the line spacing/height for the large text
+                fontSize = 46.sp,
+                lineHeight = 60.sp, // Controls the line spacing/height for the large text
                 fontWeight = valueWeight,
                 textAlign = TextAlign.Center,
                 letterSpacing = 0.sp
