@@ -164,7 +164,7 @@ internal fun StatsScreen(
             // Hero Card
             HeroStatCard(
                 label = stringResource(R.string.total_visualization_time),
-                value = formatTime(totalTime),
+                value = formatTime1(totalTime),
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )
@@ -552,8 +552,18 @@ private fun formatTime(ms: Long): String {
     val minutes = TimeUnit.MILLISECONDS.toMinutes(ms) % 60
     val seconds = TimeUnit.MILLISECONDS.toSeconds(ms) % 60
     val tenths = (ms / 100) % 10
-    
+
     return if (hours > 0) "${hours}h ${minutes}m ${seconds}.${tenths}s"
-           else if (minutes > 0) "${minutes}m ${seconds}.${tenths}s"
-           else "${seconds}.${tenths}s"
+    else if (minutes > 0) "${minutes}m ${seconds}.${tenths}s"
+    else "${seconds}.${tenths}s"
+}
+private fun formatTime1(ms: Long): String {
+    val hours = TimeUnit.MILLISECONDS.toHours(ms)
+    val minutes = TimeUnit.MILLISECONDS.toMinutes(ms) % 60
+    val seconds = TimeUnit.MILLISECONDS.toSeconds(ms) % 60
+    val tenths = (ms / 100) % 10
+
+    return if (hours > 0) "${hours}h ${minutes}m ${seconds}s"
+    else if (minutes > 0) "${minutes}m ${seconds}.${tenths}s"
+    else "${seconds}.${tenths}s"
 }
