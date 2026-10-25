@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -35,9 +36,11 @@ import com.better.nothing.music.vizualizer.ui.MicrophoneMode
 import com.better.nothing.music.vizualizer.model.DeviceProfile
 import com.better.nothing.music.vizualizer.ui.ExpressiveSlider
 import com.better.nothing.music.vizualizer.ui.BodyText
+import com.better.nothing.music.vizualizer.ui.CardHeader
 import com.better.nothing.music.vizualizer.ui.ExpandableExpressiveCard
 import com.better.nothing.music.vizualizer.ui.ExpressiveSplitButton
 import com.better.nothing.music.vizualizer.ui.ExpressiveSwitch
+import com.better.nothing.music.vizualizer.ui.IndicatorPill
 import com.better.nothing.music.vizualizer.ui.LinkCard
 import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
 import com.better.nothing.music.vizualizer.ui.MainViewModel
@@ -155,6 +158,7 @@ internal fun SettingsScreen(
                         enter = expandVertically() + fadeIn(),
                         exit = shrinkVertically() + fadeOut()
                     ) {
+                        var isFontSettingsExpanded by rememberSaveable { mutableStateOf(false) }
                         val weight by viewModel.googleSansWeight.collectAsStateWithLifecycle()
                         val width by viewModel.googleSansWidth.collectAsStateWithLifecycle()
                         val slant by viewModel.googleSansSlant.collectAsStateWithLifecycle()
@@ -166,6 +170,26 @@ internal fun SettingsScreen(
                                 .padding(top = 8.dp),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
+                            CardHeader(
+                                title = stringResource(R.string.font_google_sans),
+                                trailingContent = {
+                                    IndicatorPill(
+                                        isExpanded = isFontSettingsExpanded,
+                                        onClick = {
+                                            isFontSettingsExpanded = !isFontSettingsExpanded
+                                        }
+                                    )
+                                }
+                            )
+
+                            AnimatedVisibility(
+                                visible = isFontSettingsExpanded,
+                                enter = expandVertically() + fadeIn(),
+                                exit = shrinkVertically() + fadeOut()
+                            ) {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
                             // Weight and Width Side by Side
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -516,6 +540,8 @@ internal fun SettingsScreen(
                                 maxButtonsPerRow = 5
                             )
                         }
+                    }
+                }
                     }
                 }
             }

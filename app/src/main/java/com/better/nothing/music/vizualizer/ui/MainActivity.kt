@@ -117,14 +117,14 @@ class MainActivity : AppCompatActivity() {
     private var pendingResultCode = 0
     private var pendingData: Intent? = null
     private var pendingVisualizerStart = false
-    private var showWelcomeRibbon = false
+    private var showWelcomeRibbon by mutableStateOf(false)
 
     companion object {
         const val EXTRA_REQUEST_START = "request_start"
         const val EXTRA_OPEN_IDLE_BREATHING_SETTINGS = "open_idle_breathing_settings"
         private const val PREF_LAST_OPENED_VERSION_CODE = "last_opened_version_code"
         private const val STATE_SHOW_WELCOME_RIBBON = "show_welcome_ribbon"
-        private const val CHANGELOG_URL =
+        internal const val CHANGELOG_URL =
             "https://github.com/Aleks-Levet/better-nothing-music-visualizer/blob/main/CHANGELOG.md"
         var serviceStatic: AudioCaptureService? = null
     }
@@ -402,6 +402,7 @@ class MainActivity : AppCompatActivity() {
                         },
                         showWelcomeRibbon = showWelcomeRibbon,
                         onChangelogClick = {
+                            showWelcomeRibbon = false
                             startActivity(Intent(Intent.ACTION_VIEW, CHANGELOG_URL.toUri()))
                         },
                         backProgress = backProgress

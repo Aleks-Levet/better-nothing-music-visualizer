@@ -132,6 +132,8 @@
     <string name="welcome_to_version">Welcome to BNMV %1$s!</string>
     <string name="click_to_see_changelog">Click me to see the changelog!</string>
     <string name="see_changelog">SEE CHANGELOG</string>
+    <string name="changelog_title">Changelog</string>
+    <string name="read_changelog">Read the latest changes</string>
 
     <string name="idle_pattern">Idle Pattern</string>
     <string name="idle_pattern_static">Static</string>

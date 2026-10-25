@@ -24,6 +24,7 @@ import com.better.nothing.music.vizualizer.BuildConfig
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.ui.ExpressiveCard
 import com.better.nothing.music.vizualizer.ui.LinkCard
+import com.better.nothing.music.vizualizer.ui.MainActivity
 import com.better.nothing.music.vizualizer.ui.MainViewModel
 import com.better.nothing.music.vizualizer.ui.ScreenTitle
 import com.better.nothing.music.vizualizer.ui.SectionHeader
@@ -105,6 +106,13 @@ internal fun AboutScreen(
                     title = stringResource(R.string.github_repository),
                     subtitle = stringResource(R.string.view_source_contributions),
                     onClick = { uriHandler.openUri("https://github.com/Aleks-Levet/better-nothing-music-visualizer") }
+                )
+
+                LinkCard(
+                    icon = Icons.Default.Description,
+                    title = stringResource(R.string.changelog_title),
+                    subtitle = stringResource(R.string.read_changelog),
+                    onClick = { uriHandler.openUri(MainActivity.CHANGELOG_URL) }
                 )
 
                 // License Action

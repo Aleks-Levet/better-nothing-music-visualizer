@@ -1,7 +1,7 @@
 # Changelog
 
 ## V4.1 [2026-10-24]
-- As you can see, added a way to see the changlog everytime you update the app in a non-intrusive way
+- As you can see, added a way to see the changlog everytime you update the app in a non-intrusive way!
 - **Audio processing and capture**
   - Added a new microphone mode and fixed microphone latency.
   - Improved high-quality audio analysis by a lot, enable it in Experimental Settings (treble and details are more noticeabe now for example)
@@ -28,6 +28,7 @@
   - Fixed settings not saving sometimes.
   - Improved light-theme , glyph and glyph matrix previews, the navigation bar, and card/slider animations.
   - Refined settings UI and navigation.
+  - Changed the default font to te rounded Google Sans Flex.
 - **Statistics and updates**
   - Included idle-breathing-only sessions in usage statistics.
   - Expanded the stats screen with overlay and broadcasting times, beat-reactive visuals, and other refinements.

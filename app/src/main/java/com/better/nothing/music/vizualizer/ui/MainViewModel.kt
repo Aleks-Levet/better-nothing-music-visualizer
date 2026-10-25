@@ -810,7 +810,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val _selectedFont = MutableStateFlow("NDot")
+    private val _selectedFont = MutableStateFlow("Google Sans Flex")
     val selectedFont = _selectedFont.asStateFlow()
     fun setSelectedFont(font: String) {
         _selectedFont.value = font
@@ -851,7 +851,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val _googleSansRounding = MutableStateFlow(0f)
+    private val _googleSansRounding = MutableStateFlow(100f)
     val googleSansRounding = _googleSansRounding.asStateFlow()
     fun setGoogleSansRounding(value: Float) {
         _googleSansRounding.value = value
@@ -865,7 +865,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         setGoogleSansWeight(400f)
         setGoogleSansWidth(100f)
         setGoogleSansSlant(0f)
-        setGoogleSansRounding(0f)
+        setGoogleSansRounding(100f)
     }
 
     private val _customFontPath = MutableStateFlow<String?>(null)
@@ -2507,14 +2507,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _glyphsEnabled.value = get("glyphs_enabled", true)
         _selectedPreset.value = get("selected_preset", "Default")
         _selectedTheme.value = get("selected_theme", "Default")
-        _selectedFont.value = get("selected_font", "NDot")
+        _selectedFont.value = get("selected_font", "Google Sans Flex")
         _broadcastEnabled.value = get("broadcast_enabled", false)
 
         // Google Sans Flex Axes
         _googleSansWeight.value = get("gsans_weight", 400f)
         _googleSansWidth.value = get("gsans_width", 100f)
         _googleSansSlant.value = get("gsans_slant", 0f)
-        _googleSansRounding.value = get("gsans_rounding", 0f)
+        _googleSansRounding.value = get("gsans_rounding", 100f)
 
         // Haptics settings
         _hapticMotorEnabled.value = get("haptic_motor_enabled", false)

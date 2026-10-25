@@ -338,7 +338,9 @@ private fun HeroStatCard(
                 lineHeight = 60.sp, // Controls the line spacing/height for the large text
                 fontWeight = valueWeight,
                 textAlign = TextAlign.Center,
-                letterSpacing = 0.sp
+                letterSpacing = 0.sp,
+                maxLines = 1,
+                softWrap = false
             )
         }
     }
