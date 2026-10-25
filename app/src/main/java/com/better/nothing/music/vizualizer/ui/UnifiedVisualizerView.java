@@ -264,19 +264,19 @@ public class UnifiedVisualizerView extends View {
                 float normDist = Math.abs(i - center) / (mEdgeBarCountHoriz / 2f);
                 int binIdx = (int) (Math.pow(normDist, 1.5) * focusBins);
                 float val = fftraw[Math.min(fftraw.length - 1, binIdx)] / 4095f;
-                float current = val * 1.5f * mEdgeSensitivity;
+                float current = val * mEdgeSensitivity;
                 mSmoothedEdgeTop[i] = (current > mSmoothedEdgeTop[i]) ? (mSmoothedEdgeTop[i] * 0.4f + current * 0.6f) : (mSmoothedEdgeTop[i] * 0.7f + current * 0.3f);
                 mSmoothedEdgeBottom[i] = mSmoothedEdgeTop[i];
             }
             for (int i = 0; i < mEdgeBarCountVert; i++) {
                 float normPosR = 1.0f - ((float) i / (mEdgeBarCountVert - 1));
                 int binIdxR = (int) (Math.pow(normPosR, 1.5) * focusBins);
-                float currentR = (fftraw[Math.min(fftraw.length - 1, binIdxR)] / 4095f) * 1.5f * mEdgeSensitivity;
+                float currentR = (fftraw[Math.min(fftraw.length - 1, binIdxR)] / 4095f) * mEdgeSensitivity;
                 mSmoothedEdgeRight[i] = (currentR > mSmoothedEdgeRight[i]) ? (mSmoothedEdgeRight[i] * 0.4f + currentR * 0.6f) : (mSmoothedEdgeRight[i] * 0.7f + currentR * 0.3f);
 
                 float normPosL = (float) i / (mEdgeBarCountVert - 1);
                 int binIdxL = (int) (Math.pow(normPosL, 1.5) * focusBins);
-                float currentL = (fftraw[Math.min(fftraw.length - 1, binIdxL)] / 4095f) * 1.5f * mEdgeSensitivity;
+                float currentL = (fftraw[Math.min(fftraw.length - 1, binIdxL)] / 4095f) * mEdgeSensitivity;
                 mSmoothedEdgeLeft[i] = (currentL > mSmoothedEdgeLeft[i]) ? (mSmoothedEdgeLeft[i] * 0.4f + currentL * 0.6f) : (mSmoothedEdgeLeft[i] * 0.7f + currentL * 0.3f);
             }
         }
@@ -297,12 +297,12 @@ public class UnifiedVisualizerView extends View {
                 int rightIdx = halfBars + k;
 
                 if (mOverlayTopEnabled) {
-                    float curT = val * 1.5f * mOverlaySensitivityTop;
+                    float curT = val * mOverlaySensitivityTop;
                     mSmoothedOverlayTop[leftIdx] = (curT > mSmoothedOverlayTop[leftIdx]) ? (mSmoothedOverlayTop[leftIdx] * 0.4f + curT * 0.6f) : (mSmoothedOverlayTop[leftIdx] * 0.7f + curT * 0.3f);
                     mSmoothedOverlayTop[rightIdx] = mSmoothedOverlayTop[leftIdx];
                 }
                 if (mOverlayBottomEnabled) {
-                    float curB = val * 1.5f * mOverlaySensitivityBottom;
+                    float curB = val * mOverlaySensitivityBottom;
                     mSmoothedOverlayBottom[leftIdx] = (curB > mSmoothedOverlayBottom[leftIdx]) ? (mSmoothedOverlayBottom[leftIdx] * 0.4f + curB * 0.6f) : (mSmoothedOverlayBottom[leftIdx] * 0.7f + curB * 0.3f);
                     mSmoothedOverlayBottom[rightIdx] = mSmoothedOverlayBottom[leftIdx];
                 }
@@ -318,7 +318,7 @@ public class UnifiedVisualizerView extends View {
                 if (endBin <= startBin) endBin = startBin + 1;
                 int maxVal = 0;
                 for (int j = startBin; j < endBin && j < fftraw.length; j++) if (fftraw[j] > maxVal) maxVal = fftraw[j];
-                float current = (maxVal / 4095f) * 1.5f * mLensSensitivity;
+                float current = (maxVal / 4095f) * mLensSensitivity;
                 mSmoothedLensMagnitudes[i] = (current > mSmoothedLensMagnitudes[i]) ? (mSmoothedLensMagnitudes[i] * 0.4f + current * 0.6f) : (mSmoothedLensMagnitudes[i] * 0.8f + current * 0.2f);
             }
         }
