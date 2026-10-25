@@ -934,7 +934,7 @@ internal fun BetterVizApp(
                                         uriHandler.openUri(status.url)
                                     }
                                 }
-                            }
+                            )
                         )
                     }
 
@@ -952,8 +952,8 @@ internal fun BetterVizApp(
             },
             containerColor = MaterialTheme.colorScheme.background,
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
-            modifier = Modifier.fillMaxSize()
-        ) { padding ->
+            modifier = Modifier.fillMaxSize(),
+            content = { padding ->
             if (isTablet) {
                 val scrollState = rememberScrollState()
 
@@ -1099,7 +1099,8 @@ internal fun BetterVizApp(
                     }
                 }
             }
-        }
+            }
+        )
         MainOverlays(
             viewModel = viewModel,
             selectedDevice = selectedDevice,

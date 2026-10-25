@@ -2620,18 +2620,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val delta = now - lastUpdate
                 lastUpdate = now
 
-                val isCapturing = _runningState.value
+                val service = MainActivity.serviceStatic
+                val isCapturing = service?.isVisualizerRunning() ?: _runningState.value
                 val isIdleBreathingActive = IdleBreathingService.isActive()
 
                 if (isCapturing) {
                     _totalVisualizedTime.value += delta
-                    if (
-                        _onScreenVisualizersEnabled.value &&
-                        (_overlayEnabled.value || _edgeVisualizerEnabled.value || _lensVisualizerEnabled.value)
-                    ) {
+                    val isOverlayActive = service?.isOverlayVisualizerActive()
+                        ?: (_onScreenVisualizersEnabled.value &&
+                            (_overlayEnabled.value || _edgeVisualizerEnabled.value || _lensVisualizerEnabled.value))
+                    if (isOverlayActive) {
                         _totalOverlayTime.value += delta
                     }
-                    val service = MainActivity.serviceStatic
                     val hasActivity = if (service != null) {
                         service.latestMagnitudes.any { it > 4 }
                     } else {

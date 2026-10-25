@@ -1,7 +1,7 @@
 # Changelog
 
 ## V4.1 [2026-10-24]
-
+- As you can see, added a way to see the changlog everytime you update the app in a non-intrusive way
 - **Audio processing and capture**
   - Added a new microphone mode and fixed microphone latency.
   - Improved high-quality audio analysis by a lot, enable it in Experimental Settings (treble and details are more noticeabe now for example)

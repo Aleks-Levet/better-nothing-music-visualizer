@@ -436,6 +436,9 @@ public class AudioCaptureService extends Service {
         return new float[0];
     }
     public boolean isVisualizerRunning() { return sIsRunning; }
+    public boolean isOverlayVisualizerActive() {
+        return mCapturing && (mOverlayEnabled || mEdgeVisualizerEnabled || mLensVisualizerEnabled);
+    }
 
     private boolean mIsAppInForeground = false;
     public void setAppInForeground(boolean foreground) {

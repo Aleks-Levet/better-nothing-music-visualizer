@@ -459,7 +459,7 @@ fun VisualsScreen(
                     VisualSlider(
                         value = edgeCornerRadius,
                         onValueChange = { viewModel.setEdgeCornerRadius(it) },
-                        valueRange = 0f..60f,
+                        valueRange = 0f..100f,
                         modifier = Modifier.fillMaxWidth()
                     )
 
