@@ -129,6 +129,9 @@
     <string name="capture_vizualizer">Android built-in vizualizer</string>
     <string name="update_available">Update available: %s</string>
     <string name="update_now">Update Now</string>
+    <string name="welcome_to_version">Welcome to BNMV %1$s!</string>
+    <string name="click_to_see_changelog">Click me to see the changelog!</string>
+    <string name="see_changelog">SEE CHANGELOG</string>
 
     <string name="idle_pattern">Idle Pattern</string>
     <string name="idle_pattern_static">Static</string>

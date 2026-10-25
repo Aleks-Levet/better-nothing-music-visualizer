@@ -2188,16 +2188,16 @@ fun RowScope.FineTuneButton(
 
 @Composable
 fun AppUpdateRibbon(
-    status: MainViewModel.AppUpdateStatus,
-    onUpdateClick: (MainViewModel.AppUpdateStatus.Available) -> Unit,
+    content: AppRibbonContent,
     modifier: Modifier = Modifier
 ) {
     val haptics = LocalHapticFeedback.current
 
-    val ribbonBg = Color(0xFFC8102E) // Nothing Red (default theme red)
-    val darkRedButtonBg = Color(0xFF7D0014) // Darker shade of red for the button background
-    val lightRedText = Color(0xFFFFFFFF) // Light shade of red/pinkish-white for button text/icons
-    val accentRedText = Color(0xFFFFB3B3) // Soft pinkish-red for label text
+    val isWelcome = content is AppRibbonContent.Welcome
+    val ribbonBg = if (isWelcome) Color(0xFF002F6C) else Color(0xFFC8102E)
+    val buttonBg = if (isWelcome) Color(0xFF001D43) else Color(0xFF7D0014)
+    val textColor = Color.White
+    val accentTextColor = if (isWelcome) Color(0xFFB3D9FF) else Color(0xFFFFB3B3)
 
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -2219,81 +2219,133 @@ fun AppUpdateRibbon(
                 Icon(
                     imageVector = Icons.Default.SystemUpdate,
                     contentDescription = null,
-                    tint = lightRedText,
+                    tint = textColor,
                     modifier = Modifier.size(20.dp)
                 )
 
                 Column {
-                    when (status) {
-                        is MainViewModel.AppUpdateStatus.Available -> {
+                    when (content) {
+                        is AppRibbonContent.Welcome -> {
                             Text(
-                                text = stringResource(R.string.update_available_label),
+                                text = stringResource(R.string.welcome_to_version, content.versionName),
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = accentRedText
+                                color = accentTextColor
                             )
                             Text(
-                                text = "v${status.version}",
-                                style = TextStyle(
-                                    fontFamily = NTypeFontFamily,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium
-                                ),
-                                color = lightRedText
-                            )
-                        }
-                        is MainViewModel.AppUpdateStatus.Downloading -> {
-                            val percent = (status.progress * 100).toInt()
-                            Text(
-                                text = stringResource(R.string.update_downloading, percent),
+                                text = stringResource(R.string.click_to_see_changelog),
                                 style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = lightRedText
-                            )
-                            LinearProgressIndicator(
-                                progress = { status.progress },
-                                modifier = Modifier
-                                    .fillMaxWidth(0.6f)
-                                    .height(4.dp)
-                                    .padding(top = 4.dp),
-                                color = lightRedText,
-                                trackColor = darkRedButtonBg
+                                color = textColor
                             )
                         }
-                        else -> {}
+                        is AppRibbonContent.Update -> when (val status = content.status) {
+                            is MainViewModel.AppUpdateStatus.Available -> {
+                                Text(
+                                    text = stringResource(R.string.update_available_label),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = accentTextColor
+                                )
+                                Text(
+                                    text = "v${status.version}",
+                                    style = TextStyle(
+                                        fontFamily = NTypeFontFamily,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Medium
+                                    ),
+                                    color = textColor
+                                )
+                            }
+                            is MainViewModel.AppUpdateStatus.Downloading -> {
+                                val percent = (status.progress * 100).toInt()
+                                Text(
+                                    text = stringResource(R.string.update_downloading, percent),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = textColor
+                                )
+                                LinearProgressIndicator(
+                                    progress = { status.progress },
+                                    modifier = Modifier
+                                        .fillMaxWidth(0.6f)
+                                        .height(4.dp)
+                                        .padding(top = 4.dp),
+                                    color = textColor,
+                                    trackColor = buttonBg
+                                )
+                            }
+                            else -> Unit
+                        }
                     }
                 }
             }
 
-            if (status is MainViewModel.AppUpdateStatus.Available) {
-                Spacer(modifier = Modifier.width(12.dp))
-                Button(
-                    onClick = {
-                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                        onUpdateClick(status)
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = darkRedButtonBg,
-                        contentColor = lightRedText
-                    ),
-                    shape = RoundedCornerShape(12.dp),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                    modifier = Modifier.height(36.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.update_now),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = lightRedText
-                    )
+            when (content) {
+                is AppRibbonContent.Welcome -> {
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Button(
+                        onClick = {
+                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                            content.onChangelogClick()
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = buttonBg,
+                            contentColor = textColor
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                        modifier = Modifier.height(36.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.see_changelog),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = textColor
+                        )
+                    }
+                }
+                is AppRibbonContent.Update -> {
+                    val status = content.status
+                    if (status is MainViewModel.AppUpdateStatus.Available) {
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Button(
+                            onClick = {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                content.onUpdateClick(status)
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = buttonBg,
+                                contentColor = textColor
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.update_now),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = textColor
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 }
 
+sealed interface AppRibbonContent {
+    data class Update(
+        val status: MainViewModel.AppUpdateStatus,
+        val onUpdateClick: (MainViewModel.AppUpdateStatus.Available) -> Unit
+    ) : AppRibbonContent
 
-
+    data class Welcome(
+        val versionName: String,
+        val onChangelogClick: () -> Unit
+    ) : AppRibbonContent
+}
 
 
 

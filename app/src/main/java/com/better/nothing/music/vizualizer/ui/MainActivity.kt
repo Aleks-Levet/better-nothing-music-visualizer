@@ -90,6 +90,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.better.nothing.music.vizualizer.BuildConfig
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
 import com.better.nothing.music.vizualizer.ui.PrimaryScreens.AudioScreen
@@ -116,10 +117,15 @@ class MainActivity : AppCompatActivity() {
     private var pendingResultCode = 0
     private var pendingData: Intent? = null
     private var pendingVisualizerStart = false
+    private var showWelcomeRibbon = false
 
     companion object {
         const val EXTRA_REQUEST_START = "request_start"
         const val EXTRA_OPEN_IDLE_BREATHING_SETTINGS = "open_idle_breathing_settings"
+        private const val PREF_LAST_OPENED_VERSION_CODE = "last_opened_version_code"
+        private const val STATE_SHOW_WELCOME_RIBBON = "show_welcome_ribbon"
+        private const val CHANGELOG_URL =
+            "https://github.com/Aleks-Levet/better-nothing-music-visualizer/blob/main/CHANGELOG.md"
         var serviceStatic: AudioCaptureService? = null
     }
 
@@ -244,6 +250,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
         super.onCreate(savedInstanceState)
+        if (!isTrampoline) {
+            showWelcomeRibbon = savedInstanceState?.getBoolean(STATE_SHOW_WELCOME_RIBBON)
+                ?: run {
+                    val prefs = getSharedPreferences("viz_prefs", MODE_PRIVATE)
+                    val previousVersionCode = prefs.getInt(PREF_LAST_OPENED_VERSION_CODE, -1)
+                    prefs.edit()
+                        .putInt(PREF_LAST_OPENED_VERSION_CODE, BuildConfig.VERSION_CODE)
+                        .apply()
+                    previousVersionCode != BuildConfig.VERSION_CODE
+                }
+        }
         if (intent.getBooleanExtra(EXTRA_OPEN_IDLE_BREATHING_SETTINGS, false)) {
             viewModel.openIdleBreathingSettings()
         }
@@ -383,6 +400,10 @@ class MainActivity : AppCompatActivity() {
                             val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:$packageName".toUri())
                             overlayPermissionLauncher.launch(intent)
                         },
+                        showWelcomeRibbon = showWelcomeRibbon,
+                        onChangelogClick = {
+                            startActivity(Intent(Intent.ACTION_VIEW, CHANGELOG_URL.toUri()))
+                        },
                         backProgress = backProgress
                     )
 
@@ -401,6 +422,11 @@ class MainActivity : AppCompatActivity() {
 
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(STATE_SHOW_WELCOME_RIBBON, showWelcomeRibbon)
+        super.onSaveInstanceState(outState)
     }
 
     private fun toggleVisualizer(forceStart: Boolean = false, skipNotificationCheck: Boolean = false) {
@@ -694,6 +720,8 @@ internal fun BetterVizApp(
     viewModel: MainViewModel,
     onToggleVisualizer: () -> Unit,
     onOverlayPermissionRequest: () -> Unit,
+    showWelcomeRibbon: Boolean,
+    onChangelogClick: () -> Unit,
     backProgress: Float = 0f
 ) {
     val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
@@ -879,17 +907,32 @@ internal fun BetterVizApp(
             bottomBar = {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     AnimatedVisibility(
+                        visible = showWelcomeRibbon,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut()
+                    ) {
+                        AppUpdateRibbon(
+                            content = AppRibbonContent.Welcome(
+                                versionName = BuildConfig.VERSION_NAME,
+                                onChangelogClick = onChangelogClick
+                            )
+                        )
+                    }
+
+                    AnimatedVisibility(
                         visible = appUpdateStatus is MainViewModel.AppUpdateStatus.Available || appUpdateStatus is MainViewModel.AppUpdateStatus.Downloading,
                         enter = expandVertically() + fadeIn(),
                         exit = shrinkVertically() + fadeOut()
                     ) {
                         AppUpdateRibbon(
-                            status = appUpdateStatus,
-                            onUpdateClick = { status ->
-                                if (status.apkUrl != null) {
-                                    viewModel.downloadAndInstallUpdate(status.apkUrl, status.version)
-                                } else {
-                                    uriHandler.openUri(status.url)
+                            content = AppRibbonContent.Update(
+                                status = appUpdateStatus,
+                                onUpdateClick = { status ->
+                                    if (status.apkUrl != null) {
+                                        viewModel.downloadAndInstallUpdate(status.apkUrl, status.version)
+                                    } else {
+                                        uriHandler.openUri(status.url)
+                                    }
                                 }
                             }
                         )
