@@ -1,7 +1,7 @@
 # Changelog
 
 ## V4.1 [2026-10-24]
-### I'm really proud that the apk is still just 4MB
+### I'm really proud that the apk is still just 3.5MB
 - As you can see, added a way to see the changlog everytime you update the app in a non-intrusive way!
 - **Audio processing and capture**
   - Added a new microphone mode and fixed microphone latency.
