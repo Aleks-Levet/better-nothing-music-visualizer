@@ -8,8 +8,8 @@ import android.view.MotionEvent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.EaseInOutCubic
 import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.FiniteAnimationSpec
@@ -48,7 +48,6 @@ import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -165,18 +164,12 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.star
 import androidx.graphics.shapes.toPath
 import com.better.nothing.music.vizualizer.R
-import com.better.nothing.music.vizualizer.model.BeatEngineMode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlin.math.exp
@@ -766,6 +759,11 @@ fun ExpandableExpressiveCard(
         stiffness = Spring.StiffnessLow
     )
 
+    val intSizeBouncySpecEND: FiniteAnimationSpec<IntSize> = tween(
+        durationMillis = 400,
+        easing = CubicBezierEasing(0.22f, 1f, 0.36f, 1f)
+    )
+
     // Smoothly animate top padding between 20.dp (centered for 72.dp height) and 16.dp
     val pillTopPadding by animateDpAsState(
         targetValue = if (expanded) 16.dp else 20.dp,
@@ -867,11 +865,11 @@ fun ExpandableExpressiveCard(
                 visible = expanded,
                 enter = expandVertically(
                     animationSpec = intSizeBouncySpec,
-                    expandFrom = Alignment.Top
+                    expandFrom = Alignment.Bottom
                 ),
                 exit = shrinkVertically(
-                    animationSpec = intSizeBouncySpec,
-                    shrinkTowards = Alignment.Top
+                    animationSpec = intSizeBouncySpecEND,
+                    shrinkTowards = Alignment.Bottom
                 )
             ) {
                 Column(
