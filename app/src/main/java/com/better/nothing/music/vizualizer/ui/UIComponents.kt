@@ -102,12 +102,22 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -774,9 +784,7 @@ fun ExpandableExpressiveCard(
             containerColor = if (isPressed) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
         )
     ) {
-        Column(
-            modifier = Modifier.animateContentSize(animationSpec = intSizeBouncySpec)
-        ) {
+        Column() {
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.CenterStart
@@ -1735,6 +1743,8 @@ fun ExpressiveSlider(
     val wasActive = remember { mutableStateOf(false) }
 
     val view = LocalView.current
+    var showDialog by remember { mutableStateOf(false) }
+
     // Trigger haptic on Press/Release (skip initial state)
     LaunchedEffect(isActive) {
         if (!wasActive.value && isActive) {
@@ -1766,70 +1776,404 @@ fun ExpressiveSlider(
         label = "expressive_bounce"
     )
 
-    Slider(
-        value = animatedValue,
-        onValueChange = { newValue ->
-            if (newValue != value) {
-                if (!isDragged) {
-                    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
-                }
-                onValueChange(newValue)
-            }
-        },
-        valueRange = valueRange,
-        steps = steps,
-        interactionSource = interactionSource,
-        modifier = modifier
-            .height(56.dp)
-            .pointerInput(isActive) {
-                if (isActive) {
-                    awaitPointerEventScope {
+    Box(
+        modifier = modifier.pointerInput(Unit) {
+            awaitEachGesture {
+                val down = awaitFirstDown(pass = PointerEventPass.Initial)
+                val downPos = down.position
+                val touchSlop = viewConfiguration.touchSlop
+                var isLongPress = false
+                try {
+                    withTimeout(viewConfiguration.longPressTimeoutMillis) {
                         while (true) {
-                            val event = awaitPointerEvent(PointerEventPass.Main)
-                            event.changes.forEach { if (it.pressed) it.consume() }
+                            val event = awaitPointerEvent(pass = PointerEventPass.Initial)
+                            val change = event.changes.firstOrNull { it.id == down.id }
+                            if (change == null || !change.pressed) {
+                                break
+                            }
+                            if ((change.position - downPos).getDistance() > touchSlop) {
+                                break
+                            }
+                        }
+                    }
+                } catch (e: PointerEventTimeoutCancellationException) {
+                    isLongPress = true
+                }
+                if (isLongPress) {
+                    view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                    showDialog = true
+                }
+            }
+        }
+    ) {
+        Slider(
+            value = animatedValue,
+            onValueChange = { newValue ->
+                if (newValue != value) {
+                    if (!isDragged) {
+                        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
+                    }
+                    onValueChange(newValue)
+                }
+            },
+            valueRange = valueRange,
+            steps = steps,
+            interactionSource = interactionSource,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .pointerInput(isActive) {
+                    if (isActive) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent(PointerEventPass.Main)
+                                event.changes.forEach { if (it.pressed) it.consume() }
+                            }
                         }
                     }
                 }
-            }
-            .pointerInteropFilter { motionEvent ->
-                if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                    view.parent?.requestDisallowInterceptTouchEvent(true)
-                }
-                false
-            },
-        thumb = {
-            // THUMB: Gets THINNER as animationFactor increases
-            // Width: 4dp -> 2dp | Height: 44dp -> 48dp
-            val thumbWidth = 4.dp / animationFactor
+                .pointerInteropFilter { motionEvent ->
+                    if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                        view.parent?.requestDisallowInterceptTouchEvent(true)
+                    }
+                    false
+                },
+            thumb = {
+                // THUMB: Gets THINNER as animationFactor increases
+                // Width: 4dp -> 2dp | Height: 44dp -> 48dp
+                val thumbWidth = 4.dp / animationFactor
 
-            Box(
-                modifier = Modifier
-                    .size(width = thumbWidth, height = 44.dp * (animationFactor * 0.8f).coerceAtLeast(1f))
-                    .background(
-                        color = MaterialTheme.colorScheme.primary,
-                        shape = RoundedCornerShape(2.dp) // Keeps same corner radius
-                    )
-            )
-        },
-        track = { sliderState ->
-            // TRACK: Gets THICKER
-            // Radius: We want it to look like a pill when thin, but less rounded when thick
-            val trackHeight = 16.dp * animationFactor * uiAmp
-
-            SliderDefaults.Track(
-                sliderState = sliderState,
-                modifier = Modifier
-                    .height(trackHeight),
-                thumbTrackGapSize = 4.dp,
-                trackInsideCornerSize = 2.dp,
-                colors = SliderDefaults.colors(
-                    activeTrackColor = MaterialTheme.colorScheme.primary,
-                    inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                Box(
+                    modifier = Modifier
+                        .size(width = thumbWidth, height = 44.dp * (animationFactor * 0.8f).coerceAtLeast(1f))
+                        .background(
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = RoundedCornerShape(2.dp) // Keeps same corner radius
+                        )
                 )
-            )
+            },
+            track = { sliderState ->
+                // TRACK: Gets THICKER
+                // Radius: We want it to look like a pill when thin, but less rounded when thick
+                val trackHeight = 16.dp * animationFactor * uiAmp
+
+                SliderDefaults.Track(
+                    sliderState = sliderState,
+                    modifier = Modifier
+                        .height(trackHeight),
+                    thumbTrackGapSize = 4.dp,
+                    trackInsideCornerSize = 2.dp,
+                    colors = SliderDefaults.colors(
+                        activeTrackColor = MaterialTheme.colorScheme.primary,
+                        inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                )
+            }
+        )
+    }
+
+    if (showDialog) {
+        SliderValueInputDialog(
+            currentValue = value,
+            valueRange = valueRange,
+            steps = steps,
+            onDismiss = { showDialog = false },
+            onConfirm = { newValue ->
+                onValueChange(newValue)
+                showDialog = false
+            }
+        )
+    }
+}
+
+private fun formatSliderNumber(num: Float): String {
+    return if (num == num.toInt().toFloat()) {
+        num.toInt().toString()
+    } else {
+        String.format(java.util.Locale.US, "%.2f", num).trimEnd('0').trimEnd('.')
+    }
+}
+
+@Composable
+private fun SliderValueInputDialog(
+    currentValue: Float,
+    valueRange: ClosedFloatingPointRange<Float>,
+    steps: Int,
+    onDismiss: () -> Unit,
+    onConfirm: (Float) -> Unit
+) {
+    var inputText by remember { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
+
+    val rangeText = remember(valueRange) {
+        "${formatSliderNumber(valueRange.start)} - ${formatSliderNumber(valueRange.endInclusive)}"
+    }
+    val formattedCurrent = remember(currentValue) {
+        formatSliderNumber(currentValue)
+    }
+
+    val invalidNumMsg = stringResource(R.string.error_invalid_number)
+    val rangeMinStr = remember(valueRange.start) { formatSliderNumber(valueRange.start) }
+    val rangeMaxStr = remember(valueRange.endInclusive) { formatSliderNumber(valueRange.endInclusive) }
+    val outOfRangeMsg = stringResource(R.string.error_value_out_of_range, rangeMinStr, rangeMaxStr)
+
+    val validationResult = remember(inputText, valueRange, invalidNumMsg, outOfRangeMsg) {
+        val trimmed = inputText.trim()
+        if (trimmed.isEmpty()) {
+            Triple(null, false, null)
+        } else {
+            val parsed = trimmed.toFloatOrNull()
+            if (parsed == null) {
+                Triple(invalidNumMsg, false, null)
+            } else if (parsed !in valueRange) {
+                Triple(outOfRangeMsg, false, null)
+            } else {
+                Triple(null, true, parsed)
+            }
+        }
+    }
+
+    val errorMessage = validationResult.first
+    val isValid = validationResult.second
+    val parsedValue = validationResult.third
+
+    val submit: () -> Unit = remember(isValid, parsedValue, steps, valueRange, onConfirm) {
+        {
+            if (isValid && parsedValue != null) {
+                val finalVal = if (steps > 0) {
+                    val stepSize = (valueRange.endInclusive - valueRange.start) / (steps + 1)
+                    val stepIndex = Math.round((parsedValue - valueRange.start) / stepSize)
+                    (valueRange.start + stepIndex * stepSize).coerceIn(valueRange.start, valueRange.endInclusive)
+                } else {
+                    parsedValue
+                }
+                onConfirm(finalVal)
+            }
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(R.string.set_precise_value)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = stringResource(R.string.current_value_format, formattedCurrent),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                OutlinedTextField(
+                    value = inputText,
+                    onValueChange = { inputText = it },
+                    placeholder = {
+                        Text(
+                            text = rangeText,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    },
+                    isError = errorMessage != null,
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Decimal,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = { submit() }
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester)
+                )
+                if (errorMessage != null) {
+                    Text(
+                        text = errorMessage,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = submit,
+                enabled = isValid
+            ) {
+                Text(stringResource(R.string.dialog_set))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.dialog_cancel))
+            }
         }
     )
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 }
+
+@Composable
+private fun RangeSliderValueInputDialog(
+    currentRange: ClosedFloatingPointRange<Float>,
+    valueRange: ClosedFloatingPointRange<Float>,
+    onDismiss: () -> Unit,
+    onConfirm: (ClosedFloatingPointRange<Float>) -> Unit
+) {
+    var minInputText by remember { mutableStateOf("") }
+    var maxInputText by remember { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
+
+    val rangeMinStr = remember(valueRange.start) { formatSliderNumber(valueRange.start) }
+    val rangeMaxStr = remember(valueRange.endInclusive) { formatSliderNumber(valueRange.endInclusive) }
+    val rangePlaceholder = remember(rangeMinStr, rangeMaxStr) { "$rangeMinStr - $rangeMaxStr" }
+
+    val formattedMinCurrent = remember(currentRange.start) { formatSliderNumber(currentRange.start) }
+    val formattedMaxCurrent = remember(currentRange.endInclusive) { formatSliderNumber(currentRange.endInclusive) }
+
+    val invalidNumMsg = stringResource(R.string.error_invalid_number)
+    val outOfRangeMsg = stringResource(R.string.error_value_out_of_range, rangeMinStr, rangeMaxStr)
+    val minGtMaxMsg = stringResource(R.string.error_min_greater_than_max)
+
+    val validationResult = remember(minInputText, maxInputText, valueRange, invalidNumMsg, outOfRangeMsg, minGtMaxMsg) {
+        val minTrimmed = minInputText.trim()
+        val maxTrimmed = maxInputText.trim()
+
+        val parsedMin = minTrimmed.toFloatOrNull()
+        val parsedMax = maxTrimmed.toFloatOrNull()
+
+        val minErr = when {
+            minTrimmed.isEmpty() -> null
+            parsedMin == null -> invalidNumMsg
+            parsedMin !in valueRange -> outOfRangeMsg
+            else -> null
+        }
+
+        val isOrderValid = parsedMin != null && parsedMax != null && parsedMin <= parsedMax
+
+        val maxErr = when {
+            maxTrimmed.isEmpty() -> null
+            parsedMax == null -> invalidNumMsg
+            parsedMax !in valueRange -> outOfRangeMsg
+            parsedMin != null && !isOrderValid -> minGtMaxMsg
+            else -> null
+        }
+
+        val isValid = parsedMin != null && parsedMax != null &&
+                parsedMin in valueRange && parsedMax in valueRange && isOrderValid
+
+        ValidationState(minErr, maxErr, isValid, parsedMin, parsedMax)
+    }
+
+    val (minErrorMessage, maxErrorMessage, isValid, parsedMin, parsedMax) = validationResult
+
+    val submit: () -> Unit = remember(isValid, parsedMin, parsedMax, onConfirm) {
+        {
+            if (isValid && parsedMin != null && parsedMax != null) {
+                onConfirm(parsedMin..parsedMax)
+            }
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(R.string.set_precise_value)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    text = stringResource(
+                        R.string.current_range_format,
+                        formattedMinCurrent,
+                        formattedMaxCurrent
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                OutlinedTextField(
+                    value = minInputText,
+                    onValueChange = { minInputText = it },
+                    label = { Text(stringResource(R.string.label_min_value)) },
+                    placeholder = {
+                        Text(
+                            text = rangePlaceholder,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    },
+                    isError = minErrorMessage != null,
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Decimal,
+                        imeAction = ImeAction.Next
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester)
+                )
+                if (minErrorMessage != null) {
+                    Text(
+                        text = minErrorMessage,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+
+                OutlinedTextField(
+                    value = maxInputText,
+                    onValueChange = { maxInputText = it },
+                    label = { Text(stringResource(R.string.label_max_value)) },
+                    placeholder = {
+                        Text(
+                            text = rangePlaceholder,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    },
+                    isError = maxErrorMessage != null,
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Decimal,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = { submit() }
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                if (maxErrorMessage != null) {
+                    Text(
+                        text = maxErrorMessage,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = submit,
+                enabled = isValid
+            ) {
+                Text(stringResource(R.string.dialog_set))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.dialog_cancel))
+            }
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+}
+
+private data class ValidationState(
+    val minErr: String?,
+    val maxErr: String?,
+    val isValid: Boolean,
+    val parsedMin: Float?,
+    val parsedMax: Float?
+)
 
 @Composable
 fun ExpressiveRangeSlider(
@@ -1853,6 +2197,8 @@ fun ExpressiveRangeSlider(
     val view = LocalView.current
     val isAnyActive = startActive || startDragged || endActive || endDragged
     val wasActive = remember { mutableStateOf(false) }
+
+    var showDialog by remember { mutableStateOf(false) }
 
     // Trigger haptic on Press/Release (skip initial state)
     LaunchedEffect(isAnyActive) {
@@ -1894,48 +2240,92 @@ fun ExpressiveRangeSlider(
         label = "slider_end_animation"
     )
 
-    RangeSlider(
-        value = animatedStart..animatedEnd,
-        onValueChange = { newValue ->
-            onValueChange(newValue)
-        },
-        valueRange = valueRange,
-        startInteractionSource = startInteractionSource,
-        endInteractionSource = endInteractionSource,
-        modifier = modifier
-            .height(64.dp)
-            .pointerInput(isAnyActive) {
-                if (isAnyActive) {
-                    awaitPointerEventScope {
+    Box(
+        modifier = modifier.pointerInput(Unit) {
+            awaitEachGesture {
+                val down = awaitFirstDown(pass = PointerEventPass.Initial)
+                val downPos = down.position
+                val touchSlop = viewConfiguration.touchSlop
+                var isLongPress = false
+                try {
+                    withTimeout(viewConfiguration.longPressTimeoutMillis) {
                         while (true) {
-                            val event = awaitPointerEvent(PointerEventPass.Main)
-                            event.changes.forEach { if (it.pressed) it.consume() }
+                            val event = awaitPointerEvent(pass = PointerEventPass.Initial)
+                            val change = event.changes.firstOrNull { it.id == down.id }
+                            if (change == null || !change.pressed) {
+                                break
+                            }
+                            if ((change.position - downPos).getDistance() > touchSlop) {
+                                break
+                            }
+                        }
+                    }
+                } catch (e: PointerEventTimeoutCancellationException) {
+                    isLongPress = true
+                }
+                if (isLongPress) {
+                    view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                    showDialog = true
+                }
+            }
+        }
+    ) {
+        RangeSlider(
+            value = animatedStart..animatedEnd,
+            onValueChange = { newValue ->
+                onValueChange(newValue)
+            },
+            valueRange = valueRange,
+            startInteractionSource = startInteractionSource,
+            endInteractionSource = endInteractionSource,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(64.dp)
+                .pointerInput(isAnyActive) {
+                    if (isAnyActive) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent(PointerEventPass.Main)
+                                event.changes.forEach { if (it.pressed) it.consume() }
+                            }
                         }
                     }
                 }
-            }
-            .pointerInteropFilter { motionEvent ->
-                if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                    view.parent?.requestDisallowInterceptTouchEvent(true)
-                }
-                false
-            },
-        startThumb = { ExpressiveThumb(factor = startThumbFactor) },
-        endThumb = { ExpressiveThumb(factor = endThumbFactor) },
-        track = { rangeSliderState ->
-            val trackHeight = 16.dp * animationFactor * uiAmp
-            SliderDefaults.Track(
-                rangeSliderState = rangeSliderState,
-                modifier = Modifier.height(trackHeight),
-                thumbTrackGapSize = 4.dp,
-                drawStopIndicator = null,
-                colors = SliderDefaults.colors(
-                    activeTrackColor = MaterialTheme.colorScheme.primary,
-                    inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                .pointerInteropFilter { motionEvent ->
+                    if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                        view.parent?.requestDisallowInterceptTouchEvent(true)
+                    }
+                    false
+                },
+            startThumb = { ExpressiveThumb(factor = startThumbFactor) },
+            endThumb = { ExpressiveThumb(factor = endThumbFactor) },
+            track = { rangeSliderState ->
+                val trackHeight = 16.dp * animationFactor * uiAmp
+                SliderDefaults.Track(
+                    rangeSliderState = rangeSliderState,
+                    modifier = Modifier.height(trackHeight),
+                    thumbTrackGapSize = 4.dp,
+                    drawStopIndicator = null,
+                    colors = SliderDefaults.colors(
+                        activeTrackColor = MaterialTheme.colorScheme.primary,
+                        inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
                 )
-            )
-        }
-    )
+            }
+        )
+    }
+
+    if (showDialog) {
+        RangeSliderValueInputDialog(
+            currentRange = value,
+            valueRange = valueRange,
+            onDismiss = { showDialog = false },
+            onConfirm = { newRange ->
+                onValueChange(newRange)
+                showDialog = false
+            }
+        )
+    }
 }
 
 @Composable
