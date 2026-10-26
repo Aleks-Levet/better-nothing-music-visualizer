@@ -1,7 +1,7 @@
 # Changelog
 
 ## V4.1 [2026-10-24]
-### I'm really proud that the apk is still less than 4MB
+### I'm really proud that the apk is still just 4MB
 - As you can see, added a way to see the changlog everytime you update the app in a non-intrusive way!
 - **Audio processing and capture**
   - Added a new microphone mode and fixed microphone latency.
@@ -23,6 +23,7 @@
   - Made the max corner rounding for the edge overlay higher.
   - Fixed clipping in on-screen overlay visualizers (they should look better now)
 - **Controls and integrations**
+  - Added a way to input precise values by long pressing any slider
   - Added public intents for automation apps and a Quick Settings tile for idle-breathing-only mode.
   - Continued tuning haptic modes and streamlined haptic and flashlight controls.
 - **Settings and interface**

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name" translatable="false">BNMV</string>
 
     <!-- Audio Screen -->
@@ -407,4 +407,16 @@
     <string name="latest_version_format">Latest: %s</string>
     <string name="reset_font_settings">Reset Font Settings</string>
     <string name="latency_format"> (Latency: %dms)</string>
+
+    <!-- Precise Slider Input Dialog -->
+    <string name="set_precise_value" tools:ignore="MissingTranslation">Set Precise Value</string>
+    <string name="current_value_format" tools:ignore="MissingTranslation">Current: %s</string>
+    <string name="current_range_format" tools:ignore="MissingTranslation">Current: %1$s – %2$s</string>
+    <string name="dialog_set" tools:ignore="MissingTranslation">Set</string>
+    <string name="dialog_cancel" tools:ignore="MissingTranslation">Cancel</string>
+    <string name="error_invalid_number" tools:ignore="MissingTranslation">Please enter a valid number</string>
+    <string name="error_value_out_of_range" tools:ignore="MissingTranslation">Value must be between %1$s and %2$s</string>
+    <string name="error_min_greater_than_max" tools:ignore="MissingTranslation">Min must be less than or equal to Max</string>
+    <string name="label_min_value" tools:ignore="MissingTranslation">Min Value</string>
+    <string name="label_max_value" tools:ignore="MissingTranslation">Max Value</string>
 </resources>
