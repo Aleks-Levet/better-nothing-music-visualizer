@@ -34,6 +34,11 @@ android {
         targetSdk = 37
         versionCode = configuredVersionCode
         versionName = '4.1'
+
+        resourceConfigurations += ['en', 'ar', 'cy', 'de', 'es', 'fr', 'hi', 'hu', 'it', 'ja', 'ru', 'sk', 'tr']
+        ndk {
+            abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86_64'
+        }
     }
 
     buildTypes {
@@ -64,6 +69,28 @@ android {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
             // Change JVM_1_8 to JVM_11 or JVM_17 depending on your project needs
+        }
+    }
+
+    packaging {
+        resources {
+            excludes += [
+                'META-INF/*.version',
+                'META-INF/*.txt',
+                'META-INF/licenses/**',
+                'META-INF/AL2.0',
+                'META-INF/LGPL2.1',
+                'META-INF/LICENSE*',
+                'META-INF/NOTICE*',
+                'META-INF/DEPENDENCIES',
+                'META-INF/*.kotlin_module',
+                'META-INF/androidx/**/LICENSE.txt',
+                '**/kotlin-tooling-metadata.json',
+                '**/*.proto',
+                'DebugProbesKt.bin',
+                'LICENSE*.txt',
+                'kotlin/**/*.kotlin_builtins'
+            ]
         }
     }
 }
@@ -98,12 +125,6 @@ tasks.configureEach {
 
 dependencies {
     implementation 'androidx.compose.animation:animation-core:1.12.1'
-    implementation 'androidx.compose.foundation:foundation-layout:1.12.1'
-    implementation 'androidx.compose.foundation:foundation:1.12.1'
-    implementation 'androidx.compose.runtime:runtime:1.12.1'
-    implementation 'androidx.compose.runtime:runtime:1.12.1'
-    implementation 'androidx.compose.ui:ui-geometry:1.12.1'
-    implementation 'androidx.compose.ui:ui-text:1.12.1'
 
     // 1. Keep your local SDK
     implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'])
@@ -146,14 +167,13 @@ dependencies {
 
     // 7. Legacy Support
     implementation 'androidx.appcompat:appcompat:1.8.0'
-    implementation 'androidx.palette:palette-ktx:1.0.0'
-    implementation 'androidx.benchmark:benchmark-traceprocessor:1.5.0'
+    implementation 'androidx.palette:palette-ktx:1.1.0'
 
     // 8. Debugging
     debugImplementation 'androidx.compose.ui:ui-tooling'
 
     // 9. Firebase & Analytics
-    implementation platform('com.google.firebase:firebase-bom:35.0.0')
+    implementation platform('com.google.firebase:firebase-bom:35.1.0')
     implementation 'com.google.firebase:firebase-analytics'
 }
 
