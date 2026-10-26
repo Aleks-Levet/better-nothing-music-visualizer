@@ -144,7 +144,7 @@ fun FlashlightScreen(
             ExpressiveSlider(
                 value = flashlightThreshold,
                 onValueChange = onFlashlightThresholdChanged,
-                valueRange = 0.05f..0.8f,
+                valueRange = 0.05f..1.0f,
                 modifier = Modifier.fillMaxWidth()
             )
             BodyText(

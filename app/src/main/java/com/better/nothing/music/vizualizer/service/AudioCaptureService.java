@@ -404,7 +404,7 @@ public class AudioCaptureService extends Service {
     private volatile float mFlashlightMinHz = 70;
     private volatile float mFlashlightMaxHz = 130;
     private volatile AudioProcessor.FrequencyRange mFlashlightRange;
-    private volatile float mFlashlightThreshold = 0.15f;
+    private volatile float mFlashlightThreshold = 0.8f;
     private volatile float mFlashlightBeatSensitivity = 1.0f;
     private volatile float mFlashlightSpeedMs = 90f;
     private volatile float mFlashlightBeatGamma = 12.0f;

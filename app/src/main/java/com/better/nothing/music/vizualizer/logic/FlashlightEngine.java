@@ -35,7 +35,7 @@ public final class FlashlightEngine {
     private BeatEngineMode beatEngineMode = BeatEngineMode.SMOOTH;
     private int pulseDurationMs = 40;
 
-    private float amplitudeThresholdOrMultiplier = 0.15f;
+    private float amplitudeThresholdOrMultiplier = 0.8f;
     private float flashlightBeatSpeedMs = 90f;
     private float flashlightBeatGamma = 12.0f;
     private int userMaxIntensity = -1;
