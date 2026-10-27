@@ -690,7 +690,7 @@ fun CaptureSourceCard(
                 maxLines = 2
             )
         }
-        if (selectedSource == AudioCaptureService.CaptureSource.VIZUALIZER) {
+        AnimatedVisibility(selectedSource == AudioCaptureService.CaptureSource.VIZUALIZER) {
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = stringResource(R.string.audio_warning_vizualizer),

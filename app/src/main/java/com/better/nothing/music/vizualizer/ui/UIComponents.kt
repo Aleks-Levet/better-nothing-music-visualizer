@@ -755,13 +755,13 @@ fun ExpandableExpressiveCard(
     )
 
     val intSizeBouncySpec: FiniteAnimationSpec<IntSize> = spring(
-        dampingRatio = Spring.DampingRatioLowBouncy,
-        stiffness = Spring.StiffnessLow
+        dampingRatio = 0.75f,
+        stiffness = Spring.StiffnessMediumLow
     )
 
     val intSizeBouncySpecEND: FiniteAnimationSpec<IntSize> = tween(
-        durationMillis = 400,
-        easing = CubicBezierEasing(0.22f, 1f, 0.36f, 1f)
+        durationMillis = 550,
+        easing = CubicBezierEasing(0.4f, 0.0f, 0.2f, 1f)
     )
 
     // Smoothly animate top padding between 20.dp (centered for 72.dp height) and 16.dp
