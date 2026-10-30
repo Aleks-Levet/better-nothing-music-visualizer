@@ -14,7 +14,8 @@
   - Fixed Phone (4b) detection.
   - Improved glyph configuration downloading and version updates.
   - Raised the configurable maximum glyph brightness to 150%.
-  - Added a **workaround for Glyphify** stopping the service and fixed cases where the service stayed active unnecessarily.
+  - Made a Collab with the developer of the amazing Glyphify app so ***BNMV and Glyphify can now work together!!!***
+  - Fixed cases where the service stayed active unnecessarily.
   - Updated the interface for devices without a glyph interface and fixed horizontal scrolling on Waydroid.
 - **Overlays**
   - Overlays aren't experimental anymore, yay!!
