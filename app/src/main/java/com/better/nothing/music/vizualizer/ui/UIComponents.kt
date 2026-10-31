@@ -1074,13 +1074,13 @@ fun StartStopButton(
     )
 
     val containerColor by animateColorAsState(
-        targetValue   = if (running) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+        targetValue   = if (running) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary,
         animationSpec = tween(600, easing = EaseInOutCubic),
         label         = "containerColor"
     )
 
     val contentColor by animateColorAsState(
-        targetValue   = if (running) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onPrimary,
+        targetValue   = if (running) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onSecondary,
         animationSpec = tween(600, easing = EaseInOutCubic),
         label         = "contentColor"
     )
