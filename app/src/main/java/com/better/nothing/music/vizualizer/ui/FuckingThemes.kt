@@ -414,6 +414,8 @@ fun BetterVizTheme(
             val isLight = ColorUtils.calculateLuminance(colorScheme.background.toArgb().toLong().toInt()) > 0.5
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = isLight
             WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = isLight
+            window.statusBarColor = colorScheme.background.toArgb()
+            window.navigationBarColor = colorScheme.background.toArgb()
         }
     }
 
