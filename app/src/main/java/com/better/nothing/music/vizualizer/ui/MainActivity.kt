@@ -584,6 +584,7 @@ class MainActivity : AppCompatActivity() {
             it.setLensGlowBlurRadius(viewModel.lensGlowBlurRadius.value)
             it.setLensColor(viewModel.lensColor.value.toArgb())
             it.setLensStyle(viewModel.lensStyle.value)
+            it.setLensOpacity(viewModel.lensOpacity.value)
             
             it.setOverlayEnabled(viewModel.onScreenVisualizersEnabled.value && viewModel.overlayEnabled.value)
             it.setOverlayTopEnabled(viewModel.overlayTopEnabled.value)
@@ -598,6 +599,7 @@ class MainActivity : AppCompatActivity() {
             it.setOverlayGlowBlurRadius(viewModel.overlayGlowBlurRadius.value)
             it.setOverlayColor(viewModel.overlayColor.value.toArgb())
             it.setOverlayStyle(viewModel.overlayStyle.value)
+            it.setOverlayOpacity(viewModel.overlayOpacity.value)
             
             it.setEdgeVisualizerEnabled(viewModel.onScreenVisualizersEnabled.value && viewModel.edgeVisualizerEnabled.value)
             it.setEdgeThickness(viewModel.edgeThickness.value)
@@ -609,6 +611,8 @@ class MainActivity : AppCompatActivity() {
             it.setEdgeTopEnabled(viewModel.edgeTopEnabled.value)
             it.setEdgeBottomEnabled(viewModel.edgeBottomEnabled.value)
             it.setEdgeStyle(viewModel.edgeStyle.value)
+            it.setEdgeOpacity(viewModel.edgeOpacity.value)
+            it.setRoundedBarsEnabled(viewModel.roundedBarsEnabled.value)
         }
     }
 

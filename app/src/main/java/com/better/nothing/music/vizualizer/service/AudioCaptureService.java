@@ -753,11 +753,52 @@ public class AudioCaptureService extends Service {
         setBroadcastEnabled(appPrefs.getBoolean("broadcast_enabled", false));
         
         setOverlayEnabled(appPrefs.getBoolean("overlay_enabled", false));
+        mOverlayTopEnabled = appPrefs.getBoolean("overlay_top_enabled", true);
+        mOverlayBottomEnabled = appPrefs.getBoolean("overlay_bottom_enabled", false);
+        mOverlayWidth = getSafeInt(appPrefs, "overlay_width", 120);
+        mEmulateHdrOpacity = getSafeFloat(appPrefs, "emulate_hdr_opacity", 0f);
+        mOverlayHeight = getSafeInt(appPrefs, "overlay_height", 12);
+        mOverlayHeightBottom = getSafeInt(appPrefs, "overlay_height_bottom", 12);
+        mOverlayYOffset = getSafeInt(appPrefs, "overlay_y_offset", 2);
+        mOverlaySensitivity = getSafeFloat(appPrefs, "overlay_sensitivity", 1.0f);
+        mOverlaySensitivityBottom = getSafeFloat(appPrefs, "overlay_sensitivity_bottom", 1.0f);
+        mOverlayGlowBlurRadius = getSafeFloat(appPrefs, "overlay_glow_blur_radius", 24f);
         mOverlayColor = getSafeInt(appPrefs, "overlay_color", android.graphics.Color.WHITE);
+        mOverlayOpacity = getSafeFloat(appPrefs, "overlay_opacity", 1.0f);
+
         setEdgeVisualizerEnabled(appPrefs.getBoolean("edge_visualizer_enabled", false));
+        mEdgeThickness = getSafeInt(appPrefs, "edge_thickness", 12);
+        mEdgeSensitivity = getSafeFloat(appPrefs, "edge_sensitivity", 1.0f);
+        mEdgeGlowBlurRadius = getSafeFloat(appPrefs, "edge_glow_blur_radius", 24f);
+        mEdgeBarCountHoriz = getSafeInt(appPrefs, "edge_bar_count_horiz", 45);
+        mEdgeBarCountVert = getSafeInt(appPrefs, "edge_bar_count_vert", 45);
+        mEdgeCornerRadius = getSafeFloat(appPrefs, "edge_corner_radius", 0f);
+        mEdgeTopEnabled = appPrefs.getBoolean("edge_top_enabled", true);
+        mEdgeBottomEnabled = appPrefs.getBoolean("edge_bottom_enabled", true);
         mEdgeColor = getSafeInt(appPrefs, "edge_color", android.graphics.Color.WHITE);
+        mEdgeOpacity = getSafeFloat(appPrefs, "edge_opacity", 1.0f);
+
         setLensVisualizerEnabled(appPrefs.getBoolean("lens_visualizer_enabled", false));
+        mLensVisualizerRadius = getSafeFloat(appPrefs, "lens_visualizer_radius", 16f);
+        mLensVisualizerWidth = getSafeFloat(appPrefs, "lens_visualizer_width", 0f);
+        mLensVisualizerX = getSafeFloat(appPrefs, "lens_visualizer_x_px", 540f);
+        mLensVisualizerY = getSafeFloat(appPrefs, "lens_visualizer_y_px", 72f);
+        mLensVisualizerBarWidth = getSafeFloat(appPrefs, "lens_visualizer_bar_width", 1f);
+        mLensVisualizerMaxHeight = getSafeFloat(appPrefs, "lens_visualizer_max_height", 5f);
+        mLensVisualizerBarCount = getSafeInt(appPrefs, "lens_visualizer_bar_count", 35);
+        mLensVisualizerSensitivity = getSafeFloat(appPrefs, "lens_visualizer_sensitivity", 0.32f);
+        mLensGlowBlurRadius = getSafeFloat(appPrefs, "lens_glow_blur_radius", 24f);
         mLensColor = getSafeInt(appPrefs, "lens_color", android.graphics.Color.WHITE);
+        mLensOpacity = getSafeFloat(appPrefs, "lens_opacity", 1.0f);
+
+        mRoundedBarsEnabled = appPrefs.getBoolean("rounded_bars_enabled", false);
+        try {
+            mOverlayStyle = VisualizerStyle.valueOf(appPrefs.getString("overlay_style", VisualizerStyle.BARS.name()));
+            mEdgeStyle = VisualizerStyle.valueOf(appPrefs.getString("edge_style", VisualizerStyle.GLOW.name()));
+            mLensStyle = VisualizerStyle.valueOf(appPrefs.getString("lens_style", VisualizerStyle.BARS.name()));
+        } catch (Exception ignored) {}
+
+        updateUnifiedProperties();
     }
 
     @Override public IBinder onBind(Intent intent) { return mBinder; }
