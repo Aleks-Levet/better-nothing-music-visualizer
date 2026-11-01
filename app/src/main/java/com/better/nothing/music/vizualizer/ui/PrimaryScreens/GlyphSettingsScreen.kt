@@ -7,6 +7,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -780,19 +783,29 @@ fun GammaPreviewCard(gammaValue: Float) {
     val gridColor = MaterialTheme.colorScheme.outline
     val accent    = MaterialTheme.colorScheme.primary
 
+    val interactionSource = remember { MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
     val isPureBlack = MaterialTheme.colorScheme.background == Color.Black
+
+    val targetElevation = if (isPureBlack) 0.dp else if (isHovered) 18.dp else 2.dp
+    val animatedElevation by animateDpAsState(
+        targetValue = targetElevation,
+        animationSpec = tween(300),
+        label = "gammaPreviewCardElevation"
+    )
+
     Card(
         shape    = MaterialTheme.shapes.large,
         colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isPureBlack) 0.dp else 2.dp,
-            pressedElevation = 0.dp,
-            focusedElevation = 0.dp,
-            hoveredElevation = 0.dp,
-            draggedElevation = 0.dp,
+            defaultElevation = animatedElevation,
+            pressedElevation = animatedElevation,
+            focusedElevation = animatedElevation,
+            hoveredElevation = animatedElevation,
+            draggedElevation = animatedElevation,
             disabledElevation = 0.dp
         ),
-        modifier = Modifier.size(130.dp, 130.dp),
+        modifier = Modifier.size(130.dp, 130.dp).hoverable(interactionSource),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().padding(18.dp)) {
             val pad       = 8f

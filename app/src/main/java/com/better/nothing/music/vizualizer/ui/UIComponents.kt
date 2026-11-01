@@ -39,12 +39,15 @@ import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.hoverable
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -439,6 +442,14 @@ fun FlowRowScope.OptionTile(
         label = "weight"
     )
 
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    val tileShadowTarget = if (isHovered && enabled) 8.dp else 0.dp
+    val animatedTileShadow by animateDpAsState(
+        targetValue = tileShadowTarget,
+        animationSpec = tween(300),
+        label = "optionTileShadow"
+    )
+
     Surface(
         onClick = if (enabled) {
             {
@@ -450,6 +461,7 @@ fun FlowRowScope.OptionTile(
         shape = RoundedCornerShape(animatedRadius),
         color = backgroundColor,
         contentColor = contentColor,
+        shadowElevation = animatedTileShadow,
         modifier = modifier
             .weight(animatedWeight)
             .height(64.dp)
@@ -528,17 +540,28 @@ fun ExpressiveCard(
     containerColor: Color = MaterialTheme.colorScheme.surface,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
     val isPureBlack = MaterialTheme.colorScheme.background == Color.Black
+
+    val targetElevation = if (isPureBlack) 0.dp else if (isHovered) 18.dp else 10.dp
+    val animatedElevation by animateDpAsState(
+        targetValue = targetElevation,
+        animationSpec = tween(300),
+        label = "expressiveCardElevation"
+    )
+
     Card(
         modifier = modifier
+            .hoverable(interactionSource)
             .padding(vertical = 0.dp),
         shape = shape,
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isPureBlack) 0.dp else 10.dp,
-            pressedElevation = if (isPureBlack) 0.dp else 2.dp,
-            focusedElevation = if (isPureBlack) 0.dp else 10.dp,
-            hoveredElevation = if (isPureBlack) 0.dp else 10.dp,
-            draggedElevation = if (isPureBlack) 0.dp else 10.dp,
+            defaultElevation = animatedElevation,
+            pressedElevation = animatedElevation,
+            focusedElevation = animatedElevation,
+            hoveredElevation = animatedElevation,
+            draggedElevation = animatedElevation,
             disabledElevation = 0.dp
         ),
         colors = CardDefaults.cardColors(containerColor = containerColor)
@@ -566,6 +589,7 @@ fun LinkCard(
     uiAmplitude: Float = 1.0f
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
     val haptics = LocalHapticFeedback.current
     val view = LocalView.current
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -593,10 +617,18 @@ fun LinkCard(
     val titleColor = if (isGlowing) glowColor else MaterialTheme.colorScheme.onSurface
 
     val isPureBlack = MaterialTheme.colorScheme.background == Color.Black
+    val targetElevation = if (isPureBlack) 0.dp else if (isHovered) 18.dp else 10.dp
+    val animatedElevation by animateDpAsState(
+        targetValue = targetElevation,
+        animationSpec = tween(300),
+        label = "linkCardElevation"
+    )
+
     Surface(
-        shadowElevation = if (isPureBlack) 0.dp else 10.dp, //fuck yeah
+        shadowElevation = animatedElevation,
         tonalElevation = 0.dp,
         modifier = modifier
+            .hoverable(interactionSource)
             .fillMaxWidth()
             .heightIn(min = 72.dp)
             .then(
@@ -752,6 +784,7 @@ fun ExpandableExpressiveCard(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
     val haptics = LocalHapticFeedback.current
     val view = LocalView.current
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -779,15 +812,22 @@ fun ExpandableExpressiveCard(
     )
 
     val isPureBlack = MaterialTheme.colorScheme.background == Color.Black
+    val targetElevation = if (isPureBlack) 0.dp else if (isHovered) 18.dp else 10.dp
+    val animatedElevation by animateDpAsState(
+        targetValue = targetElevation,
+        animationSpec = tween(300),
+        label = "expandableCardElevation"
+    )
+
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().hoverable(interactionSource),
         shape = RoundedCornerShape(24.dp),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isPureBlack) 0.dp else 10.dp,
-            pressedElevation = if (isPureBlack) 0.dp else 2.dp,
-            focusedElevation = if (isPureBlack) 0.dp else 10.dp,
-            hoveredElevation = if (isPureBlack) 0.dp else 10.dp,
-            draggedElevation = if (isPureBlack) 0.dp else 10.dp,
+            defaultElevation = animatedElevation,
+            pressedElevation = animatedElevation,
+            focusedElevation = animatedElevation,
+            hoveredElevation = animatedElevation,
+            draggedElevation = animatedElevation,
             disabledElevation = 0.dp
         ),
         colors = CardDefaults.cardColors(
@@ -908,6 +948,13 @@ fun IndicatorPill(
 ) {
     val view = LocalView.current
     val interactionSource = remember { MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    val pillShadowTarget = if (isHovered && onClick != null) 8.dp else 0.dp
+    val animatedPillShadow by animateDpAsState(
+        targetValue = pillShadowTarget,
+        animationSpec = tween(300),
+        label = "indicatorPillShadow"
+    )
 
     // Raw instant touch state to bypass clickable's scroll-detection delay
     var isActuallyPressed by remember { mutableStateOf(false) }
@@ -973,6 +1020,7 @@ fun IndicatorPill(
         interactionSource = interactionSource,
         shape = RoundedCornerShape(cornerRadius),
         color = MaterialTheme.colorScheme.primary,
+        shadowElevation = animatedPillShadow,
         contentColor = MaterialTheme.colorScheme.onPrimary,
         modifier = modifier
             .size(width = width, height = height)
@@ -1097,6 +1145,14 @@ fun StartStopButton(
         label         = "contentColor"
     )
 
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    val fabElevationTarget = if (isHovered) 25.dp else 8.dp
+    val animatedFabElevation by animateDpAsState(
+        targetValue = fabElevationTarget,
+        animationSpec = tween(300),
+        label = "fabElevation"
+    )
+
     Box(
         modifier = modifier
             .graphicsLayer {
@@ -1118,7 +1174,12 @@ fun StartStopButton(
                 .widthIn(min = (130*max(uiAmp, 0.9f)).dp),
             containerColor = containerColor,
             contentColor = contentColor,
-            elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 8.dp)
+            elevation = FloatingActionButtonDefaults.elevation(
+                defaultElevation = animatedFabElevation,
+                pressedElevation = animatedFabElevation,
+                hoveredElevation = animatedFabElevation,
+                focusedElevation = animatedFabElevation
+            )
         ) {
             Row(
                 modifier = Modifier.padding(horizontal = 15*uiAmp.dp),
@@ -1254,6 +1315,14 @@ fun ExpressiveSwitch(
     val iconAlphaCheck by animateFloatAsState(targetValue = if (checked) 1f else 0f, label = "alphaCheck")
     val iconAlphaClose by animateFloatAsState(targetValue = if (checked) 0f else 1f, label = "alphaClose")
 
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    val switchShadowTarget = if (isHovered && enabled) 8.dp else 0.dp
+    val animatedSwitchShadow by animateDpAsState(
+        targetValue = switchShadowTarget,
+        animationSpec = tween(300),
+        label = "switchShadow"
+    )
+
     // 6. The Layout
     Box(
         modifier = modifier
@@ -1264,8 +1333,10 @@ fun ExpressiveSwitch(
             }
             .width(dynamicTrackWidth) // ACTUAL width changes here based on uiAmp
             .height(trackHeight)
+            .shadow(elevation = animatedSwitchShadow, shape = CircleShape)
             .clip(CircleShape)
             .background(trackColor)
+            .hoverable(interactionSource)
             .pointerInput(Unit) {
                 awaitEachGesture {
                     awaitFirstDown(requireUnconsumed = false)
@@ -1675,6 +1746,13 @@ fun <T> ExpressiveSplitButton(
                         )
 
                         val interactionSource = remember { MutableInteractionSource() }
+                        val isHovered by interactionSource.collectIsHoveredAsState()
+                        val itemShadowTarget = if (isHovered) 8.dp else 0.dp
+                        val animatedItemShadow by animateDpAsState(
+                            targetValue = itemShadowTarget,
+                            animationSpec = tween(300),
+                            label = "segmentedItemShadow"
+                        )
 
                         LaunchedEffect(interactionSource) {
                             var pressStartTime = 0L
@@ -1710,11 +1788,12 @@ fun <T> ExpressiveSplitButton(
                                     }
                                 },
                                 color = containerColor,
-                            contentColor = contentColor,
-                            shape = dynamicButtonShape,
-                            modifier = Modifier.weight(animatedWeight),
-                            interactionSource = interactionSource
-                        ) {
+                                contentColor = contentColor,
+                                shape = dynamicButtonShape,
+                                shadowElevation = animatedItemShadow,
+                                modifier = Modifier.weight(animatedWeight),
+                                interactionSource = interactionSource
+                            ) {
                             Row(
                                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 10.dp),
                                 horizontalArrangement = Arrangement.Center,
@@ -1779,6 +1858,14 @@ fun ExpressiveSlider(
         label = "slider_value_animation"
     )
 
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    val sliderShadowTarget = if (isHovered) 8.dp else 0.dp
+    val animatedSliderShadow by animateDpAsState(
+        targetValue = sliderShadowTarget,
+        animationSpec = tween(300),
+        label = "sliderHoverShadow"
+    )
+
     // The "Expressive" factor (1.0 to 1.8)
     val animationFactor by animateFloatAsState(
         targetValue = if (isActive && LocalM3EEnabled.current) 2.1f else 1.0f,
@@ -1790,7 +1877,10 @@ fun ExpressiveSlider(
     )
 
     Box(
-        modifier = modifier.pointerInput(Unit) {
+        modifier = modifier
+            .hoverable(interactionSource)
+            .shadow(elevation = animatedSliderShadow, shape = RoundedCornerShape(16.dp))
+            .pointerInput(Unit) {
             awaitEachGesture {
                 val down = awaitFirstDown(pass = PointerEventPass.Initial)
                 val downPos = down.position
@@ -2253,8 +2343,22 @@ fun ExpressiveRangeSlider(
         label = "slider_end_animation"
     )
 
+    val isHoveredStart by startInteractionSource.collectIsHoveredAsState()
+    val isHoveredEnd by endInteractionSource.collectIsHoveredAsState()
+    val isHoveredMain by interactionSource.collectIsHoveredAsState()
+    val isHovered = isHoveredStart || isHoveredEnd || isHoveredMain
+    val rangeSliderShadowTarget = if (isHovered) 8.dp else 0.dp
+    val animatedRangeSliderShadow by animateDpAsState(
+        targetValue = rangeSliderShadowTarget,
+        animationSpec = tween(300),
+        label = "rangeSliderHoverShadow"
+    )
+
     Box(
-        modifier = modifier.pointerInput(Unit) {
+        modifier = modifier
+            .hoverable(interactionSource)
+            .shadow(elevation = animatedRangeSliderShadow, shape = RoundedCornerShape(16.dp))
+            .pointerInput(Unit) {
             awaitEachGesture {
                 val down = awaitFirstDown(pass = PointerEventPass.Initial)
                 val downPos = down.position
