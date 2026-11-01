@@ -33,7 +33,7 @@ android {
         minSdk = 26
         targetSdk = 37
         versionCode = configuredVersionCode
-        versionName = '4.1'
+        versionName = '4.2'
 
         resourceConfigurations += ['en', 'ar', 'cy', 'de', 'es', 'fr', 'hi', 'hu', 'it', 'ja', 'ru', 'sk', 'tr']
         ndk {
