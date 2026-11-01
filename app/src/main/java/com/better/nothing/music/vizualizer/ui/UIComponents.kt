@@ -1171,7 +1171,7 @@ fun StartStopButton(
             shape = RoundedCornerShape((18 + (uiAmp - 1) * 60).dp),
             modifier = Modifier
                 .height(60.dp)
-                .widthIn(min = (130*max(uiAmp, 0.9f)).dp),
+                .widthIn(min = 130.dp),
             containerColor = containerColor,
             contentColor = contentColor,
             elevation = FloatingActionButtonDefaults.elevation(
@@ -1182,7 +1182,7 @@ fun StartStopButton(
             )
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 15*uiAmp.dp),
+                modifier = Modifier.padding(horizontal = 15.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
