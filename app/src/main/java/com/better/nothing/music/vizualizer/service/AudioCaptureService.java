@@ -1535,27 +1535,25 @@ public class AudioCaptureService extends Service {
                     if (!mSessionOpen) ensureGlyphSession(); 
                 }
 
-                if (mSessionOpen) {
-                    int[] processedFft = fftraw;
-                    if (mGlyphThreshold > 0.001f && fftraw != null) {
-                        int thresholdFft = (int) (mGlyphThreshold * 4095f);
-                        processedFft = fftraw.clone();
-                        for (int i = 0; i < processedFft.length; i++) {
-                            if (processedFft[i] < thresholdFft) processedFft[i] = 0;
-                        }
+                int[] processedFft = fftraw;
+                if (mGlyphThreshold > 0.001f && fftraw != null) {
+                    int thresholdFft = (int) (mGlyphThreshold * 4095f);
+                    processedFft = fftraw.clone();
+                    for (int i = 0; i < processedFft.length; i++) {
+                        if (processedFft[i] < thresholdFft) processedFft[i] = 0;
                     }
+                }
 
-                    int[] frameColors = mGlyphRenderer.processFrame(processedFft, config, now, isSilent);
-                    updateIdleBreathingWakeLock(mIdleBreathingEnabled && mGlyphRenderer.isBreathing());
-                    if (frameColors != null) {
-                        try {
-                            if (DeviceProfile.getMatrixWidth(mSelectedDevice) > 0) {
-                                if (mGMM != null) mGMM.setAppMatrixFrame(frameColors);
-                            } else if (mGM != null) {
-                                mGM.setFrameColors(frameColors);
-                            }
-                        } catch (Exception ignored) {}
-                    }
+                int[] frameColors = mGlyphRenderer.processFrame(processedFft, config, now, isSilent);
+                updateIdleBreathingWakeLock(mIdleBreathingEnabled && mGlyphRenderer.isBreathing());
+                if (frameColors != null && canPushGlyphFrames()) {
+                    try {
+                        if (DeviceProfile.getMatrixWidth(mSelectedDevice) > 0) {
+                            if (mGMM != null) mGMM.setAppMatrixFrame(frameColors);
+                        } else if (mGM != null) {
+                            mGM.setFrameColors(frameColors);
+                        }
+                    } catch (Exception ignored) {}
                 }
             } else {
                 if (mSessionOpen) clearGlyphSession();
