@@ -102,9 +102,7 @@ public class IdleBreathingService extends Service {
                             mGlyphManager.setFrameColors(colors);
                         }
                     } catch (Exception e) {
-                        Log.e(TAG, "Failed to update idle Glyph frame", e);
-                        stopSelf();
-                        return;
+                        Log.w(TAG, "Failed to update idle Glyph frame", e);
                     }
                 }
             }
@@ -297,6 +295,7 @@ public class IdleBreathingService extends Service {
         long delta = now - mLastStatsUpdateUptimeMs;
         if (delta >= 1000) {
             mLastStatsUpdateUptimeMs = now;
+            tryOpenSessionDirectly();
             if (!sViewModelActive) {
                 SharedPreferences prefs = getSharedPreferences("viz_prefs", MODE_PRIVATE);
                 long totalViz = prefs.getLong("total_visualized_time", 0L) + delta;
@@ -371,6 +370,7 @@ public class IdleBreathingService extends Service {
         }
 
         mStopping = false;
+        sActive = true;
         startAsForegroundService();
         if (mRenderer == null) {
             if (!initializeAnimation()) {
@@ -533,7 +533,7 @@ public class IdleBreathingService extends Service {
     }
 
     private void tryOpenSessionDirectly() {
-        if (mGlyphManager == null) return;
+        if (!sActive || mStopping || mFadeOutStarted || mGlyphManager == null) return;
         try {
             mGlyphManager.register(getGlyphDeviceName());
             mGlyphManager.openSession();
@@ -550,7 +550,9 @@ public class IdleBreathingService extends Service {
                     mMatrixConnected = true;
                 } catch (Exception ignored) {}
             }
-            maybeStartAnimation();
+            if (!mFadeInStarted) {
+                maybeStartAnimation();
+            }
         } catch (Exception ignored) {
             // Callback will handle session opening when connected if not ready yet
         }
