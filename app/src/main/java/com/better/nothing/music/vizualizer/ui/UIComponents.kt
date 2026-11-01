@@ -528,13 +528,18 @@ fun ExpressiveCard(
     containerColor: Color = MaterialTheme.colorScheme.surface,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val isPureBlack = MaterialTheme.colorScheme.background == Color.Black
     Card(
         modifier = modifier
             .padding(vertical = 0.dp),
         shape = shape,
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 10.dp,
-            pressedElevation = 2.dp
+            defaultElevation = if (isPureBlack) 0.dp else 10.dp,
+            pressedElevation = if (isPureBlack) 0.dp else 2.dp,
+            focusedElevation = if (isPureBlack) 0.dp else 10.dp,
+            hoveredElevation = if (isPureBlack) 0.dp else 10.dp,
+            draggedElevation = if (isPureBlack) 0.dp else 10.dp,
+            disabledElevation = 0.dp
         ),
         colors = CardDefaults.cardColors(containerColor = containerColor)
     ) {
@@ -587,8 +592,10 @@ fun LinkCard(
     val iconContentColor = if (isGlowing) glowColor else MaterialTheme.colorScheme.primary
     val titleColor = if (isGlowing) glowColor else MaterialTheme.colorScheme.onSurface
 
+    val isPureBlack = MaterialTheme.colorScheme.background == Color.Black
     Surface(
-        shadowElevation = 10.dp, //fuck yeah
+        shadowElevation = if (isPureBlack) 0.dp else 10.dp, //fuck yeah
+        tonalElevation = 0.dp,
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 72.dp)
@@ -771,12 +778,17 @@ fun ExpandableExpressiveCard(
         label = "pillTopPadding"
     )
 
+    val isPureBlack = MaterialTheme.colorScheme.background == Color.Black
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 10.dp,
-            pressedElevation = 2.dp
+            defaultElevation = if (isPureBlack) 0.dp else 10.dp,
+            pressedElevation = if (isPureBlack) 0.dp else 2.dp,
+            focusedElevation = if (isPureBlack) 0.dp else 10.dp,
+            hoveredElevation = if (isPureBlack) 0.dp else 10.dp,
+            draggedElevation = if (isPureBlack) 0.dp else 10.dp,
+            disabledElevation = 0.dp
         ),
         colors = CardDefaults.cardColors(
             containerColor = if (isPressed) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
@@ -1314,25 +1326,28 @@ fun NativeBottomBar(
     visibleTabs: List<Tab>,
     onTabSelected: (Tab) -> Unit,
 ) {
+    val isPureBlack = MaterialTheme.colorScheme.background == Color.Black
     val haptics = LocalHapticFeedback.current
     Box(modifier = Modifier.fillMaxWidth()) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .graphicsLayer {
-                    // Pull the shadow up above the bar so it casts over the screen content
-                    translationY = -7.dp.toPx()
-                }
-                .height(7.dp)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Color.Black.copy(alpha = 0.3f)
+        if (!isPureBlack) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer {
+                        // Pull the shadow up above the bar so it casts over the screen content
+                        translationY = -7.dp.toPx()
+                    }
+                    .height(7.dp)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.3f)
+                            )
                         )
                     )
-                )
-        ){}
+            ){}
+        }
         Box(Modifier.background(MaterialTheme.colorScheme.surface)){
     NavigationBar(
         modifier = Modifier.fillMaxWidth()
@@ -2587,10 +2602,11 @@ fun AppUpdateRibbon(
     val textColor = Color.White
     val accentTextColor = if (isWelcome) Color(0xFFB3D9FF) else Color(0xFFFFB3B3)
 
+    val isPureBlack = MaterialTheme.colorScheme.background == Color.Black
     Surface(
         modifier = modifier.fillMaxWidth(),
         color = ribbonBg,
-        tonalElevation = 6.dp
+        tonalElevation = if (isPureBlack) 0.dp else 6.dp
     ) {
         Row(
             modifier = Modifier

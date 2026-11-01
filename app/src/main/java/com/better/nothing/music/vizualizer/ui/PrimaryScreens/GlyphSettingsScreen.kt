@@ -94,10 +94,11 @@ internal fun GlyphsScreen(
             onDismissRequest = { showEasterEggPopup = false },
             modifier = Modifier.fillMaxWidth().padding(16.dp)
         ) {
+            val isPureBlack = MaterialTheme.colorScheme.background == Color.Black
             Surface(
                 shape = RoundedCornerShape(28.dp),
                 color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 6.dp
+                tonalElevation = if (isPureBlack) 0.dp else 6.dp
             ) {
                 Column(
                     modifier = Modifier
@@ -779,9 +780,18 @@ fun GammaPreviewCard(gammaValue: Float) {
     val gridColor = MaterialTheme.colorScheme.outline
     val accent    = MaterialTheme.colorScheme.primary
 
+    val isPureBlack = MaterialTheme.colorScheme.background == Color.Black
     Card(
         shape    = MaterialTheme.shapes.large,
         colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (isPureBlack) 0.dp else 2.dp,
+            pressedElevation = 0.dp,
+            focusedElevation = 0.dp,
+            hoveredElevation = 0.dp,
+            draggedElevation = 0.dp,
+            disabledElevation = 0.dp
+        ),
         modifier = Modifier.size(130.dp, 130.dp),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().padding(18.dp)) {

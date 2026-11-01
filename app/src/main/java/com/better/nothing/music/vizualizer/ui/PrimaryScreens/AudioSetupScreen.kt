@@ -1013,6 +1013,7 @@ fun FFTSpectrumCard(
                     ) else String.format(Locale.US, "%dHz", freq.toInt())
                     val txDp = with(density) { tx.toDp() }
 
+                    val isPureBlack = MaterialTheme.colorScheme.background == Color.Black
                     Surface(
                         modifier = Modifier
                             .offset(
@@ -1021,7 +1022,7 @@ fun FFTSpectrumCard(
                             ),
                         color = MaterialTheme.colorScheme.primary,
                         shape = MaterialTheme.shapes.small,
-                        tonalElevation = 4.dp
+                        tonalElevation = if (isPureBlack) 0.dp else 4.dp
                     ) {
                         Text(
                             text = text,
