@@ -3,16 +3,22 @@
     <style name="Theme.BetterGlyph" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/text_primary</item>
         <item name="colorOnPrimary">@color/black</item>
-        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:windowBackground">#FFFFFF</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
+
+    <style name="Theme.BetterGlyph.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#FFFFFF</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.BetterGlyph</item>
+    </style>
     
     <style name="Theme.BetterGlyph.NothingRed" parent="Theme.BetterGlyph">
         <item name="colorPrimary">@color/nothing_red_primary</item>
-        <item name="android:windowBackground">@color/nothing_red_bg</item>
+        <item name="android:windowBackground">#FFFFFF</item>
         <item name="android:statusBarColor">@color/nothing_red_bg</item>
         <item name="android:navigationBarColor">@color/nothing_red_bg</item>
     </style>

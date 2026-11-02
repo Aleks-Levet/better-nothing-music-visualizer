@@ -19,6 +19,7 @@ import android.provider.Settings
 import android.view.HapticFeedbackConstants
 import android.widget.Toast
 import androidx.activity.compose.PredictiveBackHandler
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -240,6 +241,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val isTrampoline = intent.getBooleanExtra(EXTRA_REQUEST_START, false)
+        if (!isTrampoline) {
+            installSplashScreen()
+        }
         if (isTrampoline) {
             setTheme(R.style.Theme_Transparent)
             if (Build.VERSION.SDK_INT >= 34) {

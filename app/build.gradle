@@ -124,6 +124,7 @@ tasks.configureEach {
 }
 
 dependencies {
+    implementation 'androidx.core:core-splashscreen:1.2.0'
     implementation 'androidx.compose.animation:animation-core:1.12.1'
 
     // 1. Keep your local SDK
