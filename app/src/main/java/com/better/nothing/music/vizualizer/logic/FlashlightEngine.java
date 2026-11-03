@@ -52,6 +52,7 @@ public final class FlashlightEngine {
     private float prevTarget = 0f;
 
     private boolean isBeatTriggeredThisFrame = false;
+    private static volatile int sCachedTorchLevels = -1;
 
     public FlashlightEngine(Context context) {
         Context appContext = Objects.requireNonNull(context, "context").getApplicationContext();
@@ -61,9 +62,15 @@ public final class FlashlightEngine {
     }
 
     public static int detectTorchIntensityLevels(Context context) {
+        if (sCachedTorchLevels > 0) {
+            return sCachedTorchLevels;
+        }
         Context appContext = Objects.requireNonNull(context, "context").getApplicationContext();
         CameraManager manager = (CameraManager) appContext.getSystemService(Context.CAMERA_SERVICE);
-        if (manager == null) return 1;
+        if (manager == null) {
+            sCachedTorchLevels = 1;
+            return 1;
+        }
         try {
             for (String id : manager.getCameraIdList()) {
                 CameraCharacteristics chars = manager.getCameraCharacteristics(id);
@@ -71,12 +78,15 @@ public final class FlashlightEngine {
                 Integer facing = chars.get(CameraCharacteristics.LENS_FACING);
                 if (Boolean.TRUE.equals(hasFlash) && facing != null && facing == CameraCharacteristics.LENS_FACING_BACK) {
                     int max = readTorchStrengthLevel(chars);
-                    return Math.max(1, max);
+                    int res = Math.max(1, max);
+                    sCachedTorchLevels = res;
+                    return res;
                 }
             }
         } catch (CameraAccessException e) {
             Log.w(TAG, "Failed to detect torch intensity levels", e);
         }
+        sCachedTorchLevels = 1;
         return 1;
     }
 
@@ -125,6 +135,9 @@ public final class FlashlightEngine {
                     if (max > 1) {
                         hasTorchStrength = true;
                         maxTorchStrength = max;
+                        sCachedTorchLevels = max;
+                    } else {
+                        sCachedTorchLevels = 1;
                     }
                     return;
                 }

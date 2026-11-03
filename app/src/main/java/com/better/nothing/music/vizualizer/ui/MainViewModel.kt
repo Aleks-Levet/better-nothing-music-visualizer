@@ -872,13 +872,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val customFontPath = _customFontPath.asStateFlow()
 
     fun downloadCustomFont() {
-        val fontFile = File(ctx.filesDir, "google_sans_flex.ttf")
-        if (fontFile.exists() && fontFile.length() > 1000000) {
-            _customFontPath.value = fontFile.absolutePath
-            return
-        }
-
         viewModelScope.launch(Dispatchers.IO) {
+            val fontFile = File(ctx.filesDir, "google_sans_flex.ttf")
+            if (fontFile.exists() && fontFile.length() > 1000000) {
+                _customFontPath.value = fontFile.absolutePath
+                return@launch
+            }
+
             try {
                 val url = URL("https://raw.githubusercontent.com/Aleks-Levet/better-nothing-music-visualizer/main/google_sans_flex.ttf")
                 val connection = url.openConnection() as HttpURLConnection
@@ -912,6 +912,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         _appUpdateStatus.value = AppUpdateStatus.Checking
         viewModelScope.launch(Dispatchers.IO) {
+            delay(3000)
             var connection: HttpURLConnection? = null
             try {
                 Log.d("MainViewModel", "Checking for app updates via GitHub API...")
@@ -2469,12 +2470,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         
         val savedSpoofLocale = get("spoof_locale", null as String?)
         _spoofLocale.value = savedSpoofLocale
-        val initialLocales = if (savedSpoofLocale == null) {
-            androidx.core.os.LocaleListCompat.getEmptyLocaleList()
-        } else {
-            androidx.core.os.LocaleListCompat.forLanguageTags(savedSpoofLocale)
+        if (savedSpoofLocale != null) {
+            val initialLocales = androidx.core.os.LocaleListCompat.forLanguageTags(savedSpoofLocale)
+            androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(initialLocales)
         }
-        androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(initialLocales)
 
         // General settings
         _developerModeEnabled.value = get("developer_mode_v2", false)
@@ -2500,7 +2499,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _maxBrightness.value = get("max_brightness_last", 4095).coerceIn(50, 6143)
         }
 
-        _flashlightIntensityLevels.value = FlashlightEngine.detectTorchIntensityLevels(ctx)
+        viewModelScope.launch(Dispatchers.IO) {
+            val levels = FlashlightEngine.detectTorchIntensityLevels(ctx)
+            _flashlightIntensityLevels.value = levels
+        }
         
         _fftReadMethod.value = safeValueOf(get("fft_read_method", ""), AudioProcessor.ReadMethod.RMS)
         _microphoneMode.value = safeValueOf(get("microphone_mode", ""), MicrophoneMode.UNPROCESSED)
@@ -2611,11 +2613,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         // Launch background tasks - deferred slightly to prioritize UI
         viewModelScope.launch {
-            delay(500)
+            delay(1000)
             var lastUpdate = SystemClock.elapsedRealtime()
             var lastSave = lastUpdate
             while (true) {
-                delay(50)
+                val isStatsVisible = _isShowingStats.value
+                val loopDelay = if (isStatsVisible) 50L else 1000L
+                delay(loopDelay)
                 val now = SystemClock.elapsedRealtime()
                 val delta = now - lastUpdate
                 lastUpdate = now
@@ -2666,7 +2670,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         viewModelScope.launch {
-            delay(1000)
+            delay(1500)
             while (true) {
                 MainActivity.serviceStatic?.let { s ->
                     if ((hasFlashlight || _spoofFlashlightLevels.value != null)
@@ -2679,7 +2683,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         _flashlightLevel.value = 0
                     }
                 }
-                delay(100)
+                delay(250)
             }
         }
 
