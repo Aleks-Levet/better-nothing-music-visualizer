@@ -298,6 +298,23 @@ fun ExpressiveSplitButton(
 ) {
     val haptics = LocalHapticFeedback.current
     val view = LocalView.current
+
+    val primaryInteraction = remember { MutableInteractionSource() }
+    val isPrimaryHovered by primaryInteraction.collectIsHoveredAsState()
+    val primaryElevation by animateDpAsState(
+        targetValue = if (isPrimaryHovered && enabled) 8.dp else 0.dp,
+        animationSpec = tween(300),
+        label = "splitPrimaryElevation"
+    )
+
+    val secondaryInteraction = remember { MutableInteractionSource() }
+    val isSecondaryHovered by secondaryInteraction.collectIsHoveredAsState()
+    val secondaryElevation by animateDpAsState(
+        targetValue = if (isSecondaryHovered && enabled) 8.dp else 0.dp,
+        animationSpec = tween(300),
+        label = "splitSecondaryElevation"
+    )
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -316,9 +333,11 @@ fun ExpressiveSplitButton(
                 onPrimaryClick()
             },
             enabled = enabled,
+            interactionSource = primaryInteraction,
             shape = RoundedCornerShape(16.dp),
             color = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
+            shadowElevation = primaryElevation,
             modifier = Modifier.weight(2f).fillMaxHeight()
         ) {
             Row(
@@ -339,9 +358,11 @@ fun ExpressiveSplitButton(
                 onSecondaryClick()
             },
             enabled = enabled,
+            interactionSource = secondaryInteraction,
             shape = RoundedCornerShape(16.dp),
             color = MaterialTheme.colorScheme.surfaceVariant,
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            shadowElevation = secondaryElevation,
             modifier = Modifier.weight(1f).fillMaxHeight()
         ) {
             Row(
@@ -854,10 +875,17 @@ fun ExpandableExpressiveCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    val iconSurfaceElevation by animateDpAsState(
+                        targetValue = if (isHovered) 8.dp else 0.dp,
+                        animationSpec = tween(300),
+                        label = "cardIconSurfaceElevation"
+                    )
+
                     Surface(
                         shape = RoundedCornerShape(12.dp),
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         contentColor = MaterialTheme.colorScheme.primary,
+                        shadowElevation = iconSurfaceElevation,
                         modifier = Modifier.size(40.dp)
                     ) {
                         Box(
@@ -1356,11 +1384,23 @@ fun ExpressiveSwitch(
             .padding(thumbPadding),
         contentAlignment = Alignment.CenterStart
     ) {
+        val animatedThumbSize by animateDpAsState(
+            targetValue = if (isHovered && enabled) thumbSize + 2.dp else thumbSize,
+            animationSpec = tween(300),
+            label = "switchThumbSize"
+        )
+        val animatedThumbShadow by animateDpAsState(
+            targetValue = if (isHovered && enabled) 8.dp else 0.dp,
+            animationSpec = tween(300),
+            label = "switchThumbShadow"
+        )
+
         // The Thumb
         Box(
             modifier = Modifier
                 .offset(x = thumbOffset)
-                .size(thumbSize)
+                .size(animatedThumbSize)
+                .shadow(elevation = animatedThumbShadow, shape = CircleShape)
                 .clip(CircleShape)
                 .background(thumbColor),
             contentAlignment = Alignment.Center
@@ -1879,7 +1919,6 @@ fun ExpressiveSlider(
     Box(
         modifier = modifier
             .hoverable(interactionSource)
-            .shadow(elevation = animatedSliderShadow, shape = RoundedCornerShape(16.dp))
             .pointerInput(Unit) {
             awaitEachGesture {
                 val down = awaitFirstDown(pass = PointerEventPass.Initial)
@@ -1942,16 +1981,26 @@ fun ExpressiveSlider(
                     false
                 },
             thumb = {
-                // THUMB: Gets THINNER as animationFactor increases
-                // Width: 4dp -> 2dp | Height: 44dp -> 48dp
-                val thumbWidth = 4.dp / animationFactor
+                val isHovered by interactionSource.collectIsHoveredAsState()
+                val hoverThumbWidth = if (isHovered) 8.dp else (4.dp / animationFactor)
+                val animatedThumbWidth by animateDpAsState(
+                    targetValue = hoverThumbWidth,
+                    animationSpec = tween(300),
+                    label = "sliderThumbWidth"
+                )
+                val animatedThumbShadow by animateDpAsState(
+                    targetValue = if (isHovered) 8.dp else 0.dp,
+                    animationSpec = tween(300),
+                    label = "sliderThumbShadow"
+                )
 
                 Box(
                     modifier = Modifier
-                        .size(width = thumbWidth, height = 44.dp * (animationFactor * 0.8f).coerceAtLeast(1f))
+                        .size(width = animatedThumbWidth, height = 44.dp * (animationFactor * 0.8f).coerceAtLeast(1f))
+                        .shadow(elevation = animatedThumbShadow, shape = RoundedCornerShape(2.dp))
                         .background(
                             color = MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(2.dp) // Keeps same corner radius
+                            shape = RoundedCornerShape(2.dp)
                         )
                 )
             },
@@ -2357,7 +2406,6 @@ fun ExpressiveRangeSlider(
     Box(
         modifier = modifier
             .hoverable(interactionSource)
-            .shadow(elevation = animatedRangeSliderShadow, shape = RoundedCornerShape(16.dp))
             .pointerInput(Unit) {
             awaitEachGesture {
                 val down = awaitFirstDown(pass = PointerEventPass.Initial)
@@ -2414,8 +2462,8 @@ fun ExpressiveRangeSlider(
                     }
                     false
                 },
-            startThumb = { ExpressiveThumb(factor = startThumbFactor) },
-            endThumb = { ExpressiveThumb(factor = endThumbFactor) },
+            startThumb = { ExpressiveThumb(factor = startThumbFactor, interactionSource = startInteractionSource) },
+            endThumb = { ExpressiveThumb(factor = endThumbFactor, interactionSource = endInteractionSource) },
             track = { rangeSliderState ->
                 val trackHeight = 16.dp * animationFactor * uiAmp
                 SliderDefaults.Track(
@@ -2446,14 +2494,26 @@ fun ExpressiveRangeSlider(
 }
 
 @Composable
-private fun ExpressiveThumb(factor: Float) {
-    // The thumb gets thinner and taller when grabbed
-    val thumbWidth = 4.dp / factor
+private fun ExpressiveThumb(factor: Float, interactionSource: MutableInteractionSource) {
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    val hoverThumbWidth = if (isHovered) 8.dp else (4.dp / factor)
+    val animatedThumbWidth by animateDpAsState(
+        targetValue = hoverThumbWidth,
+        animationSpec = tween(300),
+        label = "rangeThumbWidth"
+    )
+    val animatedThumbShadow by animateDpAsState(
+        targetValue = if (isHovered) 8.dp else 0.dp,
+        animationSpec = tween(300),
+        label = "rangeThumbShadow"
+    )
     val thumbHeight = 40.dp * (factor * 0.8f).coerceAtLeast(1f)
 
     Box(
         modifier = Modifier
-            .size(width = thumbWidth, height = thumbHeight)
+            .hoverable(interactionSource)
+            .size(width = animatedThumbWidth, height = thumbHeight)
+            .shadow(elevation = animatedThumbShadow, shape = RoundedCornerShape(2.dp))
             .background(
                 color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(2.dp)
