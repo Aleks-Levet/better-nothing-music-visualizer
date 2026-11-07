@@ -12,7 +12,7 @@
 
     <style name="Theme.BetterGlyph.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#000000</item>
-        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/avd_splash_icon</item>
         <item name="postSplashScreenTheme">@style/Theme.BetterGlyph</item>
     </style>
 

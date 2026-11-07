@@ -1,0 +1,11 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_splash_icon">
+    <target android:name="bar1" android:animation="@animator/splash_bar_1" />
+    <target android:name="bar2" android:animation="@animator/splash_bar_2" />
+    <target android:name="bar3" android:animation="@animator/splash_bar_3" />
+    <target android:name="bar4" android:animation="@animator/splash_bar_4" />
+    <target android:name="bar5" android:animation="@animator/splash_bar_5" />
+    <target android:name="bar6" android:animation="@animator/splash_bar_6" />
+    <target android:name="bar7" android:animation="@animator/splash_bar_7" />
+    <target android:name="group_arcs" android:animation="@animator/splash_arcs" />
+</animated-vector>
