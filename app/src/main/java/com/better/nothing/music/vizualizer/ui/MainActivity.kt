@@ -242,7 +242,27 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val isTrampoline = intent.getBooleanExtra(EXTRA_REQUEST_START, false)
         if (!isTrampoline) {
-            installSplashScreen()
+            val splashScreen = installSplashScreen()
+            var isSplashReady = false
+            splashScreen.setKeepOnScreenCondition { !isSplashReady }
+            Handler(Looper.getMainLooper()).postDelayed({
+                isSplashReady = true
+            }, 800L)
+            splashScreen.setOnExitAnimationListener { splashScreenView ->
+                val fadeOut = android.animation.ObjectAnimator.ofFloat(
+                    splashScreenView.view,
+                    android.view.View.ALPHA,
+                    1f,
+                    0f
+                )
+                fadeOut.duration = 300L
+                fadeOut.addListener(object : android.animation.AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: android.animation.Animator) {
+                        splashScreenView.remove()
+                    }
+                })
+                fadeOut.start()
+            }
         }
         if (isTrampoline) {
             setTheme(R.style.Theme_Transparent)
@@ -685,8 +705,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unbindService(serviceConnection)
-        audioManager.unregisterAudioDeviceCallback(audioDeviceCallback)
+        try {
+            unbindService(serviceConnection)
+        } catch (_: Exception) {}
+        try {
+            audioManager.unregisterAudioDeviceCallback(audioDeviceCallback)
+        } catch (_: Exception) {}
     }
 
     override fun finish() {

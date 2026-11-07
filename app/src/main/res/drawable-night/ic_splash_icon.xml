@@ -1,0 +1,62 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="180"
+    android:viewportHeight="180">
+
+    <group
+        android:scaleX="0.75"
+        android:scaleY="0.75"
+        android:translateX="22.5"
+        android:translateY="22.5">
+
+        <group android:name="group_bar1" android:pivotX="157.5" android:pivotY="120">
+            <path android:name="bar1"
+                android:fillColor="#FFD71921"
+                android:pathData="M152 60.5c0-3.04 2.46-5.5 5.5-5.5h0c3.04 0 5.5 2.46 5.5 5.5v59c0 3.04-2.46 5.5-5.5 5.5h0c-3.04 0-5.5-2.46-5.5-5.5z"/>
+        </group>
+
+        <group android:name="group_bar2" android:pivotX="138.5" android:pivotY="120">
+            <path android:name="bar2" android:fillColor="#FFFFFFFF"
+                android:pathData="M133 67.5c0-3.04 2.46-5.5 5.5-5.5h0c3.04 0 5.5 2.46 5.5 5.5v45c0 3.04-2.46 5.5-5.5 5.5h0c-3.04 0-5.5-2.46-5.5-5.5z"/>
+        </group>
+
+        <group android:name="group_bar3" android:pivotX="120.5" android:pivotY="120">
+            <path android:name="bar3" android:fillColor="#FFFFFFFF"
+                android:pathData="M115 56.5c0-3.04 2.46-5.5 5.5-5.5h0c3.04 0 5.5 2.46 5.5 5.5v66c0 3.04-2.46 5.5-5.5 5.5h0c-3.04 0-5.5-2.46-5.5-5.5z"/>
+        </group>
+
+        <group android:name="group_bar4" android:pivotX="102.5" android:pivotY="120">
+            <path android:name="bar4" android:fillColor="#FFFFFFFF"
+                android:pathData="M97 68.5c0-3.04 2.46-5.5 5.5-5.5h0c3.04 0 5.5 2.46 5.5 5.5v42c0 3.04-2.46 5.5-5.5 5.5h0c-3.04 0-5.5-2.46-5.5-5.5z"/>
+        </group>
+
+        <group android:name="group_bar5" android:pivotX="84.5" android:pivotY="120">
+            <path android:name="bar5" android:fillColor="#FFFFFFFF"
+                android:pathData="M79 75.5c0-3.04 2.46-5.5 5.5-5.5h0c3.04 0 5.5 2.46 5.5 5.5v29c0 3.04-2.46 5.5-5.5 5.5h0c-3.04 0-5.5-2.46-5.5-5.5z"/>
+        </group>
+
+        <group android:name="group_bar6" android:pivotX="66.5" android:pivotY="120">
+            <path android:name="bar6" android:fillColor="#FFFFFFFF"
+                android:pathData="M61 64.5c0-3.04 2.46-5.5 5.5-5.5h0c3.04 0 5.5 2.46 5.5 5.5v51c0 3.04-2.46 5.5-5.5 5.5h0c-3.04 0-5.5-2.46-5.5-5.5z"/>
+        </group>
+
+        <group android:name="group_bar7" android:pivotX="48.5" android:pivotY="92">
+            <path android:name="bar7" android:fillColor="#FFFFFFFF"
+                android:pathData="M43 89.5c0-3.04 2.46-5.5 5.5-5.5h0c3.04 0 5.5 2.46 5.5 5.5v0c0 3.04-2.46 5.5-5.5 5.5h0c-3.04 0-5.5-2.46-5.5-5.5z"/>
+        </group>
+
+        <group android:name="group_arcs" android:pivotX="90" android:pivotY="90">
+            <path android:name="arc1"
+                android:strokeColor="#FFFFFFFF"
+                android:strokeWidth="10"
+                android:strokeLineCap="round"
+                android:pathData="M21.3 67.8C27.66 47.25 43.55 31.14 64.5 24"/>
+            <path android:name="arc2"
+                android:strokeColor="#FFFFFFFF"
+                android:strokeWidth="10"
+                android:strokeLineCap="round"
+                android:pathData="M52.87 149.75c-7.06-3.4-15.4-10-20.36-19.28"/>
+        </group>
+    </group>
+</vector>

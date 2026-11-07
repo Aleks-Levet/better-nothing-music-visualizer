@@ -964,7 +964,20 @@ public class AudioCaptureService extends Service {
             mScreenReceiver = null;
         }
         if (mUdpSync != null) mUdpSync.stopBroadcasting();
-        if (mGM != null) mGM.unInit(); if (mGMM != null) mGMM.unInit();
+        if (mGM != null) {
+            try {
+                mGM.unInit();
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to release Glyph manager", e);
+            }
+        }
+        if (mGMM != null) {
+            try {
+                mGMM.unInit();
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to release Glyph Matrix manager", e);
+            }
+        }
         if (mAudioManager != null) mAudioManager.unregisterAudioDeviceCallback(mAudioDeviceCallback);
         if (mWorkerThread != null) mWorkerThread.quitSafely();
         
