@@ -835,7 +835,8 @@ public class AudioCaptureService extends Service {
 
             if (!ACTION_STOP.equals(action)) {
                 if (isStartingProjection) {
-                    startForegroundWithTypes(mCaptureSource, true);
+                    mCaptureSource = CaptureSource.INTERNAL;
+                    startForegroundWithTypes(CaptureSource.INTERNAL, true);
                 } else if (isStartAction || (intent == null && shouldBeRunning)) {
                     if (!sIsRunning) {
                         startForeground(NOTIF_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);

@@ -724,13 +724,10 @@ fun LatencyCard(
             .map { it.first }
     }
 
-    var isFirstOrderChange by rememberSaveable { mutableStateOf(true) }
     LaunchedEffect(visualOrder) {
-        if (isFirstOrderChange) {
-            isFirstOrderChange = false
-            return@LaunchedEffect
+        if (draggingIndex != -1) {
+            view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
         }
-        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
     }
 
     val activeIndex = if (draggingIndex != -1) draggingIndex else latencyPresets.indexOf(latencyMs)
