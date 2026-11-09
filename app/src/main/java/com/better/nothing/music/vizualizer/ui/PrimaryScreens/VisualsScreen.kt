@@ -122,6 +122,20 @@ fun VisualsScreen(
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                    OverlayMoreSliders(
+                        viewModel = viewModel,
+                        isExpanded = isOverlayMoreExpanded,
+                        onToggle = { isOverlayMoreExpanded = !isOverlayMoreExpanded },
+                        overlayWidth = overlayWidth,
+                        overlayYOffset = overlayYOffset,
+                        overlayTopEnabled = overlayTopEnabled,
+                        overlayHeight = overlayHeight,
+                        overlayBottomEnabled = overlayBottomEnabled,
+                        overlayHeightBottom = overlayHeightBottom
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant)
+
                     Text(
                         text = stringResource(R.string.visualizer_style),
                         style = MaterialTheme.typography.labelLarge,
@@ -195,163 +209,6 @@ fun VisualsScreen(
                         )
                     }
 
-                    CardHeader(
-                        title = stringResource(R.string.show_more_sliders),
-                        trailingContent = {
-                            IndicatorPill(
-                                isExpanded = isOverlayMoreExpanded,
-                                onClick = { isOverlayMoreExpanded = !isOverlayMoreExpanded }
-                            )
-                        }
-                    )
-
-                    AnimatedVisibility(
-                        visible = isOverlayMoreExpanded,
-                        enter = expandVertically() + fadeIn(),
-                        exit = shrinkVertically() + fadeOut()
-                    ) {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            // Width Slider
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.overlay_width),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = "${overlayWidth}dp",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            VisualSlider(
-                                value = overlayWidth.toFloat(),
-                                onValueChange = { viewModel.setOverlayWidth(it.toInt()) },
-                                valueRange = 40f..600f,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            // Y Offset Slider
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.vertical_position),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = "${overlayYOffset}dp",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            VisualSlider(
-                                value = overlayYOffset.toFloat(),
-                                onValueChange = { viewModel.setOverlayYOffset(it.toInt()) },
-                                valueRange = -300f..300f,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant)
-
-                            // Top Segment Switch
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.top_edge_overlay),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                ExpressiveSwitch(
-                                    checked = overlayTopEnabled,
-                                    onCheckedChange = { viewModel.setOverlayTopEnabled(it) }
-                                )
-                            }
-
-                            if (overlayTopEnabled) {
-                                // Top Height Slider
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.bar_height),
-                                        style = MaterialTheme.typography.labelLarge,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                    Text(
-                                        text = "${overlayHeight}dp",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                                VisualSlider(
-                                    value = overlayHeight.toFloat(),
-                                    onValueChange = { viewModel.setOverlayHeight(it.toInt()) },
-                                    valueRange = 1f..128f,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-
-                            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant)
-
-                            // Bottom Segment Switch
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.bottom_edge_overlay),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                ExpressiveSwitch(
-                                    checked = overlayBottomEnabled,
-                                    onCheckedChange = { viewModel.setOverlayBottomEnabled(it) }
-                                )
-                            }
-
-                            if (overlayBottomEnabled) {
-                                // Bottom Height Slider
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.bar_height),
-                                        style = MaterialTheme.typography.labelLarge,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                    Text(
-                                        text = "${overlayHeightBottom}dp",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                                VisualSlider(
-                                    value = overlayHeightBottom.toFloat(),
-                                    onValueChange = { viewModel.setOverlayHeightBottom(it.toInt()) },
-                                    valueRange = 1f..128f,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
-                    }
                 }
             }
         
@@ -372,6 +229,19 @@ fun VisualsScreen(
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                    EdgeMoreSliders(
+                        viewModel = viewModel,
+                        isExpanded = isEdgeMoreExpanded,
+                        onToggle = { isEdgeMoreExpanded = !isEdgeMoreExpanded },
+                        edgeThickness = edgeThickness,
+                        edgeCornerRadius = edgeCornerRadius,
+                        edgeBarCountHoriz = edgeBarCountHoriz,
+                        edgeTopEnabled = edgeTopEnabled,
+                        edgeBottomEnabled = edgeBottomEnabled
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant)
+
                     Text(
                         text = stringResource(R.string.visualizer_style),
                         style = MaterialTheme.typography.labelLarge,
@@ -445,131 +315,6 @@ fun VisualsScreen(
                         )
                     }
 
-                    CardHeader(
-                        title = stringResource(R.string.show_more_sliders),
-                        trailingContent = {
-                            IndicatorPill(
-                                isExpanded = isEdgeMoreExpanded,
-                                onClick = { isEdgeMoreExpanded = !isEdgeMoreExpanded }
-                            )
-                        }
-                    )
-
-                    AnimatedVisibility(
-                        visible = isEdgeMoreExpanded,
-                        enter = expandVertically() + fadeIn(),
-                        exit = shrinkVertically() + fadeOut()
-                    ) {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.edge_bar_height),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = "${edgeThickness}dp",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            VisualSlider(
-                                value = edgeThickness.toFloat(),
-                                onValueChange = { viewModel.setEdgeThickness(it.toInt()) },
-                                valueRange = 1f..128f,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.screen_corner_radius),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = "${edgeCornerRadius.toInt()}dp",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            VisualSlider(
-                                value = edgeCornerRadius,
-                                onValueChange = { viewModel.setEdgeCornerRadius(it) },
-                                valueRange = 0f..100f,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.lens_bar_count),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = "$edgeBarCountHoriz",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            VisualSlider(
-                                value = edgeBarCountHoriz.toFloat(),
-                                onValueChange = { viewModel.setEdgeBarCount(it.toInt()) },
-                                valueRange = 4f..100f,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            HorizontalDivider(
-                                modifier = Modifier.padding(vertical = 4.dp),
-                                color = MaterialTheme.colorScheme.outlineVariant
-                            )
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.top_edge_segment),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                ExpressiveSwitch(
-                                    checked = edgeTopEnabled,
-                                    onCheckedChange = { viewModel.setEdgeTopEnabled(it) }
-                                )
-                            }
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.bottom_edge_segment),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                ExpressiveSwitch(
-                                    checked = edgeBottomEnabled,
-                                    onCheckedChange = { viewModel.setEdgeBottomEnabled(it) }
-                                )
-                            }
-                        }
-                    }
                 }
             }
         
@@ -590,6 +335,21 @@ fun VisualsScreen(
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                    LensMoreSliders(
+                        viewModel = viewModel,
+                        isExpanded = isLensMoreExpanded,
+                        onToggle = { isLensMoreExpanded = !isLensMoreExpanded },
+                        lensRadius = lensRadius,
+                        lensWidth = lensWidth,
+                        lensX = lensX,
+                        lensY = lensY,
+                        lensBarWidth = lensBarWidth,
+                        lensMaxHeight = lensMaxHeight,
+                        lensBarCount = lensBarCount
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant)
+
                     Text(
                         text = stringResource(R.string.visualizer_style),
                         style = MaterialTheme.typography.labelLarge,
@@ -663,186 +423,6 @@ fun VisualsScreen(
                         )
                     }
 
-                    CardHeader(
-                        title = stringResource(R.string.show_more_sliders),
-                        trailingContent = {
-                            IndicatorPill(
-                                isExpanded = isLensMoreExpanded,
-                                onClick = { isLensMoreExpanded = !isLensMoreExpanded }
-                            )
-                        }
-                    )
-
-                    AnimatedVisibility(
-                        visible = isLensMoreExpanded,
-                        enter = expandVertically() + fadeIn(),
-                        exit = shrinkVertically() + fadeOut()
-                    ) {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.lens_radius),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = "${lensRadius.toInt()}dp",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            VisualSlider(
-                                value = lensRadius,
-                                onValueChange = { viewModel.setLensVisualizerRadius(it) },
-                                valueRange = 2f..20f,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.overlay_width),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = "${lensWidth.toInt()}dp",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            VisualSlider(
-                                value = lensWidth,
-                                onValueChange = { viewModel.setLensVisualizerWidth(it) },
-                                valueRange = 0f..200f,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.x_position),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = "${lensX.toInt()}px",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            VisualSliderWithFineTune(
-                                value = lensX,
-                                onValueChange = { viewModel.setLensVisualizerX(it) },
-                                valueRange = 0f..2000f,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.y_position),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = "${lensY.toInt()}px",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            VisualSliderWithFineTune(
-                                value = lensY,
-                                onValueChange = { viewModel.setLensVisualizerY(it) },
-                                valueRange = -500f..3500f,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.lens_bar_width),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = "${lensBarWidth.toInt()}dp",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            VisualSlider(
-                                value = lensBarWidth,
-                                onValueChange = { viewModel.setLensVisualizerBarWidth(it) },
-                                valueRange = 1f..10f,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.lens_max_height),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = "${lensMaxHeight.toInt()}dp",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            VisualSlider(
-                                value = lensMaxHeight,
-                                onValueChange = { viewModel.setLensVisualizerMaxHeight(it) },
-                                valueRange = 5f..100f,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.lens_bar_count),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = "${lensBarCount}",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            VisualSlider(
-                                value = lensBarCount.divideByToOne(),
-                                onValueChange = { viewModel.setLensVisualizerBarCount(it.toInt()) },
-                                valueRange = 8f..48f,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    }
                 }
             }
 
@@ -958,5 +538,503 @@ private fun VisualSlider(
             label = if (fineTuneStep < 0.1f) "+1%" else if (fineTuneStep < 1f) "+$fineTuneStep" else "+${fineTuneStep.toInt()}",
             onClick = { onValueChange((value + fineTuneStep).coerceIn(valueRange)) }
         )
+    }
+}
+
+@Composable
+private fun OverlayMoreSliders(
+    viewModel: MainViewModel,
+    isExpanded: Boolean,
+    onToggle: () -> Unit,
+    overlayWidth: Int,
+    overlayYOffset: Int,
+    overlayTopEnabled: Boolean,
+    overlayHeight: Int,
+    overlayBottomEnabled: Boolean,
+    overlayHeightBottom: Int
+) {
+    CardHeader(
+        title = stringResource(R.string.configure),
+        trailingContent = {
+            IndicatorPill(
+                isExpanded = isExpanded,
+                onClick = onToggle
+            )
+        }
+    )
+
+    AnimatedVisibility(
+        visible = isExpanded,
+        enter = expandVertically() + fadeIn(),
+        exit = shrinkVertically() + fadeOut()
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.overlay_width),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "${overlayWidth}dp",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            VisualSlider(
+                value = overlayWidth.toFloat(),
+                onValueChange = { viewModel.setOverlayWidth(it.toInt()) },
+                valueRange = 40f..600f,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.vertical_position),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "${overlayYOffset}dp",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            VisualSlider(
+                value = overlayYOffset.toFloat(),
+                onValueChange = { viewModel.setOverlayYOffset(it.toInt()) },
+                valueRange = -300f..300f,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant)
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.top_edge_overlay),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                ExpressiveSwitch(
+                    checked = overlayTopEnabled,
+                    onCheckedChange = { viewModel.setOverlayTopEnabled(it) }
+                )
+            }
+
+            if (overlayTopEnabled) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.bar_height),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "${overlayHeight}dp",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                VisualSlider(
+                    value = overlayHeight.toFloat(),
+                    onValueChange = { viewModel.setOverlayHeight(it.toInt()) },
+                    valueRange = 1f..128f,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant)
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.bottom_edge_overlay),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                ExpressiveSwitch(
+                    checked = overlayBottomEnabled,
+                    onCheckedChange = { viewModel.setOverlayBottomEnabled(it) }
+                )
+            }
+
+            if (overlayBottomEnabled) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.bar_height),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "${overlayHeightBottom}dp",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                VisualSlider(
+                    value = overlayHeightBottom.toFloat(),
+                    onValueChange = { viewModel.setOverlayHeightBottom(it.toInt()) },
+                    valueRange = 1f..128f,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun EdgeMoreSliders(
+    viewModel: MainViewModel,
+    isExpanded: Boolean,
+    onToggle: () -> Unit,
+    edgeThickness: Int,
+    edgeCornerRadius: Float,
+    edgeBarCountHoriz: Int,
+    edgeTopEnabled: Boolean,
+    edgeBottomEnabled: Boolean
+) {
+    CardHeader(
+        title = stringResource(R.string.configure),
+        trailingContent = {
+            IndicatorPill(
+                isExpanded = isExpanded,
+                onClick = onToggle
+            )
+        }
+    )
+
+    AnimatedVisibility(
+        visible = isExpanded,
+        enter = expandVertically() + fadeIn(),
+        exit = shrinkVertically() + fadeOut()
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.edge_bar_height),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "${edgeThickness}dp",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            VisualSlider(
+                value = edgeThickness.toFloat(),
+                onValueChange = { viewModel.setEdgeThickness(it.toInt()) },
+                valueRange = 1f..128f,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.screen_corner_radius),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "${edgeCornerRadius.toInt()}dp",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            VisualSlider(
+                value = edgeCornerRadius,
+                onValueChange = { viewModel.setEdgeCornerRadius(it) },
+                valueRange = 0f..100f,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.lens_bar_count),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "$edgeBarCountHoriz",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            VisualSlider(
+                value = edgeBarCountHoriz.toFloat(),
+                onValueChange = { viewModel.setEdgeBarCount(it.toInt()) },
+                valueRange = 4f..100f,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 4.dp),
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.top_edge_segment),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                ExpressiveSwitch(
+                    checked = edgeTopEnabled,
+                    onCheckedChange = { viewModel.setEdgeTopEnabled(it) }
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.bottom_edge_segment),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                ExpressiveSwitch(
+                    checked = edgeBottomEnabled,
+                    onCheckedChange = { viewModel.setEdgeBottomEnabled(it) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LensMoreSliders(
+    viewModel: MainViewModel,
+    isExpanded: Boolean,
+    onToggle: () -> Unit,
+    lensRadius: Float,
+    lensWidth: Float,
+    lensX: Float,
+    lensY: Float,
+    lensBarWidth: Float,
+    lensMaxHeight: Float,
+    lensBarCount: Int
+) {
+    CardHeader(
+        title = stringResource(R.string.configure),
+        trailingContent = {
+            IndicatorPill(
+                isExpanded = isExpanded,
+                onClick = onToggle
+            )
+        }
+    )
+
+    AnimatedVisibility(
+        visible = isExpanded,
+        enter = expandVertically() + fadeIn(),
+        exit = shrinkVertically() + fadeOut()
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.lens_radius),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "${lensRadius.toInt()}dp",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            VisualSlider(
+                value = lensRadius,
+                onValueChange = { viewModel.setLensVisualizerRadius(it) },
+                valueRange = 2f..20f,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.overlay_width),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "${lensWidth.toInt()}dp",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            VisualSlider(
+                value = lensWidth,
+                onValueChange = { viewModel.setLensVisualizerWidth(it) },
+                valueRange = 0f..200f,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.x_position),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "${lensX.toInt()}px",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            VisualSliderWithFineTune(
+                value = lensX,
+                onValueChange = { viewModel.setLensVisualizerX(it) },
+                valueRange = 0f..2000f,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.y_position),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "${lensY.toInt()}px",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            VisualSliderWithFineTune(
+                value = lensY,
+                onValueChange = { viewModel.setLensVisualizerY(it) },
+                valueRange = -500f..3500f,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.lens_bar_width),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "${lensBarWidth.toInt()}dp",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            VisualSlider(
+                value = lensBarWidth,
+                onValueChange = { viewModel.setLensVisualizerBarWidth(it) },
+                valueRange = 1f..10f,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.lens_max_height),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "${lensMaxHeight.toInt()}dp",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            VisualSlider(
+                value = lensMaxHeight,
+                onValueChange = { viewModel.setLensVisualizerMaxHeight(it) },
+                valueRange = 5f..100f,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.lens_bar_count),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "${lensBarCount}",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            VisualSlider(
+                value = lensBarCount.divideByToOne(),
+                onValueChange = { viewModel.setLensVisualizerBarCount(it.toInt()) },
+                valueRange = 8f..48f,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
