@@ -17,6 +17,7 @@
     <string name="threshold_description">تعيين حد أدنى لمستوى الصوت المطلوب لتشغيل Glyphs. تؤدي القيم الأعلى إلى مظهر أفضل عن طريق تجاهل ضوضاء الخلفية.</string>
     <string name="speed_description">يتحكم في سرعة تلاشي Glyph بعد ذروة الصوت. السرعة الأعلى تؤدي إلى تصوير مرئي تفاعلي وحاد.</string>
     <string name="show_more_sliders">إظهار المزيد من التحكمات…</string>
+    <string name="configure">Configure…</string>
     <string name="gamma_control">التحكم في جاما</string>
     <string name="gamma_description">القيمة الأعلى لجاما تمنح مظهرًا أكثر حدة، لكن بتفاصيل أقل دقة وسطوع إجمالي أقل. أما القيمة الأدنى فهي أكثر سطوعًا وأقل حدة.</string>
     <string name="light_gamma">جاما الإضاءة:</string>

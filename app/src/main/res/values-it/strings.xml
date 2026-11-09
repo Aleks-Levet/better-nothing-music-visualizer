@@ -17,6 +17,7 @@
     <string name="threshold_description">Imposta il livello audio minimo necessario per attivare i Glyph. Valori più alti offrono un aspetto più pulito, ignorando il rumore di fondo.</string>
     <string name="speed_description">Controlla la velocità di dissolvenza dei Glyph dopo un picco audio. Velocità più alta risulta in una visualizzazione più reattiva e nitida.</string>
     <string name="show_more_sliders">Mostra più cursori…</string>
+    <string name="configure">Configure…</string>
     <string name="gamma_control">Controllo gamma</string>
     <string name="gamma_description">Un valore di gamma più alto conferisce un aspetto più incisivo, ma con dettagli meno sottili e una luminosità generale inferiore. Uno più basso è più luminoso ma meno incisivo.</string>
     <string name="light_gamma">Gamma luce:</string>

@@ -16,6 +16,7 @@
     <string name="gamma_description">Mae gwerth gamma uwch yn rhoi golwg fwy pwerus, ond gyda llai o fanylion cynnil a disgleirdeb cyffredinol. Mae un is yn fwy disglair ond yn llai pwerus.</string>
     <string name="light_gamma">Gamma Golau:</string>
     <string name="visualizer_presets">Rhagosodiadau delweddydd</string>
+    <string name="configure">Configure…</string>
 
     <!-- Settings Screen -->
     <string name="app_theme">Thema\'r Ap</string>

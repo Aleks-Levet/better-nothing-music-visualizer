@@ -17,6 +17,7 @@
     <string name="threshold_description">Glyphが光る最小のオーディオレベルを設定します。大きな値を設定することでバックグラウンドノイズが無視されより洗練された見た目になります。</string>
     <string name="speed_description">オーディオピークの後、Glyphがフェードアウトする時間を設定します。速くすることで高感度でシャープな見た目になります。</string>
     <string name="show_more_sliders">スライダーをさらに表示...</string>
+    <string name="configure">Configure…</string>
     <string name="gamma_control">ガンマコントロール</string>
     <string name="gamma_description">ガンマ値を高くすると、よりパンチの効いた外観になりますが、微妙なディテールや全体的な明るさは低下します。低くすると明るくなりますが、パンチは弱まります。</string>
     <string name="light_gamma">ライトガンマ：</string>

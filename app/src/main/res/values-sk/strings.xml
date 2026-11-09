@@ -17,6 +17,7 @@
     <string name="threshold_description">Nastaviť minimálnu hlasitosť pre aktivovanie glyphs. Vyššie hodnoty vedú k čistejšiemu vzhľadu vďaka ignorovaniu šumu v pozadí.</string>
     <string name="speed_description">Určuje, ako rýchlo glyphs po zvukovom špičkovom signáli zmiznú. Vyššia rýchlosť vedie k pohotovejšej a ostrejšej vizualizácii.</string>
     <string name="show_more_sliders">Zobraziť ďalšie posuvníky…</string>
+    <string name="configure">Configure…</string>
     <string name="gamma_control">Ovládanie gamma</string>
     <string name="gamma_description">Vyššia hodnota gamy dodáva obrazu výraznejší, údernejší vzhľad, no na úkor jemných detailov a celkového jasu. Nižšia hodnota prináša vyšší jas, ale obraz pôsobí menej výrazne.</string>
     <string name="light_gamma">Gamma svetlo:</string>

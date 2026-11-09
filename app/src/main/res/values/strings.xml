@@ -21,6 +21,7 @@
     <string name="threshold_description">Sets a minimum audio level required to trigger the Glyphs. Higher values result in a cleaner look by ignoring background noise.</string>
     <string name="speed_description">Controls how quickly the Glyphs fade out after an audio peak. Higher speed results in a more reactive and sharp visualization.</string>
     <string name="show_more_sliders">Show more sliders…</string>
+    <string name="configure">Configure…</string>
     <string name="gamma_control">Gamma control</string>
     <string name="gamma_description">A higher gamma value gives a more punchy look, but with less subtle details and overall brightness. A lower one is brighter but less punchy.</string>
     <string name="light_gamma">Light Gamma:</string>

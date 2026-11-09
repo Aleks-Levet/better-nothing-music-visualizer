@@ -17,6 +17,7 @@
     <string name="threshold_description">Définit un volume audio minimum requis pour déclencher les glyphs. Des valeurs plus élevées donnent une apparence plus propre en ignorant le bruit de fond.</string>
     <string name="speed_description">Contrôle la vitesse à laquelle les glyphs s\'estompent après un pic audio. Une vitesse plus élevée donne une visualisation plus réactive et plus nette.</string>
     <string name="show_more_sliders">Afficher plus de réglages…</string>
+    <string name="configure">Configure…</string>
     <string name="gamma_control">Gamma</string>
     <string name="gamma_description">Un gamma élevé accentue le contraste pour un rendu plus percutant, au détriment des détails subtils et de la luminosité globale. Un gamma faible est plus lumineux mais moins contrasté.</string>
     <string name="light_gamma">Gamma :</string>

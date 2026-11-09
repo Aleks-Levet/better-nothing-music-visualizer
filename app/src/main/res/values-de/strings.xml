@@ -16,6 +16,7 @@
     <string name="gamma_description">Ein höherer Gammawert sorgt für ein kräftigeres Aussehen, jedoch mit weniger feinen Details und geringerer Gesamthelligkeit. Ein niedrigerer Wert ist heller, aber weniger kräftig.</string>
     <string name="light_gamma">Licht-Gamma:</string>
     <string name="visualizer_presets">Visualisierer-Voreinstellungen</string>
+    <string name="configure">Configure…</string>
 
     <!-- Settings Screen -->
     <string name="app_theme">App-Design</string>
