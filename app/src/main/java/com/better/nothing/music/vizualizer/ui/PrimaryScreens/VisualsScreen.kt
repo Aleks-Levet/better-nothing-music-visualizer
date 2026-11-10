@@ -97,10 +97,7 @@ fun VisualsScreen(
 
         ScreenTitle(text = stringResource(R.string.tab_visuals))
 
-        var overlayExpanded by rememberSaveable { mutableStateOf(overlayEnabled) }
-        var edgeExpanded by rememberSaveable { mutableStateOf(edgeVisualizerEnabled) }
-        var lensExpanded by rememberSaveable { mutableStateOf(lensEnabled) }
-        var hdrExpanded by rememberSaveable { mutableStateOf(false) }
+        var expandedCardId by rememberSaveable { mutableStateOf<String?>(null) }
 
         var isOverlayMoreExpanded by rememberSaveable { mutableStateOf(false) }
         var isEdgeMoreExpanded by rememberSaveable { mutableStateOf(false) }
@@ -110,8 +107,8 @@ fun VisualsScreen(
         ExpandableExpressiveCard(
             title = stringResource(R.string.nav_overlay),
             icon = Icons.Default.Layers,
-            expanded = overlayExpanded,
-            onExpandedChange = { overlayExpanded = it },
+            expanded = expandedCardId == "overlay",
+            onExpandedChange = { expandedCardId = if (it) "overlay" else null },
             trailingContent = {
                 ExpressiveSwitch(
                     checked = overlayEnabled,
@@ -217,8 +214,8 @@ fun VisualsScreen(
         ExpandableExpressiveCard(
             title = stringResource(R.string.edge_visualizer),
             icon = Icons.Default.BorderOuter,
-            expanded = edgeExpanded,
-            onExpandedChange = { edgeExpanded = it },
+            expanded = expandedCardId == "edge",
+            onExpandedChange = { expandedCardId = if (it) "edge" else null },
             trailingContent = {
                 ExpressiveSwitch(
                     checked = edgeVisualizerEnabled,
@@ -323,8 +320,8 @@ fun VisualsScreen(
         ExpandableExpressiveCard(
             title = stringResource(R.string.lens_visualizer),
             icon = Icons.Default.BlurCircular,
-            expanded = lensExpanded,
-            onExpandedChange = { lensExpanded = it },
+            expanded = expandedCardId == "lens",
+            onExpandedChange = { expandedCardId = if (it) "lens" else null },
             trailingContent = {
                 ExpressiveSwitch(
                     checked = lensEnabled,
@@ -434,8 +431,8 @@ fun VisualsScreen(
             ExpandableExpressiveCard(
                 title = stringResource(R.string.emulate_hdr_title),
                 icon = Icons.Default.Brightness4,
-                expanded = hdrExpanded,
-                onExpandedChange = { hdrExpanded = it }
+                expanded = expandedCardId == "hdr",
+                onExpandedChange = { expandedCardId = if (it) "hdr" else null }
             ) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
