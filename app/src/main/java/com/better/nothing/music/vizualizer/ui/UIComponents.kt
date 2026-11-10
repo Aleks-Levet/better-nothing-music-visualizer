@@ -40,6 +40,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import kotlinx.coroutines.delay
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -809,6 +812,18 @@ fun ExpandableExpressiveCard(
     val haptics = LocalHapticFeedback.current
     val view = LocalView.current
     val isPressed by interactionSource.collectIsPressedAsState()
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+
+    LaunchedEffect(expanded) {
+        if (expanded) {
+            delay(300)
+            try {
+                bringIntoViewRequester.bringIntoView()
+            } catch (e: Exception) {
+                // Ignore if not in scrollable container
+            }
+        }
+    }
 
     val dpBouncySpec: FiniteAnimationSpec<Dp> = spring(
         dampingRatio = Spring.DampingRatioMediumBouncy,
@@ -841,7 +856,10 @@ fun ExpandableExpressiveCard(
     )
 
     Card(
-        modifier = modifier.fillMaxWidth().hoverable(interactionSource),
+        modifier = modifier
+            .fillMaxWidth()
+            .bringIntoViewRequester(bringIntoViewRequester)
+            .hoverable(interactionSource),
         shape = RoundedCornerShape(24.dp),
         elevation = CardDefaults.cardElevation(
             defaultElevation = animatedElevation,
