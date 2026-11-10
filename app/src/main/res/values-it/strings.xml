@@ -96,7 +96,7 @@
     <string name="analytics_disclaimer_title">Analisi dei dati</string>
     <string name="analytics_disclaimer_text">Questa app utilizza Google Analytics (Firebase) per raccogliere statistiche di utilizzo anonime e report sui crash, al fine di migliorare l\'esperienza dell\'app. Non vengono raccolti dati personali né contenuti audio.</string>
     <string name="github_repository">Repository GitHub</string>
-    <string name="version_info">Version %s (%d)</string>
+    <string name="version_info">Version %1$s (%2$d)</string>
     <string name="zones_config_version">Versione configurazione: %s</string>
     <string name="media_projection_info">MediaProjection viene utilizzato solo per alimentare il visualizzatore in tempo reale. Non viene eseguita alcuna registrazione o memorizzazione di dati non necessaria.</string>
     <string name="credits">Crediti</string>

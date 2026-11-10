@@ -96,7 +96,7 @@
     <string name="analytics_disclaimer_title">アナリティクス</string>
     <string name="analytics_disclaimer_text">本アプリでは、ユーザー体験の向上を目的として、Google Analytics（Firebase）により匿名の使用統計データおよびクラッシュレポートを収集しています。個人情報および音声コンテンツの収集は行われません。</string>
     <string name="github_repository">GitHubリポジトリ</string>
-    <string name="version_info">Version %s (%d)</string>
+    <string name="version_info">Version %1$s (%2$d)</string>
     <string name="zones_config_version">設定バージョン： %s</string>
     <string name="media_projection_info">MediaProjectionはリアルタイム・ビジュアライザーの動作にのみ使用されます。不要な録音やデータの保存は行われません。</string>
     <string name="credits">クレジット</string>

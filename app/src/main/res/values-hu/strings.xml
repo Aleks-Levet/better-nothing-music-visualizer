@@ -96,7 +96,7 @@
     <string name="analytics_disclaimer_title">Analitika</string>
     <string name="analytics_disclaimer_text">Ez az alkalmazás Google Analitikát használ (Firebase) hogy névtelen felhasználási adatokat és hibajelentéseket gyűjtsön. Személyes információ és hanganyag nem kerül gyűjtésre.</string>
     <string name="github_repository">GitHub Repozitórium:</string>
-    <string name="version_info">Verzió %s (%d)</string>
+    <string name="version_info">Verzió %1$s (%2$d)</string>
     <string name="zones_config_version">Konfiguráció Verzió: %s</string>
     <string name="media_projection_info">A képernyőtükrözésből csak a valós idejű zenekimutatás kerül felhasználásra. Lényegtelen adat elmentés vagy videófelvétel nem történik.</string>
     <string name="credits">Stáblista</string>

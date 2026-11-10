@@ -96,7 +96,7 @@
     <string name="analytics_disclaimer_title">التحليلات</string>
     <string name="analytics_disclaimer_text">يستخدم هذا التطبيق خدمة Google Analytics (Firebase) لجمع إحصاءات استخدام مجهولة الهوية وتقارير الأعطال للمساعدة في تحسين تجربة التطبيق. لا يتم جمع أي بيانات شخصية أو محتوى صوتي.</string>
     <string name="github_repository">مستودع GitHub</string>
-    <string name="version_info">الإصدار: %s (%d)</string>
+    <string name="version_info">الإصدار: %1$s (%2$d)</string>
     <string name="zones_config_version">إصدار الإعداد: %s</string>
     <string name="media_projection_info">يُستخدم MediaProjection فقط لتشغيل المصور المرئي الفوري. لا يتم إجراء أي تسجيل أو تخزين بيانات غير ضروري.</string>
     <string name="credits">شكر وتقدير</string>

@@ -96,7 +96,7 @@
     <string name="analytics_disclaimer_title">Analyses</string>
     <string name="analytics_disclaimer_text">Cette application utilise Google Analytics (Firebase) pour collecter des statistiques d\'utilisation anonymes et des rapports de plantage afin d\'améliorer l\'expérience de l\'application. Aucune donnée personnelle ou contenu audio n\'est collectée.</string>
     <string name="github_repository">GitHub</string>
-    <string name="version_info">Version %s (%d)</string>
+    <string name="version_info">Version %1$s (%2$d)</string>
     <string name="zones_config_version">Version config : %s</string>
     <string name="media_projection_info">MediaProjection est utilisé uniquement pour l\'analyse audio en temps réel. Aucun enregistrement n\'est stocké.</string>
     <string name="credits">Remerciements</string>

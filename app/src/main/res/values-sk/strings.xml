@@ -96,7 +96,7 @@
     <string name="analytics_disclaimer_title">Štatistika</string>
     <string name="analytics_disclaimer_text">Táto aplikácia používa Google Analytics (Firebase) na zhromažďovanie anonymných štatistík používania a hlásení o zlyhaní s cieľom zlepšiť používateľský zážitok z aplikácie. Nezhromažďujú sa žiadne osobné údaje ani zvukový obsah.</string>
     <string name="github_repository">GitHub repozitár</string>
-    <string name="version_info">Verzia %s (%d)</string>
+    <string name="version_info">Verzia %1$s (%2$d)</string>
     <string name="zones_config_version">Verzia konfigurácie: %s</string>
     <string name="media_projection_info">MediaProjection sa používa výhradne na zabezpečenie fungovania vizualizéra v reálnom čase. Nedochádza k žiadnemu zbytočnému nahrávaniu ani ukladaniu údajov.</string>
     <string name="credits">Autori</string>

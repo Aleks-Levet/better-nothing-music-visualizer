@@ -96,7 +96,7 @@
     <string name="analytics_disclaimer_title">Аналитика</string>
     <string name="analytics_disclaimer_text">Приложение использует Google Analytics (Firebase) для сбора анонимной статистики использования и отчетов об ошибках. Персональные данные и аудиозаписи не собираются.</string>
     <string name="github_repository">Репозиторий GitHub</string>
-    <string name="version_info">Version %s (%d)</string>
+    <string name="version_info">Version %1$s (%2$d)</string>
     <string name="zones_config_version">Версия конфига: %s</string>
     <string name="media_projection_info">Служба захвата экрана (MediaProjection) используется исключительно для работы визуализатора в реальном времени. Приложение ничего не записывает и не сохраняет.</string>
     <string name="credits">Авторы и благодарности</string>

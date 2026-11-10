@@ -96,7 +96,7 @@
     <string name="analytics_disclaimer_title">Analytics</string>
     <string name="analytics_disclaimer_text">This app uses Google Analytics (Firebase) to collect anonymous usage statistics and crash reports to help improve the app experience. No personal data or audio content is collected.</string>
     <string name="github_repository">GitHub रिपॉजिटरी</string>
-    <string name="version_info">Version %s (%d)</string>
+    <string name="version_info">Version %1$s (%2$d)</string>
     <string name="zones_config_version">कॉन्फ़िगरेशन संस्करण: %s</string>
     <string name="media_projection_info">मीडियाप्रोजेक्शन का उपयोग केवल रीयल-टाइम विज़ुअलाइज़र को पावर देने के लिए किया जाता है। कोई अनावश्यक रिकॉर्डिंग या डेटा भंडारण नहीं किया जाता है।</string>
     <string name="credits">श्रेय</string>
