@@ -226,6 +226,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val localNetworkPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            toggleVisualizer()
+        } else {
+            Toast.makeText(this, "Local network permission is required", Toast.LENGTH_SHORT).show()
+            if (intent.getBooleanExtra(EXTRA_REQUEST_START, false)) {
+                AudioCaptureService.requestTileRefresh(this)
+                finish()
+            }
+        }
+    }
+
     private val notificationPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { _ ->
         // Proceed regardless of whether permission was granted or denied
         toggleVisualizer(skipNotificationCheck = true)
@@ -503,6 +515,10 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 AudioCaptureService.CaptureSource.NETWORK -> {
+                    if (Build.VERSION.SDK_INT >= 37 && checkSelfPermission("android.permission.ACCESS_LOCAL_NETWORK") != PackageManager.PERMISSION_GRANTED) {
+                        localNetworkPermissionLauncher.launch("android.permission.ACCESS_LOCAL_NETWORK")
+                        return
+                    }
                     if (!isTrampoline && !forceStart) {
                         viewModel.showHostPicker()
                     } else {

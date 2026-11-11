@@ -25,6 +25,7 @@ class TrampolineActivity : Activity() {
         val sourceStr = prefs.getString("capture_source", "INTERNAL")
         val needsMic = "MIC" == sourceStr || "VIZUALIZER" == sourceStr
         val hasMicPerm = checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        val needsLocalNet = "NETWORK" == sourceStr && Build.VERSION.SDK_INT >= 37 && checkSelfPermission("android.permission.ACCESS_LOCAL_NETWORK") != PackageManager.PERMISSION_GRANTED
         val startSource = intent.getStringExtra(AudioCaptureService.EXTRA_START_SOURCE)
         
         // Notification permission is optional, only redirect to MainActivity if we haven't asked yet
@@ -38,7 +39,7 @@ class TrampolineActivity : Activity() {
             false
         }
 
-        if (sourceStr == "INTERNAL" || (needsMic && !hasMicPerm) || needsNotifPrompt) {
+        if (sourceStr == "INTERNAL" || (needsMic && !hasMicPerm) || needsLocalNet || needsNotifPrompt) {
             if (needsNotifPrompt) {
                 prefs.edit { putBoolean("notif_prompt_shown", true) }
             }

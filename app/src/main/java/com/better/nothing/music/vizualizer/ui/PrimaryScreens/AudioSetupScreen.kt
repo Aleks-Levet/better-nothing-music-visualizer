@@ -169,6 +169,18 @@ fun AudioScreen(
         }
     }
 
+    val localNetworkLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        pendingCaptureSource?.let {
+            if (isGranted) {
+                onCaptureSourceChanged(it)
+                viewModel.showHostPicker()
+            }
+            pendingCaptureSource = null
+        }
+    }
+
     val handleAutoToggle: (Boolean) -> Unit = { setEnabled ->
         if (setEnabled) {
             val status = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -241,8 +253,19 @@ fun AudioScreen(
                         recordAudioLauncher.launch(Manifest.permission.RECORD_AUDIO)
                     }
                 } else if (source == AudioCaptureService.CaptureSource.NETWORK) {
-                    onCaptureSourceChanged(source)
-                    viewModel.showHostPicker()
+                    if (Build.VERSION.SDK_INT >= 37) {
+                        val status = ContextCompat.checkSelfPermission(context, "android.permission.ACCESS_LOCAL_NETWORK")
+                        if (status == PackageManager.PERMISSION_GRANTED) {
+                            onCaptureSourceChanged(source)
+                            viewModel.showHostPicker()
+                        } else {
+                            pendingCaptureSource = source
+                            localNetworkLauncher.launch("android.permission.ACCESS_LOCAL_NETWORK")
+                        }
+                    } else {
+                        onCaptureSourceChanged(source)
+                        viewModel.showHostPicker()
+                    }
                 } else {
                     onCaptureSourceChanged(source)
                 }
