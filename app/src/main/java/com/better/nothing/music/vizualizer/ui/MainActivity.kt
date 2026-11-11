@@ -36,6 +36,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -242,27 +243,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val isTrampoline = intent.getBooleanExtra(EXTRA_REQUEST_START, false)
         if (!isTrampoline) {
-            val splashScreen = installSplashScreen()
-            var isSplashReady = false
-            splashScreen.setKeepOnScreenCondition { !isSplashReady }
-            Handler(Looper.getMainLooper()).postDelayed({
-                isSplashReady = true
-            }, 800L)
-            splashScreen.setOnExitAnimationListener { splashScreenView ->
-                val fadeOut = android.animation.ObjectAnimator.ofFloat(
-                    splashScreenView.view,
-                    android.view.View.ALPHA,
-                    1f,
-                    0f
-                )
-                fadeOut.duration = 300L
-                fadeOut.addListener(object : android.animation.AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: android.animation.Animator) {
-                        splashScreenView.remove()
-                    }
-                })
-                fadeOut.start()
-            }
+            installSplashScreen()
         }
         if (isTrampoline) {
             setTheme(R.style.Theme_Transparent)
@@ -907,9 +888,11 @@ internal fun BetterVizApp(
         }
     }
 
+    val isPagerDragged by pagerState.interactionSource.collectIsDraggedAsState()
+
     // Sync selectedTab when pager is scrolled by user
     LaunchedEffect(pagerState.currentPage) {
-        if (!isProgrammaticScroll && pagerState.isScrollInProgress && backProgress == 0f) {
+        if (!isProgrammaticScroll && isPagerDragged && backProgress == 0f) {
             val swipedTab = visibleTabs.getOrNull(pagerState.currentPage)
             if (swipedTab != null && swipedTab != selectedTab) {
                 view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)

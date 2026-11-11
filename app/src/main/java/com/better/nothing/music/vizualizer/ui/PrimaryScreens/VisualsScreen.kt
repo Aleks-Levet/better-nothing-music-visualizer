@@ -550,24 +550,34 @@ private fun OverlayMoreSliders(
     overlayBottomEnabled: Boolean,
     overlayHeightBottom: Int
 ) {
-    CardHeader(
-        title = stringResource(R.string.configure),
-        trailingContent = {
-            IndicatorPill(
-                isExpanded = isExpanded,
-                onClick = onToggle
-            )
-        }
-    )
-
-    AnimatedVisibility(
-        visible = isExpanded,
-        enter = expandVertically() + fadeIn(),
-        exit = shrinkVertically() + fadeOut()
+    Surface(
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = if (isExpanded) 12.dp else 4.dp),
+            verticalArrangement = Arrangement.spacedBy(if (isExpanded) 12.dp else 0.dp)
         ) {
+            CardHeader(
+                title = stringResource(R.string.configure),
+                trailingContent = {
+                    IndicatorPill(
+                        isExpanded = isExpanded,
+                        onClick = onToggle
+                    )
+                }
+            )
+
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(bottom = 4.dp)
+                ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -699,6 +709,8 @@ private fun OverlayMoreSliders(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+                }
+            }
         }
     }
 }
@@ -714,24 +726,34 @@ private fun EdgeMoreSliders(
     edgeTopEnabled: Boolean,
     edgeBottomEnabled: Boolean
 ) {
-    CardHeader(
-        title = stringResource(R.string.configure),
-        trailingContent = {
-            IndicatorPill(
-                isExpanded = isExpanded,
-                onClick = onToggle
-            )
-        }
-    )
-
-    AnimatedVisibility(
-        visible = isExpanded,
-        enter = expandVertically() + fadeIn(),
-        exit = shrinkVertically() + fadeOut()
+    Surface(
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = if (isExpanded) 12.dp else 4.dp),
+            verticalArrangement = Arrangement.spacedBy(if (isExpanded) 12.dp else 0.dp)
         ) {
+            CardHeader(
+                title = stringResource(R.string.configure),
+                trailingContent = {
+                    IndicatorPill(
+                        isExpanded = isExpanded,
+                        onClick = onToggle
+                    )
+                }
+            )
+
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(bottom = 4.dp)
+                ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -837,6 +859,8 @@ private fun EdgeMoreSliders(
                     onCheckedChange = { viewModel.setEdgeBottomEnabled(it) }
                 )
             }
+                }
+            }
         }
     }
 }
@@ -854,24 +878,34 @@ private fun LensMoreSliders(
     lensMaxHeight: Float,
     lensBarCount: Int
 ) {
-    CardHeader(
-        title = stringResource(R.string.configure),
-        trailingContent = {
-            IndicatorPill(
-                isExpanded = isExpanded,
-                onClick = onToggle
-            )
-        }
-    )
-
-    AnimatedVisibility(
-        visible = isExpanded,
-        enter = expandVertically() + fadeIn(),
-        exit = shrinkVertically() + fadeOut()
+    Surface(
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = if (isExpanded) 12.dp else 4.dp),
+            verticalArrangement = Arrangement.spacedBy(if (isExpanded) 12.dp else 0.dp)
         ) {
+            CardHeader(
+                title = stringResource(R.string.configure),
+                trailingContent = {
+                    IndicatorPill(
+                        isExpanded = isExpanded,
+                        onClick = onToggle
+                    )
+                }
+            )
+
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(bottom = 4.dp)
+                ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -1032,6 +1066,8 @@ private fun LensMoreSliders(
                 valueRange = 8f..48f,
                 modifier = Modifier.fillMaxWidth()
             )
+                }
+            }
         }
     }
 }

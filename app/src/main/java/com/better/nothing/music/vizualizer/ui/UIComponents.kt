@@ -42,6 +42,8 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.onGloballyPositioned
 import kotlinx.coroutines.delay
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Paint
@@ -812,15 +814,32 @@ fun ExpandableExpressiveCard(
     val haptics = LocalHapticFeedback.current
     val view = LocalView.current
     val isPressed by interactionSource.collectIsPressedAsState()
+    val configuration = LocalConfiguration.current
+    val density = LocalDensity.current
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    var cardHeight by remember { mutableStateOf(0) }
 
     LaunchedEffect(expanded) {
         if (expanded) {
-            delay(300)
+            delay(350)
             try {
-                bringIntoViewRequester.bringIntoView()
+                val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
+                if (screenHeightPx > 0f && cardHeight > 0) {
+                    val extraSpace = (screenHeightPx - cardHeight).coerceAtLeast(0f) / 2f
+                    val rect = Rect(
+                        left = 0f,
+                        top = -extraSpace,
+                        right = 10000f,
+                        bottom = cardHeight.toFloat() + extraSpace
+                    )
+                    bringIntoViewRequester.bringIntoView(rect)
+                } else {
+                    bringIntoViewRequester.bringIntoView()
+                }
             } catch (e: Exception) {
-                // Ignore if not in scrollable container
+                try {
+                    bringIntoViewRequester.bringIntoView()
+                } catch (ignored: Exception) {}
             }
         }
     }
@@ -858,6 +877,9 @@ fun ExpandableExpressiveCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
+            .onGloballyPositioned { coordinates ->
+                cardHeight = coordinates.size.height
+            }
             .bringIntoViewRequester(bringIntoViewRequester)
             .hoverable(interactionSource),
         shape = RoundedCornerShape(24.dp),
@@ -1016,8 +1038,8 @@ fun IndicatorPill(
             pressStartTime = System.currentTimeMillis()
             isVisuallyPressed = true
             view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
-        } else {
-            // Release: Stronger haptic click
+        } else if (pressStartTime > 0L) {
+            // Release: Stronger haptic click (only if it was pressed)
             view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
 
             // Ensure the visual press state lasts at least 100ms
