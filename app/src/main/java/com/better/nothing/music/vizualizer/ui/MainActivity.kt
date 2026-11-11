@@ -888,16 +888,24 @@ internal fun BetterVizApp(
         }
     }
 
+    var wasPagerDragged by remember { mutableStateOf(false) }
     val isPagerDragged by pagerState.interactionSource.collectIsDraggedAsState()
 
+    LaunchedEffect(isPagerDragged) {
+        if (isPagerDragged) {
+            wasPagerDragged = true
+        }
+    }
+
     // Sync selectedTab when pager is scrolled by user
-    LaunchedEffect(pagerState.currentPage) {
-        if (!isProgrammaticScroll && isPagerDragged && backProgress == 0f) {
-            val swipedTab = visibleTabs.getOrNull(pagerState.currentPage)
+    LaunchedEffect(pagerState.settledPage) {
+        if (wasPagerDragged && backProgress == 0f) {
+            val swipedTab = visibleTabs.getOrNull(pagerState.settledPage)
             if (swipedTab != null && swipedTab != selectedTab) {
                 view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
                 viewModel.selectTab(swipedTab, recordHistory = false)
             }
+            wasPagerDragged = false
         }
     }
 

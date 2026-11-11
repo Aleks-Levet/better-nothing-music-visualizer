@@ -818,6 +818,7 @@ fun ExpandableExpressiveCard(
     val density = LocalDensity.current
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     var cardHeight by remember { mutableStateOf(0) }
+    var cardWidth by remember { mutableStateOf(0) }
 
     LaunchedEffect(expanded) {
         if (expanded) {
@@ -826,10 +827,11 @@ fun ExpandableExpressiveCard(
                 val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
                 if (screenHeightPx > 0f && cardHeight > 0) {
                     val extraSpace = (screenHeightPx - cardHeight).coerceAtLeast(0f) / 2f
+                    val rightBound = if (cardWidth > 0) cardWidth.toFloat() else 1000f
                     val rect = Rect(
                         left = 0f,
                         top = -extraSpace,
-                        right = 10000f,
+                        right = rightBound,
                         bottom = cardHeight.toFloat() + extraSpace
                     )
                     bringIntoViewRequester.bringIntoView(rect)
@@ -879,6 +881,7 @@ fun ExpandableExpressiveCard(
             .fillMaxWidth()
             .onGloballyPositioned { coordinates ->
                 cardHeight = coordinates.size.height
+                cardWidth = coordinates.size.width
             }
             .bringIntoViewRequester(bringIntoViewRequester)
             .hoverable(interactionSource),
