@@ -552,22 +552,29 @@ private fun OverlayMoreSliders(
 ) {
     Surface(
         shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = if (isExpanded) 12.dp else 4.dp),
             verticalArrangement = Arrangement.spacedBy(if (isExpanded) 12.dp else 0.dp)
         ) {
-            CardHeader(
-                title = stringResource(R.string.configure),
-                trailingContent = {
-                    IndicatorPill(
-                        isExpanded = isExpanded,
-                        onClick = onToggle
-                    )
-                }
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.configure),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontWeight = FontWeight.Bold
+                )
+                IndicatorPill(
+                    isExpanded = isExpanded,
+                    onClick = onToggle
+                )
+            }
 
             AnimatedVisibility(
                 visible = isExpanded,
@@ -728,22 +735,29 @@ private fun EdgeMoreSliders(
 ) {
     Surface(
         shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = if (isExpanded) 12.dp else 4.dp),
             verticalArrangement = Arrangement.spacedBy(if (isExpanded) 12.dp else 0.dp)
         ) {
-            CardHeader(
-                title = stringResource(R.string.configure),
-                trailingContent = {
-                    IndicatorPill(
-                        isExpanded = isExpanded,
-                        onClick = onToggle
-                    )
-                }
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.configure),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontWeight = FontWeight.Bold
+                )
+                IndicatorPill(
+                    isExpanded = isExpanded,
+                    onClick = onToggle
+                )
+            }
 
             AnimatedVisibility(
                 visible = isExpanded,
@@ -880,22 +894,29 @@ private fun LensMoreSliders(
 ) {
     Surface(
         shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = if (isExpanded) 12.dp else 4.dp),
             verticalArrangement = Arrangement.spacedBy(if (isExpanded) 12.dp else 0.dp)
         ) {
-            CardHeader(
-                title = stringResource(R.string.configure),
-                trailingContent = {
-                    IndicatorPill(
-                        isExpanded = isExpanded,
-                        onClick = onToggle
-                    )
-                }
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.configure),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontWeight = FontWeight.Bold
+                )
+                IndicatorPill(
+                    isExpanded = isExpanded,
+                    onClick = onToggle
+                )
+            }
 
             AnimatedVisibility(
                 visible = isExpanded,

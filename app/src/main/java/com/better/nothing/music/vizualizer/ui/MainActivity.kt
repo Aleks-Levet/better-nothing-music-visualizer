@@ -36,7 +36,6 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -70,6 +69,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.graphicsLayer
@@ -888,24 +888,16 @@ internal fun BetterVizApp(
         }
     }
 
-    var wasPagerDragged by remember { mutableStateOf(false) }
-    val isPagerDragged by pagerState.interactionSource.collectIsDraggedAsState()
-
-    LaunchedEffect(isPagerDragged) {
-        if (isPagerDragged) {
-            wasPagerDragged = true
-        }
-    }
-
     // Sync selectedTab when pager is scrolled by user
-    LaunchedEffect(pagerState.settledPage) {
-        if (wasPagerDragged && backProgress == 0f) {
-            val swipedTab = visibleTabs.getOrNull(pagerState.settledPage)
-            if (swipedTab != null && swipedTab != selectedTab) {
-                view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
-                viewModel.selectTab(swipedTab, recordHistory = false)
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.settledPage }.collect { page ->
+            if (!isProgrammaticScroll && backProgress == 0f) {
+                val swipedTab = visibleTabs.getOrNull(page)
+                if (swipedTab != null && swipedTab != selectedTab) {
+                    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
+                    viewModel.selectTab(swipedTab, recordHistory = false)
+                }
             }
-            wasPagerDragged = false
         }
     }
 
