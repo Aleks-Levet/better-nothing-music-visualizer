@@ -888,7 +888,12 @@ internal fun BetterVizApp(
     }
 
     // Sync pager when selectedTab changes (e.g. from bottom bar)
-    LaunchedEffect(selectedTab) {
+    LaunchedEffect(selectedTab, visibleTabs) {
+        if (selectedTab !in visibleTabs) {
+            val fallback = visibleTabs.firstOrNull() ?: Tab.Audio
+            viewModel.selectTab(fallback, recordHistory = false)
+            return@LaunchedEffect
+        }
         val target = visibleTabs.indexOf(selectedTab).coerceAtLeast(0)
         if (pagerState.currentPage != target) {
             isProgrammaticScroll = true
@@ -905,11 +910,13 @@ internal fun BetterVizApp(
     }
 
     // Sync selectedTab when pager is scrolled by user
-    LaunchedEffect(pagerState) {
+    LaunchedEffect(pagerState, visibleTabs) {
         snapshotFlow { pagerState.settledPage }.collect { page ->
-            if (!isProgrammaticScroll && backProgress == 0f) {
+            if (!isProgrammaticScroll && !pagerState.isScrollInProgress && backProgress == 0f) {
                 val swipedTab = visibleTabs.getOrNull(page)
-                if (swipedTab != null && swipedTab != selectedTab) {
+                if (swipedTab != null && swipedTab != selectedTab && selectedTab in visibleTabs && visibleTabs.indexOf(selectedTab) == page) {
+                    // Pager is already on selectedTab, do nothing
+                } else if (swipedTab != null && swipedTab != selectedTab && selectedTab in visibleTabs) {
                     view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
                     viewModel.selectTab(swipedTab, recordHistory = false)
                 }
@@ -917,15 +924,20 @@ internal fun BetterVizApp(
         }
     }
 
-    // CRITICAL: Handle dynamic tab visibility changes to prevent jumping
-    LaunchedEffect(visibleTabs) {
-        val targetIndex = visibleTabs.indexOf(selectedTab).coerceAtLeast(0)
-        if (pagerState.currentPage != targetIndex) {
-            isProgrammaticScroll = true
-            try {
-                pagerState.scrollToPage(targetIndex)
-            } finally {
-                isProgrammaticScroll = false
+    // CRITICAL: Handle dynamic tab visibility changes to prevent jumping to Settings
+    LaunchedEffect(visibleTabs, selectedTab) {
+        if (selectedTab !in visibleTabs) {
+            val fallback = visibleTabs.firstOrNull() ?: Tab.Audio
+            viewModel.selectTab(fallback, recordHistory = false)
+        } else {
+            val targetIndex = visibleTabs.indexOf(selectedTab).coerceAtLeast(0)
+            if (pagerState.currentPage != targetIndex) {
+                isProgrammaticScroll = true
+                try {
+                    pagerState.scrollToPage(targetIndex)
+                } finally {
+                    isProgrammaticScroll = false
+                }
             }
         }
     }

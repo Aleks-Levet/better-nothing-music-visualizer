@@ -43,6 +43,9 @@ import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import kotlinx.coroutines.delay
 import androidx.compose.ui.draw.shadow
@@ -819,22 +822,24 @@ fun ExpandableExpressiveCard(
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     var cardHeight by remember { mutableStateOf(0) }
     var cardWidth by remember { mutableStateOf(0) }
+    var layoutCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
 
     LaunchedEffect(expanded) {
         if (expanded) {
             delay(350)
             try {
-                val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
-                if (screenHeightPx > 0f && cardHeight > 0) {
-                    val extraSpace = (screenHeightPx - cardHeight).coerceAtLeast(0f) / 2f
-                    val rightBound = if (cardWidth > 0) cardWidth.toFloat() else 1000f
-                    val rect = Rect(
-                        left = 0f,
-                        top = -extraSpace,
-                        right = rightBound,
-                        bottom = cardHeight.toFloat() + extraSpace
-                    )
-                    bringIntoViewRequester.bringIntoView(rect)
+                val rootCoords = layoutCoordinates?.findRootCoordinates()
+                val rootHeight = rootCoords?.size?.height?.toFloat() ?: with(density) { configuration.screenHeightDp.dp.toPx() }
+                val bounds = layoutCoordinates?.boundsInRoot()
+
+                if (bounds != null && rootHeight > 0f && cardHeight > 0) {
+                    val cardTop = bounds.top
+                    val cardBottom = cardTop + cardHeight
+                    val isOffScreen = cardTop < 0f || cardBottom > rootHeight
+
+                    if (isOffScreen) {
+                        bringIntoViewRequester.bringIntoView()
+                    }
                 } else {
                     bringIntoViewRequester.bringIntoView()
                 }
@@ -882,6 +887,7 @@ fun ExpandableExpressiveCard(
             .onGloballyPositioned { coordinates ->
                 cardHeight = coordinates.size.height
                 cardWidth = coordinates.size.width
+                layoutCoordinates = coordinates
             }
             .bringIntoViewRequester(bringIntoViewRequester)
             .hoverable(interactionSource),
@@ -1571,9 +1577,9 @@ fun NativeBottomBar(
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                             color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,                         // Forces maximum of 1 line
-                            softWrap = false,                      // Disables text wrapping onto next lines
-                            overflow = TextOverflow.Ellipsis      // Truncates with "..." if the label is too long (requires importing androidx.compose.ui.text.style.TextOverflow)
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Ellipsis
                         )
                     },
                     icon = {

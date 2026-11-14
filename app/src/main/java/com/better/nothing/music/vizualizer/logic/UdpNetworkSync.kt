@@ -5,6 +5,7 @@ import android.net.DhcpInfo
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.util.Log
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -92,11 +93,25 @@ class UdpNetworkSync(private val context: Context) {
         }
     }
 
+    private fun hasLocalNetworkPermission(): Boolean {
+        if (Build.VERSION.SDK_INT >= 37) {
+            val granted = ContextCompat.checkSelfPermission(context, "android.permission.ACCESS_LOCAL_NETWORK") == android.content.pm.PackageManager.PERMISSION_GRANTED
+            if (!granted) {
+                Log.e(TAG, "ACCESS_LOCAL_NETWORK permission is REQUIRED on Android 17+ (API 37) for local network UDP operations!")
+            }
+            return granted
+        }
+        return true
+    }
+
     // --- Discovery (Host Mode) ---
 
     fun startBroadcasting(deviceName: String) {
         if (isBroadcasting) {
             Log.i(TAG, "Host: startBroadcasting skipped (already broadcasting)")
+            return
+        }
+        if (!hasLocalNetworkPermission()) {
             return
         }
         isBroadcasting = true

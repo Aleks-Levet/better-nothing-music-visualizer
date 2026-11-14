@@ -235,7 +235,18 @@ public class AudioCaptureService extends Service {
     private final IBinder mBinder = new LocalBinder();
     private final Object mCaptureLock = new Object();
     private final MediaProjection.Callback mProjectionCallback = new MediaProjection.Callback() {
-        @Override public void onStop() { stopCapture(); stopSelf(); }
+        @Override public void onStop() {
+            Log.i(TAG, "MediaProjection session stopped by system");
+            synchronized (mCaptureLock) {
+                if (mProjection != null) {
+                    try {
+                        mProjection.unregisterCallback(this);
+                    } catch (Exception ignored) {}
+                    mProjection = null;
+                }
+                stopCaptureLocked(true);
+            }
+        }
     };
     private final GlyphManager.Callback mGlyphCallback = new GlyphManager.Callback() {
         @Override public void onServiceConnected(ComponentName name) {
@@ -1001,10 +1012,20 @@ public class AudioCaptureService extends Service {
 
     private void restartCapture() {
         if (mWorkerHandler != null) mWorkerHandler.post(() -> {
-            stopCapture();
-            if (mCaptureSource == CaptureSource.MIC) startMicCapture();
-            else if (mCaptureSource == CaptureSource.VIZUALIZER) startVizualizerCapture();
-            else if (mCaptureSource == CaptureSource.NETWORK) startNetworkCapture();
+            stopCaptureLocked(false);
+            if (mCaptureSource == CaptureSource.INTERNAL) {
+                if (mProjection != null) {
+                    startCaptureInternal(CaptureSource.INTERNAL, 0, null);
+                } else {
+                    stopCaptureLocked(true);
+                }
+            } else if (mCaptureSource == CaptureSource.MIC) {
+                startMicCapture();
+            } else if (mCaptureSource == CaptureSource.VIZUALIZER) {
+                startVizualizerCapture();
+            } else if (mCaptureSource == CaptureSource.NETWORK) {
+                startNetworkCapture();
+            }
         });
     }
 
@@ -1017,7 +1038,6 @@ public class AudioCaptureService extends Service {
         registerGlyphMatrixManager();
         setLatencyCompensationMs(loadLatencyCompensationMs(this, device));
         reloadConfig();
-        if (sIsRunning && changed) restartCapture();
     }
 
     private void ensureGlyphManagerInitialized() {
@@ -1102,6 +1122,10 @@ public class AudioCaptureService extends Service {
     }
 
     public void startNetworkCapture() {
+        if (Build.VERSION.SDK_INT >= 37 && checkSelfPermission("android.permission.ACCESS_LOCAL_NETWORK") != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "Cannot start network capture: ACCESS_LOCAL_NETWORK permission not granted on Android 17+");
+            return;
+        }
         Log.i(TAG, "startNetworkCapture: starting client mode targeting " + mNetworkHostIp);
         synchronized (mCaptureLock) {
             stopCaptureLocked(false);
@@ -1131,6 +1155,10 @@ public class AudioCaptureService extends Service {
     }
     
     public void discoverHosts(kotlin.jvm.functions.Function1<? super UdpNetworkSync.HostInfo, kotlin.Unit> callback) {
+        if (Build.VERSION.SDK_INT >= 37 && checkSelfPermission("android.permission.ACCESS_LOCAL_NETWORK") != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "Cannot discover hosts: ACCESS_LOCAL_NETWORK permission not granted on Android 17+");
+            return;
+        }
         mUdpSync.discoverHosts(callback);
     }
 
@@ -1284,28 +1312,45 @@ public class AudioCaptureService extends Service {
         mCaptureSource = source;
 
         synchronized (mCaptureLock) {
-            // 1. Explicitly teardown previous audio capture session & projection handle
+            // Teardown previous audio record without invalidating active MediaProjection handle
             stopCaptureLocked(false);
 
             if (source == CaptureSource.INTERNAL) {
-                // Give the system a moment to release the previous audio policy
-                SystemClock.sleep(500);
-
                 MediaProjectionManager pm = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
                 if (pm == null) return;
 
-                // 2. Start Foreground Service WITH mediaProjection type FIRST (Crucial for Android 14+)
-                startForegroundWithTypes(CaptureSource.INTERNAL, true);
-
-                // 3. Obtain MediaProjection token strictly AFTER service is elevated
-                mProjection = pm.getMediaProjection(resultCode, data);
-                if (mProjection == null) {
-                    stopForeground(STOP_FOREGROUND_REMOVE);
-                    setRunning(false);
-                    return;
+                if (data != null) {
+                    // New intent token from MainActivity prompt
+                    if (mProjection != null) {
+                        try {
+                            mProjection.unregisterCallback(mProjectionCallback);
+                            mProjection.stop();
+                        } catch (Exception ignored) {}
+                        mProjection = null;
+                    }
+                    startForegroundWithTypes(CaptureSource.INTERNAL, true);
+                    try {
+                        mProjection = pm.getMediaProjection(resultCode, data);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Failed to obtain MediaProjection: " + e.getMessage(), e);
+                        mProjection = null;
+                    }
+                    if (mProjection == null) {
+                        stopForeground(STOP_FOREGROUND_REMOVE);
+                        setRunning(false);
+                        return;
+                    }
+                    mProjection.registerCallback(mProjectionCallback, mWorkerHandler);
+                } else {
+                    // Restarting with existing projection token
+                    if (mProjection == null) {
+                        Log.w(TAG, "Cannot start INTERNAL capture without valid MediaProjection token");
+                        stopForeground(STOP_FOREGROUND_REMOVE);
+                        setRunning(false);
+                        return;
+                    }
+                    startForegroundWithTypes(CaptureSource.INTERNAL, true);
                 }
-
-                mProjection.registerCallback(mProjectionCallback, mWorkerHandler);
             } else {
                 startForegroundWithTypes(source, false);
             }
@@ -1320,8 +1365,7 @@ public class AudioCaptureService extends Service {
                 Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
                 
                 if (source == CaptureSource.INTERNAL) {
-                    // Increased settle delay to ensure native audio policy registration is ready
-                    SystemClock.sleep(500);
+                    SystemClock.sleep(300);
                 }
                 
                 AudioRecord lr = null;
@@ -1348,7 +1392,6 @@ public class AudioCaptureService extends Service {
                                     .build();
 
                             // Retry loop to handle native AudioFlinger registration delays
-                            // Using more attempts and longer backoff
                             int maxRetries = 5;
                             for (int i = 0; i < maxRetries; i++) {
                                 try {
@@ -1370,14 +1413,14 @@ public class AudioCaptureService extends Service {
                                         lr.release();
                                         lr = null;
                                     }
-                                } catch (UnsupportedOperationException | SecurityException e) {
+                                } catch (UnsupportedOperationException | SecurityException | IllegalStateException e) {
                                     Log.w(TAG, "AudioRecord build attempt " + (i + 1) + " failed: " + e.getMessage());
                                     if (lr != null) {
                                         lr.release();
                                         lr = null;
                                     }
                                     if (i == maxRetries - 1) throw e;
-                                    SystemClock.sleep(500); // Give AudioFlinger time to release policy state
+                                    SystemClock.sleep(500);
                                 }
                             }
                         }
@@ -1443,7 +1486,11 @@ public class AudioCaptureService extends Service {
                     type |= ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
                 }
             }
-            startForeground(NOTIF_ID, notification, type);
+            try {
+                startForeground(NOTIF_ID, notification, type);
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to startForeground with types: " + e.getMessage(), e);
+            }
         } else if (Build.VERSION.SDK_INT >= 29) {
             int type = 0;
             if (source == CaptureSource.INTERNAL) {
@@ -1458,8 +1505,12 @@ public class AudioCaptureService extends Service {
                     type |= ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
                 }
             }
-            if (type != 0) startForeground(NOTIF_ID, notification, type);
-            else startForeground(NOTIF_ID, notification);
+            try {
+                if (type != 0) startForeground(NOTIF_ID, notification, type);
+                else startForeground(NOTIF_ID, notification);
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to startForeground: " + e.getMessage(), e);
+            }
         } else {
             startForeground(NOTIF_ID, notification);
         }
@@ -1490,10 +1541,16 @@ public class AudioCaptureService extends Service {
             mAudioRecord = null;
         }
 
-        if (mProjection != null) {
-            mProjection.unregisterCallback(mProjectionCallback);
-            mProjection.stop(); // CRITICAL: Invalidate native token so AudioFlinger cleans up policy
-            mProjection = null;
+        if (stopService || mCaptureSource != CaptureSource.INTERNAL) {
+            if (mProjection != null) {
+                try {
+                    mProjection.unregisterCallback(mProjectionCallback);
+                    mProjection.stop();
+                } catch (Exception e) {
+                    Log.w(TAG, "Error stopping MediaProjection: " + e.getMessage());
+                }
+                mProjection = null;
+            }
         }
 
         if (stopService) {
@@ -2197,7 +2254,7 @@ public class AudioCaptureService extends Service {
     public void setPreset(String p) {
         if (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) return;
         mPresetKey = p;
-        restartCapture();
+        reloadConfig();
     }
 
     public void connectUdp(String ip, int port) {
