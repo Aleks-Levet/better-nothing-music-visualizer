@@ -1486,28 +1486,25 @@ fun NativeBottomBar(
     visibleTabs: List<Tab>,
     onTabSelected: (Tab) -> Unit,
 ) {
-    val isPureBlack = MaterialTheme.colorScheme.background == Color.Black
     val haptics = LocalHapticFeedback.current
     Box(modifier = Modifier.fillMaxWidth()) {
-        if (!isPureBlack) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .graphicsLayer {
-                        // Pull the shadow up above the bar so it casts over the screen content
-                        translationY = -7.dp.toPx()
-                    }
-                    .height(7.dp)
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.3f)
-                            )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    // Pull the shadow up above the bar so it casts over the screen content
+                    translationY = -7.dp.toPx()
+                }
+                .height(7.dp)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.3f)
                         )
                     )
-            ){}
-        }
+                )
+        ){}
         Box(Modifier.background(MaterialTheme.colorScheme.surface)){
     NavigationBar(
         modifier = Modifier.fillMaxWidth()
