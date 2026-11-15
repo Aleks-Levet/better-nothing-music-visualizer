@@ -1,0 +1,41 @@
+/* base.css — page-level defaults */
+
+html {
+  background: #100000;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #ff0000;
+  overflow-x: hidden;
+}
+
+[hidden] { display: none !important; }
+
+.page {
+  background: #000000;
+  color: #FFFFFF;
+  font-family: 'Figtree', system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.55;
+  overflow-x: clip;
+}
+
+.page * { box-sizing: border-box; }
+
+a { color: inherit; }
+
+img { max-width: 100%; }
+
+section[id] { scroll-margin-top: 76px; }
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid #FA2828;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}

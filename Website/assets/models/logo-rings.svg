@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <style>
+    .orbit, .ring-a, .ring-b, .ring-c { transform-origin: 200px 200px; }
+    @media (prefers-reduced-motion: no-preference) {
+      .orbit  { animation: spin 260s linear infinite; }
+      .ring-a { animation: spin 80s  linear infinite; }
+      .ring-b { animation: spin 120s linear infinite reverse; }
+      .ring-c { animation: spin 170s linear infinite; }
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+  <g class="o r b i t">
+    <circle cx="200" cy="200" r="179" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="0.1 7.4" opacity="0.4"/>
+    <circle cx="200" cy="200" r="193" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="0.1 12" opacity="0.22"/>
+  </g>
+  <g class="r i n g - a">
+    <path d="M 207.99 80.27 A 120 120 0 0 1 279.01 109.68" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" opacity="0.62"/>
+    <path d="M 290.32 120.99 A 120 120 0 0 1 319.73 192.01" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" opacity="0.89"/>
+    <path d="M 319.73 207.99 A 120 120 0 0 1 290.32 279.01" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" opacity="0.89"/>
+    <path d="M 279.01 290.32 A 120 120 0 0 1 207.99 319.73" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" opacity="0.62"/>
+    <path d="M 192.01 319.73 A 120 120 0 0 1 120.99 290.32" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" opacity="0.73"/>
+    <path d="M 109.68 279.01 A 120 120 0 0 1 80.27 207.99" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" opacity="0.45"/>
+    <path d="M 80.27 192.01 A 120 120 0 0 1 109.68 120.99" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" opacity="0.16"/>
+    <path d="M 120.99 109.68 A 120 120 0 0 1 192.01 80.27" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" opacity="0.10"/>
+  </g>
+  <g class="r i n g - b">
+    <path d="M 207.00 60.17 A 140 140 0 0 1 263.85 75.41" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" opacity="0.39"/>
+    <path d="M 275.97 82.41 A 140 140 0 0 1 317.59 124.03" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" opacity="0.34"/>
+    <path d="M 324.59 136.15 A 140 140 0 0 1 339.83 193.00" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" opacity="0.25"/>
+    <path d="M 339.83 207.00 A 140 140 0 0 1 324.59 263.85" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" opacity="0.30"/>
+    <path d="M 317.59 275.97 A 140 140 0 0 1 275.97 317.59" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" opacity="0.38"/>
+    <path d="M 263.85 324.59 A 140 140 0 0 1 207.00 339.83" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" opacity="0.42"/>
+    <path d="M 193.00 339.83 A 140 140 0 0 1 136.15 324.59" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" opacity="0.39"/>
+    <path d="M 124.03 317.59 A 140 140 0 0 1 82.41 275.97" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" opacity="0.36"/>
+    <path d="M 75.41 263.85 A 140 140 0 0 1 60.17 207.00" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" opacity="0.95"/>
+    <path d="M 60.17 193.00 A 140 140 0 0 1 75.41 136.15" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" opacity="0.35"/>
+    <path d="M 82.41 124.03 A 140 140 0 0 1 124.03 82.41" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" opacity="0.23"/>
+    <path d="M 136.15 75.41 A 140 140 0 0 1 193.00 60.17" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" opacity="0.31"/>
+  </g>
+  <g class="r i n g - c">
+    <path d="M 206.00 42.11 A 158 158 0 0 1 254.88 51.84" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.64"/>
+    <path d="M 265.96 56.43 A 158 158 0 0 1 307.40 84.12" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.70"/>
+    <path d="M 315.88 92.60 A 158 158 0 0 1 343.57 134.04" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.75"/>
+    <path d="M 348.16 145.12 A 158 158 0 0 1 357.89 194.00" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.78"/>
+    <path d="M 357.89 206.00 A 158 158 0 0 1 348.16 254.88" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.79"/>
+    <path d="M 343.57 265.96 A 158 158 0 0 1 315.88 307.40" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.77"/>
+    <path d="M 307.40 315.88 A 158 158 0 0 1 265.96 343.57" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.72"/>
+    <path d="M 254.88 348.16 A 158 158 0 0 1 206.00 357.89" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.67"/>
+    <path d="M 194.00 357.89 A 158 158 0 0 1 145.12 348.16" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.61"/>
+    <path d="M 134.04 343.57 A 158 158 0 0 1 92.60 315.88" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.55"/>
+    <path d="M 84.12 307.40 A 158 158 0 0 1 56.43 265.96" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.51"/>
+    <path d="M 51.84 254.88 A 158 158 0 0 1 42.11 206.00" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.50"/>
+    <path d="M 42.11 194.00 A 158 158 0 0 1 51.84 145.12" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.51"/>
+    <path d="M 56.43 134.04 A 158 158 0 0 1 84.12 92.60" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.54"/>
+    <path d="M 92.60 84.12 A 158 158 0 0 1 134.04 56.43" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.59"/>
+    <path d="M 145.12 51.84 A 158 158 0 0 1 194.00 42.11" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.65"/>
+  </g>
+  <g>
+    <circle cx="200" cy="200" r="100" fill="#FFFFFF"/>
+    <path d="M 124.13 180.24 A 78.4 78.4 0 0 1 175.77 125.44" fill="none" stroke="#000000" stroke-width="7" stroke-linecap="round"/>
+    <path d="M 161.63 268.37 A 78.4 78.4 0 0 1 134.32 242.81" fill="none" stroke="#000000" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="154.3" cy="200" r="5.8" fill="#000000"/>
+    <rect height="69.1" rx="6" width="12" x="168.1" y="165.5" fill="#000000"/>
+    <rect height="44.2" rx="6" width="12" x="188.2" y="177.9" fill="#000000"/>
+    <rect height="59" rx="6" width="12" x="208.4" y="170.5" fill="#000000"/>
+    <rect height="85.4" rx="6" width="12" x="228.2" y="157.3" fill="#000000"/>
+    <rect height="62.1" rx="6" width="12" x="248.4" y="169" fill="#000000"/>
+    <rect height="77.6" rx="6" width="12" x="269.7" y="161.2" fill="#FA2828"/>
+  </g>
+</svg>

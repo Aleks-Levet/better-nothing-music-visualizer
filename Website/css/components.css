@@ -1,0 +1,82 @@
+/* components.css — hover states, masks, gradients and other non-layout styling */
+
+/* ---- header ---- */
+.nav {
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+}
+.nav__links { display: flex; align-items: center; gap: 4px; }
+@media (max-width: 820px) { .nav__links { display: none; } }
+.nav__brand:hover { color: #B5B1AE; }
+
+/* ---- links ---- */
+.link-quiet { color: #B5B1AE; text-decoration: none; }
+.link-quiet:hover { color: #FFFFFF; }
+.link-ink { color: #000000; }
+.link-ink:hover { color: #4A4745; }
+footer .link-quiet { color: #000000; }
+footer .link-quiet:hover { color: #4A4745; }
+
+/* ---- buttons ---- */
+.btn { transition: opacity .15s ease, transform .15s ease; }
+.btn:hover { opacity: .84; }
+.btn:active { transform: scale(.98); }
+.btn-glow { transition: opacity .15s ease, transform .15s ease, box-shadow .3s ease; }
+.btn-glow:hover { opacity: 1; box-shadow: 0 0 44px rgba(255, 255, 255, .5); }
+
+/* ---- hero ---- */
+.dot-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle at center, rgba(255,255,255,.16) 0, rgba(255,255,255,.16) 1px, transparent 1.6px);
+  background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 75% at 60% 42%, #000 12%, transparent 100%);
+  mask-image: radial-gradient(ellipse 80% 75% at 60% 42%, #000 12%, transparent 100%);
+}
+.rays {
+  -webkit-mask-image: radial-gradient(circle closest-side, transparent 0, transparent 46%, #000 54%, transparent 100%);
+  mask-image: radial-gradient(circle closest-side, transparent 0, transparent 46%, #000 54%, transparent 100%);
+  filter: blur(1.5px);
+}
+
+/* ---- marquee ---- */
+.outline-text { color: transparent; -webkit-text-stroke: 1px #B5B1AE; }
+
+/* ---- releases ---- */
+.release { transition: transform .3s cubic-bezier(.2, .7, .2, 1); }
+.release:hover { transform: translateX(10px); }
+
+/* ---- phone that flips on scroll ---- */
+.flip__face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+/* Fallback when scroll-driven animation is unsupported: show the back of the phone. */
+.flip { transform: rotateY(180deg); }
+
+/* ---- spectrum axis labels ---- */
+.scope__tick {
+  position: absolute;
+  top: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #827E7B;
+}
+.scope__tick--start { left: 0; }
+.scope__tick--end { right: 0; }
+.scope__tick--mid { transform: translateX(-50%); }
+
+/* ---- text effects ---- */
+.shine-text {
+  background: linear-gradient(100deg, #827E7B 0%, #827E7B 38%, #FFFFFF 50%, #827E7B 62%, #827E7B 100%);
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn, .btn-glow, .release { transition: none; }
+}

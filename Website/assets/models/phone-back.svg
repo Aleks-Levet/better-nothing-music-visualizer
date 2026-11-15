@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 290 612">
+  <defs>
+    <filter id="glow-white" filterUnits="userSpaceOnUse" x="0" y="0" width="290" height="612">
+      <feDropShadow dx="0" dy="0" stdDeviation="3.5" flood-color="#FFFFFF" flood-opacity="0.7"/>
+    </filter>
+    <filter id="glow-red" filterUnits="userSpaceOnUse" x="0" y="0" width="290" height="612">
+      <feDropShadow dx="0" dy="0" stdDeviation="3.5" flood-color="#FA2828" flood-opacity="1"/>
+    </filter>
+  </defs>
+  <g id="camera-module">
+    <rect height="150" rx="36" width="72" x="38" y="44" fill="#0B0B0B" stroke="#2A2827" stroke-width="1.5"/>
+    <circle cx="74" cy="84" r="22" fill="#000000" stroke="#3A3836" stroke-width="1.5"/>
+    <circle cx="74" cy="154" r="22" fill="#000000" stroke="#3A3836" stroke-width="1.5"/>
+    <circle cx="74" cy="84" r="8" fill="#161616"/>
+    <circle cx="74" cy="154" r="8" fill="#161616"/>
+  </g>
+  <g id="glyph-lights" filter="url(#glow-white)">
+    <path d="M 38.78 302.34 A 109.76 109.76 0 0 1 111.08 225.62" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" opacity="0.55"/>
+    <path d="M 91.28 425.72 A 109.76 109.76 0 0 1 53.05 389.93" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" opacity="0.35"/>
+    <circle cx="81.02" cy="330" r="8.1" fill="#FFFFFF" opacity="0.9"/>
+    <rect height="96.74" rx="8.4" width="16.8" x="100.34" y="281.63" fill="#FFFFFF" opacity="0.9"/>
+    <rect height="61.88" rx="8.4" width="16.8" x="128.48" y="299.06" fill="#FFFFFF" opacity="0.7"/>
+    <rect height="82.6" rx="8.4" width="16.8" x="156.76" y="288.7" fill="#FFFFFF" opacity="0.4"/>
+    <rect height="119.56" rx="8.4" width="16.8" x="184.48" y="270.22" fill="#FFFFFF" opacity="0.95"/>
+    <rect height="86.94" rx="8.4" width="16.8" x="212.76" y="286.53" fill="#FFFFFF" opacity="0.6"/>
+    <rect height="8" rx="4" width="18" x="52" y="520" fill="#FFFFFF" opacity="0.9"/>
+    <rect height="8" rx="4" width="18" x="76" y="520" fill="#FFFFFF" opacity="0.8"/>
+    <rect height="8" rx="4" width="18" x="100" y="520" fill="#FFFFFF" opacity="0.7"/>
+    <rect height="8" rx="4" width="18" x="124" y="520" fill="#FFFFFF" opacity="0.55"/>
+    <rect height="8" rx="4" width="18" x="148" y="520" fill="#FFFFFF" opacity="0.4"/>
+    <rect height="8" rx="4" width="18" x="172" y="520" fill="#FFFFFF" opacity="0.25"/>
+    <rect height="8" rx="4" width="18" x="196" y="520" fill="#FFFFFF" opacity="0.12"/>
+    <rect height="8" rx="4" width="18" x="220" y="520" fill="#FFFFFF" opacity="0.07"/>
+  </g>
+  <g id="glyph-light-accent" filter="url(#glow-red)">
+    <rect height="108.64" rx="8.4" width="16.8" x="242.58" y="275.68" fill="#FA2828" opacity="0.9"/>
+  </g>
+</svg>
