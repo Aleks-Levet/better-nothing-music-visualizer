@@ -102,6 +102,8 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
@@ -1505,158 +1507,162 @@ fun NativeBottomBar(
                     )
                 )
         ){}
-        Box(Modifier.background(MaterialTheme.colorScheme.surface)){
-    NavigationBar(
-        modifier = Modifier.fillMaxWidth()
-        .padding(horizontal= 10.dp),
-        containerColor = Color.Transparent,
-        windowInsets = NavigationBarDefaults.windowInsets
-    ) {
-        val uiAmp = LocalUIAmplitude.current
+        Box(Modifier.background(MaterialTheme.colorScheme.surface)) {
+            CompositionLocalProvider(
+                LocalRippleConfiguration provides null
+            ) {
+                NavigationBar(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(horizontal = 10.dp),
+                    containerColor = Color.Transparent,
+                    windowInsets = NavigationBarDefaults.windowInsets
+                ) {
+                    val uiAmp = LocalUIAmplitude.current
 
-        // Iterate over all possible tabs so hiding/showing tabs can animate smoothly
-        Tab.entries.forEach { tab ->
-            val isVisible = tab in visibleTabs
-            val isSelected = tab == selectedTab
+                    // Iterate over all possible tabs so hiding/showing tabs can animate smoothly
+                    Tab.entries.forEach { tab ->
+                        val isVisible = tab in visibleTabs
+                        val isSelected = tab == selectedTab
 
-            // 1. Animate the weight: high bounce on entry, 400ms EaseOutCubic on exit
-            val animatedWeight by animateFloatAsState(
-                targetValue = if (isVisible) 1f else 0.00000001f,
-                animationSpec = if (isVisible) {
-                    spring(
-                        dampingRatio = Spring.DampingRatioHighBouncy,
-                        stiffness = Spring.StiffnessMediumLow
-                    )
-                } else {
-                    tween(
-                        durationMillis = 400,
-                        easing = EaseOutCubic
-                    )
-                },
-                label = "nav_tab_weight"
-            )
-
-            // 2. Animate scale/alpha so the tab cleanly fades & shrinks as weight decreases
-            val animatedAlpha by animateFloatAsState(
-                targetValue = if (isVisible) 1f else 0f,
-                animationSpec = tween(durationMillis = 150),
-                label = "nav_tab_alpha"
-            )
-
-            val selectionScale by animateFloatAsState(
-                targetValue = if (isSelected) 1.12f else 0.95f,
-                animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMedium),
-                label = "nav_selection_scale"
-            )
-
-            val selectionFactor by animateFloatAsState(
-                targetValue = if (isSelected) 1.0f else 0.0f,
-                animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessLow),
-                label = "nav_selection_factor"
-            )
-
-            // Render tab only if it has a noticeable weight
-            if (animatedWeight > 0.000005f) {
-                NavigationBarItem(
-                    modifier = Modifier
-                        .weight(animatedWeight)
-                        .graphicsLayer { alpha = animatedAlpha },
-                    selected = isSelected,
-                    onClick = {
-                        haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
-                        if (!isSelected && isVisible) {
-                            onTabSelected(tab)
-                        }
-                    },
-                    label = {
-                        Text(
-                            text = stringResource(tab.labelRes),
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            softWrap = false,
-                            overflow = TextOverflow.Ellipsis
+                        // 1. Animate the weight: high bounce on entry, 400ms EaseOutCubic on exit
+                        val animatedWeight by animateFloatAsState(
+                            targetValue = if (isVisible) 1f else 0.00000001f,
+                            animationSpec = if (isVisible) {
+                                spring(
+                                    dampingRatio = Spring.DampingRatioHighBouncy,
+                                    stiffness = Spring.StiffnessMediumLow
+                                )
+                            } else {
+                                tween(
+                                    durationMillis = 400,
+                                    easing = EaseOutCubic
+                                )
+                            },
+                            label = "nav_tab_weight"
                         )
-                    },
-                    icon = {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.height(32.dp)
-                        ) {
-                            val basePillWidth = 64.dp
-                            val pillWidth =
-                                basePillWidth * (1.0f + (uiAmp - 1.0f) * selectionFactor)
 
-                            Box(
+                        // 2. Animate scale/alpha so the tab cleanly fades & shrinks as weight decreases
+                        val animatedAlpha by animateFloatAsState(
+                            targetValue = if (isVisible) 1f else 0f,
+                            animationSpec = tween(durationMillis = 150),
+                            label = "nav_tab_alpha"
+                        )
+
+                        val selectionScale by animateFloatAsState(
+                            targetValue = if (isSelected) 1.12f else 0.95f,
+                            animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMedium),
+                            label = "nav_selection_scale"
+                        )
+
+                        val selectionFactor by animateFloatAsState(
+                            targetValue = if (isSelected) 1.0f else 0.0f,
+                            animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessLow),
+                            label = "nav_selection_factor"
+                        )
+
+                        // Render tab only if it has a noticeable weight
+                        if (animatedWeight > 0.000005f) {
+                            NavigationBarItem(
                                 modifier = Modifier
-                                    .width(pillWidth * selectionFactor)
-                                    .height(32.dp)
-                                    .graphicsLayer { alpha = selectionFactor }
-                                    .background(
-                                        color = MaterialTheme.colorScheme.surfaceVariant,
-                                        shape = CircleShape
+                                    .weight(animatedWeight)
+                                    .graphicsLayer { alpha = animatedAlpha },
+                                selected = isSelected,
+                                onClick = {
+                                    haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                                    if (!isSelected && isVisible) {
+                                        onTabSelected(tab)
+                                    }
+                                },
+                                label = {
+                                    Text(
+                                        text = stringResource(tab.labelRes),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        softWrap = false,
+                                        overflow = TextOverflow.Ellipsis
                                     )
+                                },
+                                icon = {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier.height(32.dp)
+                                    ) {
+                                        val basePillWidth = 64.dp
+                                        val pillWidth =
+                                            basePillWidth * (1.0f + (uiAmp - 1.0f) * selectionFactor)
+
+                                        Box(
+                                            modifier = Modifier
+                                                .width(pillWidth * selectionFactor)
+                                                .height(32.dp)
+                                                .graphicsLayer { alpha = selectionFactor }
+                                                .background(
+                                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                                    shape = CircleShape
+                                                )
+                                        )
+
+                                        val iconModifier = Modifier
+                                            .size(24.dp)
+                                            .graphicsLayer {
+                                                scaleX = selectionScale
+                                                scaleY = selectionScale
+                                            }
+
+                                        when (tab) {
+                                            Tab.Audio -> Icon(
+                                                painter = painterResource(R.drawable.ic_notif_monochrome),
+                                                contentDescription = stringResource(tab.labelRes),
+                                                modifier = iconModifier
+                                            )
+
+                                            Tab.Glyphs -> Icon(
+                                                painter = painterResource(R.drawable.ic_nav_glyphs),
+                                                contentDescription = stringResource(tab.labelRes),
+                                                modifier = iconModifier
+                                            )
+
+                                            Tab.Visuals -> Icon(
+                                                Icons.Default.Layers,
+                                                stringResource(tab.labelRes),
+                                                modifier = iconModifier
+                                            )
+
+                                            Tab.Haptics -> Icon(
+                                                Icons.Filled.Vibration,
+                                                stringResource(tab.labelRes),
+                                                modifier = iconModifier
+                                            )
+
+                                            Tab.Flashlight -> Icon(
+                                                Icons.Filled.FlashlightOn,
+                                                stringResource(tab.labelRes),
+                                                modifier = iconModifier
+                                            )
+
+                                            Tab.Settings -> Icon(
+                                                Icons.Filled.Settings,
+                                                stringResource(tab.labelRes),
+                                                modifier = iconModifier
+                                            )
+                                        }
+                                    }
+                                },
+                                colors = NavigationBarItemDefaults.colors(
+                                    indicatorColor = Color.Transparent,
+                                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             )
-
-                            val iconModifier = Modifier
-                                .size(24.dp)
-                                .graphicsLayer {
-                                    scaleX = selectionScale
-                                    scaleY = selectionScale
-                                }
-
-                            when (tab) {
-                                Tab.Audio -> Icon(
-                                    painter = painterResource(R.drawable.ic_notif_monochrome),
-                                    contentDescription = stringResource(tab.labelRes),
-                                    modifier = iconModifier
-                                )
-
-                                Tab.Glyphs -> Icon(
-                                    painter = painterResource(R.drawable.ic_nav_glyphs),
-                                    contentDescription = stringResource(tab.labelRes),
-                                    modifier = iconModifier
-                                )
-
-                                Tab.Visuals -> Icon(
-                                    Icons.Default.Layers,
-                                    stringResource(tab.labelRes),
-                                    modifier = iconModifier
-                                )
-
-                                Tab.Haptics -> Icon(
-                                    Icons.Filled.Vibration,
-                                    stringResource(tab.labelRes),
-                                    modifier = iconModifier
-                                )
-
-                                Tab.Flashlight -> Icon(
-                                    Icons.Filled.FlashlightOn,
-                                    stringResource(tab.labelRes),
-                                    modifier = iconModifier
-                                )
-
-                                Tab.Settings -> Icon(
-                                    Icons.Filled.Settings,
-                                    stringResource(tab.labelRes),
-                                    modifier = iconModifier
-                                )
-                            }
                         }
-                    },
-                    colors = NavigationBarItemDefaults.colors(
-                        indicatorColor = Color.Transparent,
-                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        selectedTextColor = MaterialTheme.colorScheme.primary,
-                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                )
+                    }
+                }
             }
         }
-    }
-    }
     }
 }
 

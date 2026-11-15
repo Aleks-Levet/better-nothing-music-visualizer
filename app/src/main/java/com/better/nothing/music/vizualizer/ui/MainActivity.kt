@@ -16,7 +16,6 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.provider.Settings
-import android.view.HapticFeedbackConstants
 import android.widget.Toast
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -78,7 +77,6 @@ import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
@@ -821,7 +819,6 @@ internal fun BetterVizApp(
 
     val config = LocalConfiguration.current
     val isTablet = config.smallestScreenWidthDp >= 600 && config.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
-    val view = LocalView.current
 
     val canAccessFlashlight by viewModel.canAccessFlashlight.collectAsStateWithLifecycle()
 
@@ -911,13 +908,10 @@ internal fun BetterVizApp(
 
     // Sync selectedTab when pager is scrolled by user
     LaunchedEffect(pagerState, visibleTabs) {
-        snapshotFlow { pagerState.settledPage }.collect { page ->
-            if (!isProgrammaticScroll && !pagerState.isScrollInProgress && backProgress == 0f) {
+        snapshotFlow { pagerState.currentPage }.collect { page ->
+            if (!isProgrammaticScroll && backProgress == 0f) {
                 val swipedTab = visibleTabs.getOrNull(page)
-                if (swipedTab != null && swipedTab != selectedTab && selectedTab in visibleTabs && visibleTabs.indexOf(selectedTab) == page) {
-                    // Pager is already on selectedTab, do nothing
-                } else if (swipedTab != null && swipedTab != selectedTab && selectedTab in visibleTabs) {
-                    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
+                if (swipedTab != null && swipedTab != selectedTab && selectedTab in visibleTabs) {
                     viewModel.selectTab(swipedTab, recordHistory = false)
                 }
             }
@@ -925,7 +919,7 @@ internal fun BetterVizApp(
     }
 
     // CRITICAL: Handle dynamic tab visibility changes to prevent jumping to Settings
-    LaunchedEffect(visibleTabs, selectedTab) {
+    LaunchedEffect(visibleTabs) {
         if (selectedTab !in visibleTabs) {
             val fallback = visibleTabs.firstOrNull() ?: Tab.Audio
             viewModel.selectTab(fallback, recordHistory = false)

@@ -178,17 +178,16 @@ fun BetterVizTheme(
             }
             else -> { // Default / OLED Black
                 if (themeName == "Default" && !isDark) {
-                    // Use Nothing Light for Default in Light Mode
                     androidx.compose.material3.lightColorScheme(
                         background = Color.White,
                         surface = Color(0xFFF5F5F5),
                         primary = Color(0xFF000000),
-                        secondary = Color(0xFF626262),
+                        secondary = Color(0xFFA0FFA3),
                         error = Color(0xFFD71921),
                         onBackground = Color.Black,
                         onSurface = Color.Black,
                         onPrimary = Color.White,
-                        onSecondary = Color.White,
+                        onSecondary = Color(0xFF1C5A21),
                         onError = Color.White,
                         surfaceVariant = Color(0xFFE0E0E0),
                         onSurfaceVariant = Color(0xFF757575),
