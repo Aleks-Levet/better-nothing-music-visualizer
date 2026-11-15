@@ -1674,7 +1674,8 @@ fun <T> ExpressiveSplitButton(
     onItemSelection: (T) -> Unit,
     labelProvider: @Composable (T) -> String,
     modifier: Modifier = Modifier,
-    maxButtonsPerRow: Int? = null
+    maxButtonsPerRow: Int? = null,
+    previewContent: @Composable ((T) -> Unit)? = null
 ) {
     val haptics = LocalHapticFeedback.current
     val view = LocalView.current
@@ -1886,17 +1887,26 @@ fun <T> ExpressiveSplitButton(
                                 modifier = Modifier.weight(animatedWeight),
                                 interactionSource = interactionSource
                             ) {
-                            Row(
+                            Column(
                                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 10.dp),
-                                horizontalArrangement = Arrangement.Center,
-                                verticalAlignment = Alignment.CenterVertically
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
                             ) {
-                                Text(
-                                    text = resolvedLabels[item] ?: "",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = resolvedLabels[item] ?: "",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                                if (previewContent != null) {
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    previewContent(item)
+                                }
                             }
                         }
                     }

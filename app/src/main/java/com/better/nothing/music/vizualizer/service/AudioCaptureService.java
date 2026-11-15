@@ -93,8 +93,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -445,6 +447,35 @@ public class AudioCaptureService extends Service {
     public float[] getCurrentLightState() {
         if (mGlyphRenderer != null) return mGlyphRenderer.getCurrentLightState();
         return new float[0];
+    }
+
+    private final Map<String, AudioProcessor.VisualizerConfig> mPresetConfigCache = new HashMap<>();
+    private final Map<String, GlyphRenderer> mPresetRendererCache = new HashMap<>();
+
+    public float[] getLightStateForPreset(String presetKey) {
+        if (presetKey == null) return new float[0];
+        if (presetKey.equals(mPresetKey)) {
+            return getCurrentLightState();
+        }
+        try {
+            AudioProcessor.VisualizerConfig config = mPresetConfigCache.get(presetKey);
+            if (config == null) {
+                config = loadVisualizerConfig(presetKey, mCurrentSampleRate);
+                mPresetConfigCache.put(presetKey, config);
+            }
+            GlyphRenderer renderer = mPresetRendererCache.get(presetKey);
+            if (renderer == null) {
+                renderer = new GlyphRenderer(mGamma, mIdleBreathingEnabled, mSelectedDevice);
+                renderer.resetState(config);
+                mPresetRendererCache.put(presetKey, renderer);
+            }
+            int[] fft = getLatestRawFFT();
+            long now = SystemClock.elapsedRealtime();
+            renderer.processFrame(fft, config, now, mIsSilent);
+            return renderer.getCurrentLightState();
+        } catch (Exception e) {
+            return new float[0];
+        }
     }
     public boolean isVisualizerRunning() { return sIsRunning; }
     public boolean isOverlayVisualizerActive() {

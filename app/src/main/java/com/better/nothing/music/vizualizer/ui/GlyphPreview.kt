@@ -248,8 +248,9 @@ fun GlyphPreviewContent(
         visibleLeds
     }
 
+    val isMatrix = device == DeviceProfile.DEVICE_NP3 || device == DeviceProfile.DEVICE_NP4APRO
     val isDark = isSystemInDarkTheme()
-    val cardBackground = if (isDark) MaterialTheme.colorScheme.surface else Color(0xFF282828)
+    val cardBackground = if (isMatrix) Color.Transparent else if (isDark) MaterialTheme.colorScheme.surface else Color(0xFF282828)
 
     Box(
         modifier = modifier

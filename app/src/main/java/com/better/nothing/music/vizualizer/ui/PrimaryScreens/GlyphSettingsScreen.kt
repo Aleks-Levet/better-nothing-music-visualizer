@@ -44,6 +44,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 import com.better.nothing.music.vizualizer.ui.ScreenTitle
 import com.better.nothing.music.vizualizer.ui.GlyphPreview
 import com.better.nothing.music.vizualizer.ui.BodyText
@@ -51,6 +53,7 @@ import com.better.nothing.music.vizualizer.ui.ExpressiveSlider
 import com.better.nothing.music.vizualizer.ui.CardHeader
 import com.better.nothing.music.vizualizer.ui.ExpressiveCard
 import com.better.nothing.music.vizualizer.ui.ExpressiveSplitButton
+import com.better.nothing.music.vizualizer.ui.ExpressiveSwitch
 import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
 import com.better.nothing.music.vizualizer.ui.IndicatorPill
 import kotlin.math.pow
@@ -223,6 +226,11 @@ internal fun GlyphsScreen(
         val isSlimDevice = selectedDevice == com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4A ||
                 selectedDevice == com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4B
 
+        val isMatrixDevice = selectedDevice == com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP3 ||
+                selectedDevice == com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4APRO
+
+        var showPresetPreviews by rememberSaveable { mutableStateOf(false) }
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -236,11 +244,45 @@ internal fun GlyphsScreen(
                 CardHeader(
                     title = stringResource(
                         R.string.visualizer_presets
-                    )
+                    ),
+                    trailingContent = {
+                        if (isMatrixDevice) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Text(
+                                    text = "Preview",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                ExpressiveSwitch(
+                                    checked = showPresetPreviews,
+                                    onCheckedChange = { showPresetPreviews = it }
+                                )
+                            }
+                        }
+                    }
                 )
 
                 if (presets.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(12.dp))
+                    val vizStateState = viewModel.visualizerState.collectAsStateWithLifecycle()
+                    val presetStates = remember { mutableStateMapOf<String, FloatArray>() }
+                    LaunchedEffect(isRunning, showPresetPreviews, presets) {
+                        if (isRunning && showPresetPreviews) {
+                            while (true) {
+                                val s = AudioCaptureService.sInstance
+                                if (s != null) {
+                                    for (preset in presets) {
+                                        presetStates[preset.key] = s.getLightStateForPreset(preset.key)
+                                    }
+                                }
+                                delay(16.milliseconds)
+                            }
+                        }
+                    }
+
                     ExpressiveSplitButton(
                         items = presets,
                         selectedItem = presets.firstOrNull { it.key == selectedPreset }
@@ -248,7 +290,40 @@ internal fun GlyphsScreen(
                         onItemSelection = { preset -> onPresetSelected(preset.key) },
                         labelProvider = { preset -> preset.name },
                         modifier = Modifier.fillMaxWidth(),
-                        maxButtonsPerRow = if (isSlimDevice) 2 else 3
+                        maxButtonsPerRow = if (isSlimDevice) 2 else 3,
+                        previewContent = if (isMatrixDevice && isRunning) {
+                            { preset ->
+                                remember(preset.key) { preset.key }
+                                AnimatedVisibility(
+                                    visible = showPresetPreviews,
+                                    enter = fadeIn(animationSpec = tween(300)) + expandVertically(
+                                        animationSpec = spring(
+                                            dampingRatio = Spring.DampingRatioLowBouncy,
+                                            stiffness = Spring.StiffnessLow
+                                        )
+                                    ),
+                                    exit = fadeOut(animationSpec = tween(250)) + shrinkVertically(
+                                        animationSpec = spring(
+                                            dampingRatio = Spring.DampingRatioNoBouncy,
+                                            stiffness = Spring.StiffnessMedium
+                                        )
+                                    )
+                                ) {
+                                    Column {
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        GlyphPreview(
+                                            vizStateProvider = { presetStates[preset.key] ?: vizStateState.value },
+                                            device = selectedDevice,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(85.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        } else {
+                            null
+                        }
                     )
 
                     Spacer(modifier = Modifier.weight(1f))
