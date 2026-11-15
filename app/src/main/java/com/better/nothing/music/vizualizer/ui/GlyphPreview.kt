@@ -44,7 +44,8 @@ import android.graphics.PathMeasure
 fun GlyphPreview(
     vizStateProvider: () -> FloatArray,
     device: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enableClick: Boolean = true
 ) {
     var isFullScreen by remember { mutableStateOf(false) }
 
@@ -52,7 +53,7 @@ fun GlyphPreview(
         GlyphPreviewContent(
             vizStateProvider = vizStateProvider,
             device = device,
-            modifier = m.clickable { isFullScreen = !isFullScreen }
+            modifier = if (enableClick) m.clickable { isFullScreen = !isFullScreen } else m
         )
     }
 
@@ -254,16 +255,18 @@ fun GlyphPreviewContent(
 
     Box(
         modifier = modifier
-            .padding(horizontal = 4.dp)
-            .clip(RoundedCornerShape(if (device == DeviceProfile.DEVICE_NP4A || device == DeviceProfile.DEVICE_NP4B) 16.dp else 40.dp))
+            .then(if (isMatrix) Modifier else Modifier.padding(horizontal = 4.dp))
+            .then(if (isMatrix) Modifier else Modifier.clip(RoundedCornerShape(if (device == DeviceProfile.DEVICE_NP4A || device == DeviceProfile.DEVICE_NP4B) 16.dp else 40.dp)))
             .background(cardBackground)
             // 1. Reduced inner padding for 4b / 4z / Phone (1)
-            .padding(
-                when (device) {
-                    DeviceProfile.DEVICE_NP4A, DeviceProfile.DEVICE_NP4B -> 2.dp
-                    DeviceProfile.DEVICE_NP1 -> 12.dp
-                    else -> 24.dp
-                }
+            .then(
+                if (isMatrix) Modifier else Modifier.padding(
+                    when (device) {
+                        DeviceProfile.DEVICE_NP4A, DeviceProfile.DEVICE_NP4B -> 2.dp
+                        DeviceProfile.DEVICE_NP1 -> 12.dp
+                        else -> 24.dp
+                    }
+                )
             ),
         contentAlignment = Alignment.Center
     ) {

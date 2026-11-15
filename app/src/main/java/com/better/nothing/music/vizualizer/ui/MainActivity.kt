@@ -1262,6 +1262,7 @@ private fun TabContent(
                 onPresetSelected = { viewModel.setSelectedPreset(it) },
                 isRunning = isRunning,
                 selectedDevice = selectedDevice,
+                developerModeEnabled = developerModeEnabled,
                 viewModel = viewModel,
                 padding = padding
             )

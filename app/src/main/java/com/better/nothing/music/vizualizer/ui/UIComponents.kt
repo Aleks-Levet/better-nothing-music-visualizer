@@ -1675,6 +1675,7 @@ fun <T> ExpressiveSplitButton(
     labelProvider: @Composable (T) -> String,
     modifier: Modifier = Modifier,
     maxButtonsPerRow: Int? = null,
+    showPreview: Boolean = false,
     previewContent: @Composable ((T) -> Unit)? = null
 ) {
     val haptics = LocalHapticFeedback.current
@@ -1904,8 +1905,26 @@ fun <T> ExpressiveSplitButton(
                                     )
                                 }
                                 if (previewContent != null) {
-                                    Spacer(modifier = Modifier.height(6.dp))
-                                    previewContent(item)
+                                    AnimatedVisibility(
+                                        visible = showPreview,
+                                        enter = fadeIn(animationSpec = tween(300)) + expandVertically(
+                                            animationSpec = spring(
+                                                dampingRatio = Spring.DampingRatioLowBouncy,
+                                                stiffness = Spring.StiffnessLow
+                                            )
+                                        ),
+                                        exit = fadeOut(animationSpec = tween(250)) + shrinkVertically(
+                                            animationSpec = spring(
+                                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                                stiffness = Spring.StiffnessMedium
+                                            )
+                                        )
+                                    ) {
+                                        Column {
+                                            Spacer(modifier = Modifier.height(6.dp))
+                                            previewContent(item)
+                                        }
+                                    }
                                 }
                             }
                         }

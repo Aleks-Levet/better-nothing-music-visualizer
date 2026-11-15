@@ -1,5 +1,30 @@
 # Changelog
 
+## V4.2 [2026-11-15]
+
+- **Interface and performance**
+  - Optimzed the app startup speed, performance, and yeah just better speed!
+  - Fixed the 3 haptic ticks tht were happening for no reason.
+  - Fixed a ghost notification.
+  - Enhanced the splash screen of the app
+  - Added hover effects (if you use a mouse or a pen)
+  - Enhenced the start button's visibility and made it not jump around.
+  - Improved performance and speed of the app.
+  - Fixed the status bar being forced to black in Lenovo tablet floating windows.
+  - Enhanced expandable cards again
+  - Fixed networking not working an **android 17** (lol *notworking / net working* haha funny)
+
+- **Glyphs and device compatibility**
+  - Fixed the glyph preview not being visible in light themes.
+  - Fixed idle-breathing brightness not reaching the actual maximum 
+  - Added Glyphify compatibility for the idle-breathing-only service (so Glyphify doesn't kill it).
+  - Fixed phone spoofing not working correctly on tablets.
+
+
+- **Overlays**
+  - Fixed overlay opacity resetting.
+  - Made the settings less overwheling by collapsing some of them.
+
 ## V4.1 [2026-10-24]
 ### I'm really proud that the apk is still just 3.5MB
 - As you can see, added a way to see the changlog everytime you update the app in a non-intrusive way!

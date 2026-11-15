@@ -84,6 +84,7 @@ internal fun GlyphsScreen(
     onPresetSelected: (String) -> Unit,
     isRunning: Boolean,
     selectedDevice: Int,
+    developerModeEnabled: Boolean = false,
     viewModel: com.better.nothing.music.vizualizer.ui.MainViewModel,
     padding: PaddingValues = androidx.compose.foundation.layout.PaddingValues(),
 ) {
@@ -246,7 +247,7 @@ internal fun GlyphsScreen(
                         R.string.visualizer_presets
                     ),
                     trailingContent = {
-                        if (isMatrixDevice) {
+                        if (isMatrixDevice && developerModeEnabled) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -268,15 +269,17 @@ internal fun GlyphsScreen(
                 if (presets.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(12.dp))
                     val vizStateState = viewModel.visualizerState.collectAsStateWithLifecycle()
-                    val presetStates = remember { mutableStateMapOf<String, FloatArray>() }
-                    LaunchedEffect(isRunning, showPresetPreviews, presets) {
-                        if (isRunning && showPresetPreviews) {
+                    val presetStates = remember { mutableStateOf<Map<String, FloatArray>>(emptyMap()) }
+                    LaunchedEffect(showPresetPreviews, isMatrixDevice, developerModeEnabled, presets) {
+                        if (showPresetPreviews && isMatrixDevice && developerModeEnabled) {
                             while (true) {
                                 val s = AudioCaptureService.sInstance
                                 if (s != null) {
+                                    val map = mutableMapOf<String, FloatArray>()
                                     for (preset in presets) {
-                                        presetStates[preset.key] = s.getLightStateForPreset(preset.key)
+                                        map[preset.key] = s.getLightStateForPreset(preset.key)
                                     }
+                                    presetStates.value = map
                                 }
                                 delay(16.milliseconds)
                             }
@@ -291,35 +294,18 @@ internal fun GlyphsScreen(
                         labelProvider = { preset -> preset.name },
                         modifier = Modifier.fillMaxWidth(),
                         maxButtonsPerRow = if (isSlimDevice) 2 else 3,
-                        previewContent = if (isMatrixDevice && isRunning) {
+                        showPreview = showPresetPreviews && isMatrixDevice && developerModeEnabled && isRunning,
+                        previewContent = if (isMatrixDevice && developerModeEnabled) {
                             { preset ->
-                                remember(preset.key) { preset.key }
-                                AnimatedVisibility(
-                                    visible = showPresetPreviews,
-                                    enter = fadeIn(animationSpec = tween(300)) + expandVertically(
-                                        animationSpec = spring(
-                                            dampingRatio = Spring.DampingRatioLowBouncy,
-                                            stiffness = Spring.StiffnessLow
-                                        )
-                                    ),
-                                    exit = fadeOut(animationSpec = tween(250)) + shrinkVertically(
-                                        animationSpec = spring(
-                                            dampingRatio = Spring.DampingRatioNoBouncy,
-                                            stiffness = Spring.StiffnessMedium
-                                        )
-                                    )
-                                ) {
-                                    Column {
-                                        Spacer(modifier = Modifier.height(6.dp))
-                                        GlyphPreview(
-                                            vizStateProvider = { presetStates[preset.key] ?: vizStateState.value },
-                                            device = selectedDevice,
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(85.dp)
-                                        )
-                                    }
-                                }
+                                val currentVizState = presetStates.value[preset.key] ?: vizStateState.value
+                                GlyphPreview(
+                                    vizStateProvider = { currentVizState },
+                                    device = selectedDevice,
+                                    enableClick = false,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(85.dp)
+                                )
                             }
                         } else {
                             null
