@@ -36,5 +36,10 @@ for locale in ar fr hi hu it ja ru sk tr; do
     mv -f -- "$tmp_dir/$locale/strings.xml" "$res_dir/values-$locale/strings.xml"
 done
 
-mkdir -p "$res_dir/values-es-rES"
-mv -f -- "$tmp_dir/es-ES/strings.xml" "$res_dir/values-es-rES/strings.xml"
+mkdir -p "$res_dir/values-es"
+mv -f -- "$tmp_dir/es-ES/strings.xml" "$res_dir/values-es/strings.xml"
+
+if [ -f "$res_dir/values-es-rES/strings.xml" ]; then
+    mv -f -- "$res_dir/values-es-rES/strings.xml" "$res_dir/values-es/strings.xml"
+    rmdir "$res_dir/values-es-rES"
+fi

@@ -17,7 +17,6 @@
     <string name="threshold_description">Задает минимальный уровень громкости для срабатывания глифов. Высокие значения отсекают фоновый шум, делая подсветку чище.</string>
     <string name="speed_description">Определяет, как быстро глифы затухают после пиков громкости. При высокой скорости подсветка реагирует резче и динамичнее.</string>
     <string name="show_more_sliders">Дополнительные ползунки…</string>
-    <string name="configure">Configure…</string>
     <string name="gamma_control">Настройка гаммы</string>
     <string name="gamma_description">Высокая гамма дает более контрастную и выразительную картинку за счет мелких деталей и общей яркости. Низкая — делает подсветку ярче, но мягче.</string>
     <string name="light_gamma">Гамма:</string>
@@ -96,7 +95,7 @@
     <string name="analytics_disclaimer_title">Аналитика</string>
     <string name="analytics_disclaimer_text">Приложение использует Google Analytics (Firebase) для сбора анонимной статистики использования и отчетов об ошибках. Персональные данные и аудиозаписи не собираются.</string>
     <string name="github_repository">Репозиторий GitHub</string>
-    <string name="version_info">Version %1$s (%2$d)</string>
+    <string name="version_info">Version %s (%d)</string>
     <string name="zones_config_version">Версия конфига: %s</string>
     <string name="media_projection_info">Служба захвата экрана (MediaProjection) используется исключительно для работы визуализатора в реальном времени. Приложение ничего не записывает и не сохраняет.</string>
     <string name="credits">Авторы и благодарности</string>
