@@ -57,12 +57,16 @@ import android.view.Gravity;
 import android.view.WindowManager;
 import android.view.Display;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import androidx.core.app.ActivityCompat;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.app.NotificationCompat;
 
 import com.better.nothing.music.vizualizer.ui.MainViewModel;
@@ -345,6 +349,7 @@ public class AudioCaptureService extends Service {
     private boolean mOverlayEnabled = false;
     private boolean mEdgeVisualizerEnabled = false;
     private boolean mLensVisualizerEnabled = false;
+    private IconCompat mNotificationIcon;
     public volatile float mLensVisualizerRadius = 40f;
     public volatile float mLensVisualizerWidth = 0f;
     public volatile float mLensVisualizerX = 540f;
@@ -2041,7 +2046,7 @@ public class AudioCaptureService extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.notification_title))
             .setContentText(content)
-            .setSmallIcon(R.drawable.ic_notif_monochrome)
+            .setSmallIcon(getSafeNotificationIcon())
             .setContentIntent(contentIntent)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
@@ -2083,6 +2088,24 @@ public class AudioCaptureService extends Service {
         }
 
         return builder.build();
+    }
+
+    private synchronized IconCompat getSafeNotificationIcon() {
+        if (mNotificationIcon == null) {
+            Drawable drawable = getDrawable(R.drawable.ic_notif_monochrome);
+            if (drawable == null) {
+                throw new IllegalStateException("Notification icon drawable is missing");
+            }
+
+            int width = drawable.getIntrinsicWidth() > 0 ? drawable.getIntrinsicWidth() : 96;
+            int height = drawable.getIntrinsicHeight() > 0 ? drawable.getIntrinsicHeight() : 96;
+            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            drawable.setBounds(0, 0, width, height);
+            drawable.draw(canvas);
+            mNotificationIcon = IconCompat.createWithBitmap(bitmap);
+        }
+        return mNotificationIcon;
     }
 
     private String formatDuration(long ms) { long s = (ms / 1000) % 60; long m = (ms / 60000) % 60; long h = (ms / 3600000); return h > 0 ? String.format(Locale.US, "%d:%02d:%02d", h, m, s) : String.format(Locale.US, "%02d:%02d", m, s); }
