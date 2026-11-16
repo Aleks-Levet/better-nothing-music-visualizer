@@ -1524,6 +1524,7 @@ public class AudioCaptureService extends Service {
 
         // Music and game playback only.
         for (int usage : new int[]{
+                AudioAttributes.USAGE_UNKNOWN,
                 AudioAttributes.USAGE_MEDIA,
                 AudioAttributes.USAGE_GAME
         }) {
@@ -1937,8 +1938,11 @@ public class AudioCaptureService extends Service {
     }
 
     private void runCaptureLoop(AudioRecord record) {
-        mAudioProcessor.updateFFTSize(record.getSampleRate());
-        int hopSize = Math.round(record.getSampleRate() / (float) FPS);
+        int sampleRate = record.getSampleRate();
+        if (sampleRate <= 0) sampleRate = SAMPLE_RATE;
+        mCurrentSampleRate = sampleRate;
+        mAudioProcessor.updateFFTSize(sampleRate);
+        int hopSize = Math.max(1, Math.round(sampleRate / (float) FPS));
         short[] hop = new short[hopSize];
         while (mCapturing) {
             int read = record.read(hop, 0, hopSize, AudioRecord.READ_BLOCKING);
@@ -1965,8 +1969,16 @@ public class AudioCaptureService extends Service {
                 continue;
             }
 
-            AudioProcessor.SourceType type = (mCaptureSource == CaptureSource.MIC) ? AudioProcessor.SourceType.MIC : AudioProcessor.SourceType.INTERNAL;
-            AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, type, mVisualizerConfig != null ? mVisualizerConfig.decay : 0.85f);
+            AudioProcessor.SourceType type;
+            if (mCaptureSource == CaptureSource.MIC) {
+                type = AudioProcessor.SourceType.MIC;
+            } else if (mCaptureSource == CaptureSource.ROOT) {
+                type = AudioProcessor.SourceType.ROOT;
+            } else {
+                type = AudioProcessor.SourceType.INTERNAL;
+            }
+            AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(
+                    hop, read, type, mVisualizerConfig != null ? mVisualizerConfig.decay : 0.85f);
             if (result == null) continue;
             PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs(), isSilent);
             synchronized(mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }

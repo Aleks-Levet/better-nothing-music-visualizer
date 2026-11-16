@@ -74,14 +74,15 @@ public class AudioProcessor {
         this.mManualGain = gain;
     }
 
-    public void setHighQualityAnalysis(boolean enabled) {
+    public synchronized void setHighQualityAnalysis(boolean enabled) {
         if (this.mHighQualityAnalysis != enabled) {
             this.mHighQualityAnalysis = enabled;
             updateFFTSize(this.sampleRate);
         }
     }
 
-    public void updateFFTSize(int sampleRate) {
+    public synchronized void updateFFTSize(int sampleRate) {
+        if (sampleRate <= 0) sampleRate = 44100;
         int newFftSize = mHighQualityAnalysis ? 8192 : 2048; 
         if (this.fftSize == newFftSize && this.fft != null && this.sampleRate == sampleRate) return;
 
@@ -104,10 +105,16 @@ public class AudioProcessor {
     }
 
     public AudioFrameResult processAudioFrame(short[] hopBuffer, SourceType sourceType, float decayFactor) {
-        if (hopBuffer == null || ring == null || hann == null || mFftBuffer == null) return null;
+        return processAudioFrame(hopBuffer, hopBuffer != null ? hopBuffer.length : 0, sourceType, decayFactor);
+    }
 
-        for (short value : hopBuffer) {
-            ring[ringPosition] = value / 32768f;
+    public synchronized AudioFrameResult processAudioFrame(
+            short[] hopBuffer, int sampleCount, SourceType sourceType, float decayFactor) {
+        if (hopBuffer == null || ring == null || hann == null || mFftBuffer == null) return null;
+        int samplesToProcess = Math.min(Math.max(sampleCount, 0), hopBuffer.length);
+
+        for (int i = 0; i < samplesToProcess; i++) {
+            ring[ringPosition] = hopBuffer[i] / 32768f;
             ringPosition = (ringPosition + 1) % analysisWindow;
             filled = Math.min(filled + 1, analysisWindow);
         }
@@ -161,7 +168,7 @@ public class AudioProcessor {
                 desiredGain = 1.0f;
             } else {
                 desiredGain = target / effectiveMax;
-                if (sourceType == SourceType.INTERNAL) {
+                if (sourceType == SourceType.INTERNAL || sourceType == SourceType.ROOT) {
                     desiredGain = Math.max(0.7f, Math.min(1.4f, desiredGain));
                 } else {
                     // MIC: Slightly more responsive but cap to avoid noise floor issues
@@ -180,7 +187,7 @@ public class AudioProcessor {
 
             if (sourceType == SourceType.NETWORK || sourceType == SourceType.VIZUALIZER) {
                 mBandGain[i] = 1.0f;
-            } else if (sourceType == SourceType.INTERNAL) {
+            } else if (sourceType == SourceType.INTERNAL || sourceType == SourceType.ROOT) {
                 float internalSmoothing = smoothing * 0.1f;
                 mBandGain[i] = (mBandGain[i] * (1f - internalSmoothing)) + (desiredGain * internalSmoothing);
             } else {
@@ -222,7 +229,8 @@ public class AudioProcessor {
                     }
                 }
 
-                float continuousBin = fCenter / hzPerBin;
+                float continuousBin = Math.max(0f, Math.min(
+                        fCenter / hzPerBin, magnitude.length - 1f));
                 int b0 = Math.min((int) continuousBin, magnitude.length - 1);
                 int b1 = Math.min(b0 + 1, magnitude.length - 1);
                 float t = continuousBin - b0;
@@ -241,7 +249,8 @@ public class AudioProcessor {
 
                 rawVal = (int) (norm * 4095f);
             } else {
-                float continuousBin = fCenter / hzPerBin;
+                float continuousBin = Math.max(0f, Math.min(
+                        fCenter / hzPerBin, magnitude.length - 1f));
                 int b0 = (int) continuousBin;
                 int b1 = Math.min(b0 + 1, magnitude.length - 1);
                 float t = continuousBin - b0;
