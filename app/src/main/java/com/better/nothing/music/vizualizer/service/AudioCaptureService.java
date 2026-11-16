@@ -1511,32 +1511,17 @@ public class AudioCaptureService extends Service {
 
         Object ruleBuilder = ruleBuilderClass.getConstructor().newInstance();
 
-        int[] usages = {
-                AudioAttributes.USAGE_UNKNOWN,
-                AudioAttributes.USAGE_MEDIA,
-                AudioAttributes.USAGE_GAME,
-                AudioAttributes.USAGE_VOICE_COMMUNICATION,
-                AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING,
-                AudioAttributes.USAGE_ALARM,
-                AudioAttributes.USAGE_NOTIFICATION,
-                AudioAttributes.USAGE_NOTIFICATION_RINGTONE,
-                AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST,
-                AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT,
-                AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_DELAYED,
-                AudioAttributes.USAGE_NOTIFICATION_EVENT,
-                AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY,
-                AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
-                AudioAttributes.USAGE_ASSISTANCE_SONIFICATION,
-                AudioAttributes.USAGE_ASSISTANT
-        };
-
         Method addRule = ruleBuilderClass.getMethod(
                 "addRule",
                 AudioAttributes.class,
                 int.class
         );
 
-        for (int usage : usages) {
+        // Music and game playback only.
+        for (int usage : new int[]{
+                AudioAttributes.USAGE_MEDIA,
+                AudioAttributes.USAGE_GAME
+        }) {
             AudioAttributes attributes = new AudioAttributes.Builder()
                     .setUsage(usage)
                     .build();
@@ -1545,7 +1530,6 @@ public class AudioCaptureService extends Service {
         }
 
         // Enable privileged playback capture when the platform exposes it.
-        // This requires CAPTURE_AUDIO_OUTPUT or CAPTURE_MEDIA_OUTPUT.
         for (Method method : ruleBuilderClass.getMethods()) {
             if (method.getParameterCount() == 1
                     && method.getParameterTypes()[0] == boolean.class
@@ -1558,8 +1542,11 @@ public class AudioCaptureService extends Service {
         Object rule = ruleBuilderClass.getMethod("build").invoke(ruleBuilder);
 
         AudioFormat mixFormat = new AudioFormat.Builder()
+                // Privileged loopback mixes are limited to a single channel on
+                // Android, even when the playback source is stereo.
+                // Also we are locked at the 16K sample rate by android again
                 .setSampleRate(16000)
-                .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
+                .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
                 .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
                 .build();
 
@@ -1610,8 +1597,10 @@ public class AudioCaptureService extends Service {
 
             return record;
         } catch (Exception e) {
-            AudioManager.class.getMethod("unregisterAudioPolicy", policyClass)
+            AudioManager.class
+                    .getMethod("unregisterAudioPolicy", policyClass)
                     .invoke(mAudioManager, policy);
+
             throw e;
         }
     }
