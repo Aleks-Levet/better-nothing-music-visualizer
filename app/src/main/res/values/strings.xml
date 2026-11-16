@@ -126,6 +126,7 @@
 
     <!-- Capture Source Labels -->
     <string name="capture_media_projection">Media Projection\n(default, best)</string>
+    <string name="capture_root">Root audio\n(privileged, best)</string>
     <string name="capture_microphone">Microphone</string>
     <string name="capture_vizualizer">Android built-in vizualizer</string>
     <string name="update_available">Update available: %s</string>

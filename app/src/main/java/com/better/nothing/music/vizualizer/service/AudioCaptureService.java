@@ -27,6 +27,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.media.AudioAttributes;
@@ -109,12 +110,28 @@ public class AudioCaptureService extends Service {
     private static final String TAG = "GlyphViz:Service";
     private static final String CHANNEL_ID = "glyph_viz_channel";
     private static final int NOTIF_ID = 1;
-    public enum CaptureSource { INTERNAL, MIC, VIZUALIZER, NETWORK }
+    public enum CaptureSource { INTERNAL, MIC, VIZUALIZER, NETWORK, ROOT }
     private volatile CaptureSource mCaptureSource = CaptureSource.INTERNAL;
+
+    public static boolean hasPrivilegedCapturePermission(Context context) {
+        int result = context.checkSelfPermission(Manifest.permission.CAPTURE_AUDIO_OUTPUT);
+        boolean granted = result == PackageManager.PERMISSION_GRANTED;
+        Log.d(TAG, "CAPTURE_AUDIO_OUTPUT check: package=" + context.getPackageName()
+                + ", uid=" + android.os.Process.myUid()
+                + ", result=" + result + ", granted=" + granted);
+        return granted;
+    }
+
+    public static CaptureSource defaultCaptureSource(Context context) {
+        return hasPrivilegedCapturePermission(context) ? CaptureSource.ROOT : CaptureSource.INTERNAL;
+    }
 
     public static final String ACTION_STOP = "com.better.nothing.music.vizualizer.action.STOP";
     private String mNetworkHostIp = null;
     private int mNetworkHostPort = 8889;
+
+    private Object mRootAudioPolicy;
+    private Object mRootAudioMix;
 
     public static final String ACTION_START = "com.better.nothing.music.vizualizer.action.START";
     public static final String ACTION_TOGGLE_HAPTICS = "com.better.nothing.music.vizualizer.action.TOGGLE_HAPTICS";
@@ -643,7 +660,8 @@ public class AudioCaptureService extends Service {
         mGlyphThreshold = getSafeFloat(appPrefs, "glyph_threshold", 0.0f);
         mGlyphDecaySpeed = getSafeFloat(appPrefs, "glyph_decay_speed", 0.75f);
         try {
-            mCaptureSource = CaptureSource.valueOf(appPrefs.getString("capture_source", CaptureSource.INTERNAL.name()));
+            mCaptureSource = CaptureSource.valueOf(appPrefs.getString(
+                    "capture_source", defaultCaptureSource(this).name()));
         } catch (Exception e) {
             mCaptureSource = CaptureSource.INTERNAL;
         }
@@ -706,7 +724,7 @@ public class AudioCaptureService extends Service {
     private void refreshSettingsFromPrefs() {
         SharedPreferences appPrefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE);
         
-        String sourceName = appPrefs.getString("capture_source", CaptureSource.INTERNAL.name());
+        String sourceName = appPrefs.getString("capture_source", defaultCaptureSource(this).name());
         try {
             CaptureSource source = CaptureSource.valueOf(sourceName);
             if (mCaptureSource != source) {
@@ -1001,6 +1019,7 @@ public class AudioCaptureService extends Service {
 
     public void startVisualizer() {
         if (mCaptureSource == CaptureSource.MIC) startMicCapture();
+        else if (mCaptureSource == CaptureSource.ROOT) startRootCapture();
         else if (mCaptureSource == CaptureSource.VIZUALIZER) startVizualizerCapture();
         else if (mCaptureSource == CaptureSource.NETWORK) startNetworkCapture();
     }
@@ -1019,6 +1038,8 @@ public class AudioCaptureService extends Service {
                 } else {
                     stopCaptureLocked(true);
                 }
+            } else if (mCaptureSource == CaptureSource.ROOT) {
+                startRootCapture();
             } else if (mCaptureSource == CaptureSource.MIC) {
                 startMicCapture();
             } else if (mCaptureSource == CaptureSource.VIZUALIZER) {
@@ -1308,6 +1329,10 @@ public class AudioCaptureService extends Service {
     public void startMicCapture() { startCaptureInternal(CaptureSource.MIC, 0, null); }
     public void startVizualizerCapture() { startCaptureInternal(CaptureSource.VIZUALIZER, 0, null); }
 
+    public void startRootCapture() {
+        startCaptureInternal(CaptureSource.ROOT, 0, null);
+    }
+
     private void startCaptureInternal(CaptureSource source, int resultCode, Intent data) {
         mCaptureSource = source;
 
@@ -1424,6 +1449,8 @@ public class AudioCaptureService extends Service {
                                 }
                             }
                         }
+                    } else if (source == CaptureSource.ROOT) {
+                        lr = createRootAudioRecord();
                     } else if (source == CaptureSource.VIZUALIZER) {
                         mWorkerHandler.post(this::setupVisualizerCapture);
                         return;
@@ -1468,6 +1495,125 @@ public class AudioCaptureService extends Service {
             });
         }
         refreshNotification();
+    }
+
+    private AudioRecord createRootAudioRecord() throws Exception {
+        final String base = "android.media.audiopolicy.";
+
+        Class<?> ruleClass = Class.forName(base + "AudioMixingRule");
+        Class<?> ruleBuilderClass = Class.forName(base + "AudioMixingRule$Builder");
+        Class<?> mixClass = Class.forName(base + "AudioMix");
+        Class<?> mixBuilderClass = Class.forName(base + "AudioMix$Builder");
+        Class<?> policyClass = Class.forName(base + "AudioPolicy");
+        Class<?> policyBuilderClass = Class.forName(base + "AudioPolicy$Builder");
+
+        int matchUsage = ruleClass.getField("RULE_MATCH_ATTRIBUTE_USAGE").getInt(null);
+
+        Object ruleBuilder = ruleBuilderClass.getConstructor().newInstance();
+
+        int[] usages = {
+                AudioAttributes.USAGE_UNKNOWN,
+                AudioAttributes.USAGE_MEDIA,
+                AudioAttributes.USAGE_GAME,
+                AudioAttributes.USAGE_VOICE_COMMUNICATION,
+                AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING,
+                AudioAttributes.USAGE_ALARM,
+                AudioAttributes.USAGE_NOTIFICATION,
+                AudioAttributes.USAGE_NOTIFICATION_RINGTONE,
+                AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST,
+                AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT,
+                AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_DELAYED,
+                AudioAttributes.USAGE_NOTIFICATION_EVENT,
+                AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY,
+                AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
+                AudioAttributes.USAGE_ASSISTANCE_SONIFICATION,
+                AudioAttributes.USAGE_ASSISTANT
+        };
+
+        Method addRule = ruleBuilderClass.getMethod(
+                "addRule",
+                AudioAttributes.class,
+                int.class
+        );
+
+        for (int usage : usages) {
+            AudioAttributes attributes = new AudioAttributes.Builder()
+                    .setUsage(usage)
+                    .build();
+
+            addRule.invoke(ruleBuilder, attributes, matchUsage);
+        }
+
+        // Enable privileged playback capture when the platform exposes it.
+        // This requires CAPTURE_AUDIO_OUTPUT or CAPTURE_MEDIA_OUTPUT.
+        for (Method method : ruleBuilderClass.getMethods()) {
+            if (method.getParameterCount() == 1
+                    && method.getParameterTypes()[0] == boolean.class
+                    && method.getName().toLowerCase(Locale.ROOT).contains("privileged")) {
+                method.invoke(ruleBuilder, true);
+                break;
+            }
+        }
+
+        Object rule = ruleBuilderClass.getMethod("build").invoke(ruleBuilder);
+
+        AudioFormat mixFormat = new AudioFormat.Builder()
+                .setSampleRate(16000)
+                .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
+                .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                .build();
+
+        int routeFlags =
+                mixClass.getField("ROUTE_FLAG_LOOP_BACK").getInt(null)
+                        | mixClass.getField("ROUTE_FLAG_RENDER").getInt(null);
+
+        Object mixBuilder = mixBuilderClass
+                .getConstructor(ruleClass)
+                .newInstance(rule);
+
+        mixBuilderClass.getMethod("setFormat", AudioFormat.class)
+                .invoke(mixBuilder, mixFormat);
+
+        mixBuilderClass.getMethod("setRouteFlags", int.class)
+                .invoke(mixBuilder, routeFlags);
+
+        Object mix = mixBuilderClass.getMethod("build").invoke(mixBuilder);
+
+        Object policyBuilder = policyBuilderClass
+                .getConstructor(Context.class)
+                .newInstance(this);
+
+        policyBuilderClass.getMethod("addMix", mixClass)
+                .invoke(policyBuilder, mix);
+
+        Object policy = policyBuilderClass.getMethod("build").invoke(policyBuilder);
+
+        int status = (Integer) AudioManager.class
+                .getMethod("registerAudioPolicy", policyClass)
+                .invoke(mAudioManager, policy);
+
+        if (status == AudioManager.ERROR) {
+            throw new IllegalStateException("AudioPolicy registration failed: " + status);
+        }
+
+        try {
+            AudioRecord record = (AudioRecord) policyClass
+                    .getMethod("createAudioRecordSink", mixClass)
+                    .invoke(policy, mix);
+
+            if (record == null || record.getState() != AudioRecord.STATE_INITIALIZED) {
+                throw new IllegalStateException("Root AudioRecord failed to initialize");
+            }
+
+            mRootAudioPolicy = policy;
+            mRootAudioMix = mix;
+
+            return record;
+        } catch (Exception e) {
+            AudioManager.class.getMethod("unregisterAudioPolicy", policyClass)
+                    .invoke(mAudioManager, policy);
+            throw e;
+        }
     }
 
     private void startForegroundWithTypes(CaptureSource source, boolean forceMediaProjection) {
@@ -1541,6 +1687,8 @@ public class AudioCaptureService extends Service {
             mAudioRecord = null;
         }
 
+        releaseRootAudioPolicy();
+
         if (stopService || mCaptureSource != CaptureSource.INTERNAL) {
             if (mProjection != null) {
                 try {
@@ -1561,6 +1709,27 @@ public class AudioCaptureService extends Service {
         }
         updateOverlayVisibility();
     }
+
+    private void releaseRootAudioPolicy() {
+        if (mRootAudioPolicy == null) return;
+
+        try {
+            Class<?> policyClass = Class.forName(
+                    "android.media.audiopolicy.AudioPolicy"
+            );
+
+            AudioManager.class
+                    .getMethod("unregisterAudioPolicy", policyClass)
+                    .invoke(mAudioManager, mRootAudioPolicy);
+
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to unregister root AudioPolicy", e);
+        }
+
+        mRootAudioPolicy = null;
+        mRootAudioMix = null;
+    }
+
     private void releaseAudioRecord() { if (mAudioRecord != null) { try { mAudioRecord.stop(); } catch (Exception ignored) {} mAudioRecord.release(); mAudioRecord = null; } }
     private void releaseProjection() { if (mProjection != null) { try { mProjection.stop(); } catch (Exception ignored) {} mProjection = null; } }
     private void releaseVisualizer() { if (mVisualizer != null) { try { mVisualizer.release(); } catch (Exception ignored) {} mVisualizer = null; } synchronized (mVisualizerPendingFrames) { mVisualizerPendingFrames.clear(); } }

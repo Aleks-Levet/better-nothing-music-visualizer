@@ -13,7 +13,8 @@ public class AudioProcessor {
         MIC,
         INTERNAL,
         VIZUALIZER,
-        NETWORK
+        NETWORK,
+        ROOT
     }
 
     public enum ReadMethod {

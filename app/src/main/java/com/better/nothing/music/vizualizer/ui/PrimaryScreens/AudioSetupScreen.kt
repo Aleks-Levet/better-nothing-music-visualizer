@@ -3,6 +3,7 @@ package com.better.nothing.music.vizualizer.ui.PrimaryScreens
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
@@ -440,6 +441,7 @@ fun OutputSelectionCard(
     connectedClients: Map<InetAddress, Int?> = emptyMap(),
     isRunning: Boolean = false
 ) {
+    val context = LocalContext.current
     var isHelpExpanded by rememberSaveable { mutableStateOf(false) }
 
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
@@ -606,6 +608,7 @@ fun CaptureSourceCard(
     developerModeEnabled: Boolean,
     networkDeviceName: String? = null
 ) {
+    val context = LocalContext.current
     var isHelpExpanded by rememberSaveable { mutableStateOf(false) }
 
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
@@ -659,11 +662,35 @@ fun CaptureSourceCard(
             }
         }
 
+        val hasPrivilegedCapture = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.CAPTURE_AUDIO_OUTPUT
+        ) == PackageManager.PERMISSION_GRANTED
+        LaunchedEffect(hasPrivilegedCapture, selectedSource) {
+            Log.d(
+                "GlyphViz:CaptureUI",
+                "capture permission=$hasPrivilegedCapture " +
+                    "check=${context.checkSelfPermission(Manifest.permission.CAPTURE_AUDIO_OUTPUT)} " +
+                    "package=${context.packageName} uid=${android.os.Process.myUid()} " +
+                    "selected=$selectedSource rootAvailable=${AudioCaptureService.hasPrivilegedCapturePermission(context)}"
+            )
+        }
+        val primarySource = if (hasPrivilegedCapture) {
+            AudioCaptureService.CaptureSource.ROOT
+        } else {
+            AudioCaptureService.CaptureSource.INTERNAL
+        }
+        val primaryLabel = if (hasPrivilegedCapture) {
+            stringResource(R.string.capture_root)
+        } else {
+            stringResource(R.string.capture_media_projection)
+        }
+
         val mainSources = listOf(
             Triple(
-                AudioCaptureService.CaptureSource.INTERNAL,
-                stringResource(R.string.capture_media_projection),
-                Icons.Default.Cast
+                primarySource,
+                primaryLabel,
+                if (hasPrivilegedCapture) Icons.Default.Android else Icons.Default.Cast
             ),
             Triple(
                 AudioCaptureService.CaptureSource.MIC,

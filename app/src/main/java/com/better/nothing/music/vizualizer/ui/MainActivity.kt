@@ -465,11 +465,16 @@ class MainActivity : AppCompatActivity() {
 
             val source = if (isTrampoline) {
                 val prefs = getSharedPreferences("viz_prefs", MODE_PRIVATE)
-                val saved = prefs.getString("capture_source", AudioCaptureService.CaptureSource.INTERNAL.name)
+                val saved = prefs.getString(
+                    "capture_source",
+                    AudioCaptureService.defaultCaptureSource(this).name
+                )
                 try {
-                    AudioCaptureService.CaptureSource.valueOf(saved ?: AudioCaptureService.CaptureSource.INTERNAL.name)
+                    AudioCaptureService.CaptureSource.valueOf(
+                        saved ?: AudioCaptureService.defaultCaptureSource(this).name
+                    )
                 } catch (_: Exception) {
-                    AudioCaptureService.CaptureSource.INTERNAL
+                    AudioCaptureService.defaultCaptureSource(this)
                 }
             } else {
                 viewModel.captureSource.value
@@ -528,6 +533,18 @@ class MainActivity : AppCompatActivity() {
                         s.startVisualizer()
                         if (isTrampoline) finish()
                     }
+                }
+
+                AudioCaptureService.CaptureSource.ROOT -> {
+                    val startIntent = Intent(this, AudioCaptureService::class.java).apply {
+                        action = AudioCaptureService.ACTION_START
+                        putExtra(AudioCaptureService.EXTRA_START_SOURCE, effectiveStartSource)
+                    }
+
+                    startForegroundService(startIntent)
+                    s.startVisualizer()
+
+                    if (isTrampoline) finish()
                 }
             }
         }
