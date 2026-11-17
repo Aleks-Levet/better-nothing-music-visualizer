@@ -1,41 +1,59 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.gradle.api.tasks.bundling.Zip
+import org.gradle.process.ExecOperations
+import javax.inject.Inject
 
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.plugin.compose'
 }
 
+// -----------------------------------------------------------------------------
+// Versioning
+// -----------------------------------------------------------------------------
+
 def versionCodeFile = rootProject.file('version-code.txt')
+
 def readVersionCode = {
     if (!versionCodeFile.isFile()) {
         throw new GradleException("Version code file not found: ${versionCodeFile}")
     }
 
-    def versionCodeText = versionCodeFile.text.trim()
-    if (!(versionCodeText ==~ /\d+/)) {
+    def text = versionCodeFile.text.trim()
+
+    if (!(text ==~ /\d+/)) {
         throw new GradleException("Version code in ${versionCodeFile} must be a positive integer")
     }
 
     try {
-        versionCodeText.toInteger()
+        text.toInteger()
     } catch (NumberFormatException exception) {
         throw new GradleException("Version code in ${versionCodeFile} is too large", exception)
     }
 }
+
 def configuredVersionCode = readVersionCode()
+
+// -----------------------------------------------------------------------------
+// Android
+// -----------------------------------------------------------------------------
 
 android {
     namespace = 'com.better.nothing.music.vizualizer'
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.better.nothing.music.vizualizer"
+        applicationId = 'com.better.nothing.music.vizualizer'
         minSdk = 26
         targetSdk = 37
         versionCode = configuredVersionCode
         versionName = '4.2'
 
-        resourceConfigurations += ['en', 'ar', 'cy', 'de', 'es', 'fr', 'hi', 'hu', 'it', 'ja', 'ru', 'sk', 'tr']
+        resourceConfigurations += [
+                'en', 'ar', 'cy', 'de', 'es', 'fr', 'hi',
+                'hu', 'it', 'ja', 'ru', 'sk', 'tr'
+        ]
+
         ndk {
             abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86_64'
         }
@@ -45,12 +63,15 @@ android {
         release {
             minifyEnabled = true
             shrinkResources = true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
         }
+
         debug {
             debuggable = true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            applicationIdSuffix = ".debug"
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
+            applicationIdSuffix = '.debug'
             versionNameSuffix = '.debug'
         }
     }
@@ -68,38 +89,41 @@ android {
     kotlin {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
-            // Change JVM_1_8 to JVM_11 or JVM_17 depending on your project needs
         }
     }
 
     packaging {
         resources {
             excludes += [
-                'META-INF/*.version',
-                'META-INF/*.txt',
-                'META-INF/licenses/**',
-                'META-INF/AL2.0',
-                'META-INF/LGPL2.1',
-                'META-INF/LICENSE*',
-                'META-INF/NOTICE*',
-                'META-INF/DEPENDENCIES',
-                'META-INF/*.kotlin_module',
-                'META-INF/androidx/**/LICENSE.txt',
-                '**/kotlin-tooling-metadata.json',
-                '**/*.proto',
-                'DebugProbesKt.bin',
-                'LICENSE*.txt',
-                'kotlin/**/*.kotlin_builtins'
+                    'META-INF/*.version',
+                    'META-INF/*.txt',
+                    'META-INF/licenses/**',
+                    'META-INF/AL2.0',
+                    'META-INF/LGPL2.1',
+                    'META-INF/LICENSE*',
+                    'META-INF/NOTICE*',
+                    'META-INF/DEPENDENCIES',
+                    'META-INF/*.kotlin_module',
+                    'META-INF/androidx/**/LICENSE.txt',
+                    '**/kotlin-tooling-metadata.json',
+                    '**/*.proto',
+                    'DebugProbesKt.bin',
+                    'LICENSE*.txt',
+                    'kotlin/**/*.kotlin_builtins'
             ]
         }
     }
 }
 
+// -----------------------------------------------------------------------------
+// Release version code
+// -----------------------------------------------------------------------------
+
 def bumpReleaseVersionCode = tasks.register('bumpReleaseVersionCode') {
     onlyIf {
-        ['assembleRelease', 'bundleRelease'].any { releaseTaskName ->
-            def releaseTask = tasks.findByName(releaseTaskName)
-            releaseTask != null && releaseTask.state.executed && releaseTask.state.failure == null
+        ['assembleRelease', 'bundleRelease'].any { taskName ->
+            def task = tasks.findByName(taskName)
+            task != null && task.state.executed && task.state.failure == null
         }
     }
 
@@ -108,7 +132,8 @@ def bumpReleaseVersionCode = tasks.register('bumpReleaseVersionCode') {
 
         if (currentVersionCode != configuredVersionCode) {
             throw new GradleException(
-                    "Version code changed during the release build (expected ${configuredVersionCode}, found ${currentVersionCode})"
+                    "Version code changed during release build " +
+                            "(expected ${configuredVersionCode}, found ${currentVersionCode})"
             )
         }
 
@@ -117,46 +142,273 @@ def bumpReleaseVersionCode = tasks.register('bumpReleaseVersionCode') {
     }
 }
 
+// -----------------------------------------------------------------------------
+// Root module configuration
+// -----------------------------------------------------------------------------
+
+def moduleId = { String variant ->
+    def suffix = android.buildTypes.getByName(variant).applicationIdSuffix ?: ''
+    "${android.defaultConfig.applicationId}${suffix}"
+}
+
+def moduleVersionName = { String variant ->
+    def suffix = android.buildTypes.getByName(variant).versionNameSuffix ?: ''
+    "${android.defaultConfig.versionName}${suffix}"
+}
+
+def moduleVersionCode = {
+    configuredVersionCode
+}
+
+def moduleDisplayName = 'Better Nothing Music Visualizer'
+def moduleAuthor = 'RedTTG'
+
+// -----------------------------------------------------------------------------
+// Generated module files
+// -----------------------------------------------------------------------------
+
+def writeModuleProp = { File moduleDir, String variant ->
+    def appId = moduleId(variant)
+
+    def contents = [
+            "id=${appId}",
+            "name=${moduleDisplayName}",
+            "version=${moduleVersionName(variant)}",
+            "versionCode=${moduleVersionCode()}",
+            "author=${moduleAuthor}",
+            "description=Privileged audio capture for ${appId}"
+    ].join('\n') + '\n'
+
+    new File(moduleDir, 'module.prop').text = contents
+}
+
+def writePermissionsXml = { File moduleDir, String variant ->
+    def appId = moduleId(variant)
+
+    def permissionsDir = new File(moduleDir, 'system/etc/permissions')
+    permissionsDir.mkdirs()
+
+    def contents = """\
+<?xml version="1.0" encoding="utf-8"?>
+<permissions>
+    <privapp-permissions package="${appId}">
+        <permission name="android.permission.CAPTURE_AUDIO_OUTPUT" />
+        <permission name="android.permission.MODIFY_AUDIO_ROUTING" />
+    </privapp-permissions>
+</permissions>
+"""
+
+    new File(
+            permissionsDir,
+            "privapp-permissions-${appId}.xml"
+    ).text = contents
+}
+
+def copyModuleApk = { File moduleDir, File apk, String variant ->
+    def appId = moduleId(variant)
+
+    def appDir = new File(moduleDir, "system/priv-app/${appId}")
+    appDir.mkdirs()
+
+    copy {
+        from apk
+        into appDir
+        rename { 'BNMV.apk' }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// Module assembly
+// -----------------------------------------------------------------------------
+
+def registerRootModule = { String variant ->
+    def capitalized = variant.capitalize()
+    def appId = moduleId(variant)
+
+    def apkFile = layout.buildDirectory.file(
+            "outputs/apk/${variant}/app-${variant}.apk"
+    )
+
+    def moduleDir = layout.buildDirectory.dir(
+            "root-module/${variant}"
+    )
+
+    def outputDir = layout.buildDirectory.dir(
+            "outputs/root-module"
+    )
+
+    def zipFileName = "better-nothing-music-visualizer-${variant}.zip"
+
+    def prepareTask = tasks.register("prepareRootModule${capitalized}") {
+        dependsOn("assemble${capitalized}")
+
+        inputs.file(apkFile)
+        inputs.property('applicationId', appId)
+        inputs.property('versionCode', moduleVersionCode())
+        inputs.property('versionName', moduleVersionName(variant))
+
+        outputs.dir(moduleDir)
+
+        doLast {
+            def apk = apkFile.get().asFile
+
+            if (!apk.isFile()) {
+                throw new GradleException("APK not found: ${apk}")
+            }
+
+            def root = moduleDir.get().asFile
+
+            delete(root)
+            root.mkdirs()
+
+            writeModuleProp(root, variant)
+            writePermissionsXml(root, variant)
+            copyModuleApk(root, apk, variant)
+
+            logger.lifecycle("Prepared ${variant} root module: ${root}")
+        }
+    }
+
+    tasks.register("buildRootModule${capitalized}", Zip) {
+        dependsOn(prepareTask)
+
+        archiveFileName.set(zipFileName)
+        destinationDirectory.set(outputDir)
+
+        from(moduleDir)
+
+        // BCR-style reproducible ZIP.
+        preserveFileTimestamps = false
+        reproducibleFileOrder = true
+    }
+}
+
+// -----------------------------------------------------------------------------
+// ADB
+// -----------------------------------------------------------------------------
+
+abstract class AdbOperations {
+    @Inject
+    abstract ExecOperations getExecOperations()
+
+    void run(List<String> args) {
+        execOperations.exec {
+            commandLine args
+        }
+    }
+}
+
+def adb = objects.newInstance(AdbOperations)
+
+def registerRootModuleInstall = { String variant ->
+    def capitalized = variant.capitalize()
+    def zipName = "better-nothing-music-visualizer-${variant}.zip"
+
+    tasks.register("installRootModule${capitalized}") {
+        dependsOn("buildRootModule${capitalized}")
+
+        doLast {
+            def zipFile = layout.buildDirectory.file(
+                    "outputs/root-module/${zipName}"
+            ).get().asFile
+
+            if (!zipFile.isFile()) {
+                throw new GradleException("Root module ZIP not found: ${zipFile}")
+            }
+
+            def remotePath = "/data/local/tmp/${zipName}"
+
+            adb.run([
+                    'adb', 'push',
+                    zipFile.absolutePath,
+                    remotePath
+            ])
+
+            adb.run([
+                    'adb', 'shell', 'su', '-c',
+                    "ksud module install ${remotePath}"
+            ])
+
+            logger.lifecycle(
+                    "Root module installed. Reboot required to activate it."
+            )
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// Register variant tasks
+// -----------------------------------------------------------------------------
+
+['debug', 'release'].each { variant ->
+    registerRootModule(variant)
+    registerRootModuleInstall(variant)
+}
+
+tasks.register('buildRootModule') {
+    def variant = providers.gradleProperty('variant').orElse('debug')
+
+    doFirst {
+        if (!(variant.get() in ['debug', 'release'])) {
+            throw new GradleException("Use -Pvariant=debug or -Pvariant=release")
+        }
+    }
+
+    dependsOn(variant.map {
+        "buildRootModule${it.capitalize()}"
+    })
+}
+
+tasks.register('installRootModule') {
+    def variant = providers.gradleProperty('variant').orElse('debug')
+
+    doFirst {
+        if (!(variant.get() in ['debug', 'release'])) {
+            throw new GradleException("Use -Pvariant=debug or -Pvariant=release")
+        }
+    }
+
+    dependsOn(variant.map {
+        "installRootModule${it.capitalize()}"
+    })
+}
+
 tasks.configureEach {
     if (name in ['assembleRelease', 'bundleRelease']) {
         finalizedBy(bumpReleaseVersionCode)
     }
 }
 
+// -----------------------------------------------------------------------------
+// Dependencies
+// -----------------------------------------------------------------------------
+
 dependencies {
     implementation 'androidx.core:core-splashscreen:1.2.0'
     implementation 'androidx.profileinstaller:profileinstaller:1.4.1'
     implementation 'androidx.compose.animation:animation-core:1.12.1'
 
-    // 1. Keep your local SDK
     implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'])
 
-    // FFT Library for better accuracy
     implementation 'com.github.wendykierp:JTransforms:3.2'
 
-    // 2. Compose BOM - Manages versions for all compose libs below
     implementation platform('androidx.compose:compose-bom:2026.09.00')
 
-    // Coil for image loading
-    implementation("io.coil-kt.coil3:coil-compose:3.6.3")
-    implementation("io.coil-kt.coil3:coil-network-okhttp:3.6.3")
+    implementation 'io.coil-kt.coil3:coil-compose:3.6.3'
+    implementation 'io.coil-kt.coil3:coil-network-okhttp:3.6.3'
 
-    // 3. Core Compose Libraries (Versions handled by BOM)
     implementation 'androidx.compose.ui:ui'
     implementation 'androidx.compose.ui:ui-graphics'
     implementation 'androidx.compose.ui:ui-tooling-preview'
     implementation 'androidx.compose.animation:animation'
     implementation 'androidx.compose.foundation:foundation-layout'
     implementation 'androidx.compose.runtime:runtime'
-    implementation 'androidx.compose.animation:animation-core'
     implementation 'androidx.compose.foundation:foundation'
 
-    // 4. Material 3
-    implementation "androidx.compose.material3:material3"
+    implementation 'androidx.compose.material3:material3'
     implementation 'com.google.android.material:material:1.14.0'
     implementation 'androidx.graphics:graphics-shapes:1.1.0'
 
-    // 5. Activity & Lifecycle
     implementation 'androidx.activity:activity-compose:1.13.0'
     implementation 'androidx.lifecycle:lifecycle-service:2.11.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.11.0'
@@ -164,17 +416,13 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.11.0'
     implementation 'androidx.savedstate:savedstate-ktx:1.5.0'
 
-    // 6. Standard Icons only
     implementation 'androidx.compose.material:material-icons-extended'
 
-    // 7. Legacy Support
     implementation 'androidx.appcompat:appcompat:1.8.0'
     implementation 'androidx.palette:palette-ktx:1.1.0'
 
-    // 8. Debugging
     debugImplementation 'androidx.compose.ui:ui-tooling'
 
-    // 9. Firebase & Analytics
     implementation platform('com.google.firebase:firebase-bom:35.1.0')
     implementation 'com.google.firebase:firebase-analytics'
 }

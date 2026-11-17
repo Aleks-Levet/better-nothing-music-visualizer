@@ -2457,7 +2457,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         // Stats and Basic settings
-        _captureSource.value = safeValueOf(get("capture_source", ""), AudioCaptureService.CaptureSource.INTERNAL)
+        _captureSource.value = safeValueOf(
+            get("capture_source", ""),
+            AudioCaptureService.defaultCaptureSource(ctx)
+        )
         _uiAmplitudeSyncEnabled.value = get("ui_amplitude_sync_enabled", true)
         _totalVisualizedTime.value = get("total_visualized_time", 0L)
         _totalIdleTime.value = get("total_idle_time", 0L)

@@ -10,6 +10,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -20,6 +23,7 @@ import android.service.quicksettings.TileService;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.graphics.drawable.IconCompat;
 
 import com.better.nothing.music.vizualizer.R;
 import com.better.nothing.music.vizualizer.logic.IdleBreathingRenderer;
@@ -67,6 +71,7 @@ public class IdleBreathingService extends Service {
     private volatile GlyphManager mGlyphManager;
     private volatile GlyphMatrixManager mMatrixManager;
     private volatile IdleBreathingRenderer mRenderer;
+    private IconCompat mNotificationIcon;
     private volatile int mMaxBrightness;
     private int mLedCount;
     private boolean mMatrixDevice;
@@ -482,7 +487,7 @@ public class IdleBreathingService extends Service {
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(getString(R.string.idle_breathing_title))
                 .setContentText(getString(R.string.idle_pattern) + ": " + getPatternLabel(currentPattern))
-                .setSmallIcon(R.drawable.ic_notif_monochrome)
+                .setSmallIcon(getSafeNotificationIcon())
                 .setContentIntent(contentIntent)
                 .setOngoing(true)
                 .setSilent(true)
@@ -491,6 +496,24 @@ public class IdleBreathingService extends Service {
                 .addAction(android.R.drawable.ic_media_next, getString(R.string.notification_action_next), nextIntent)
                 .addAction(android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.idle_breathing_action_stop), stopIntent)
                 .build();
+    }
+
+    private synchronized IconCompat getSafeNotificationIcon() {
+        if (mNotificationIcon == null) {
+            Drawable drawable = getDrawable(R.drawable.ic_notif_monochrome);
+            if (drawable == null) {
+                throw new IllegalStateException("Notification icon drawable is missing");
+            }
+
+            int width = drawable.getIntrinsicWidth() > 0 ? drawable.getIntrinsicWidth() : 96;
+            int height = drawable.getIntrinsicHeight() > 0 ? drawable.getIntrinsicHeight() : 96;
+            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            drawable.setBounds(0, 0, width, height);
+            drawable.draw(canvas);
+            mNotificationIcon = IconCompat.createWithBitmap(bitmap);
+        }
+        return mNotificationIcon;
     }
 
     private Intent createSettingsIntent() {
