@@ -1,3 +1,223 @@
+@font-face {
+  font-family: 'Google Sans Flex';
+  src: url('../assets/fonts/google_sans_flex.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 1000;
+  font-display: swap;
+}
+
+.bnmv-root {
+  font-synthesis: none;
+  font-optical-sizing: auto;
+  font-variation-settings: 'opsz' 18, 'wdth' 100, 'wght' 400, 'GRAD' 0, 'ROND' 20;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.bnmv-root h1 {
+  font-variation-settings:
+    'opsz' 144,
+    'wdth' var(--hero-wdth, 124),
+    'wght' var(--hero-wght, 760),
+    'GRAD' var(--hero-grad, 35),
+    'ROND' var(--hero-rond, 72);
+  transition: font-variation-settings 80ms linear;
+}
+
+.bnmv-root h2 {
+  font-variation-settings: 'opsz' 72, 'wdth' 108, 'wght' 640, 'GRAD' 18, 'ROND' 38;
+}
+
+.bnmv-root h3 {
+  font-variation-settings: 'opsz' 32, 'wdth' 104, 'wght' 620, 'GRAD' 12, 'ROND' 62;
+}
+
+.bnmv-root p {
+  font-variation-settings: 'opsz' 18, 'wdth' 100, 'wght' 400, 'GRAD' 8, 'ROND' 28;
+}
+
+.bnmv-root .bn-nav,
+.bnmv-root .bn-btn,
+.bnmv-root .bn-pad,
+.bnmv-root .bn-hap {
+  font-variation-settings: 'opsz' 18, 'wdth' 96, 'wght' 650, 'GRAD' 24, 'ROND' 82;
+}
+
+#compare h2 {
+  font-variation-settings: 'opsz' 72, 'wdth' 88, 'wght' 720, 'GRAD' 0, 'ROND' 0;
+}
+
+.bn-expandable-card {
+  overflow: hidden;
+  border: 1px solid #2A2827;
+  border-radius: 24px;
+  background: #080808;
+}
+
+.bn-expandable-trigger {
+  display: flex;
+  width: 100%;
+  min-height: 88px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px 20px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color .2s ease;
+}
+
+.bn-expandable-trigger:hover,
+.bn-expandable-trigger[aria-expanded='true'] {
+  background: #141312;
+}
+
+.bn-expand-indicator {
+  display: inline-flex;
+  width: 66px;
+  height: 32px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: #FFFFFF;
+  color: #000000;
+  transition: width .45s cubic-bezier(.2,.8,.2,1), height .45s cubic-bezier(.2,.8,.2,1), border-radius .45s cubic-bezier(.2,.8,.2,1);
+}
+
+.bn-expand-indicator svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  transition: transform .35s ease;
+}
+
+.bn-expandable-trigger[aria-expanded='true'] .bn-expand-indicator {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+}
+
+.bn-expandable-trigger[aria-expanded='true'] .bn-expand-indicator svg {
+  transform: rotate(180deg);
+}
+
+.bn-accordion {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows .55s cubic-bezier(.2,.8,.2,1), visibility 0s linear .55s;
+}
+
+.bn-accordion[data-expanded='true'] {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition: grid-template-rows .55s cubic-bezier(.2,.8,.2,1), visibility 0s;
+}
+
+.bn-accordion-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+#compare .bn-compare-content {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(24px, 3vw, 36px);
+  padding: 4px clamp(20px, 3vw, 36px) 32px;
+}
+
+#compare [role='table'] {
+  font-variation-settings: 'opsz' 18, 'wdth' 94, 'wght' 440, 'GRAD' 8, 'ROND' 22;
+}
+
+.bn-expandable-card .bn-accordion-content {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(28px, 4vw, 48px);
+  padding: 4px clamp(20px, 3vw, 36px) clamp(24px, 4vw, 48px);
+}
+
+#install .bn-expandable-card {
+  background: #FFFFFF;
+  color: #000000;
+  border-color: #D9D6D3;
+}
+
+#install .bn-expandable-trigger:hover,
+#install .bn-expandable-trigger[aria-expanded='true'] {
+  background: #F2F0EE;
+}
+
+#install .bn-expand-indicator {
+  background: #000000;
+  color: #FFFFFF;
+}
+
+#listen h2 {
+  font-variation-settings: 'opsz' 72, 'wdth' 116, 'wght' 680, 'GRAD' 32, 'ROND' 100;
+}
+
+#listen h3 {
+  font-variation-settings: 'opsz' 32, 'wdth' 112, 'wght' 620, 'GRAD' 20, 'ROND' 92;
+}
+
+#listen .bn-pad {
+  font-variation-settings: 'opsz' 18, 'wdth' 108, 'wght' 760, 'GRAD' 30, 'ROND' 100;
+}
+
+#modes h2 {
+  font-variation-settings: 'opsz' 72, 'wdth' 112, 'wght' 620, 'GRAD' 20, 'ROND' 58;
+}
+
+#modes h3 {
+  font-variation-settings: 'opsz' 28, 'wdth' 102, 'wght' 720, 'GRAD' 22, 'ROND' 72;
+}
+
+#phones h2 {
+  font-variation-settings: 'opsz' 72, 'wdth' 124, 'wght' 700, 'GRAD' 28, 'ROND' 96;
+}
+
+#phones .bn-chips li {
+  font-variation-settings: 'opsz' 18, 'wdth' 112, 'wght' 660, 'GRAD' 20, 'ROND' 100;
+}
+
+#install h2 {
+  font-variation-settings: 'opsz' 72, 'wdth' 84, 'wght' 760, 'GRAD' 5, 'ROND' 12;
+}
+
+#releases h2 {
+  font-variation-settings: 'opsz' 72, 'wdth' 106, 'wght' 640, 'GRAD' 16, 'ROND' 42;
+}
+
+#releases [role='row'] > span:first-child {
+  font-variation-settings: 'opsz' 24, 'wdth' 112, 'wght' 760, 'GRAD' 26, 'ROND' 68;
+}
+
+#privacy h2 {
+  font-variation-settings: 'opsz' 72, 'wdth' 118, 'wght' 420, 'GRAD' 8, 'ROND' 100;
+}
+
+#privacy p {
+  font-variation-settings: 'opsz' 18, 'wdth' 104, 'wght' 430, 'GRAD' 10, 'ROND' 48;
+}
+
+.bnmv-root footer {
+  font-variation-settings: 'opsz' 18, 'wdth' 102, 'wght' 420, 'GRAD' 8, 'ROND' 34;
+}
+
+.bnmv-root footer [style*='letter-spacing: 0.04em'] {
+  font-variation-settings: 'opsz' 32, 'wdth' 118, 'wght' 760, 'GRAD' 24, 'ROND' 76;
+}
+
 /* Layout idea: true black ground, the white logo disc as the only light source, left-aligned copy, one white panel for the download. */
 html{background:#100000}
 body{margin:0;background:#ff0000;overflow-x:hidden}
@@ -36,7 +256,6 @@ a{color:#FFFFFF}a:hover{color:#B5B1AE}
 .bnmv-root .bn-hap{background:transparent;color:#FFFFFF}
 .bnmv-root .bn-hap[aria-pressed="true"]{background:#FFFFFF;color:#000000}
 .bnmv-root .bn-outline{color:transparent;-webkit-text-stroke:1px #B5B1AE}
-@keyframes bn-marq{to{transform:translateX(-50%)}}
 .bnmv-root footer .bn-quiet{color:#000000}
 .bnmv-root footer .bn-quiet:hover{color:#4A4745}
 @keyframes bn-rise{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
@@ -46,6 +265,11 @@ a{color:#FFFFFF}a:hover{color:#B5B1AE}
 @keyframes bn-shine{from{background-position:180% 0}to{background-position:-80% 0}}
 @keyframes bn-eq{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.5)}}
 @keyframes bn-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
+@keyframes bn-idle-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+@keyframes bn-idle-glow{0%,100%{opacity:.42}50%{opacity:.72}}
+@keyframes bn-idle-bars{0%,100%{transform:scaleY(.82)}50%{transform:scaleY(1.08)}}
+@keyframes bn-idle-type{0%,100%{font-variation-settings:'opsz' 144,'wdth' 116,'wght' 690,'GRAD' 10,'ROND' 38}50%{font-variation-settings:'opsz' 144,'wdth' 132,'wght' 820,'GRAD' 35,'ROND' 82}}
+@keyframes bn-grid-drift{to{background-position:26px 26px}}
 @media (prefers-reduced-motion: no-preference){
 .bnmv-root .bn-in{animation:bn-rise .9s cubic-bezier(.2,.7,.2,1) both}
 .bnmv-root .bn-d1{animation-delay:.14s}
@@ -64,8 +288,16 @@ a{color:#FFFFFF}a:hover{color:#B5B1AE}
 .bnmv-root .bn-eq rect:nth-of-type(5){animation-duration:1.3s;animation-delay:-.8s}
 .bnmv-root .bn-eq rect:nth-of-type(6){animation-duration:.8s;animation-delay:-.5s}
 .bnmv-root .bn-dot{animation:bn-pulse 1.2s ease-in-out infinite}
-.bnmv-root .bn-marq{animation:bn-marq 38s linear infinite}
 .bnmv-root .bn-rays{animation:bn-spin 140s linear infinite}
+.bnmv-root:not(.bn-js) .bn-disc{animation:bn-idle-breathe 5s ease-in-out infinite}
+.bnmv-root:not(.bn-js) .bn-bloom{animation:bn-idle-glow 4.5s ease-in-out infinite}
+.bnmv-root:not(.bn-js) .bn-bar{transform-box:fill-box;transform-origin:center;animation:bn-idle-bars 1.7s ease-in-out infinite}
+.bnmv-root:not(.bn-js) .bn-bar:nth-of-type(2){animation-delay:-.4s;animation-duration:1.9s}
+.bnmv-root:not(.bn-js) .bn-bar:nth-of-type(3){animation-delay:-1s;animation-duration:1.5s}
+.bnmv-root:not(.bn-js) .bn-bar:nth-of-type(4){animation-delay:-.7s;animation-duration:2.1s}
+.bnmv-root:not(.bn-js) .bn-bar:nth-of-type(5){animation-delay:-1.3s;animation-duration:1.8s}
+.bnmv-root:not(.bn-js) h1{animation:bn-idle-type 7s ease-in-out infinite}
+.bnmv-root:not(.bn-js) .bn-grid{animation:bn-grid-drift 24s linear infinite}
 .bnmv-root .bn-chips li{animation:bn-chase 6s linear infinite}
 .bnmv-root .bn-chips li:nth-child(2){animation-delay:.3s}
 .bnmv-root .bn-chips li:nth-child(3){animation-delay:.6s}
@@ -82,4 +314,4 @@ a{color:#FFFFFF}a:hover{color:#B5B1AE}
 .bnmv-root .bn-flip{animation:bn-flip linear both;animation-timeline:view();animation-range:cover 18% cover 52%}
 }
 }
-@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}.bnmv-root .bn-btn,.bnmv-root .bn-glow,.bnmv-root .bn-row{transition:none}}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}.bnmv-root h1,.bnmv-root .bn-btn,.bnmv-root .bn-glow,.bnmv-root .bn-row,.bn-expandable-trigger,.bn-expand-indicator,.bn-expand-indicator svg,.bn-accordion{transition:none}}

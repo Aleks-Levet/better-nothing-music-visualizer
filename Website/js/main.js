@@ -1,7 +1,18 @@
 class Component {
   constructor() {
     this.props = { accent: '#FA2828', idleMotion: true };
-    this.state = { playing: false, audioBlocked: false, haptics: false };
+    this.state = {
+      playing: false,
+      audioBlocked: false,
+      haptics: false,
+      compareExpanded: false,
+      listenExpanded: false,
+      modesExpanded: false,
+      phonesExpanded: false,
+      installExpanded: false,
+      releasesExpanded: false,
+      privacyExpanded: false
+    };
   }
 
   setState(next) {
@@ -13,6 +24,8 @@ class Component {
     const v = this.renderVals();
     document.querySelectorAll('[data-when]').forEach((el) => { el.hidden = !v[el.getAttribute('data-when')]; });
     document.querySelectorAll('[data-pressed]').forEach((el) => { el.setAttribute('aria-pressed', v[el.getAttribute('data-pressed')] ? 'true' : 'false'); });
+    document.querySelectorAll('[data-expanded-state]').forEach((el) => { el.setAttribute('aria-expanded', v[el.getAttribute('data-expanded-state')] ? 'true' : 'false'); });
+    document.querySelectorAll('[data-expand-panel]').forEach((el) => { el.setAttribute('data-expanded', v[el.getAttribute('data-expand-panel')] ? 'true' : 'false'); });
   }
 
   renderVals() {
@@ -21,6 +34,13 @@ class Component {
       this.setRoot = (el) => { if (el) { this.rootEl = el; } };
       this.toggle = () => { this.togglePlay(); };
       this.toggleHap = () => { this.toggleHaptics(); };
+      this.toggleCompare = () => { this.setState({ compareExpanded: !this.state.compareExpanded }); };
+      this.toggleListen = () => { this.setState({ listenExpanded: !this.state.listenExpanded }); };
+      this.toggleModes = () => { this.setState({ modesExpanded: !this.state.modesExpanded }); };
+      this.togglePhones = () => { this.setState({ phonesExpanded: !this.state.phonesExpanded }); };
+      this.toggleInstall = () => { this.setState({ installExpanded: !this.state.installExpanded }); };
+      this.toggleReleases = () => { this.setState({ releasesExpanded: !this.state.releasesExpanded }); };
+      this.togglePrivacy = () => { this.setState({ privacyExpanded: !this.state.privacyExpanded }); };
       this.padKick = () => { this.hit('kick'); };
       this.padBass = () => { this.hit('bass'); };
       this.padSnare = () => { this.hit('snare'); };
@@ -38,6 +58,13 @@ class Component {
       setRoot: this.setRoot,
       toggle: this.toggle,
       toggleHap: this.toggleHap,
+      toggleCompare: this.toggleCompare,
+      toggleListen: this.toggleListen,
+      toggleModes: this.toggleModes,
+      togglePhones: this.togglePhones,
+      toggleInstall: this.toggleInstall,
+      toggleReleases: this.toggleReleases,
+      togglePrivacy: this.togglePrivacy,
       padKick: this.padKick,
       padBass: this.padBass,
       padSnare: this.padSnare,
@@ -45,6 +72,13 @@ class Component {
       padHat: this.padHat,
       hapticsOk: this.hapticsOk,
       hapticsOn: !!st.haptics,
+      compareExpanded: !!st.compareExpanded,
+      listenExpanded: !!st.listenExpanded,
+      modesExpanded: !!st.modesExpanded,
+      phonesExpanded: !!st.phonesExpanded,
+      installExpanded: !!st.installExpanded,
+      releasesExpanded: !!st.releasesExpanded,
+      privacyExpanded: !!st.privacyExpanded,
       playing: playing,
       paused: !playing,
       audioBlocked: !!st.audioBlocked
@@ -67,11 +101,10 @@ class Component {
     this.manual = new Float32Array(36);
     this.reduced = false;
     try { this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
-    const tick = (now) => {
-      this.raf = requestAnimationFrame(tick);
-      try { this.step(now); } catch (e) {}
-    };
-    this.raf = requestAnimationFrame(tick);
+    if (this.collect()) {
+      this.rest();
+      this.atRest = true;
+    }
   }
 
   componentWillUnmount() {
@@ -93,7 +126,7 @@ class Component {
     const qa = (s) => Array.prototype.slice.call(r.querySelectorAll(s));
     const els = {
       segs: qa('.bn-seg'), bars: qa('.bn-bar'), live: qa('.bn-live'), stock: qa('.bn-stock'),
-      disc: q('.bn-disc'), bloom: q('.bn-bloom'), hero: q('.bn-hero'), ab: q('.bn-ab'),
+      disc: q('.bn-disc'), bloom: q('.bn-bloom'), hero: q('.bn-hero'), heroTitle: q('h1'), ab: q('.bn-ab'),
       rings: qa('.bn-ring'), tilt: q('.bn-tilt'), field: q('.bn-field'), halo: q('.bn-halo'),
       wave: q('.bn-wave'), spec: q('.bn-spec'), modes: q('.bn-modes'), dawn: q('.bn-dawn-glow'),
       rays: q('.bn-rays'), gl: qa('.bn-gl'), flip: q('.bn-flip'), prog: q('.bn-prog')
@@ -109,8 +142,15 @@ class Component {
       gl: els.gl.map((e) => e.style.opacity)
     };
     this.els = els;
+    this.stockOrder = els.stock.map((_, i) => i);
+    for (let i = this.stockOrder.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.stockOrder[i], this.stockOrder[j]] = [this.stockOrder[j], this.stockOrder[i]];
+    }
+    this.stockLevels = new Array(els.stock.length).fill(0);
+    this.stockHoldUntil = new Array(els.stock.length).fill(0);
+    this.stockDecayAt = new Array(els.stock.length).fill(0);
     this.atRest = false;
-    try { r.classList.add('bn-js'); } catch (e) {}
     if (!this._ptr) {
       this._ptr = (ev) => {
         this.ptr = { x: ev.clientX, y: ev.clientY, mouse: ev.pointerType === 'mouse', at: performance.now() };
@@ -355,7 +395,7 @@ class Component {
         c.fillRect(x, base - Math.max(2, raw[z] * span) - 3, bw, 2);
       }
       c.fillStyle = '#827E7B';
-      c.font = '500 11px Figtree, system-ui, sans-serif';
+      c.font = "500 11px 'Google Sans Flex', system-ui, sans-serif";
       c.textBaseline = 'alphabetic';
       c.textAlign = 'left';
       c.fillText('30 Hz', 0, sp.h - 6);
@@ -389,22 +429,14 @@ class Component {
     } else {
       this.wait = 0;
     }
-    const idle = (this.props.idleMotion ?? true) && !this.reduced;
-    const tapped = now - (this.lastHit || -1e9) < 2500;
-    if (!st.playing && !idle && !tapped) {
-      if (!this.atRest) { this.rest(); this.atRest = true; }
-      return;
-    }
+    if (!st.playing) { return; }
     this.atRest = false;
 
     const raw = this.raw;
     if (live) {
       this.readAnalyser(raw);
-    } else if (st.playing || idle) {
-      this.synth(raw, (now - this.t0) / 1000);
     } else {
-      for (let z = 0; z < 36; z++) { raw[z] = 0; }
-      this.env = { kick: 0, bass: 0, snare: 0, hat: 0, arp: 0 };
+      this.synth(raw, (now - this.t0) / 1000);
     }
     /* Pad hits: added on top of whatever is playing, then left to fade. */
     const man = this.manual;
@@ -445,6 +477,15 @@ class Component {
     const kickLv = (lv[0] + lv[1] + lv[2] + lv[3]) / 4;
     const snLv = Math.max(lv[12], lv[13], lv[14]);
     const hatLv = Math.max(lv[26], lv[30], lv[33]);
+    const heroBeat = Math.max(kickLv, snLv * 0.72, hatLv * 0.28);
+    this.heroPulse = (this.heroPulse || 0) + (heroBeat - (this.heroPulse || 0)) * (heroBeat > (this.heroPulse || 0) ? 0.34 : 0.12);
+    if (E.heroTitle) {
+      const pulse = this.reduced ? 0 : this.heroPulse;
+      E.heroTitle.style.setProperty('--hero-wdth', (116 + pulse * 18).toFixed(1));
+      E.heroTitle.style.setProperty('--hero-wght', (690 + pulse * 260).toFixed(1));
+      E.heroTitle.style.setProperty('--hero-grad', (10 + pulse * 50).toFixed(1));
+      E.heroTitle.style.setProperty('--hero-rond', (38 + pulse * 62).toFixed(1));
+    }
     const kickRaw = Math.max(raw[0], raw[1], raw[2], raw[3]);
     const snRaw = Math.max(raw[12], raw[13], raw[14]);
     if (kickRaw - (this.prevKick || 0) > 0.28 && now - (this.lastRip || 0) > 110) {
@@ -552,13 +593,27 @@ class Component {
         this.abv[i] = v;
         E.live[i].style.opacity = (0.08 + 0.92 * v).toFixed(3);
       }
-      /* The stock row: the same values, quantised to off plus three levels and refreshed at 20 fps. */
+      /* Slight noise keeps the stock-style quantized preview from looking perfectly regular. */
       if (now - this.lastStock >= 50) {
         this.lastStock = now;
         const nStock = Math.min(12, E.stock.length);
         for (let i = 0; i < nStock; i++) {
-          const qv = Math.round(this.abv[i] * 3) / 3;
-          E.stock[i].style.opacity = (0.08 + 0.92 * qv).toFixed(3);
+          const noisy = Math.max(0, Math.min(1, this.abv[i] + (Math.random() - 0.5) * 0.42));
+          const targetLevel = Math.round(noisy * 3);
+          const glyph = this.stockOrder[i];
+          let level = this.stockLevels[glyph];
+          if (targetLevel >= level) {
+            level = targetLevel;
+            this.stockDecayAt[glyph] = now;
+            if (level === 3) { this.stockHoldUntil[glyph] = now + 150; }
+          } else if (level === 3 && now < this.stockHoldUntil[glyph]) {
+            this.stockDecayAt[glyph] = now;
+          } else if (now - this.stockDecayAt[glyph] >= 100) {
+            level--;
+            this.stockDecayAt[glyph] = now;
+          }
+          this.stockLevels[glyph] = level;
+          E.stock[glyph].style.opacity = (0.08 + 0.92 * level / 3).toFixed(3);
         }
       }
     }
@@ -579,6 +634,7 @@ class Component {
     if (st.playing) {
       this.stopAudio();
       this.setState({ playing: false });
+      this.stopRenderer();
       return;
     }
     let ok = true;
@@ -591,14 +647,38 @@ class Component {
       ok = false;
     }
     this.setState({ playing: true, audioBlocked: !ok });
+    this.startRenderer();
+  }
+
+  startRenderer() {
+    if (this.raf) { return; }
+    if (this.rootEl) { this.rootEl.classList.add('bn-js'); }
+    const tick = (now) => {
+      this.raf = requestAnimationFrame(tick);
+      try { this.step(now); } catch (e) {}
+    };
+    this.raf = requestAnimationFrame(tick);
+  }
+
+  stopRenderer() {
+    if (this.raf) {
+      cancelAnimationFrame(this.raf);
+      this.raf = null;
+    }
+    if (this.rootEl) { this.rootEl.classList.remove('bn-js'); }
+    if (this.els) { this.rest(); }
+    if (this.els && this.els.heroTitle) {
+      ['--hero-wdth', '--hero-wght', '--hero-grad', '--hero-rond'].forEach((property) => {
+        this.els.heroTitle.style.removeProperty(property);
+      });
+    }
+    this.heroPulse = 0;
   }
 
   toggleHaptics() {
-    const st = this.state || {};
-    const on = !st.haptics;
+    const on = !this.state.haptics;
     this.setState({ haptics: on });
     try { navigator.vibrate(on ? 30 : 0); } catch (e) {}
-    if (on && !st.playing) { this.togglePlay(); }
   }
 
   /* A pad: light its zones straight away and play the matching sound. */
