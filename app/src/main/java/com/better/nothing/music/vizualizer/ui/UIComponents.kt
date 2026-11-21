@@ -142,6 +142,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
@@ -178,6 +179,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
+import kotlin.math.sqrt
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
@@ -1197,6 +1199,7 @@ fun StartStopButton(
     running: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onStart: () -> Unit = {},
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed         by interactionSource.collectIsPressedAsState()
@@ -1245,6 +1248,7 @@ fun StartStopButton(
         FloatingActionButton(
             onClick = {
                 view.performHapticFeedback(HapticFeedbackConstants.GESTURE_THRESHOLD_ACTIVATE)
+                if (!running) onStart()
                 onClick()
             },
             interactionSource = interactionSource,
@@ -1294,6 +1298,51 @@ fun StartStopButton(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun VisualizerStartEffect(
+    animationKey: Int,
+    fabCenter: Offset?,
+    overlayOrigin: Offset,
+    modifier: Modifier = Modifier,
+) {
+    val progress = remember { Animatable(0f) }
+    val color = MaterialTheme.colorScheme.primary
+
+    LaunchedEffect(animationKey) {
+        if (animationKey == 0 || fabCenter == null) return@LaunchedEffect
+        progress.snapTo(0f)
+        progress.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 900, easing = EaseOutCubic),
+        )
+    }
+
+    Canvas(modifier = modifier.fillMaxSize().blur(24.dp)) {
+        val animationProgress = progress.value
+        val centerInRoot = fabCenter ?: return@Canvas
+        if (animationProgress <= 0f || animationProgress >= 1f) return@Canvas
+
+        val center = centerInRoot - overlayOrigin
+        val farthestX = maxOf(center.x, size.width - center.x)
+        val farthestY = maxOf(center.y, size.height - center.y)
+        val radius = sqrt(farthestX * farthestX + farthestY * farthestY) * animationProgress
+        val opacity = 1f - animationProgress
+
+        drawRect(
+            brush = Brush.radialGradient(
+                colors = listOf(
+                    color.copy(alpha = 0.22f * opacity),
+                    color.copy(alpha = 0.12f * opacity),
+                    Color.Transparent,
+                ),
+                center = center,
+                radius = radius.coerceAtLeast(1f),
+            ),
+            size = size,
+        )
     }
 }
 

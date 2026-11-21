@@ -65,16 +65,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
@@ -961,7 +965,15 @@ internal fun BetterVizApp(
     val appUpdateStatus by viewModel.appUpdateStatus.collectAsStateWithLifecycle()
     val uriHandler = LocalUriHandler.current
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    var launchAnimationKey by remember { mutableIntStateOf(0) }
+    var fabCenter by remember { mutableStateOf<Offset?>(null) }
+    var overlayOrigin by remember { mutableStateOf(Offset.Zero) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .onGloballyPositioned { overlayOrigin = it.positionInRoot() }
+    ) {
         Scaffold(
             bottomBar = {
                 Column(modifier = Modifier.fillMaxWidth()) {
@@ -1008,7 +1020,14 @@ internal fun BetterVizApp(
                 }
             },
             floatingActionButton = {
-                StartStopButton(running = isRunning, onClick = onToggleVisualizer)
+                StartStopButton(
+                    running = isRunning,
+                    onClick = onToggleVisualizer,
+                    modifier = Modifier.onGloballyPositioned {
+                        fabCenter = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
+                    },
+                    onStart = { launchAnimationKey++ },
+                )
             },
             containerColor = MaterialTheme.colorScheme.background,
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -1160,6 +1179,11 @@ internal fun BetterVizApp(
                 }
             }
             }
+        )
+        VisualizerStartEffect(
+            animationKey = launchAnimationKey,
+            fabCenter = fabCenter,
+            overlayOrigin = overlayOrigin,
         )
         MainOverlays(
             viewModel = viewModel,
