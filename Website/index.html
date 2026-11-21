@@ -487,10 +487,22 @@
 </li>
 </ol>
 </div>
+</div>
+</div>
+</div>
 </section>
 
 <section id="releases" style="max-width: 1240px; margin: 0 auto; padding: clamp(56px, 8vw, 112px) clamp(20px, 5vw, 48px); box-sizing: border-box; display: flex; flex-direction: column; gap: clamp(28px, 4vw, 44px)">
-<h2 class="bn-rv" style="margin: 0; max-width: 17em; font-family: 'Google Sans Flex', system-ui, sans-serif; font-weight: 500; font-size: clamp(28px, 4.2vw, 54px); line-height: 1.1; letter-spacing: -0.03em; text-wrap: balance">What changed lately.</h2>
+<div class="bn-expandable-card">
+<h2 class="bn-rv" style="margin: 0; font-family: 'Google Sans Flex', system-ui, sans-serif; font-weight: 500; font-size: clamp(28px, 4.2vw, 54px); line-height: 1.1; letter-spacing: -0.03em; text-wrap: balance">
+<button class="bn-expandable-trigger" type="button" data-act="toggleReleases" data-expanded-state="releasesExpanded" aria-expanded="false" aria-controls="releases-content">
+<span>What changed lately.</span>
+<span class="bn-expand-indicator" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></span>
+</button>
+</h2>
+<div id="releases-content" class="bn-accordion" data-expand-panel="releasesExpanded" data-expanded="false">
+<div class="bn-accordion-inner">
+<div class="bn-accordion-content">
 <div style="display: flex; flex-direction: column">
 <div class="bn-row" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 32px; padding: 22px 0; border-top: 1px solid #2A2827">
 <div style="flex: 0 0 250px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px">
