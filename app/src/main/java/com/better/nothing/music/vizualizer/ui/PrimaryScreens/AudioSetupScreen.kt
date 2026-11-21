@@ -216,7 +216,7 @@ fun AudioScreen(
             .padding(padding)
             .padding(horizontal = LocalAppSpacing.current.edge)
             .verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
 
@@ -232,16 +232,6 @@ fun AudioScreen(
                 isTitleToggled = !isTitleToggled
             }
         )
-
-        val headerSpacerHeight by animateDpAsState(
-            targetValue = if (isRunning) 1.dp else 32.dp,
-            animationSpec = tween(durationMillis = 600, easing = EaseOutCubic),
-            label = "headerSpacerHeight"
-        )
-
-        if (headerSpacerHeight > 0.dp) {
-            Spacer(Modifier.height(headerSpacerHeight))
-        }
 
         CaptureSourceCard(
             selectedSource = captureSource,
@@ -276,22 +266,11 @@ fun AudioScreen(
             networkDeviceName = if (captureSource == AudioCaptureService.CaptureSource.NETWORK) connectedDeviceName else null
         )
 
-        val header2SpacerHeight by animateDpAsState(
-            targetValue = if (isRunning) 1.dp else 32.dp,
-            animationSpec = tween(durationMillis = 600, easing = EaseOutCubic),
-            label = "headerSpacerHeight"
-        )
-
-        if (header2SpacerHeight > 0.dp) {
-            Spacer(Modifier.height(header2SpacerHeight))
-        }
-
         AnimatedVisibility(visible = isRunning) {
             FFTSpectrumCard(
                 fftRaw = fftRaw
             )
         }
-        Spacer(Modifier.height(1.dp))
 
         OutputSelectionCard(
             glyphsEnabled = glyphsEnabled,
@@ -312,7 +291,6 @@ fun AudioScreen(
             connectedClients = connectedClients,
             isRunning = isRunning,
         )
-        Spacer(modifier = Modifier.height(8.dp))
 
         if (isGlyphAvailable) {
             BroadcastCard(
@@ -323,23 +301,18 @@ fun AudioScreen(
             )
         }
 
-        AnimatedVisibility(visible = isRunning) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-
-                if (captureSource != AudioCaptureService.CaptureSource.MIC) {
-                    LatencyCard(
-                        latencyMs = latencyMs,
-                        onLatencyChanged = onLatencyChanged,
-                        latencyPresets = latencyPresets,
-                        onLatencyPresetsChanged = onLatencyPresetsChanged,
-                        autoDeviceEnabled = autoDeviceEnabled,
-                        onAutoDeviceToggle = handleAutoToggle,
-                        connectedDeviceName = connectedDeviceName
-                    )
-                }
-            }
+        AnimatedVisibility(visible = isRunning && captureSource != AudioCaptureService.CaptureSource.MIC) {
+            LatencyCard(
+                latencyMs = latencyMs,
+                onLatencyChanged = onLatencyChanged,
+                latencyPresets = latencyPresets,
+                onLatencyPresetsChanged = onLatencyPresetsChanged,
+                autoDeviceEnabled = autoDeviceEnabled,
+                onAutoDeviceToggle = handleAutoToggle,
+                connectedDeviceName = connectedDeviceName
+            )
         }
+
         Spacer(modifier = Modifier.height(86.dp))
     }
 }
