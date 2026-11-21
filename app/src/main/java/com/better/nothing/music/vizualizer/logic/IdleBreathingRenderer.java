@@ -414,9 +414,7 @@ public final class IdleBreathingRenderer {
                 return expNegative(distance * distance * 40f);
             }
             case PATTERN_ZEBRA:
-                return (effectiveIndex & 1) == 0
-                        ? 0.5f + 0.5f * sharedValue
-                        : 0.5f - 0.5f * sharedValue;
+                return 0.5f + 0.5f * sin(TWO_PI * frameTime + effectiveIndex * PI);
             case PATTERN_HEARTBEAT:
                 return sharedValue;
             case PATTERN_ORBIT: {
