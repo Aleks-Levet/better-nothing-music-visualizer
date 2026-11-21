@@ -6,12 +6,6 @@ class Component {
       audioBlocked: false,
       haptics: false,
       compareExpanded: false,
-      listenExpanded: false,
-      modesExpanded: false,
-      phonesExpanded: false,
-      installExpanded: false,
-      releasesExpanded: false,
-      privacyExpanded: false
     };
   }
 
@@ -35,12 +29,6 @@ class Component {
       this.toggle = () => { this.togglePlay(); };
       this.toggleHap = () => { this.toggleHaptics(); };
       this.toggleCompare = () => { this.setState({ compareExpanded: !this.state.compareExpanded }); };
-      this.toggleListen = () => { this.setState({ listenExpanded: !this.state.listenExpanded }); };
-      this.toggleModes = () => { this.setState({ modesExpanded: !this.state.modesExpanded }); };
-      this.togglePhones = () => { this.setState({ phonesExpanded: !this.state.phonesExpanded }); };
-      this.toggleInstall = () => { this.setState({ installExpanded: !this.state.installExpanded }); };
-      this.toggleReleases = () => { this.setState({ releasesExpanded: !this.state.releasesExpanded }); };
-      this.togglePrivacy = () => { this.setState({ privacyExpanded: !this.state.privacyExpanded }); };
       this.padKick = () => { this.hit('kick'); };
       this.padBass = () => { this.hit('bass'); };
       this.padSnare = () => { this.hit('snare'); };
@@ -59,12 +47,6 @@ class Component {
       toggle: this.toggle,
       toggleHap: this.toggleHap,
       toggleCompare: this.toggleCompare,
-      toggleListen: this.toggleListen,
-      toggleModes: this.toggleModes,
-      togglePhones: this.togglePhones,
-      toggleInstall: this.toggleInstall,
-      toggleReleases: this.toggleReleases,
-      togglePrivacy: this.togglePrivacy,
       padKick: this.padKick,
       padBass: this.padBass,
       padSnare: this.padSnare,
@@ -73,12 +55,6 @@ class Component {
       hapticsOk: this.hapticsOk,
       hapticsOn: !!st.haptics,
       compareExpanded: !!st.compareExpanded,
-      listenExpanded: !!st.listenExpanded,
-      modesExpanded: !!st.modesExpanded,
-      phonesExpanded: !!st.phonesExpanded,
-      installExpanded: !!st.installExpanded,
-      releasesExpanded: !!st.releasesExpanded,
-      privacyExpanded: !!st.privacyExpanded,
       playing: playing,
       paused: !playing,
       audioBlocked: !!st.audioBlocked
