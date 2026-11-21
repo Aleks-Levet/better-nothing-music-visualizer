@@ -16,6 +16,7 @@ import android.widget.RemoteViews
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
 import com.better.nothing.music.vizualizer.ui.MainActivity
+import com.better.nothing.music.vizualizer.ui.TrampolineActivity
 
 class VisualizerWidgetM3 : AppWidgetProvider() {
 
@@ -164,20 +165,11 @@ class VisualizerWidgetM3 : AppWidgetProvider() {
             val stopIntent = Intent(context, AudioCaptureService::class.java).apply { action = AudioCaptureService.ACTION_STOP }
             PendingIntent.getService(context, 120, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         } else {
-            if (currentSource == AudioCaptureService.CaptureSource.INTERNAL.name) {
-                val startIntent = Intent(context, MainActivity::class.java).apply {
-                    putExtra("request_start", true)
-                    putExtra(AudioCaptureService.EXTRA_START_SOURCE, "viz_started_widget")
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                }
-                PendingIntent.getActivity(context, 120, startIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-            } else {
-                val startIntent = Intent(context, AudioCaptureService::class.java).apply {
-                    action = AudioCaptureService.ACTION_START
-                    putExtra(AudioCaptureService.EXTRA_START_SOURCE, "viz_started_widget")
-                }
-                PendingIntent.getForegroundService(context, 120, startIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            val startIntent = Intent(context, TrampolineActivity::class.java).apply {
+                putExtra(AudioCaptureService.EXTRA_START_SOURCE, "viz_started_widget")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NO_ANIMATION)
             }
+            PendingIntent.getActivity(context, 120, startIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
         
         views.setOnClickPendingIntent(R.id.btn_start_stop, startStopPI)

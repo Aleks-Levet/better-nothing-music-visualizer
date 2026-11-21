@@ -22,38 +22,22 @@ public class VisualizerTileService extends TileService {
             refresh(false);
         } else {
             refresh(true); // Immediate UI feedback
-            String sourceStr = getSharedPreferences("viz_prefs", MODE_PRIVATE).getString("capture_source", "INTERNAL");
-            boolean needsMic = "MIC".equals(sourceStr) || "VIZUALIZER".equals(sourceStr);
-            boolean hasMicPerm = checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
-            boolean needsTrampoline = "INTERNAL".equals(sourceStr) || (needsMic && (!hasMicPerm || Build.VERSION.SDK_INT >= 34));
-
-            if (needsTrampoline) {
-                unlockAndRun(() -> {
-                    Intent i = new Intent(this, TrampolineActivity.class);
-                    i.putExtra(AudioCaptureService.EXTRA_START_SOURCE, "viz_started_qs_tile");
-                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                    PendingIntent pendingIntent = PendingIntent.getActivity(
-                            this,
-                            3,
-                            i,
-                            PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
-                    );
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                        startActivityAndCollapse(pendingIntent);
-                    } else {
-                        startActivityAndCollapse(i);
-                    }
-                });
-            } else {
-                Intent startIntent = new Intent(this, AudioCaptureService.class);
-                startIntent.setAction(AudioCaptureService.ACTION_START);
-                startIntent.putExtra(AudioCaptureService.EXTRA_START_SOURCE, "viz_started_qs_tile");
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    startForegroundService(startIntent);
+            unlockAndRun(() -> {
+                Intent i = new Intent(this, TrampolineActivity.class);
+                i.putExtra(AudioCaptureService.EXTRA_START_SOURCE, "viz_started_qs_tile");
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                PendingIntent pendingIntent = PendingIntent.getActivity(
+                        this,
+                        3,
+                        i,
+                        PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+                );
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    startActivityAndCollapse(pendingIntent);
                 } else {
-                    startService(startIntent);
+                    startActivityAndCollapse(i);
                 }
-            }
+            });
         }
     }
     private void refresh() { refresh(AudioCaptureService.isRunning()); }
