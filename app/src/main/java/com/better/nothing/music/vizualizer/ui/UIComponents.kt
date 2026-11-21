@@ -100,6 +100,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.foundation.LocalIndication
@@ -2932,25 +2933,45 @@ fun AppUpdateRibbon(
             when (content) {
                 is AppRibbonContent.Welcome -> {
                     Spacer(modifier = Modifier.width(12.dp))
-                    Button(
-                        onClick = {
-                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                            content.onChangelogClick()
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = buttonBg,
-                            contentColor = textColor
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                        modifier = Modifier.height(36.dp)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Text(
-                            text = stringResource(R.string.see_changelog),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = textColor
-                        )
+                        Button(
+                            onClick = {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                content.onChangelogClick()
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = buttonBg,
+                                contentColor = textColor
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.see_changelog),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = textColor
+                            )
+                        }
+
+                        IconButton(
+                            onClick = {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                content.onDismiss()
+                            },
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Close",
+                                tint = textColor,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 }
                 is AppRibbonContent.Update -> {
@@ -2992,7 +3013,8 @@ sealed interface AppRibbonContent {
 
     data class Welcome(
         val versionName: String,
-        val onChangelogClick: () -> Unit
+        val onChangelogClick: () -> Unit,
+        val onDismiss: () -> Unit
     ) : AppRibbonContent
 }
 

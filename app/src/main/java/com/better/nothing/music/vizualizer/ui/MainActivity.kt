@@ -420,6 +420,9 @@ class MainActivity : AppCompatActivity() {
                             showWelcomeRibbon = false
                             startActivity(Intent(Intent.ACTION_VIEW, CHANGELOG_URL.toUri()))
                         },
+                        onWelcomeDismiss = {
+                            showWelcomeRibbon = false
+                        },
                         backProgress = backProgress
                     )
 
@@ -767,6 +770,7 @@ internal fun BetterVizApp(
     onOverlayPermissionRequest: () -> Unit,
     showWelcomeRibbon: Boolean,
     onChangelogClick: () -> Unit,
+    onWelcomeDismiss: () -> Unit,
     backProgress: Float = 0f
 ) {
     val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
@@ -969,7 +973,8 @@ internal fun BetterVizApp(
                         AppUpdateRibbon(
                             content = AppRibbonContent.Welcome(
                                 versionName = BuildConfig.VERSION_NAME,
-                                onChangelogClick = onChangelogClick
+                                onChangelogClick = onChangelogClick,
+                                onDismiss = onWelcomeDismiss
                             )
                         )
                     }
