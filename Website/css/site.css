@@ -1,0 +1,85 @@
+/* Layout idea: true black ground, the white logo disc as the only light source, left-aligned copy, one white panel for the download. */
+html{background:#100000}
+body{margin:0;background:#ff0000;overflow-x:hidden}
+[hidden]{display:none !important}
+.bnmv-root .bn-nav{-webkit-backdrop-filter:blur(16px) saturate(140%);backdrop-filter:blur(16px) saturate(140%)}
+.bnmv-root .bn-navlinks{display:flex;align-items:center;gap:4px}
+@media (max-width:820px){.bnmv-root .bn-navlinks{display:none}}
+.bnmv-root section[id]{scroll-margin-top:76px}
+.bnmv-root .bn-rays{-webkit-mask-image:radial-gradient(circle closest-side,transparent 0,transparent 46%,#000 54%,transparent 100%);mask-image:radial-gradient(circle closest-side,transparent 0,transparent 46%,#000 54%,transparent 100%);filter:blur(1.5px)}
+.bnmv-root .bn-face{backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.bnmv-root .bn-flip{transform:rotateY(180deg)}
+@keyframes bn-flip{0%{transform:rotateY(0deg)}50%{transform:rotateY(90deg) rotateX(7deg) scale(1.05)}100%{transform:rotateY(180deg)}}
+html{scroll-behavior:smooth}
+a{color:#FFFFFF}a:hover{color:#B5B1AE}
+.bnmv-root *{box-sizing:border-box}
+.bnmv-root .bn-quiet{color:#B5B1AE;text-decoration:none}
+.bnmv-root .bn-quiet:hover{color:#FFFFFF}
+.bnmv-root .bn-ink{color:#000000}
+.bnmv-root .bn-ink:hover{color:#4A4745}
+.bnmv-root .bn-btn{transition:opacity .15s ease,transform .15s ease}
+.bnmv-root .bn-btn:hover{opacity:.84}
+.bnmv-root .bn-btn:active{transform:scale(.98)}
+.bnmv-root a:focus-visible,.bnmv-root button:focus-visible{outline:2px solid #FA2828;outline-offset:3px}
+.bnmv-root .bn-glow{transition:opacity .15s ease,transform .15s ease,box-shadow .3s ease}
+.bnmv-root .bn-glow:hover{opacity:1;box-shadow:0 0 44px rgba(255,255,255,.5)}
+.bnmv-root .bn-row{transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+.bnmv-root .bn-row:hover{transform:translateX(10px)}
+.bnmv-root .bn-grid{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle at center,rgba(255,255,255,.16) 0,rgba(255,255,255,.16) 1px,transparent 1.6px);background-size:26px 26px;-webkit-mask-image:radial-gradient(ellipse 80% 75% at 60% 42%,#000 12%,transparent 100%);mask-image:radial-gradient(ellipse 80% 75% at 60% 42%,#000 12%,transparent 100%)}
+.bnmv-root .bn-field{-webkit-mask-image:linear-gradient(to bottom,#000 70%,transparent);mask-image:linear-gradient(to bottom,#000 70%,transparent)}
+.bnmv-root .bn-ik{opacity:calc(.22 + .78 * var(--k,.85))}
+.bnmv-root .bn-is{opacity:calc(.22 + .78 * var(--s,.6))}
+.bnmv-root .bn-ih{opacity:calc(.22 + .78 * var(--h,.7))}
+.bnmv-root .bn-shake{transform:translateX(calc(var(--k,0) * 2.5px))}
+.bnmv-root .bn-pad{background:transparent;color:#FFFFFF;transition:background .3s ease,color .3s ease,transform .12s ease;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.bnmv-root .bn-pad:active{background:#FFFFFF;color:#000000;transform:scale(.95);transition:none}
+.bnmv-root .bn-hap{background:transparent;color:#FFFFFF}
+.bnmv-root .bn-hap[aria-pressed="true"]{background:#FFFFFF;color:#000000}
+.bnmv-root .bn-outline{color:transparent;-webkit-text-stroke:1px #B5B1AE}
+@keyframes bn-marq{to{transform:translateX(-50%)}}
+.bnmv-root footer .bn-quiet{color:#000000}
+.bnmv-root footer .bn-quiet:hover{color:#4A4745}
+@keyframes bn-rise{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+@keyframes bn-pop{from{opacity:0;transform:scale(.55) rotate(-24deg)}to{opacity:1;transform:none}}
+@keyframes bn-spin{to{transform:rotate(360deg)}}
+@keyframes bn-chase{0%,16%,100%{background:transparent;color:#FFFFFF;border-color:#6B6765;box-shadow:0 0 0 rgba(255,255,255,0)}5%{background:#FFFFFF;color:#000000;border-color:#FFFFFF;box-shadow:0 0 28px rgba(255,255,255,.55)}}
+@keyframes bn-shine{from{background-position:180% 0}to{background-position:-80% 0}}
+@keyframes bn-eq{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.5)}}
+@keyframes bn-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
+@media (prefers-reduced-motion: no-preference){
+.bnmv-root .bn-in{animation:bn-rise .9s cubic-bezier(.2,.7,.2,1) both}
+.bnmv-root .bn-d1{animation-delay:.14s}
+.bnmv-root .bn-d2{animation-delay:.28s}
+.bnmv-root .bn-d3{animation-delay:.42s}
+.bnmv-root .bn-stage{animation:bn-pop 1.2s cubic-bezier(.2,.8,.2,1) both}
+.bnmv-root .bn-ring{transform-origin:200px 200px;animation:bn-spin 80s linear infinite}
+.bnmv-root.bn-js .bn-ring{animation:none}
+.bnmv-root .bn-orbit{animation:bn-spin 260s linear infinite}
+.bnmv-root .bn-ring-b{animation-duration:120s;animation-direction:reverse}
+.bnmv-root .bn-ring-c{animation-duration:170s}
+.bnmv-root .bn-eq rect{transform-box:fill-box;transform-origin:center;animation:bn-eq 1.2s ease-in-out infinite}
+.bnmv-root .bn-eq rect:nth-of-type(2){animation-duration:.9s;animation-delay:-.3s}
+.bnmv-root .bn-eq rect:nth-of-type(3){animation-duration:1.4s;animation-delay:-.6s}
+.bnmv-root .bn-eq rect:nth-of-type(4){animation-duration:1s;animation-delay:-.2s}
+.bnmv-root .bn-eq rect:nth-of-type(5){animation-duration:1.3s;animation-delay:-.8s}
+.bnmv-root .bn-eq rect:nth-of-type(6){animation-duration:.8s;animation-delay:-.5s}
+.bnmv-root .bn-dot{animation:bn-pulse 1.2s ease-in-out infinite}
+.bnmv-root .bn-marq{animation:bn-marq 38s linear infinite}
+.bnmv-root .bn-rays{animation:bn-spin 140s linear infinite}
+.bnmv-root .bn-chips li{animation:bn-chase 6s linear infinite}
+.bnmv-root .bn-chips li:nth-child(2){animation-delay:.3s}
+.bnmv-root .bn-chips li:nth-child(3){animation-delay:.6s}
+.bnmv-root .bn-chips li:nth-child(4){animation-delay:.9s}
+.bnmv-root .bn-chips li:nth-child(5){animation-delay:1.2s}
+.bnmv-root .bn-chips li:nth-child(6){animation-delay:1.5s}
+.bnmv-root .bn-chips li:nth-child(7){animation-delay:1.8s}
+.bnmv-root .bn-chips li:nth-child(8){animation-delay:2.1s}
+.bnmv-root .bn-chips li:nth-child(9){animation-delay:2.4s}
+.bnmv-root .bn-chips li:nth-child(10){animation-delay:2.7s}
+.bnmv-root .bn-shine{background:linear-gradient(100deg,#827E7B 0%,#827E7B 38%,#FFFFFF 50%,#827E7B 62%,#827E7B 100%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:bn-shine 5.5s linear infinite}
+@supports (animation-timeline: view()){
+.bnmv-root .bn-rv{animation:bn-rise linear both;animation-timeline:view();animation-range:entry 0% entry 45%}
+.bnmv-root .bn-flip{animation:bn-flip linear both;animation-timeline:view();animation-range:cover 18% cover 52%}
+}
+}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}.bnmv-root .bn-btn,.bnmv-root .bn-glow,.bnmv-root .bn-row{transition:none}}
