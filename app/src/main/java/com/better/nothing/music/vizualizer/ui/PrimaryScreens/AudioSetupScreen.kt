@@ -51,6 +51,7 @@ import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material.icons.filled.FlashlightOn
+import androidx.compose.material.icons.rounded.Tag
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
@@ -690,7 +691,7 @@ fun CaptureSourceCard(
             Triple(
                 primarySource,
                 primaryLabel,
-                if (hasPrivilegedCapture) Icons.Default.Android else Icons.Default.Cast
+                if (hasPrivilegedCapture) Icons.Rounded.Tag else Icons.Default.Cast
             ),
             Triple(
                 AudioCaptureService.CaptureSource.MIC,
