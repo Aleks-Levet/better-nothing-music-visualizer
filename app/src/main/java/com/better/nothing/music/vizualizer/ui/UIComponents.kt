@@ -1316,7 +1316,7 @@ fun VisualizerStartEffect(
         progress.snapTo(0f)
         progress.animateTo(
             targetValue = 1f,
-            animationSpec = tween(durationMillis = 900, easing = EaseOutCubic),
+            animationSpec = tween(durationMillis = 1200, easing = EaseOutCubic),
         )
     }
 
@@ -1331,17 +1331,28 @@ fun VisualizerStartEffect(
         val radius = sqrt(farthestX * farthestX + farthestY * farthestY) * animationProgress
         val opacity = 1f - animationProgress
 
+        drawCircle(
+            color = color.copy(alpha = 0.4f * opacity),
+            radius = radius,
+            center = center,
+        )
         drawRect(
             brush = Brush.radialGradient(
                 colors = listOf(
-                    color.copy(alpha = 0.22f * opacity),
-                    color.copy(alpha = 0.12f * opacity),
+                    color.copy(alpha = 0.58f * opacity),
+                    color.copy(alpha = 0.32f * opacity),
                     Color.Transparent,
                 ),
                 center = center,
                 radius = radius.coerceAtLeast(1f),
             ),
             size = size,
+        )
+        drawCircle(
+            color = color.copy(alpha = 0.55f * opacity),
+            radius = radius,
+            center = center,
+            style = Stroke(width = 48.dp.toPx()),
         )
     }
 }
