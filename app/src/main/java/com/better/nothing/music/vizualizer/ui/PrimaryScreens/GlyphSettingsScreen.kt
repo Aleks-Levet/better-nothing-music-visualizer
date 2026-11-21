@@ -270,14 +270,15 @@ internal fun GlyphsScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     val vizStateState = viewModel.visualizerState.collectAsStateWithLifecycle()
                     val presetStates = remember { mutableStateOf<Map<String, FloatArray>>(emptyMap()) }
-                    LaunchedEffect(showPresetPreviews, isMatrixDevice, developerModeEnabled, presets) {
-                        if (showPresetPreviews && isMatrixDevice && developerModeEnabled) {
+                    LaunchedEffect(showPresetPreviews, isMatrixDevice, developerModeEnabled, presets, isRunning) {
+                        if (showPresetPreviews && isMatrixDevice && developerModeEnabled && isRunning) {
                             while (true) {
                                 val s = AudioCaptureService.sInstance
                                 if (s != null) {
                                     val map = mutableMapOf<String, FloatArray>()
                                     for (preset in presets) {
-                                        map[preset.key] = s.getLightStateForPreset(preset.key)
+                                        val state = s.getLightStateForPreset(preset.key)
+                                        map[preset.key] = state.copyOf()
                                     }
                                     presetStates.value = map
                                 }
@@ -297,11 +298,11 @@ internal fun GlyphsScreen(
                         showPreview = showPresetPreviews && isMatrixDevice && developerModeEnabled && isRunning,
                         previewContent = if (isMatrixDevice && developerModeEnabled) {
                             { preset ->
-                                val currentVizState = presetStates.value[preset.key] ?: vizStateState.value
                                 GlyphPreview(
-                                    vizStateProvider = { currentVizState },
+                                    vizStateProvider = { presetStates.value[preset.key] ?: vizStateState.value },
                                     device = selectedDevice,
                                     enableClick = false,
+                                    force60Fps = true,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(85.dp)
@@ -395,6 +396,7 @@ internal fun GlyphsScreen(
                 GlyphPreview(
                     vizStateProvider = { vizStateState.value },
                     device = selectedDevice,
+                    force60Fps = true,
                     modifier = Modifier
                         .width(60.dp)
                         .height(300.dp)
@@ -413,6 +415,7 @@ internal fun GlyphsScreen(
             GlyphPreview(
                 vizStateProvider = { vizStateState.value },
                 device = selectedDevice,
+                force60Fps = true,
                 modifier = Modifier
                     .width(380.dp)
                     .height(previewHeight)

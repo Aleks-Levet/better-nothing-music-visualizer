@@ -13,10 +13,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,7 +47,8 @@ fun GlyphPreview(
     vizStateProvider: () -> FloatArray,
     device: Int,
     modifier: Modifier = Modifier,
-    enableClick: Boolean = true
+    enableClick: Boolean = true,
+    force60Fps: Boolean = false
 ) {
     var isFullScreen by remember { mutableStateOf(false) }
 
@@ -53,7 +56,8 @@ fun GlyphPreview(
         GlyphPreviewContent(
             vizStateProvider = vizStateProvider,
             device = device,
-            modifier = if (enableClick) m.clickable { isFullScreen = !isFullScreen } else m
+            modifier = if (enableClick) m.clickable { isFullScreen = !isFullScreen } else m,
+            force60Fps = force60Fps
         )
     }
 
@@ -75,7 +79,8 @@ fun GlyphPreview(
                 GlyphPreviewContent(
                     vizStateProvider = vizStateProvider,
                     device = device,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    force60Fps = force60Fps
                 )
             }
         }
@@ -88,8 +93,18 @@ fun GlyphPreview(
 fun GlyphPreviewContent(
     vizStateProvider: () -> FloatArray,
     device: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    force60Fps: Boolean = false
 ) {
+    var frameTick by remember { mutableStateOf(0L) }
+    if (force60Fps) {
+        LaunchedEffect(Unit) {
+            while (true) {
+                withFrameNanos { frameTick++ }
+            }
+        }
+    }
+
     val color = Color.White
     val baseOpacity = 0.08f
 
@@ -271,6 +286,9 @@ fun GlyphPreviewContent(
         contentAlignment = Alignment.Center
     ) {
         Canvas(modifier = Modifier.fillMaxSize().padding(0.dp)) {
+            if (force60Fps) {
+                frameTick
+            }
             val vizState = vizStateProvider()
             val viewBoxW = when (device) {
                 DeviceProfile.DEVICE_NP3,
