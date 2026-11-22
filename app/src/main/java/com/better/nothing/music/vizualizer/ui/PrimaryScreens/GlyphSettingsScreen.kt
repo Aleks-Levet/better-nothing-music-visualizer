@@ -247,7 +247,7 @@ internal fun GlyphsScreen(
                         R.string.visualizer_presets
                     ),
                     trailingContent = {
-                        if (isMatrixDevice && developerModeEnabled) {
+                        if (isMatrixDevice) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -270,8 +270,8 @@ internal fun GlyphsScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     val vizStateState = viewModel.visualizerState.collectAsStateWithLifecycle()
                     val presetStates = remember { mutableStateOf<Map<String, FloatArray>>(emptyMap()) }
-                    LaunchedEffect(showPresetPreviews, isMatrixDevice, developerModeEnabled, presets, isRunning) {
-                        if (showPresetPreviews && isMatrixDevice && developerModeEnabled && isRunning) {
+                    LaunchedEffect(showPresetPreviews, isMatrixDevice, presets, isRunning) {
+                        if (showPresetPreviews && isMatrixDevice && isRunning) {
                             while (true) {
                                 val s = AudioCaptureService.sInstance
                                 if (s != null) {
@@ -295,8 +295,8 @@ internal fun GlyphsScreen(
                         labelProvider = { preset -> preset.name },
                         modifier = Modifier.fillMaxWidth(),
                         maxButtonsPerRow = if (isSlimDevice) 2 else 3,
-                        showPreview = showPresetPreviews && isMatrixDevice && developerModeEnabled && isRunning,
-                        previewContent = if (isMatrixDevice && developerModeEnabled) {
+                        showPreview = showPresetPreviews && isMatrixDevice && isRunning,
+                        previewContent = if (isMatrixDevice) {
                             { preset ->
                                 GlyphPreview(
                                     vizStateProvider = { presetStates.value[preset.key] ?: vizStateState.value },
