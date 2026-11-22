@@ -105,9 +105,9 @@
 
 .bn-expandable-card {
   overflow: hidden;
-  border: 1px solid #2A2827;
+  border: 1px solid #505050;
   border-radius: 24px;
-  background: #080808;
+  background: #3f3f3f;
 }
 
 .bn-expandable-trigger {
@@ -129,7 +129,7 @@
 
 .bn-expandable-trigger:hover,
 .bn-expandable-trigger[aria-expanded='true'] {
-  background: #141312;
+  background: #363636;
 }
 
 .bn-expand-indicator {
