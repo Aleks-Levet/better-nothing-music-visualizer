@@ -172,6 +172,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -524,6 +525,105 @@ fun FlowRowScope.OptionTile(
                 modifier = Modifier
                     .weight(1f)
                     .then(if (marqueeActive) Modifier.basicMarquee() else Modifier)
+            )
+        }
+    }
+}
+
+@Composable
+fun RowScope.CompactOptionTile(
+    label: String,
+    icon: ImageVector,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val view = LocalView.current
+    var isWeightExpanded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(interactionSource) {
+        var pressStartTime = 0L
+
+        interactionSource.interactions.collectLatest { interaction ->
+            when (interaction) {
+                is PressInteraction.Press -> {
+                    pressStartTime = SystemClock.elapsedRealtime()
+                    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
+                    isWeightExpanded = true
+                }
+                is PressInteraction.Release, is PressInteraction.Cancel -> {
+                    val remainingFloorDelay = 150L - (SystemClock.elapsedRealtime() - pressStartTime)
+                    if (remainingFloorDelay > 0) {
+                        delay(remainingFloorDelay.milliseconds)
+                    }
+                    isWeightExpanded = false
+                    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+                }
+            }
+        }
+    }
+
+    val isEffectivelySelected = (isSelected || isWeightExpanded) && enabled
+    val backgroundColor by animateColorAsState(
+        when {
+            !enabled -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            isEffectivelySelected -> MaterialTheme.colorScheme.primary
+            else -> MaterialTheme.colorScheme.surfaceVariant
+        },
+        label = "compactOptionTileBackground"
+    )
+    val contentColor by animateColorAsState(
+        when {
+            !enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            isEffectivelySelected -> MaterialTheme.colorScheme.onPrimary
+            else -> MaterialTheme.colorScheme.onSurfaceVariant
+        },
+        label = "compactOptionTileContent"
+    )
+
+    val m3eEnabled = LocalM3EEnabled.current
+    val animatedRadius by animateDpAsState(
+        targetValue = if (isEffectivelySelected) 32.dp else 20.dp,
+        animationSpec = if (m3eEnabled) {
+            spring(dampingRatio = Spring.DampingRatioHighBouncy, stiffness = Spring.StiffnessMediumLow)
+        } else {
+            spring(stiffness = Spring.StiffnessMedium)
+        },
+        label = "compactOptionTileCornerRadius"
+    )
+    val animatedWeight by animateFloatAsState(
+        targetValue = if (isWeightExpanded && enabled) 1.2f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMediumLow
+        ),
+        label = "compactOptionTileWeight"
+    )
+
+    Surface(
+        onClick = onClick,
+        enabled = enabled,
+        interactionSource = interactionSource,
+        shape = RoundedCornerShape(animatedRadius),
+        color = backgroundColor,
+        contentColor = contentColor,
+        modifier = modifier.weight(animatedWeight).height(84.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 2.dp, vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(icon, contentDescription = null, modifier = Modifier.size(24.dp))
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = if (isEffectivelySelected) FontWeight.Bold else FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                maxLines = 2
             )
         }
     }

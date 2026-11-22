@@ -47,7 +47,7 @@ android {
         minSdk = 26
         targetSdk = 37
         versionCode = configuredVersionCode
-        versionName = '4.2'
+        versionName = '4.2.1'
 
         resourceConfigurations += [
                 'en', 'ar', 'cy', 'de', 'es', 'fr', 'hi',

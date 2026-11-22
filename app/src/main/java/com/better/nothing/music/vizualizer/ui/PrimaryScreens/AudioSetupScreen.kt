@@ -100,6 +100,7 @@ import androidx.core.content.ContextCompat
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.logic.UdpNetworkSync
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
+import com.better.nothing.music.vizualizer.ui.CompactOptionTile
 import com.better.nothing.music.vizualizer.ui.OptionTile
 import com.better.nothing.music.vizualizer.ui.ScreenTitle
 import com.better.nothing.music.vizualizer.ui.ExpressiveCard
@@ -397,7 +398,6 @@ fun HostSelectionSheet(
 }
 
 @Composable
-@OptIn(ExperimentalLayoutApi::class)
 fun OutputSelectionCard(
     glyphsEnabled: Boolean,
     onGlyphsToggle: (Boolean) -> Unit,
@@ -464,22 +464,20 @@ fun OutputSelectionCard(
             }
         }
 
-        FlowRow(
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            maxItemsInEachRow = 2,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             outputs.forEach { (label, icon, stateTriple) ->
                 val (isEnabled, onToggle, isHardwareAvailable) = stateTriple
-                OptionTile(
+                CompactOptionTile(
                     label = label,
                     icon = icon,
                     isSelected = isEnabled && isHardwareAvailable,
                     enabled = isHardwareAvailable,
                     onClick = { if (isHardwareAvailable) onToggle(!isEnabled) },
-                    modifier = Modifier.height(64.dp),
-                    maxLines = 2
+                    modifier = Modifier
                 )
             }
         }

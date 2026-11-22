@@ -104,6 +104,18 @@ public class AudioProcessor {
         this.filled = 0;
     }
 
+    public synchronized void resetMicState() {
+        for (int i = 0; i < mRunningMax.length; i++) {
+            mRunningMax[i] = 0.01f;
+            mBandGain[i] = 1.0f;
+        }
+        if (ring != null) {
+            for (int i = 0; i < ring.length; i++) ring[i] = 0f;
+        }
+        ringPosition = 0;
+        filled = 0;
+    }
+
     public AudioFrameResult processAudioFrame(short[] hopBuffer, SourceType sourceType, float decayFactor) {
         return processAudioFrame(hopBuffer, hopBuffer != null ? hopBuffer.length : 0, sourceType, decayFactor);
     }

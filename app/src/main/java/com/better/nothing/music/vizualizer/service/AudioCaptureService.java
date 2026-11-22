@@ -116,6 +116,7 @@ public class AudioCaptureService extends Service {
     private static final String TAG = "GlyphViz:Service";
     private static final String CHANNEL_ID = "glyph_viz_channel";
     private static final int NOTIF_ID = 1;
+    private static final long SILENCE_CONFIRMATION_MS = 250L;
     public enum CaptureSource { INTERNAL, MIC, VIZUALIZER, NETWORK, ROOT }
     private volatile CaptureSource mCaptureSource = CaptureSource.INTERNAL;
 
@@ -2054,6 +2055,8 @@ public class AudioCaptureService extends Service {
         mAudioProcessor.updateFFTSize(sampleRate);
         int hopSize = Math.max(1, Math.round(sampleRate / (float) FPS));
         short[] hop = new short[hopSize];
+        boolean confirmedSilent = true;
+        long silenceStartedAtMs = 0L;
         while (mCapturing) {
             int read = 0;
             try {
@@ -2069,7 +2072,9 @@ public class AudioCaptureService extends Service {
             }
             if (read == 0) continue;
 
-            int silThreshold = (mCaptureSource == CaptureSource.INTERNAL) ? 50 : 250;
+            CaptureSource source = mCaptureSource;
+            int silThreshold = source == CaptureSource.INTERNAL ? 50
+                    : source == CaptureSource.MIC ? 100 : 250;
             boolean hasSignal = false;
             for (int i = 0; i < read; i++) {
                 if (Math.abs(hop[i]) > silThreshold) {
@@ -2077,7 +2082,20 @@ public class AudioCaptureService extends Service {
                     break;
                 }
             }
-            boolean isSilent = !hasSignal;
+            long nowMs = SystemClock.elapsedRealtime();
+            if (hasSignal) {
+                if (confirmedSilent && source == CaptureSource.MIC) {
+                    mAudioProcessor.resetMicState();
+                }
+                confirmedSilent = false;
+                silenceStartedAtMs = 0L;
+            } else if (!confirmedSilent) {
+                if (silenceStartedAtMs == 0L) silenceStartedAtMs = nowMs;
+                if (nowMs - silenceStartedAtMs >= SILENCE_CONFIRMATION_MS) {
+                    confirmedSilent = true;
+                }
+            }
+            boolean isSilent = confirmedSilent;
 
             boolean deepSilence = mGlyphRenderer != null && mGlyphRenderer.isDeeplySilent();
             if (deepSilence && isSilent) {
@@ -2087,9 +2105,9 @@ public class AudioCaptureService extends Service {
             }
 
             AudioProcessor.SourceType type;
-            if (mCaptureSource == CaptureSource.MIC) {
+            if (source == CaptureSource.MIC) {
                 type = AudioProcessor.SourceType.MIC;
-            } else if (mCaptureSource == CaptureSource.ROOT) {
+            } else if (source == CaptureSource.ROOT) {
                 type = AudioProcessor.SourceType.ROOT;
             } else {
                 type = AudioProcessor.SourceType.INTERNAL;
