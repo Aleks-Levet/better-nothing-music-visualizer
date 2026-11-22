@@ -65,7 +65,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -782,6 +781,7 @@ internal fun BetterVizApp(
 ) {
     val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
     val isRunning by viewModel.runningState.collectAsStateWithLifecycle()
+    val visualizerStartCount by viewModel.visualizerStartCount.collectAsStateWithLifecycle()
     val totalVisualizedTime by viewModel.totalVisualizedTime.collectAsStateWithLifecycle()
     val selectedDevice by viewModel.selectedDevice.collectAsStateWithLifecycle()
     val developerModeEnabled by viewModel.developerModeEnabled.collectAsStateWithLifecycle()
@@ -968,7 +968,6 @@ internal fun BetterVizApp(
     val appUpdateStatus by viewModel.appUpdateStatus.collectAsStateWithLifecycle()
     val uriHandler = LocalUriHandler.current
 
-    var launchAnimationKey by remember { mutableIntStateOf(0) }
     var fabCenter by remember { mutableStateOf<Offset?>(null) }
     var overlayOrigin by remember { mutableStateOf(Offset.Zero) }
 
@@ -1178,7 +1177,7 @@ internal fun BetterVizApp(
             }
         )
         VisualizerStartEffect(
-            animationKey = launchAnimationKey,
+            animationKey = visualizerStartCount,
             fabCenter = fabCenter,
             overlayOrigin = overlayOrigin,
         )
@@ -1196,7 +1195,6 @@ internal fun BetterVizApp(
                     .onGloballyPositioned {
                         fabCenter = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
                     },
-                onStart = { launchAnimationKey++ },
             )
         }
         MainOverlays(

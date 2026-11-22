@@ -1855,8 +1855,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val _runningState = MutableStateFlow(false)
     val runningState = _runningState.asStateFlow()
+    private val _visualizerStartCount = MutableStateFlow(0)
+    val visualizerStartCount = _visualizerStartCount.asStateFlow()
 
     fun setRunning(running: Boolean) {
+        if (running && !_runningState.value) {
+            _visualizerStartCount.value++
+        }
+
         if (running) {
             val hasAnyOutput = _glyphsEnabled.value || _hapticMotorEnabled.value || _flashlightEnabled.value || 
                               _broadcastEnabled.value || _overlayEnabled.value || _edgeVisualizerEnabled.value || 

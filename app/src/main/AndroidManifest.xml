@@ -31,6 +31,10 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
+    <attribution
+        android:tag="AudioVisualizerTag"
+        android:label="@string/app_name" />
+
     <application
         android:name=".BetterVizApplication"
         android:enableOnBackInvokedCallback="true"
@@ -40,10 +44,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BetterGlyph"
         tools:ignore="UnusedAttribute">
-
-        <attribution
-            android:tag="AudioVisualizerTag"
-            android:label="@string/app_name" />
 
         <meta-data android:name="NothingKey" android:value="4fce0591-cbd9-4b1d-9cd0-646a2d2aecea" />
 

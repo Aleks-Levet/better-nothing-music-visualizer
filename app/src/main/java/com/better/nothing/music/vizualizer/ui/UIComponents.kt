@@ -1210,7 +1210,6 @@ fun StartStopButton(
     running: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onStart: () -> Unit = {},
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed         by interactionSource.collectIsPressedAsState()
@@ -1259,7 +1258,6 @@ fun StartStopButton(
         FloatingActionButton(
             onClick = {
                 view.performHapticFeedback(HapticFeedbackConstants.GESTURE_THRESHOLD_ACTIVATE)
-                if (!running) onStart()
                 onClick()
             },
             interactionSource = interactionSource,
