@@ -1094,6 +1094,15 @@ fun IndicatorPill(
         label = "pillRadius"
     )
 
+    val arrowRotation by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "pillArrowRotation"
+    )
+
     Surface(
         onClick = {
             onClick?.invoke()
@@ -1117,11 +1126,13 @@ fun IndicatorPill(
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
-                imageVector = if (isLink) Icons.Default.ChevronRight
-                else if (isExpanded) Icons.Default.ExpandLess
-                else Icons.Default.ExpandMore,
+                imageVector = if (isLink) Icons.Default.ChevronRight else Icons.Default.ExpandMore,
                 contentDescription = null,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier
+                    .size(20.dp)
+                    .graphicsLayer {
+                        rotationZ = if (isLink) 0f else arrowRotation
+                    }
             )
         }
     }
