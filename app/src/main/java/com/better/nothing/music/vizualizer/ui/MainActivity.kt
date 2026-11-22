@@ -70,6 +70,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.toArgb
@@ -969,6 +970,8 @@ internal fun BetterVizApp(
     var fabCenter by remember { mutableStateOf<Offset?>(null) }
     var overlayOrigin by remember { mutableStateOf(Offset.Zero) }
 
+    var contentPadding by remember { mutableStateOf(PaddingValues(0.dp)) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -1019,20 +1022,11 @@ internal fun BetterVizApp(
                     }
                 }
             },
-            floatingActionButton = {
-                StartStopButton(
-                    running = isRunning,
-                    onClick = onToggleVisualizer,
-                    modifier = Modifier.onGloballyPositioned {
-                        fabCenter = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
-                    },
-                    onStart = { launchAnimationKey++ },
-                )
-            },
             containerColor = MaterialTheme.colorScheme.background,
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
             modifier = Modifier.fillMaxSize(),
             content = { padding ->
+            contentPadding = padding
             if (isTablet) {
                 val scrollState = rememberScrollState()
 
@@ -1185,6 +1179,23 @@ internal fun BetterVizApp(
             fabCenter = fabCenter,
             overlayOrigin = overlayOrigin,
         )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            StartStopButton(
+                running = isRunning,
+                onClick = onToggleVisualizer,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .onGloballyPositioned {
+                        fabCenter = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
+                    },
+                onStart = { launchAnimationKey++ },
+            )
+        }
         MainOverlays(
             viewModel = viewModel,
             selectedDevice = selectedDevice,
