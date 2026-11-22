@@ -91,34 +91,34 @@ We made a detailed wiki page which explains the installation, usage, configurati
 Uhh some screenshots are from future releases of the app that my testers already have and use btw
 <table>
   <tr>
-    <td><img src="Docs/Screenshots/Screenshot_20261121-204038.png" alt="App screenshot" width="220"></td>
-    <td><img src="Docs/Screenshots/Screenshot_20261121-204045.png" alt="App screenshot" width="220"></td>
-    <td><img src="Docs/Screenshots/Screenshot_20261121-204058.png" alt="App screenshot" width="220"></td>
+    <td><img src="Website/assets/screenshots/Screenshot_20261121-204038.png" alt="App screenshot" width="220"></td>
+    <td><img src="Website/assets/screenshots/Screenshot_20261121-204045.png" alt="App screenshot" width="220"></td>
+    <td><img src="Website/assets/screenshots/Screenshot_20261121-204058.png" alt="App screenshot" width="220"></td>
   </tr>
   <tr>
-    <td><img src="Docs/Screenshots/Screenshot_20261121-204101.png" alt="App screenshot" width="220"></td>
-    <td><img src="Docs/Screenshots/Screenshot_20261121-204111.png" alt="App screenshot" width="220"></td>
-    <td><img src="Docs/Screenshots/Screenshot_20261121-204118.png" alt="App screenshot" width="220"></td>
+    <td><img src="Website/assets/screenshots/Screenshot_20261121-204101.png" alt="App screenshot" width="220"></td>
+    <td><img src="Website/assets/screenshots/Screenshot_20261121-204111.png" alt="App screenshot" width="220"></td>
+    <td><img src="Website/assets/screenshots/Screenshot_20261121-204118.png" alt="App screenshot" width="220"></td>
   </tr>
   <tr>
-    <td><img src="Docs/Screenshots/Screenshot_20261121-204126.png" alt="App screenshot" width="220"></td>
-    <td><img src="Docs/Screenshots/Screenshot_20261121-204134.png" alt="App screenshot" width="220"></td>
-    <td><img src="Docs/Screenshots/Screenshot_20261121-204150.png" alt="App screenshot" width="220"></td>
+    <td><img src="Website/assets/screenshots/Screenshot_20261121-204126.png" alt="App screenshot" width="220"></td>
+    <td><img src="Website/assets/screenshots/Screenshot_20261121-204134.png" alt="App screenshot" width="220"></td>
+    <td><img src="Website/assets/screenshots/Screenshot_20261121-204150.png" alt="App screenshot" width="220"></td>
   </tr>
   <tr>
-    <td><img src="Docs/Screenshots/Screenshot_20261121-204159.png" alt="App screenshot" width="220"></td>
-    <td><img src="Docs/Screenshots/Screenshot_20261121-204213.png" alt="App screenshot" width="220"></td>
-    <td><img src="Docs/Screenshots/Screenshot_20261121-204230.png" alt="App screenshot" width="220"></td>
+    <td><img src="Website/assets/screenshots/Screenshot_20261121-204159.png" alt="App screenshot" width="220"></td>
+    <td><img src="Website/assets/screenshots/Screenshot_20261121-204213.png" alt="App screenshot" width="220"></td>
+    <td><img src="Website/assets/screenshots/Screenshot_20261121-204230.png" alt="App screenshot" width="220"></td>
   </tr>
   <tr>
-    <td><img src="Docs/Screenshots/Screenshot_20261121-204250.png" alt="App screenshot" width="220"></td>
-    <td><img src="Docs/Screenshots/Screenshot_20261121-204320.png" alt="App screenshot" width="220"></td>
-    <td><img src="Docs/Screenshots/Screenshot_20261121-204329.png" alt="App screenshot" width="220"></td>
+    <td><img src="Website/assets/screenshots/Screenshot_20261121-204250.png" alt="App screenshot" width="220"></td>
+    <td><img src="Website/assets/screenshots/Screenshot_20261121-204320.png" alt="App screenshot" width="220"></td>
+    <td><img src="Website/assets/screenshots/Screenshot_20261121-204329.png" alt="App screenshot" width="220"></td>
   </tr>
   <tr>
-    <td><img src="Docs/Screenshots/Screenshot_20261121-204338.png" alt="App screenshot" width="220"></td>
-    <td><img src="Docs/Screenshots/Screenshot_20261121-204408.png" alt="App screenshot" width="220"></td>
-    <td><img src="Docs/Screenshots/Screenshot_20261121-224444.png" alt="App screenshot" width="220"></td>
+    <td><img src="Website/assets/screenshots/Screenshot_20261121-204338.png" alt="App screenshot" width="220"></td>
+    <td><img src="Website/assets/screenshots/Screenshot_20261121-204408.png" alt="App screenshot" width="220"></td>
+    <td><img src="Website/assets/screenshots/Screenshot_20261121-224444.png" alt="App screenshot" width="220"></td>
   </tr>
 </table>
 

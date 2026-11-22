@@ -969,7 +969,7 @@ bnmv.render();
 bnmv.componentDidMount();
 
 /* The gallery deliberately lists the repository directory instead of naming images here.
-   Put any supported image file in Docs/Screenshots and it becomes a slide automatically. */
+   Put any supported image file in Website/assets/screenshots and it becomes a slide automatically. */
 (() => {
   const gallery = document.querySelector('[data-github-path]');
   if (!gallery) { return; }
