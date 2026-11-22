@@ -929,6 +929,7 @@ public class AudioCaptureService extends Service {
             String intentAction = intent.getAction();
             if (ACTION_STOP.equals(intentAction)) { stopCapture(); stopSelf(); return START_NOT_STICKY; }
             else if (ACTION_START.equals(intentAction)) {
+                IdleBreathingService.requestStop(this);
                 String startSource = intent.getStringExtra(EXTRA_START_SOURCE);
                 if (startSource != null) {
                     try {
@@ -1054,6 +1055,7 @@ public class AudioCaptureService extends Service {
     }
 
     public void startVisualizer() {
+        IdleBreathingService.requestStop(this);
         if (mCaptureSource == CaptureSource.MIC) startMicCapture();
         else if (mCaptureSource == CaptureSource.ROOT) startRootCapture();
         else if (mCaptureSource == CaptureSource.VIZUALIZER) startVizualizerCapture();
@@ -1067,21 +1069,26 @@ public class AudioCaptureService extends Service {
 
     private void restartCapture() {
         if (mWorkerHandler != null) mWorkerHandler.post(() -> {
-            stopCaptureLocked(false);
-            if (mCaptureSource == CaptureSource.INTERNAL) {
-                if (mProjection != null) {
-                    startCaptureInternal(CaptureSource.INTERNAL, 0, null);
-                } else {
-                    stopCaptureLocked(true);
+            synchronized (mCaptureLock) {
+                stopCaptureLocked(false);
+                if (mCaptureSource == CaptureSource.INTERNAL) {
+                    if (mProjection != null) {
+                        startCaptureInternal(CaptureSource.INTERNAL, 0, null);
+                    } else {
+                        Log.w(TAG, "Cannot restart INTERNAL capture without valid MediaProjection token");
+                        mCapturing = false;
+                        setRunning(false);
+                        updateOverlayVisibility();
+                    }
+                } else if (mCaptureSource == CaptureSource.ROOT) {
+                    startRootCapture();
+                } else if (mCaptureSource == CaptureSource.MIC) {
+                    startMicCapture();
+                } else if (mCaptureSource == CaptureSource.VIZUALIZER) {
+                    startVizualizerCapture();
+                } else if (mCaptureSource == CaptureSource.NETWORK) {
+                    startNetworkCapture();
                 }
-            } else if (mCaptureSource == CaptureSource.ROOT) {
-                startRootCapture();
-            } else if (mCaptureSource == CaptureSource.MIC) {
-                startMicCapture();
-            } else if (mCaptureSource == CaptureSource.VIZUALIZER) {
-                startVizualizerCapture();
-            } else if (mCaptureSource == CaptureSource.NETWORK) {
-                startNetworkCapture();
             }
         });
     }
@@ -1491,7 +1498,24 @@ public class AudioCaptureService extends Service {
                         mWorkerHandler.post(this::setupVisualizerCapture);
                         return;
                     } else if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-                        lr = new AudioRecord(mMicrophoneMode, SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bs);
+                        int maxRetries = 3;
+                        for (int i = 0; i < maxRetries; i++) {
+                            try {
+                                lr = new AudioRecord(mMicrophoneMode, SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bs);
+                                if (lr != null && lr.getState() == AudioRecord.STATE_INITIALIZED) {
+                                    break;
+                                }
+                                if (lr != null) {
+                                    lr.release();
+                                    lr = null;
+                                }
+                            } catch (Exception e) {
+                                Log.w(TAG, "MIC AudioRecord attempt " + (i + 1) + " failed: " + e.getMessage());
+                                if (lr != null) { lr.release(); lr = null; }
+                                if (i == maxRetries - 1) break;
+                                SystemClock.sleep(300);
+                            }
+                        }
                     }
 
                     if (lr != null && lr.getState() == AudioRecord.STATE_INITIALIZED) {
@@ -1510,11 +1534,17 @@ public class AudioCaptureService extends Service {
                         runCaptureLoop(lr);
                     } else {
                         Log.e(TAG, "AudioRecord not initialized, state: " + (lr != null ? lr.getState() : "null"));
-                        stopSelf();
+                        if (mCapturing) {
+                            setRunning(false);
+                            mCapturing = false;
+                        }
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Capture failed: " + e.getMessage(), e);
-                    stopSelf();
+                    if (mCapturing) {
+                        setRunning(false);
+                        mCapturing = false;
+                    }
                 } finally {
                     synchronized (mCaptureLock) {
                         if (mAudioRecord == lr) {
@@ -1758,7 +1788,17 @@ public class AudioCaptureService extends Service {
 
     private void releaseAudioRecord() { if (mAudioRecord != null) { try { mAudioRecord.stop(); } catch (Exception ignored) {} mAudioRecord.release(); mAudioRecord = null; } }
     private void releaseProjection() { if (mProjection != null) { try { mProjection.stop(); } catch (Exception ignored) {} mProjection = null; } }
-    private void releaseVisualizer() { if (mVisualizer != null) { try { mVisualizer.release(); } catch (Exception ignored) {} mVisualizer = null; } synchronized (mVisualizerPendingFrames) { mVisualizerPendingFrames.clear(); } }
+    private void releaseVisualizer() {
+        if (mVisualizer != null) {
+            try { mVisualizer.setEnabled(false); } catch (Exception ignored) {}
+            try { mVisualizer.setDataCaptureListener(null, 0, false, false); } catch (Exception ignored) {}
+            try { mVisualizer.release(); } catch (Exception ignored) {}
+            mVisualizer = null;
+        }
+        synchronized (mVisualizerPendingFrames) {
+            mVisualizerPendingFrames.clear();
+        }
+    }
     private void ensureCaptureExecutor() { if (mCaptureExecutor == null || mCaptureExecutor.isShutdown()) mCaptureExecutor = Executors.newSingleThreadExecutor(); }
     private void shutdownCaptureExecutor() { if (mCaptureExecutor != null) { mCaptureExecutor.shutdownNow(); mCaptureExecutor = null; } }
 
@@ -1905,25 +1945,60 @@ public class AudioCaptureService extends Service {
             mFlashlightRange = new AudioProcessor.FrequencyRange(mFlashlightMinHz, mFlashlightMaxHz);
             
             Log.d(TAG, "setupVisualizerCapture: initializing Android Visualizer (session 0)");
-            try {
-                mVisualizer = new Visualizer(0);
-            } catch (Exception e) {
-                Log.e(TAG, "Failed to create Visualizer(0), trying again in 500ms", e);
-                SystemClock.sleep(500);
-                mVisualizer = new Visualizer(0);
+            int maxRetries = 2;
+            for (int attempt = 0; attempt < maxRetries; attempt++) {
+                try {
+                    mVisualizer = new Visualizer(0);
+                    if (mVisualizer != null) break;
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to create Visualizer(0) (attempt " + (attempt + 1) + "): " + e.getMessage(), e);
+                    releaseVisualizer();
+                    if (attempt < maxRetries - 1) {
+                        SystemClock.sleep(500);
+                    }
+                }
             }
 
             if (mVisualizer != null) {
-                int captureSize = Math.min(Visualizer.getCaptureSizeRange()[1], 1024); 
-                mVisualizer.setCaptureSize(captureSize);
+                int captureSize = 1024;
+                try {
+                    int[] range = Visualizer.getCaptureSizeRange();
+                    if (range != null && range.length > 1) {
+                        captureSize = Math.min(range[1], 1024);
+                    }
+                } catch (Exception e) {
+                    Log.w(TAG, "Failed to query Visualizer capture size range: " + e.getMessage());
+                }
+
+                try {
+                    mVisualizer.setCaptureSize(captureSize);
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to set Visualizer capture size: " + e.getMessage(), e);
+                }
                 
-                int captureRate = Math.min(Visualizer.getMaxCaptureRate(), 50000);
+                int captureRate = 50000;
+                try {
+                    captureRate = Math.min(Visualizer.getMaxCaptureRate(), 50000);
+                } catch (Exception ignored) {}
+
                 mVisualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
-                    @Override public void onWaveFormDataCapture(Visualizer v, byte[] w, int sr) { processVisualizerWaveform(w, sr); }
+                    @Override public void onWaveFormDataCapture(Visualizer v, byte[] w, int sr) {
+                        try {
+                            processVisualizerWaveform(w, sr);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error in processVisualizerWaveform callback", e);
+                        }
+                    }
                     @Override public void onFftDataCapture(Visualizer v, byte[] f, int sr) {}
                 }, captureRate, true, false);
                 
-                int result = mVisualizer.setEnabled(true);
+                int result = Visualizer.ERROR;
+                try {
+                    result = mVisualizer.setEnabled(true);
+                } catch (Exception e) {
+                    Log.e(TAG, "Exception enabling Visualizer: " + e.getMessage(), e);
+                }
+
                 if (result != Visualizer.SUCCESS) {
                     Log.e(TAG, "setupVisualizerCapture: failed to enable visualizer, error code: " + result);
                     releaseVisualizer();
@@ -1938,34 +2013,38 @@ public class AudioCaptureService extends Service {
     }
 
     private void processVisualizerWaveform(byte[] waveform, int samplingRate) {
-        if (!mCapturing) return;
+        if (!mCapturing || waveform == null || waveform.length == 0) return;
 
-        boolean hasSignal = false;
-        for (byte b : waveform) {
-            if (Math.abs((b & 0xFF) - 128) > 3) {
-                hasSignal = true;
-                break;
+        try {
+            boolean hasSignal = false;
+            for (byte b : waveform) {
+                if (Math.abs((b & 0xFF) - 128) > 3) {
+                    hasSignal = true;
+                    break;
+                }
             }
-        }
-        boolean isSilent = !hasSignal;
+            boolean isSilent = !hasSignal;
 
-        boolean deepSilence = mGlyphRenderer != null && mGlyphRenderer.isDeeplySilent();
-        if (deepSilence && isSilent) {
-            PendingFrame frame = new PendingFrame(EMPTY_FFT, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs(), true);
+            boolean deepSilence = mGlyphRenderer != null && mGlyphRenderer.isDeeplySilent();
+            if (deepSilence && isSilent) {
+                PendingFrame frame = new PendingFrame(EMPTY_FFT, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs(), true);
+                synchronized (mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
+                return;
+            }
+
+            // Robust sampling rate detection: handle both Hz (most devices) and mHz (docs)
+            int hz = (samplingRate > 1000000) ? (samplingRate / 1000) : samplingRate;
+            if (hz < 8000) hz = 44100; // Fallback for invalid values
+
+            mAudioProcessor.updateFFTSize(hz);
+            short[] hop = new short[waveform.length]; for (int i = 0; i < waveform.length; i++) hop[i] = (short) (((waveform[i] & 0xFF) - 128) << 8);
+            AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, AudioProcessor.SourceType.VIZUALIZER, mVisualizerConfig != null ? mVisualizerConfig.decay : 0.85f);
+            if (result == null) return;
+            PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs(), isSilent);
             synchronized (mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
-            return;
+        } catch (Exception e) {
+            Log.e(TAG, "Error in processVisualizerWaveform", e);
         }
-
-        // Robust sampling rate detection: handle both Hz (most devices) and mHz (docs)
-        int hz = (samplingRate > 1000000) ? (samplingRate / 1000) : samplingRate;
-        if (hz < 8000) hz = 44100; // Fallback for invalid values
-
-        mAudioProcessor.updateFFTSize(hz);
-        short[] hop = new short[waveform.length]; for (int i = 0; i < waveform.length; i++) hop[i] = (short) (((waveform[i] & 0xFF) - 128) << 8);
-        AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, AudioProcessor.SourceType.VIZUALIZER, mVisualizerConfig != null ? mVisualizerConfig.decay : 0.85f);
-        if (result == null) return;
-        PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs(), isSilent);
-        synchronized (mVisualizerPendingFrames) { mVisualizerPendingFrames.addLast(frame); dispatchDueFrames(mVisualizerPendingFrames); }
     }
 
     private void runCaptureLoop(AudioRecord record) {
@@ -1976,9 +2055,16 @@ public class AudioCaptureService extends Service {
         int hopSize = Math.max(1, Math.round(sampleRate / (float) FPS));
         short[] hop = new short[hopSize];
         while (mCapturing) {
-            int read = record.read(hop, 0, hopSize, AudioRecord.READ_BLOCKING);
+            int read = 0;
+            try {
+                read = record.read(hop, 0, hopSize, AudioRecord.READ_BLOCKING);
+            } catch (Exception e) {
+                Log.w(TAG, "AudioRecord read interrupted or record closed: " + e.getMessage());
+                break;
+            }
+            if (!mCapturing) break;
             if (read < 0) {
-                Log.e(TAG, "AudioRecord read error: " + read);
+                Log.w(TAG, "AudioRecord read error: " + read);
                 break;
             }
             if (read == 0) continue;

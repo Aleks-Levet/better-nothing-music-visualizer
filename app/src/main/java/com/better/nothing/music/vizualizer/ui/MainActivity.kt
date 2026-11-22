@@ -420,6 +420,7 @@ class MainActivity : AppCompatActivity() {
                             val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:$packageName".toUri())
                             overlayPermissionLauncher.launch(intent)
                         },
+                        onLaunchProjection = { launchProjection() },
                         showWelcomeRibbon = showWelcomeRibbon,
                         onChangelogClick = {
                             showWelcomeRibbon = false
@@ -773,6 +774,7 @@ internal fun BetterVizApp(
     viewModel: MainViewModel,
     onToggleVisualizer: () -> Unit,
     onOverlayPermissionRequest: () -> Unit,
+    onLaunchProjection: () -> Unit = {},
     showWelcomeRibbon: Boolean,
     onChangelogClick: () -> Unit,
     onWelcomeDismiss: () -> Unit,
@@ -1119,6 +1121,7 @@ internal fun BetterVizApp(
                                         hasFlashlightAccess = canAccessFlashlight,
                                         visualsEnabled = visualsEnabled,
                                         onOverlayPermissionRequest = onOverlayPermissionRequest,
+                                        onLaunchProjection = onLaunchProjection,
                                         padding = PaddingValues(0.dp),
                                         isTablet = true
                                     )}
@@ -1168,7 +1171,7 @@ internal fun BetterVizApp(
                                 rotationZ = if (pageOffset > 0) -rotationAmount else rotationAmount
                             }
                     ) {
-                        TabContent(tab, viewModel, isRunning, totalVisualizedTime, developerModeEnabled, glyphsEnabled, hapticsEnabled, flashlightEnabled, canAccessFlashlight, visualsEnabled, onOverlayPermissionRequest, padding, isTablet = false)
+                        TabContent(tab, viewModel, isRunning, totalVisualizedTime, developerModeEnabled, glyphsEnabled, hapticsEnabled, flashlightEnabled, canAccessFlashlight, visualsEnabled, onOverlayPermissionRequest, onLaunchProjection, padding, isTablet = false)
                     }
                 }
             }
@@ -1219,6 +1222,7 @@ private fun TabContent(
     hasFlashlightAccess: Boolean,
     visualsEnabled: Boolean,
     onOverlayPermissionRequest: () -> Unit,
+    onLaunchProjection: () -> Unit,
     padding: PaddingValues,
     isTablet: Boolean = false
 ) {
@@ -1275,7 +1279,13 @@ private fun TabContent(
                 viewModel = viewModel,
                 fftRaw = fftRaw,
                 captureSource = captureSource,
-                onCaptureSourceChanged = { viewModel.setCaptureSource(it) },
+                onCaptureSourceChanged = { source ->
+                    val wasRunning = isRunning
+                    viewModel.setCaptureSource(source)
+                    if (source == AudioCaptureService.CaptureSource.INTERNAL && wasRunning) {
+                        onLaunchProjection()
+                    }
+                },
                 glyphsEnabled = glyphsEnabled,
                 onGlyphsEnabledChanged = { viewModel.setGlyphsEnabled(it) },
                 hapticsEnabled = hapticsEnabled,

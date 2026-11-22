@@ -80,11 +80,13 @@ class Component {
     if (this.collect()) {
       this.rest();
       this.atRest = true;
+      this.startComparisonIdle();
     }
   }
 
   componentWillUnmount() {
     if (this.raf) { cancelAnimationFrame(this.raf); }
+    if (this.compareIdleRaf) { cancelAnimationFrame(this.compareIdleRaf); }
     if (this._ptr) { try { window.removeEventListener('pointermove', this._ptr); } catch (e) {} }
     this.stopAudio();
     if (this.audio) {
@@ -570,7 +572,7 @@ class Component {
         E.live[i].style.opacity = (0.08 + 0.92 * v).toFixed(3);
       }
       /* Slight noise keeps the stock-style quantized preview from looking perfectly regular. */
-      if (now - this.lastStock >= 50) {
+      if (now - this.lastStock >= 1000 / 15) {
         this.lastStock = now;
         const nStock = Math.min(12, E.stock.length);
         for (let i = 0; i < nStock; i++) {
@@ -634,6 +636,34 @@ class Component {
       try { this.step(now); } catch (e) {}
     };
     this.raf = requestAnimationFrame(tick);
+  }
+
+  /* Keep the comparison meaningful before a visitor starts audio: the stock row
+     is deliberately stepped at 15 fps in three brightness states, while BNMV
+     follows the same sine signal smoothly at the display frame rate. */
+  startComparisonIdle() {
+    if (this.reduced || this.compareIdleRaf) { return; }
+    let lastStockFrame = 0;
+    const tick = (now) => {
+      this.compareIdleRaf = requestAnimationFrame(tick);
+      if (this.state.playing || document.hidden || !this.els) { return; }
+      const E = this.els;
+      const t = now / 1000;
+      const nLive = Math.min(12, E.live.length);
+      for (let i = 0; i < nLive; i++) {
+        const sine = (Math.sin(t * Math.PI * 1.1 + i * 0.74) + 1) / 2;
+        E.live[i].style.opacity = (0.08 + 0.92 * sine).toFixed(3);
+      }
+      if (now - lastStockFrame < 1000 / 15) { return; }
+      lastStockFrame = now;
+      const nStock = Math.min(12, E.stock.length);
+      for (let i = 0; i < nStock; i++) {
+        const sine = (Math.sin(t * Math.PI * 1.1 + i * 0.74) + 1) / 2;
+        const level = Math.round(sine * 2);
+        E.stock[i].style.opacity = (0.39 + 0.61 * level / 2).toFixed(3);
+      }
+    };
+    this.compareIdleRaf = requestAnimationFrame(tick);
   }
 
   stopRenderer() {
@@ -937,3 +967,107 @@ document.querySelectorAll('[data-act]').forEach((el) => {
 });
 bnmv.render();
 bnmv.componentDidMount();
+
+/* The gallery deliberately lists the repository directory instead of naming images here.
+   Put any supported image file in Docs/Screenshots and it becomes a slide automatically. */
+(() => {
+  const gallery = document.querySelector('[data-github-path]');
+  if (!gallery) { return; }
+
+  const track = gallery.querySelector('[data-screenshot-track]');
+  const status = gallery.querySelector('[data-screenshot-status]');
+  const previous = gallery.querySelector('[data-screenshot-prev]');
+  const next = gallery.querySelector('[data-screenshot-next]');
+  const current = gallery.querySelector('[data-screenshot-current]');
+  const total = gallery.querySelector('[data-screenshot-total]');
+  const dots = gallery.querySelector('[data-screenshot-dots]');
+  const { githubOwner: owner, githubRepo: repo, githubRef: ref, githubPath: path } = gallery.dataset;
+  const imageFile = /\.(avif|gif|jpe?g|png|webp)$/i;
+  let slides = [];
+  let active = 0;
+
+  const setActive = (index) => {
+    if (!slides.length) { return; }
+    active = (index + slides.length) % slides.length;
+    current.textContent = String(active + 1);
+    dots.querySelectorAll('button').forEach((dot, dotIndex) => {
+      dot.setAttribute('aria-current', dotIndex === active ? 'true' : 'false');
+    });
+  };
+
+  const updateActive = () => {
+    if (!slides.length) { return; }
+    let nearest = 0;
+    let distance = Infinity;
+    slides.forEach((slide, index) => {
+      /* Slides snap to their leading edge; using the viewport centre made the
+         desktop controls target a different visible card than the one selected. */
+      const nextDistance = Math.abs(slide.offsetLeft - track.scrollLeft);
+      if (nextDistance < distance) { distance = nextDistance; nearest = index; }
+    });
+    setActive(nearest);
+  };
+
+  const moveTo = (index) => {
+    if (!slides.length) { return; }
+    setActive(index);
+    /* scrollIntoView reliably targets the scroll-snap container in desktop browsers. */
+    slides[active].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+  };
+
+  const render = (files) => {
+    track.textContent = '';
+    const fragment = document.createDocumentFragment();
+    files.forEach((file, index) => {
+      const figure = document.createElement('figure');
+      figure.className = 'bn-carousel-slide';
+      const image = new Image();
+      image.src = `https://raw.githubusercontent.com/${owner}/${repo}/${ref}/${file.path.split('/').map(encodeURIComponent).join('/')}`;
+      image.alt = `BNMV app screenshot ${index + 1}`;
+      image.decoding = 'async';
+      if (index === 0) { image.fetchPriority = 'high'; } else { image.loading = 'lazy'; }
+      figure.appendChild(image);
+      fragment.appendChild(figure);
+    });
+    track.appendChild(fragment);
+    slides = Array.from(track.children);
+    total.textContent = String(slides.length);
+    setActive(0);
+    previous.disabled = false;
+    next.disabled = false;
+    dots.textContent = '';
+    slides.forEach((_, index) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'bn-carousel-dot';
+      dot.setAttribute('aria-label', `Go to screenshot ${index + 1}`);
+      dot.setAttribute('aria-current', index === 0 ? 'true' : 'false');
+      dot.addEventListener('click', () => moveTo(index));
+      dots.appendChild(dot);
+    });
+    track.setAttribute('aria-busy', 'false');
+  };
+
+  previous.addEventListener('click', () => moveTo(active - 1));
+  next.addEventListener('click', () => moveTo(active + 1));
+  track.addEventListener('scroll', () => requestAnimationFrame(updateActive), { passive: true });
+  track.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowLeft') { event.preventDefault(); moveTo(active - 1); }
+    if (event.key === 'ArrowRight') { event.preventDefault(); moveTo(active + 1); }
+  });
+
+  fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${encodeURIComponent(ref)}`, { headers: { Accept: 'application/vnd.github+json' } })
+    .then((response) => {
+      if (!response.ok) { throw new Error(`GitHub returned ${response.status}`); }
+      return response.json();
+    })
+    .then((entries) => {
+      const files = entries.filter((entry) => entry.type === 'file' && imageFile.test(entry.name)).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+      if (!files.length) { throw new Error('No screenshots found'); }
+      render(files);
+    })
+    .catch(() => {
+      track.setAttribute('aria-busy', 'false');
+      status.textContent = 'Screenshots are temporarily unavailable. Please try again shortly.';
+    });
+})();

@@ -3,6 +3,7 @@ package com.better.nothing.music.vizualizer.service;
 import com.better.nothing.music.vizualizer.R;
 import com.better.nothing.music.vizualizer.ui.MainActivity;
 import com.better.nothing.music.vizualizer.ui.TrampolineActivity;
+import com.better.nothing.music.vizualizer.service.IdleBreathingService;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,6 +23,7 @@ public class VisualizerTileService extends TileService {
             refresh(false);
         } else {
             refresh(true); // Immediate UI feedback
+            IdleBreathingService.requestStop((android.content.Context) this);
             unlockAndRun(() -> {
                 Intent i = new Intent(this, TrampolineActivity.class);
                 i.putExtra(AudioCaptureService.EXTRA_START_SOURCE, "viz_started_qs_tile");
