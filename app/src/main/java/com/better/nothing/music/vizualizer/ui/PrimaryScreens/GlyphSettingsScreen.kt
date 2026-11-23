@@ -229,6 +229,8 @@ internal fun GlyphsScreen(
             if (maxBrightness > 0) lastNonZero.intValue = maxBrightness
         }
 
+        val alternateGlyphVizEnabled by viewModel.alternateGlyphVizEnabled.collectAsStateWithLifecycle()
+
         BrightnessCard(
             maxBrightness = maxBrightness,
             enabled = true,
@@ -240,7 +242,10 @@ internal fun GlyphsScreen(
             thresholdValue = thresholdValue,
             onThresholdChanged = onThresholdChanged,
             speedValue = speedValue,
-            onSpeedChanged = onSpeedChanged
+            onSpeedChanged = onSpeedChanged,
+            alternateGlyphVizEnabled = alternateGlyphVizEnabled,
+            onAlternateGlyphVizChanged = { viewModel.setAlternateGlyphVizEnabled(it) },
+            selectedDevice = selectedDevice
         )
 
         val isSlimDevice = selectedDevice == com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP4A ||
@@ -559,7 +564,10 @@ fun BrightnessCard(
     thresholdValue: Float,
     onThresholdChanged: (Float) -> Unit,
     speedValue: Float,
-    onSpeedChanged: (Float) -> Unit
+    onSpeedChanged: (Float) -> Unit,
+    alternateGlyphVizEnabled: Boolean,
+    onAlternateGlyphVizChanged: (Boolean) -> Unit,
+    selectedDevice: Int
 ) {
 
     val MIN_BRIGHTNESS = 50
@@ -619,6 +627,25 @@ fun BrightnessCard(
             isExpanded = isMoreSlidersExpanded,
             onToggle = { isMoreSlidersExpanded = !isMoreSlidersExpanded }
         ) {
+            if (selectedDevice != com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_UNKNOWN) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.alternate_glyph_viz),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    ExpressiveSwitch(
+                        checked = alternateGlyphVizEnabled,
+                        onCheckedChange = onAlternateGlyphVizChanged
+                    )
+                }
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
+            }
+
             ThresholdSlider(
                 thresholdValue = thresholdValue,
                 onThresholdChanged = onThresholdChanged,

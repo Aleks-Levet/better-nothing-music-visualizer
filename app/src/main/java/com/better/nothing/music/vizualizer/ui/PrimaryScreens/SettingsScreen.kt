@@ -582,7 +582,6 @@ internal fun SettingsScreen(
             expanded = expandedCardId == "experimental",
             onExpandedChange = { expandedCardId = if (it) "experimental" else null }
         ) {
-            val alternateGlyphVizEnabled by viewModel.alternateGlyphVizEnabled.collectAsStateWithLifecycle()
             val highQualityAnalysis by viewModel.highQualityAnalysis.collectAsStateWithLifecycle()
             FlowRow(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
@@ -603,15 +602,6 @@ internal fun SettingsScreen(
                     isSelected = highQualityAnalysis,
                     onClick = { viewModel.setHighQualityAnalysis(!highQualityAnalysis) }
                 )
-
-                if (selectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
-                    OptionTile(
-                        label = stringResource(R.string.alternate_glyph_viz),
-                        icon = Icons.Default.Bolt,
-                        isSelected = alternateGlyphVizEnabled,
-                        onClick = { viewModel.setAlternateGlyphVizEnabled(!alternateGlyphVizEnabled) }
-                    )
-                }
 
             }
             val microphoneMode by viewModel.microphoneMode.collectAsStateWithLifecycle()
