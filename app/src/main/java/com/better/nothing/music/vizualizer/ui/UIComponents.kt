@@ -1317,7 +1317,7 @@ fun CardHeader(
         Text(
             text = title,
             modifier = Modifier.padding(7.dp).weight(1f),
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold,
             maxLines = 2,

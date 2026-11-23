@@ -323,7 +323,7 @@
     <string name="audio_route_none">None</string>
     <string name="output_selection">2. Select the outputs</string>
     <string name="select_capture_source">1. Select the audio source</string>
-    <string name="broadcast">Let others connect...</string>
+    <string name="broadcast">Let other devices connect to you</string>
     <string name="broadcast_card_description">Other devices that have BNMV installed will be able to connect to you for an even better experience</string>
 
     <!-- Audio Help Guides -->
@@ -347,10 +347,10 @@
     <string name="help_output_flash_desc">Pulses the camera flashlight to the beat.</string>
     <string name="help_output_overlays_title" translatable="false">@string/overlays</string>
     <string name="help_output_overlays_desc">Enables on-screen visualizers and overlays.</string>
-    <string name="help_output_broadcast_title">\"Let other devices connect...\"</string>
+    <string name="help_output_broadcast_title">\"Let other devices connect to you\"</string>
     <string name="help_output_broadcast_desc">Streams audio data to other devices on your network.</string>
     <string name="help_sync_title">Connecting to another device:</string>
-    <string name="help_sync_step1">1. Enable \'Let other devices connect...\' on the device playing music (Source).</string>
+    <string name="help_sync_step1">1. Enable \'Let other devices connect to you\' on the device playing music (Source).</string>
     <string name="help_sync_step2">2. On this device, select \'Another device or app...\' as the Audio Source and pick the source device from the list.</string>
 
     <string name="system_language">System Language</string>

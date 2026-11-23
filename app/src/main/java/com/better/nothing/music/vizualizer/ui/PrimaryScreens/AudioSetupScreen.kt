@@ -280,8 +280,6 @@ fun AudioScreen(
             onHapticsToggle = onHapticsEnabledChanged,
             flashlightEnabled = flashlightEnabled,
             onFlashlightToggle = onFlashlightEnabledChanged,
-            broadcastEnabled = broadcastEnabled,
-            onBroadcastToggle = onBroadcastEnabledChanged,
             overlaysEnabled = viewModel.onScreenVisualizersEnabled.collectAsState().value,
             onOverlaysToggle = {
                 viewModel.setOnScreenVisualizersEnabled(it, context, onOverlayPermissionRequest)
@@ -289,18 +287,14 @@ fun AudioScreen(
             isGlyphAvailable = isGlyphAvailable,
             hasHapticMotor = hasHapticMotor,
             hasFlashlight = hasFlashlight,
-            connectedClients = connectedClients,
-            isRunning = isRunning,
         )
 
-        if (isGlyphAvailable) {
-            BroadcastCard(
-                enabled = broadcastEnabled,
-                onEnabledChanged = onBroadcastEnabledChanged,
-                connectedClients = connectedClients,
-                isRunning = isRunning
-            )
-        }
+        BroadcastCard(
+            enabled = broadcastEnabled,
+            onEnabledChanged = onBroadcastEnabledChanged,
+            connectedClients = connectedClients,
+            isRunning = isRunning
+        )
 
         AnimatedVisibility(visible = isRunning && captureSource != AudioCaptureService.CaptureSource.MIC) {
             LatencyCard(
@@ -405,18 +399,39 @@ fun OutputSelectionCard(
     onHapticsToggle: (Boolean) -> Unit,
     flashlightEnabled: Boolean,
     onFlashlightToggle: (Boolean) -> Unit,
-    broadcastEnabled: Boolean,
-    onBroadcastToggle: (Boolean) -> Unit,
     overlaysEnabled: Boolean,
     onOverlaysToggle: (Boolean) -> Unit,
     isGlyphAvailable: Boolean = true,
     hasHapticMotor: Boolean = true,
-    hasFlashlight: Boolean = true,
-    connectedClients: Map<InetAddress, Int?> = emptyMap(),
-    isRunning: Boolean = false
+    hasFlashlight: Boolean = true
 ) {
     val context = LocalContext.current
     var isHelpExpanded by rememberSaveable { mutableStateOf(false) }
+
+    val outputs = buildList {
+        if (isGlyphAvailable) {
+            add(Triple(stringResource(R.string.tab_glyphs), ImageVector.vectorResource(R.drawable.ic_nav_glyphs), Pair(glyphsEnabled, onGlyphsToggle)))
+        }
+        if (hasHapticMotor) {
+            add(Triple(stringResource(R.string.tab_haptics), Icons.Default.Vibration, Pair(hapticsEnabled, onHapticsToggle)))
+        }
+        if (hasFlashlight) {
+            add(Triple(stringResource(R.string.tab_flashlight), Icons.Default.FlashlightOn, Pair(flashlightEnabled, onFlashlightToggle)))
+        }
+        add(Triple(stringResource(R.string.overlays), Icons.Default.Layers, Pair(overlaysEnabled, onOverlaysToggle)))
+    }
+
+    if (outputs.size <= 1) {
+        LaunchedEffect(Unit) {
+            outputs.firstOrNull()?.let { (_, _, statePair) ->
+                val (isEnabled, onToggle) = statePair
+                if (!isEnabled) {
+                    onToggle(true)
+                }
+            }
+        }
+        return
+    }
 
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
         CardHeader(
@@ -444,48 +459,52 @@ fun OutputSelectionCard(
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                HelpItem(stringResource(R.string.help_output_glyphs_title), stringResource(R.string.help_output_glyphs_desc))
-                HelpItem(stringResource(R.string.help_output_haptics_title), stringResource(R.string.help_output_haptics_desc))
-                HelpItem(stringResource(R.string.help_output_flash_title), stringResource(R.string.help_output_flash_desc))
+                if (isGlyphAvailable) HelpItem(stringResource(R.string.help_output_glyphs_title), stringResource(R.string.help_output_glyphs_desc))
+                if (hasHapticMotor) HelpItem(stringResource(R.string.help_output_haptics_title), stringResource(R.string.help_output_haptics_desc))
+                if (hasFlashlight) HelpItem(stringResource(R.string.help_output_flash_title), stringResource(R.string.help_output_flash_desc))
                 HelpItem(stringResource(R.string.help_output_overlays_title), stringResource(R.string.help_output_overlays_desc))
-                HelpItem(stringResource(R.string.help_output_broadcast_title), stringResource(R.string.help_output_broadcast_desc))
             }
         }
 
-        val outputs = buildList {
-            if (isGlyphAvailable) {
-                add(Triple(stringResource(R.string.tab_glyphs), ImageVector.vectorResource(R.drawable.ic_nav_glyphs), Triple(glyphsEnabled, onGlyphsToggle, true)))
+        if (outputs.size == 2) {
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                maxItemsInEachRow = 2,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                outputs.forEach { (label, icon, statePair) ->
+                    val (isEnabled, onToggle) = statePair
+                    OptionTile(
+                        label = label,
+                        icon = icon,
+                        isSelected = isEnabled,
+                        enabled = true,
+                        onClick = { onToggle(!isEnabled) },
+                        modifier = Modifier.height(64.dp),
+                        maxLines = 2
+                    )
+                }
             }
-            add(Triple(stringResource(R.string.tab_haptics), Icons.Default.Vibration, Triple(hapticsEnabled, onHapticsToggle, hasHapticMotor)))
-            add(Triple(stringResource(R.string.tab_flashlight), Icons.Default.FlashlightOn, Triple(flashlightEnabled, onFlashlightToggle, hasFlashlight)))
-            add(Triple(stringResource(R.string.overlays), Icons.Default.Layers, Triple(overlaysEnabled, onOverlaysToggle, true)))
-            if (!isGlyphAvailable) {
-                add(Triple(stringResource(R.string.broadcast), Icons.Default.Wifi, Triple(broadcastEnabled, onBroadcastToggle, true)))
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                outputs.forEach { (label, icon, statePair) ->
+                    val (isEnabled, onToggle) = statePair
+                    CompactOptionTile(
+                        label = label,
+                        icon = icon,
+                        isSelected = isEnabled,
+                        onClick = { onToggle(!isEnabled) },
+                        modifier = Modifier,
+                        enabled = true
+                    )
+                }
             }
         }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            outputs.forEach { (label, icon, stateTriple) ->
-                val (isEnabled, onToggle, isHardwareAvailable) = stateTriple
-                CompactOptionTile(
-                    label = label,
-                    icon = icon,
-                    isSelected = isEnabled && isHardwareAvailable,
-                    enabled = isHardwareAvailable,
-                    onClick = { if (isHardwareAvailable) onToggle(!isEnabled) },
-                    modifier = Modifier
-                )
-            }
-        }
-
-        if (!isGlyphAvailable && broadcastEnabled && isRunning) {
-            BroadcastClientDetails(connectedClients)
-        }
-
     }
 }
 
