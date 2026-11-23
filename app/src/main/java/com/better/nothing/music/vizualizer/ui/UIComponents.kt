@@ -466,8 +466,16 @@ fun FlowRowScope.OptionTile(
         label = "cornerRadius"
     )
 
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    val tileShadowTarget = if (isHovered && enabled) 8.dp else 0.dp
+    val animatedTileShadow by animateDpAsState(
+        targetValue = tileShadowTarget,
+        animationSpec = tween(300),
+        label = "optionTileShadow"
+    )
+
     // Weight Animation using the managed isWeightExpanded state
-    val targetWeight = if (isWeightExpanded && enabled) 1.2f else 1f
+    val targetWeight = if ((isWeightExpanded || isHovered) && enabled) 1.2f else 1f
     val animatedWeight by animateFloatAsState(
         targetValue = targetWeight,
         animationSpec = spring(
@@ -475,14 +483,6 @@ fun FlowRowScope.OptionTile(
             stiffness = Spring.StiffnessMediumLow
         ),
         label = "weight"
-    )
-
-    val isHovered by interactionSource.collectIsHoveredAsState()
-    val tileShadowTarget = if (isHovered && enabled) 8.dp else 0.dp
-    val animatedTileShadow by animateDpAsState(
-        targetValue = tileShadowTarget,
-        animationSpec = tween(300),
-        label = "optionTileShadow"
     )
 
     Surface(
@@ -593,8 +593,16 @@ fun RowScope.CompactOptionTile(
         },
         label = "compactOptionTileCornerRadius"
     )
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    val tileShadowTarget = if (isHovered && enabled) 8.dp else 0.dp
+    val animatedTileShadow by animateDpAsState(
+        targetValue = tileShadowTarget,
+        animationSpec = tween(300),
+        label = "compactOptionTileShadow"
+    )
+
     val animatedWeight by animateFloatAsState(
-        targetValue = if (isWeightExpanded && enabled) 1.2f else 1f,
+        targetValue = if ((isWeightExpanded || isHovered) && enabled) 1.2f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessMediumLow
@@ -609,6 +617,7 @@ fun RowScope.CompactOptionTile(
         shape = RoundedCornerShape(animatedRadius),
         color = backgroundColor,
         contentColor = contentColor,
+        shadowElevation = animatedTileShadow,
         modifier = modifier.weight(animatedWeight).height(84.dp)
     ) {
         Column(
@@ -2916,6 +2925,8 @@ fun ExpressiveColorPicker(
             ) {
                 rowColors.forEach { color ->
                     val isSelected = color == selectedColor
+                    val interactionSource = remember { MutableInteractionSource() }
+                    val isHovered by interactionSource.collectIsHoveredAsState()
 
                     // Replaced interactionSource with our own instant state
                     var isActuallyPressed by remember { mutableStateOf(false) }
@@ -2936,11 +2947,13 @@ fun ExpressiveColorPicker(
                         }
                     }
 
-                    // 1. Calculate the base target weight depending on selection and press state
+                    // 1. Calculate the base target weight depending on selection, press state, and hover state
                     val baseTargetWeight = when {
                         isSelected && visuallyPressed -> 2.5f
+                        isSelected && isHovered -> 3.2f
                         isSelected -> 3.0f
                         visuallyPressed -> 2.0f
+                        isHovered -> 1.4f
                         else -> 1.0f
                     }
 
@@ -2966,6 +2979,7 @@ fun ExpressiveColorPicker(
                             .height(42.dp)
                             .clip(CircleShape)
                             .background(color, CircleShape)
+                            .hoverable(interactionSource)
                             .then(
                                 if (isSelected) Modifier.border(
                                     width = 3.dp,
