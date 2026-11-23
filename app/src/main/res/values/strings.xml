@@ -11,6 +11,9 @@
     <string name="manual_mode_global_latency">Manual mode (Global latency)</string>
     <string name="latency_compensation">Latency Compensation</string>
     <string name="live_spectrum">Live Audio Spectrum</string>
+    <string name="audio_adjustments" translatable="false">Audio adjustments</string>
+    <string name="audio_sensitivity" translatable="false">Sensitivity</string>
+    <string name="hq_audio_description" translatable="false">More sensitive. The mids and highs are better, but the bass punch is kinda lost</string>
 
     <!-- Glyph Screen -->
     <string name="glyph_controls">Glyph controls</string>
