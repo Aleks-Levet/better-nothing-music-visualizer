@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -331,6 +332,24 @@ internal fun SettingsScreen(
                             maxButtonsPerRow = 4
                         )
                     }
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant)
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.sync_ui_to_beat),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                        ExpressiveSwitch(
+                            checked = uiAmplitudeSyncEnabled,
+                            onCheckedChange = { viewModel.setUiAmplitudeSyncEnabled(it) }
+                        )
+                    }
             }
         }
 
@@ -589,13 +608,6 @@ internal fun SettingsScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                OptionTile(
-                    label = stringResource(R.string.sync_ui_to_beat),
-                    icon = Icons.Default.SyncAlt,
-                    isSelected = uiAmplitudeSyncEnabled,
-                    onClick = { viewModel.setUiAmplitudeSyncEnabled(!uiAmplitudeSyncEnabled) }
-                )
-
                 OptionTile(
                     label = stringResource(R.string.higher_quality_audio_analysis),
                     icon = Icons.Default.HighQuality,
