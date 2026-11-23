@@ -30,6 +30,7 @@ import com.better.nothing.music.vizualizer.ui.ExpressiveColorPicker
 import com.better.nothing.music.vizualizer.ui.ExpressiveSlider
 import com.better.nothing.music.vizualizer.ui.FineTuneButton
 import com.better.nothing.music.vizualizer.ui.IndicatorPill
+import com.better.nothing.music.vizualizer.ui.ShowMoreSlidersSubCard
 import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
 import com.better.nothing.music.vizualizer.ui.MainViewModel
 import com.better.nothing.music.vizualizer.ui.VisualizerStyle
@@ -550,41 +551,11 @@ private fun OverlayMoreSliders(
     overlayBottomEnabled: Boolean,
     overlayHeightBottom: Int
 ) {
-    Surface(
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f),
-        modifier = Modifier.fillMaxWidth()
+    ShowMoreSlidersSubCard(
+        title = stringResource(R.string.configure),
+        isExpanded = isExpanded,
+        onToggle = onToggle
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = if (isExpanded) 12.dp else 4.dp),
-            verticalArrangement = Arrangement.spacedBy(if (isExpanded) 12.dp else 0.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.configure),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.secondary,
-                    fontWeight = FontWeight.Bold
-                )
-                IndicatorPill(
-                    isExpanded = isExpanded,
-                    onClick = onToggle
-                )
-            }
-
-            AnimatedVisibility(
-                visible = isExpanded,
-                enter = expandVertically() + fadeIn(),
-                exit = shrinkVertically() + fadeOut()
-            ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.padding(bottom = 4.dp)
-                ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -716,9 +687,6 @@ private fun OverlayMoreSliders(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-                }
-            }
-        }
     }
 }
 
@@ -733,41 +701,11 @@ private fun EdgeMoreSliders(
     edgeTopEnabled: Boolean,
     edgeBottomEnabled: Boolean
 ) {
-    Surface(
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f),
-        modifier = Modifier.fillMaxWidth()
+    ShowMoreSlidersSubCard(
+        title = stringResource(R.string.configure),
+        isExpanded = isExpanded,
+        onToggle = onToggle
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = if (isExpanded) 12.dp else 4.dp),
-            verticalArrangement = Arrangement.spacedBy(if (isExpanded) 12.dp else 0.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.configure),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.secondary,
-                    fontWeight = FontWeight.Bold
-                )
-                IndicatorPill(
-                    isExpanded = isExpanded,
-                    onClick = onToggle
-                )
-            }
-
-            AnimatedVisibility(
-                visible = isExpanded,
-                enter = expandVertically() + fadeIn(),
-                exit = shrinkVertically() + fadeOut()
-            ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.padding(bottom = 4.dp)
-                ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -873,9 +811,6 @@ private fun EdgeMoreSliders(
                     onCheckedChange = { viewModel.setEdgeBottomEnabled(it) }
                 )
             }
-                }
-            }
-        }
     }
 }
 
@@ -892,41 +827,11 @@ private fun LensMoreSliders(
     lensMaxHeight: Float,
     lensBarCount: Int
 ) {
-    Surface(
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f),
-        modifier = Modifier.fillMaxWidth()
+    ShowMoreSlidersSubCard(
+        title = stringResource(R.string.configure),
+        isExpanded = isExpanded,
+        onToggle = onToggle
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = if (isExpanded) 12.dp else 4.dp),
-            verticalArrangement = Arrangement.spacedBy(if (isExpanded) 12.dp else 0.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.configure),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.secondary,
-                    fontWeight = FontWeight.Bold
-                )
-                IndicatorPill(
-                    isExpanded = isExpanded,
-                    onClick = onToggle
-                )
-            }
-
-            AnimatedVisibility(
-                visible = isExpanded,
-                enter = expandVertically() + fadeIn(),
-                exit = shrinkVertically() + fadeOut()
-            ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.padding(bottom = 4.dp)
-                ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -1087,8 +992,5 @@ private fun LensMoreSliders(
                 valueRange = 8f..48f,
                 modifier = Modifier.fillMaxWidth()
             )
-                }
-            }
-        }
     }
 }

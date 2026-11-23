@@ -41,6 +41,7 @@ import com.better.nothing.music.vizualizer.ui.ExpandableExpressiveCard
 import com.better.nothing.music.vizualizer.ui.ExpressiveSplitButton
 import com.better.nothing.music.vizualizer.ui.ExpressiveSwitch
 import com.better.nothing.music.vizualizer.ui.IndicatorPill
+import com.better.nothing.music.vizualizer.ui.ShowMoreSlidersSubCard
 import com.better.nothing.music.vizualizer.ui.LinkCard
 import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
 import com.better.nothing.music.vizualizer.ui.MainViewModel
@@ -164,124 +165,102 @@ internal fun SettingsScreen(
                         val slant by viewModel.googleSansSlant.collectAsStateWithLifecycle()
                         val rounding by viewModel.googleSansRounding.collectAsStateWithLifecycle()
 
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ShowMoreSlidersSubCard(
+                            modifier = Modifier.padding(top = 8.dp),
+                            title = stringResource(R.string.font_google_sans),
+                            isExpanded = isFontSettingsExpanded,
+                            onToggle = { isFontSettingsExpanded = !isFontSettingsExpanded }
                         ) {
-                            CardHeader(
-                                title = stringResource(R.string.font_google_sans),
-                                trailingContent = {
-                                    IndicatorPill(
-                                        isExpanded = isFontSettingsExpanded,
-                                        onClick = {
-                                            isFontSettingsExpanded = !isFontSettingsExpanded
-                                        }
+                            // Weight and Width Side by Side
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                // Weight Slider
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = stringResource(R.string.gsans_weight_font_settings) + ": ${weight.toInt()}",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    ExpressiveSlider(
+                                        value = weight,
+                                        onValueChange = { viewModel.setGoogleSansWeight(it) },
+                                        valueRange = 100f..1000f,
+                                        modifier = Modifier.fillMaxWidth()
                                     )
                                 }
-                            )
 
-                            AnimatedVisibility(
-                                visible = isFontSettingsExpanded,
-                                enter = expandVertically() + fadeIn(),
-                                exit = shrinkVertically() + fadeOut()
+                                // Width Slider
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = stringResource(R.string.gsans_width_font_settings) + ": ${width.toInt()}%",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    ExpressiveSlider(
+                                        value = width,
+                                        onValueChange = { viewModel.setGoogleSansWidth(it) },
+                                        valueRange = 25f..150f,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            }
+
+                            // Rounding and Slant Side by Side
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
-                                Column(
-                                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                                // Rounding Slider
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = stringResource(R.string.gsans_rounding_font_settings) + ": ${rounding.toInt()}",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    ExpressiveSlider(
+                                        value = rounding,
+                                        onValueChange = { viewModel.setGoogleSansRounding(it) },
+                                        valueRange = 0f..100f,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+
+                                // Slant Slider (Inverted: 0 on left, -20 on right)
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = stringResource(R.string.gsans_slant_font_settings) + ": ${slant.toInt()}°",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    ExpressiveSlider(
+                                        value = -slant,
+                                        onValueChange = { viewModel.setGoogleSansSlant(-it) },
+                                        valueRange = 0f..20f,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            }
+
+                            // Reset Button
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                IconButton(
+                                    onClick = {
+                                        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
+                                        viewModel.resetGoogleSansAxes()
+                                    },
+                                    modifier = Modifier.size(32.dp)
                                 ) {
-                                    // Weight and Width Side by Side
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                                    ) {
-                                        // Weight Slider
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Text(
-                                                text = stringResource(R.string.gsans_weight_font_settings) + ": ${weight.toInt()}",
-                                                style = MaterialTheme.typography.labelLarge,
-                                                color = MaterialTheme.colorScheme.primary
-                                            )
-                                            ExpressiveSlider(
-                                                value = weight,
-                                                onValueChange = { viewModel.setGoogleSansWeight(it) },
-                                                valueRange = 100f..1000f,
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-                                        }
-
-                                        // Width Slider
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Text(
-                                                text = stringResource(R.string.gsans_width_font_settings) + ": ${width.toInt()}%",
-                                                style = MaterialTheme.typography.labelLarge,
-                                                color = MaterialTheme.colorScheme.primary
-                                            )
-                                            ExpressiveSlider(
-                                                value = width,
-                                                onValueChange = { viewModel.setGoogleSansWidth(it) },
-                                                valueRange = 25f..150f,
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-                                        }
-                                    }
-
-                                    // Rounding and Slant Side by Side
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                                    ) {
-                                        // Rounding Slider
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Text(
-                                                text = stringResource(R.string.gsans_rounding_font_settings) + ": ${rounding.toInt()}",
-                                                style = MaterialTheme.typography.labelLarge,
-                                                color = MaterialTheme.colorScheme.primary
-                                            )
-                                            ExpressiveSlider(
-                                                value = rounding,
-                                                onValueChange = { viewModel.setGoogleSansRounding(it) },
-                                                valueRange = 0f..100f,
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-                                        }
-
-                                        // Slant Slider (Inverted: 0 on left, -20 on right)
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Text(
-                                                text = stringResource(R.string.gsans_slant_font_settings) + ": ${slant.toInt()}°",
-                                                style = MaterialTheme.typography.labelLarge,
-                                                color = MaterialTheme.colorScheme.primary
-                                            )
-                                            ExpressiveSlider(
-                                                value = -slant,
-                                                onValueChange = { viewModel.setGoogleSansSlant(-it) },
-                                                valueRange = 0f..20f,
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-                                        }
-                                    }
-
-                                    // Reset Button
-                                    Box(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        IconButton(
-                                            onClick = {
-                                                view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
-                                                viewModel.resetGoogleSansAxes()
-                                            },
-                                            modifier = Modifier.size(32.dp)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.RestartAlt,
-                                                contentDescription = stringResource(R.string.reset_font_settings),
-                                                tint = MaterialTheme.colorScheme.primary,
-                                                modifier = Modifier.size(20.dp)
-                                            )
-                                        }
-                                    }
+                                    Icon(
+                                        imageVector = Icons.Default.RestartAlt,
+                                        contentDescription = stringResource(R.string.reset_font_settings),
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
                                 }
                             }
                         }

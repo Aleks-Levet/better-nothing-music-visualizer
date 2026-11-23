@@ -1239,6 +1239,62 @@ fun IndicatorPill(
 }
 
 @Composable
+fun ShowMoreSlidersSubCard(
+    isExpanded: Boolean,
+    onToggle: () -> Unit,
+    modifier: Modifier = Modifier,
+    title: String = stringResource(R.string.show_more_sliders),
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Surface(
+        shape = MaterialTheme.shapes.medium,
+        color = Color.Transparent,
+        border = BorderStroke(4.dp, MaterialTheme.colorScheme.secondary),
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = if (isExpanded) 12.dp else 4.dp),
+            verticalArrangement = Arrangement.spacedBy(if (isExpanded) 12.dp else 0.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { onToggle() },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontWeight = FontWeight.Bold
+                )
+                IndicatorPill(
+                    isExpanded = isExpanded,
+                    onClick = onToggle
+                )
+            }
+
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(bottom = 4.dp)
+                ) {
+                    content()
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun CardHeader(
     title: String,
     modifier: Modifier = Modifier,

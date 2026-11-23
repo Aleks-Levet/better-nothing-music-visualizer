@@ -57,6 +57,7 @@ import com.better.nothing.music.vizualizer.ui.ExpressiveSplitButton
 import com.better.nothing.music.vizualizer.ui.ExpressiveSwitch
 import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
 import com.better.nothing.music.vizualizer.ui.IndicatorPill
+import com.better.nothing.music.vizualizer.ui.ShowMoreSlidersSubCard
 import kotlin.math.pow
 
 
@@ -611,71 +612,55 @@ fun BrightnessCard(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        CardHeader(
+        ShowMoreSlidersSubCard(
             title = stringResource(R.string.show_more_sliders),
-            trailingContent = {
-                IndicatorPill(
-                    isExpanded = isMoreSlidersExpanded,
-                    onClick = { isMoreSlidersExpanded = !isMoreSlidersExpanded }
-                )
-            }
-        )
-
-        AnimatedVisibility(
-            visible = isMoreSlidersExpanded,
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut()
+            isExpanded = isMoreSlidersExpanded,
+            onToggle = { isMoreSlidersExpanded = !isMoreSlidersExpanded }
         ) {
-            Column {
-                ThresholdSlider(
-                    thresholdValue = thresholdValue,
-                    onThresholdChanged = onThresholdChanged,
-                    isExpanded = isThresholdExpanded,
-                    onToggleExpand = { isThresholdExpanded = !isThresholdExpanded }
-                )
+            ThresholdSlider(
+                thresholdValue = thresholdValue,
+                onThresholdChanged = onThresholdChanged,
+                isExpanded = isThresholdExpanded,
+                onToggleExpand = { isThresholdExpanded = !isThresholdExpanded }
+            )
 
-                Spacer(modifier = Modifier.height(16.dp))
+            GammaSlider(
+                gammaValue = gammaValue,
+                onGammaChanged = onGammaChanged,
+                isExpanded = isGammaExpanded,
+                onToggleExpand = { isGammaExpanded = !isGammaExpanded }
+            )
 
-                GammaSlider(
-                    gammaValue = gammaValue,
-                    onGammaChanged = onGammaChanged,
-                    isExpanded = isGammaExpanded,
-                    onToggleExpand = { isGammaExpanded = !isGammaExpanded }
-                )
-
-                AnimatedVisibility(
-                    visible = isGammaExpanded,
-                    enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut()
-                ) {
-                    Column {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(14.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            GammaPreviewCard(gammaValue = gammaValue)
-                            BodyText(
-                                text = stringResource(R.string.gamma_description),
-                                modifier = Modifier.weight(1f),
-                                size = 14.sp,
-                                lineHeight = 22.sp,
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
+            AnimatedVisibility(
+                visible = isGammaExpanded,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        GammaPreviewCard(gammaValue = gammaValue)
+                        BodyText(
+                            text = stringResource(R.string.gamma_description),
+                            modifier = Modifier.weight(1f),
+                            size = 14.sp,
+                            lineHeight = 22.sp,
+                        )
                     }
                 }
-
-                SpeedSlider(
-                    speedValue = speedValue,
-                    onSpeedChanged = onSpeedChanged,
-                    isExpanded = isSpeedExpanded,
-                    onToggleExpand = { isSpeedExpanded = !isSpeedExpanded }
-                )
             }
+
+            SpeedSlider(
+                speedValue = speedValue,
+                onSpeedChanged = onSpeedChanged,
+                isExpanded = isSpeedExpanded,
+                onToggleExpand = { isSpeedExpanded = !isSpeedExpanded }
+            )
         }
     }
 }
