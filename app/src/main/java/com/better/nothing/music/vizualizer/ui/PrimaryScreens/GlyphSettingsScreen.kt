@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -122,15 +123,32 @@ internal fun GlyphsScreen(
                         fontWeight = FontWeight.Bold
                     )
 
-                    AsyncImage(
-                        model = "https://github.com/Aleks-Levet/better-nothing-music-visualizer/blob/main/Docs/app-icon-by-burgerkingfootlettuce-novolume-dev.jpg?raw=true",
-                        contentDescription = stringResource(R.string.easter_egg_image),
+                    var isImageLoading by remember { mutableStateOf(true) }
+                    Box(
                         modifier = Modifier
                             .sizeIn(maxWidth = 400.dp, maxHeight = 400.dp)
                             .aspectRatio(1f)
-                            .clip(RoundedCornerShape(16.dp)),
-                        contentScale = ContentScale.Crop
-                    )
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AsyncImage(
+                            model = "https://github.com/Aleks-Levet/better-nothing-music-visualizer/blob/main/Docs/app-icon-by-burgerkingfootlettuce-novolume-dev.jpg?raw=true",
+                            contentDescription = stringResource(R.string.easter_egg_image),
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                            onLoading = { isImageLoading = true },
+                            onSuccess = { isImageLoading = false },
+                            onError = { isImageLoading = false }
+                        )
+                        if (isImageLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(48.dp),
+                                color = MaterialTheme.colorScheme.primary,
+                                strokeWidth = 4.dp
+                            )
+                        }
+                    }
 
                     Text(
                         text = stringResource(R.string.easter_egg_glyph_popup_body),

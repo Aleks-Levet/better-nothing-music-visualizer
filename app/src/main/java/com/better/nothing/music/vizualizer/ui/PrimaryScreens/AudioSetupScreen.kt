@@ -712,15 +712,22 @@ fun CaptureSourceCard(
                 maxLines = 2
             )
         }
-        AnimatedVisibility(selectedSource == AudioCaptureService.CaptureSource.VIZUALIZER) {
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = stringResource(R.string.audio_warning_vizualizer),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
+        AnimatedVisibility(
+            visible = selectedSource == AudioCaptureService.CaptureSource.VIZUALIZER,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            Column(modifier = Modifier.padding(top = 16.dp)) {
+                Text(
+                    text = stringResource(R.string.audio_warning_vizualizer),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                )
+            }
         }
     }
 }
