@@ -3,6 +3,11 @@
 -keep class com.nothing.thirdparty.** { public protected *; }
 -dontwarn com.nothing.thirdparty.**
 
+-keep class rikka.shizuku.** { *; }
+-dontwarn rikka.shizuku.**
+-keep class moe.shizuku.** { *; }
+-dontwarn moe.shizuku.**
+
 # Aggressive R8 Optimizations
 -optimizationpasses 5
 -repackageclasses ''

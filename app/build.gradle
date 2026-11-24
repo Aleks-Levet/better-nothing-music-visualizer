@@ -425,6 +425,10 @@ dependencies {
 
     implementation platform('com.google.firebase:firebase-bom:35.1.0')
     implementation 'com.google.firebase:firebase-analytics'
+
+    def shizuku_version = '13.1.5'
+    implementation "dev.rikka.shizuku:api:${shizuku_version}"
+    implementation "dev.rikka.shizuku:provider:${shizuku_version}"
 }
 
 apply plugin: 'com.google.gms.google-services'
