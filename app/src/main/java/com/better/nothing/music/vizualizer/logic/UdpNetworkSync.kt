@@ -320,20 +320,22 @@ class UdpNetworkSync(private val context: Context) {
                                 }
                             }
 
-                            // Add client IP to streaming list (deduplicated)
+                            // Add or refresh client IP in streaming list
                             val clientAddr = packet.address
-                            if (clientAddr != null && !isLocalAddress(clientAddr) && !_clientIps.value.containsKey(clientAddr)) {
+                            if (clientAddr != null && !isLocalAddress(clientAddr)) {
                                 generalExecutor.execute {
                                     try {
-                                        Thread.sleep(200)
+                                        val isNew = !_clientIps.value.containsKey(clientAddr)
                                         clientLastSeenMap[clientAddr] = System.currentTimeMillis()
-                                        _clientIps.update { current ->
-                                            if (current.containsKey(clientAddr)) current
-                                            else current + (clientAddr to null)
+                                        if (isNew) {
+                                            _clientIps.update { current ->
+                                                if (current.containsKey(clientAddr)) current
+                                                else current + (clientAddr to null)
+                                            }
+                                            Log.i(TAG, "Host: Added $clientAddr to streaming clients")
                                         }
-                                        Log.i(TAG, "Host: Added $clientAddr to streaming clients")
                                     } catch (e: Exception) {
-                                        Log.e(TAG, "Host: Failed to add client", e)
+                                        Log.e(TAG, "Host: Failed to update client", e)
                                     }
                                 }
                             }
@@ -798,9 +800,24 @@ class UdpNetworkSync(private val context: Context) {
                 val buffer = ByteArray(2048)
                 var receivedCount = 0
                 var lastFrameTime = System.currentTimeMillis()
+                var lastKeepAliveTime = System.currentTimeMillis()
 
                 while (isListening && !socket.isClosed) {
                     try {
+                        val now = System.currentTimeMillis()
+                        if (hostIp != null && now - lastKeepAliveTime > 2000) {
+                            lastKeepAliveTime = now
+                            generalExecutor.execute {
+                                try {
+                                    val msg = DISCOVERY_MSG.toByteArray()
+                                    val kaSocket = DatagramSocket()
+                                    val packet = DatagramPacket(msg, msg.size, InetAddress.getByName(hostIp), DISCOVERY_PORT)
+                                    kaSocket.send(packet)
+                                    kaSocket.close()
+                                } catch (e: Exception) {}
+                            }
+                        }
+
                         val packet = DatagramPacket(buffer, buffer.size)
                         socket.receive(packet)
                         if (packet.length == 768) {
