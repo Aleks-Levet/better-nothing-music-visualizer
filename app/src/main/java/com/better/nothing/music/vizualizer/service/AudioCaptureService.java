@@ -419,6 +419,9 @@ public class AudioCaptureService extends Service {
     private volatile boolean mHapticEnabled = false;
     private boolean mHasHapticMotor = false;
     private boolean mHasFlashlight = false;
+    private String mNotifButton1 = "glyphs";
+    private String mNotifButton2 = "haptics";
+    private String mNotifButton3 = "torch";
     private volatile HapticMode mHapticMode = HapticMode.BEAT_DETECTION;
     private volatile BeatEngineMode mHapticBeatEngineMode = BeatEngineMode.SMOOTH;
     private volatile int mHapticPulseDurationMs = 40;
@@ -447,6 +450,27 @@ public class AudioCaptureService extends Service {
     private volatile int mFlashlightIntensityLevels = 1;
     private volatile Integer mFlashlightSpoofLevels = null;
     private volatile int mFlashlightMaxIntensity = -1;
+
+    private volatile float mSensitivityInternal = 1.0f;
+    private volatile float mSensitivityMic = 1.0f;
+    private volatile float mSensitivityRoot = 1.0f;
+    private volatile float mSensitivityVizualizer = 1.0f;
+
+    public void setSourceSensitivity(CaptureSource source, float value) {
+        float v = Math.max(0.5f, Math.min(3.0f, value));
+        if (source == CaptureSource.INTERNAL) mSensitivityInternal = v;
+        else if (source == CaptureSource.MIC) mSensitivityMic = v;
+        else if (source == CaptureSource.ROOT) mSensitivityRoot = v;
+        else if (source == CaptureSource.VIZUALIZER) mSensitivityVizualizer = v;
+    }
+
+    public float getSensitivityForSource(CaptureSource source) {
+        if (source == CaptureSource.INTERNAL) return mSensitivityInternal;
+        if (source == CaptureSource.MIC) return mSensitivityMic;
+        if (source == CaptureSource.ROOT) return mSensitivityRoot;
+        if (source == CaptureSource.VIZUALIZER) return mSensitivityVizualizer;
+        return 1.0f;
+    }
 
     private ContinuousHapticEngine mContinuousHapticEngine;
     private BeatDetectionHapticEngine mBeatDetectionEngine;
@@ -703,8 +727,13 @@ public class AudioCaptureService extends Service {
             mCaptureSource = CaptureSource.INTERNAL;
         }
         mIdleBreathingEnabled = appPrefs.getBoolean("idle_breathing_enabled", false);
+        mNetworkHostIp = appPrefs.getString("network_host_ip", null);
+        mNetworkHostPort = getSafeInt(appPrefs, "network_host_port", 8888);
         if (mGlyphRenderer != null) mGlyphRenderer.setAlternateMode(appPrefs.getBoolean("alternate_glyph_viz_enabled", false));
         mBroadcastEnabled = appPrefs.getBoolean("broadcast_enabled", false);
+        if (mBroadcastEnabled && mUdpSync != null) {
+            mUdpSync.startBroadcasting(Build.MODEL);
+        }
         mOverlayEnabled = appPrefs.getBoolean("overlay_enabled", false);
         mRoundedBarsEnabled = appPrefs.getBoolean("rounded_bars_enabled", false);
         try {
@@ -761,6 +790,11 @@ public class AudioCaptureService extends Service {
     private void refreshSettingsFromPrefs() {
         SharedPreferences appPrefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE);
         
+        mNotifButton1 = appPrefs.getString("notification_button_1", "glyphs");
+        String defaultBtn2 = mHasHapticMotor ? "haptics" : "overlay";
+        mNotifButton2 = appPrefs.getString("notification_button_2", defaultBtn2);
+        mNotifButton3 = appPrefs.getString("notification_button_3", "torch");
+
         String sourceName = appPrefs.getString("capture_source", defaultCaptureSource(this).name());
         try {
             CaptureSource source = CaptureSource.valueOf(sourceName);
@@ -792,6 +826,10 @@ public class AudioCaptureService extends Service {
         setHapticBeatGamma(getSafeFloat(appPrefs, "haptic_beat_gamma", 12.0f));
         setHapticFreqRange(getSafeFloat(appPrefs, "haptic_freq_min", 70f), getSafeFloat(appPrefs, "haptic_freq_max", 130f));
         setHapticAudioGain(getSafeFloat(appPrefs, "haptic_audio_gain", 1.0f));
+        mSensitivityInternal = getSafeFloat(appPrefs, "sensitivity_internal", 1.0f);
+        mSensitivityMic = getSafeFloat(appPrefs, "sensitivity_mic", 1.0f);
+        mSensitivityRoot = getSafeFloat(appPrefs, "sensitivity_root", 1.0f);
+        mSensitivityVizualizer = getSafeFloat(appPrefs, "sensitivity_vizualizer", 1.0f);
 
         setFlashlightEnabled(mHasFlashlight && appPrefs.getBoolean("flashlight_enabled", false));
         try {
@@ -2038,7 +2076,12 @@ public class AudioCaptureService extends Service {
             if (hz < 8000) hz = 44100; // Fallback for invalid values
 
             mAudioProcessor.updateFFTSize(hz);
-            short[] hop = new short[waveform.length]; for (int i = 0; i < waveform.length; i++) hop[i] = (short) (((waveform[i] & 0xFF) - 128) << 8);
+            float sensitivity = getSensitivityForSource(CaptureSource.VIZUALIZER);
+            short[] hop = new short[waveform.length]; 
+            for (int i = 0; i < waveform.length; i++) {
+                int val = (int) ((((waveform[i] & 0xFF) - 128) << 8) * sensitivity);
+                hop[i] = (short) Math.max(-32768, Math.min(32767, val));
+            }
             AudioProcessor.AudioFrameResult result = mAudioProcessor.processAudioFrame(hop, AudioProcessor.SourceType.VIZUALIZER, mVisualizerConfig != null ? mVisualizerConfig.decay : 0.85f);
             if (result == null) return;
             PendingFrame frame = new PendingFrame(result.fftraw, mVisualizerConfig, mPresetConfigVersion.get(), SystemClock.elapsedRealtime() + getEffectiveLatencyMs(), isSilent);
@@ -2073,6 +2116,14 @@ public class AudioCaptureService extends Service {
             if (read == 0) continue;
 
             CaptureSource source = mCaptureSource;
+            float sensitivity = getSensitivityForSource(source);
+            if (sensitivity != 1.0f) {
+                for (int i = 0; i < read; i++) {
+                    int scaled = (int) (hop[i] * sensitivity);
+                    hop[i] = (short) Math.max(-32768, Math.min(32767, scaled));
+                }
+            }
+
             int silThreshold = source == CaptureSource.INTERNAL ? 50
                     : source == CaptureSource.MIC ? 100 : 250;
             boolean hasSignal = false;
@@ -2202,29 +2253,56 @@ public class AudioCaptureService extends Service {
             .setSilent(true);
             
         int addedButtons = 0;
-        if (mSelectedDevice != DeviceProfile.DEVICE_UNKNOWN) {
-            String label = getString(R.string.notification_action_glyphs);
-            PendingIntent pi = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                    ? PendingIntent.getForegroundService(this, 10, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_GLYPHS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT)
-                    : PendingIntent.getService(this, 10, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_GLYPHS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.addAction(0, mMaxBrightness > 0 ? label.toUpperCase(Locale.ROOT) : label, pi);
-            addedButtons++;
-        }
-        if (mHasHapticMotor) {
-            String label = getString(R.string.notification_action_haptics);
-            PendingIntent pi = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                    ? PendingIntent.getForegroundService(this, 11, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_HAPTICS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT)
-                    : PendingIntent.getService(this, 11, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_HAPTICS), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.addAction(0, mHapticEnabled ? label.toUpperCase(Locale.ROOT) : label, pi);
-            addedButtons++;
-        }
-        if (mHasFlashlight) {
-            String label = getString(R.string.notification_action_flash);
-            PendingIntent pi = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                    ? PendingIntent.getForegroundService(this, 12, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_TORCH), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT)
-                    : PendingIntent.getService(this, 12, new Intent(this, AudioCaptureService.class).setAction(ACTION_TOGGLE_TORCH), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.addAction(0, mFlashlightEnabled ? label.toUpperCase(Locale.ROOT) : label, pi);
-            addedButtons++;
+        String[] buttons = {mNotifButton1, mNotifButton2, mNotifButton3};
+        for (int i = 0; i < buttons.length; i++) {
+            String actionType = buttons[i];
+            if (actionType == null || "none".equals(actionType)) continue;
+
+            String label = "";
+            String intentAction = "";
+            boolean isActive = false;
+            int reqCode = 10 + i;
+
+            if ("glyphs".equals(actionType)) {
+                if (mSelectedDevice == DeviceProfile.DEVICE_UNKNOWN) continue;
+                label = getString(R.string.notification_action_glyphs);
+                intentAction = ACTION_TOGGLE_GLYPHS;
+                isActive = mMaxBrightness > 0;
+            } else if ("haptics".equals(actionType)) {
+                if (!mHasHapticMotor) continue;
+                label = getString(R.string.notification_action_haptics);
+                intentAction = ACTION_TOGGLE_HAPTICS;
+                isActive = mHapticEnabled;
+            } else if ("torch".equals(actionType)) {
+                if (!mHasFlashlight) continue;
+                label = getString(R.string.notification_action_flash);
+                intentAction = ACTION_TOGGLE_TORCH;
+                isActive = mFlashlightEnabled;
+            } else if ("overlay".equals(actionType)) {
+                label = getString(R.string.notification_action_overlay);
+                intentAction = ACTION_TOGGLE_OVERLAY;
+                isActive = mOverlayEnabled;
+            } else if ("edge".equals(actionType)) {
+                label = getString(R.string.notification_action_edge);
+                intentAction = ACTION_TOGGLE_EDGE;
+                isActive = mEdgeVisualizerEnabled;
+            } else if ("lens".equals(actionType)) {
+                label = getString(R.string.notification_action_lens);
+                intentAction = ACTION_TOGGLE_LENS;
+                isActive = mLensVisualizerEnabled;
+            } else if ("broadcast".equals(actionType)) {
+                label = getString(R.string.notification_action_broadcast);
+                intentAction = ACTION_TOGGLE_BROADCAST;
+                isActive = mBroadcastEnabled;
+            }
+
+            if (!intentAction.isEmpty() && !label.isEmpty()) {
+                PendingIntent pi = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                        ? PendingIntent.getForegroundService(this, reqCode, new Intent(this, AudioCaptureService.class).setAction(intentAction), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT)
+                        : PendingIntent.getService(this, reqCode, new Intent(this, AudioCaptureService.class).setAction(intentAction), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+                builder.addAction(0, isActive ? label.toUpperCase(Locale.ROOT) : label, pi);
+                addedButtons++;
+            }
         }
         
         if (addedButtons <= 2) {
@@ -2590,7 +2668,11 @@ public class AudioCaptureService extends Service {
         mNetworkHostIp = ip;
         mNetworkHostPort = port;
         mCaptureSource = CaptureSource.NETWORK;
-        getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putString("capture_source", CaptureSource.NETWORK.name()).apply();
+        getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit()
+                .putString("capture_source", CaptureSource.NETWORK.name())
+                .putString("network_host_ip", ip)
+                .putInt("network_host_port", port)
+                .apply();
         
         if (!sIsRunning) {
             startNetworkCapture();

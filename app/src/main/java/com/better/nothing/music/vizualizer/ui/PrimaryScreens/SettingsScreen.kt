@@ -545,6 +545,78 @@ internal fun SettingsScreen(
             }
         }
 
+        // ── Notification Settings (Experimental) ─────────────────────────────
+        ExpandableExpressiveCard(
+            title = stringResource(R.string.notification_settings),
+            icon = Icons.Default.Notifications,
+            expanded = expandedCardId == "notification_settings",
+            onExpandedChange = { expandedCardId = if (it) "notification_settings" else null }
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                val notifButton1 by viewModel.notificationButton1.collectAsStateWithLifecycle()
+                val notifButton2 by viewModel.notificationButton2.collectAsStateWithLifecycle()
+                val notifButton3 by viewModel.notificationButton3.collectAsStateWithLifecycle()
+                val actions = listOf("glyphs", "haptics", "torch", "overlay", "edge", "lens", "broadcast", "none")
+                val labelProvider: @Composable (String) -> String = { action ->
+                    when (action) {
+                        "glyphs" -> stringResource(R.string.notification_action_glyphs)
+                        "haptics" -> stringResource(R.string.notification_action_haptics)
+                        "torch" -> stringResource(R.string.notification_action_flash)
+                        "overlay" -> stringResource(R.string.notification_action_overlay)
+                        "edge" -> stringResource(R.string.notification_action_edge)
+                        "lens" -> stringResource(R.string.notification_action_lens)
+                        "broadcast" -> stringResource(R.string.notification_action_broadcast)
+                        "none" -> stringResource(R.string.disabled)
+                        else -> action
+                    }
+                }
+
+                Text(
+                    text = stringResource(R.string.notification_button_1),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                ExpressiveSplitButton(
+                    items = actions,
+                    selectedItem = notifButton1,
+                    onItemSelection = { viewModel.setNotificationButton1(it) },
+                    labelProvider = labelProvider,
+                    modifier = Modifier.fillMaxWidth(),
+                    maxButtonsPerRow = 4
+                )
+
+                Text(
+                    text = stringResource(R.string.notification_button_2),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                ExpressiveSplitButton(
+                    items = actions,
+                    selectedItem = notifButton2,
+                    onItemSelection = { viewModel.setNotificationButton2(it) },
+                    labelProvider = labelProvider,
+                    modifier = Modifier.fillMaxWidth(),
+                    maxButtonsPerRow = 4
+                )
+
+                Text(
+                    text = stringResource(R.string.notification_button_3),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                ExpressiveSplitButton(
+                    items = actions,
+                    selectedItem = notifButton3,
+                    onItemSelection = { viewModel.setNotificationButton3(it) },
+                    labelProvider = labelProvider,
+                    modifier = Modifier.fillMaxWidth(),
+                    maxButtonsPerRow = 4
+                )
+            }
+        }
+
         // ── Language Selection ──────────────────────────────────────────────
         val currentSpoofLocale by viewModel.spoofLocale.collectAsStateWithLifecycle()
         ExpandableExpressiveCard(
@@ -593,55 +665,6 @@ internal fun SettingsScreen(
         }
 
 
-
-        // ── Experimental Features ───────────────────────────────────────────
-        ExpandableExpressiveCard(
-            title = stringResource(R.string.experimental_features),
-            icon = Icons.Default.Tune,
-            expanded = expandedCardId == "experimental",
-            onExpandedChange = { expandedCardId = if (it) "experimental" else null }
-        ) {
-            val highQualityAnalysis by viewModel.highQualityAnalysis.collectAsStateWithLifecycle()
-            FlowRow(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                maxItemsInEachRow = 2,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OptionTile(
-                    label = stringResource(R.string.higher_quality_audio_analysis),
-                    icon = Icons.Default.HighQuality,
-                    isSelected = highQualityAnalysis,
-                    onClick = { viewModel.setHighQualityAnalysis(!highQualityAnalysis) }
-                )
-
-            }
-            val microphoneMode by viewModel.microphoneMode.collectAsStateWithLifecycle()
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Spacer(modifier = Modifier.height(25.dp))
-                Text(
-                    text = stringResource(R.string.microphone_mode),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                ExpressiveSplitButton(
-                    items = MicrophoneMode.entries,
-                    selectedItem = microphoneMode,
-                    onItemSelection = { viewModel.setMicrophoneMode(it) },
-                    labelProvider = { stringResource(it.labelRes) },
-                    maxButtonsPerRow = 2,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                BodyText(
-                    text = stringResource(microphoneMode.descriptionRes),
-                    size = 12.sp
-                )
-            }
-        }
 
         // ── Links & Info ────────────────────────────────────────────────────
 

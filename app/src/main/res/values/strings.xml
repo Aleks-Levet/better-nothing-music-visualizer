@@ -99,7 +99,6 @@
     <string name="flashlight_duration_label">Duration: %d ms</string>
     <string name="flashlight_duration_desc">Duration of the pulse in milliseconds.</string>
 
-    <string name="experimental_features">Experimental Features</string>
     <string name="feature_flashlight_levels">Flashlight intensity levels</string>
     <string name="feature_supported_n">%d levels supported</string>
     <string name="feature_basic">Binary (On/Off only)</string>
@@ -424,4 +423,14 @@
     <string name="error_min_greater_than_max" tools:ignore="MissingTranslation">Min must be less than or equal to Max</string>
     <string name="label_min_value" tools:ignore="MissingTranslation">Min Value</string>
     <string name="label_max_value" tools:ignore="MissingTranslation">Max Value</string>
+
+    <!-- Notification Settings -->
+    <string name="notification_settings" tools:ignore="MissingTranslation">Notification settings</string>
+    <string name="notification_button_1" tools:ignore="MissingTranslation">Button 1 action</string>
+    <string name="notification_button_2" tools:ignore="MissingTranslation">Button 2 action</string>
+    <string name="notification_button_3" tools:ignore="MissingTranslation">Button 3 action</string>
+    <string name="notification_action_overlay" tools:ignore="MissingTranslation">Overlay</string>
+    <string name="notification_action_edge" tools:ignore="MissingTranslation">Nav bar</string>
+    <string name="notification_action_lens" tools:ignore="MissingTranslation">Lens</string>
+    <string name="notification_action_broadcast" tools:ignore="MissingTranslation">Broadcast</string>
 </resources>
