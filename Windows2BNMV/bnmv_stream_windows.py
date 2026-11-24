@@ -187,6 +187,10 @@ class BNMVStreamer:
         # expire on -- devices stay connected until this script restarts.
         self.targets = set()
         self.targets_lock = threading.Lock()
+        self.targets = set()
+        self.target_last_seen = {}
+        self.targets_lock = threading.Lock()
+        self.client_timeout = 7.0
         self._stop = threading.Event()
 
         # --- slow, non-aggressive auto-gain state ---
@@ -196,11 +200,13 @@ class BNMVStreamer:
 
     # ---- connected-device tracking --------------------------------------------
     def add_target(self, ip: str) -> bool:
-        """Add `ip` to the connected-device set. Returns True if it's a
+        """Add or refresh `ip` in the connected-device set. Returns True if it's a
         newly seen device (not already connected)."""
+        now = time.time()
         with self.targets_lock:
             is_new = ip not in self.targets
             self.targets.add(ip)
+            self.target_last_seen[ip] = now
         return is_new
 
     # ---- discovery listener -------------------------------------------------
@@ -218,6 +224,9 @@ class BNMVStreamer:
                         count = len(self.targets)
                     print(f"[bnmv] Handshake received from {addr[0]} -> streaming to "
                           f"{addr[0]}:{self.args.send_port} ({count} device(s) connected)")
+                else:
+                    with self.targets_lock:
+                        self.target_last_seen[addr[0]] = time.time()
                 self.send_host_reply(addr[0])
 
     def send_host_reply(self, ip: str):
@@ -243,12 +252,31 @@ class BNMVStreamer:
             except Exception:
                 continue
             if text.startswith("BNMV_PING;"):
+                ip = addr[0]
+                with self.targets_lock:
+                    if ip in self.targets:
+                        self.target_last_seen[ip] = time.time()
                 timestamp = text.split(";", 1)[1]
                 reply = f"BNMV_PONG;{timestamp}"
                 try:
                     self.ping_sock.sendto(reply.encode("utf-8"), addr)
                 except OSError:
                     pass
+
+    def cleanup_loop(self):
+        while not self._stop.is_set():
+            time.sleep(2.0)
+            now = time.time()
+            with self.targets_lock:
+                timed_out = [
+                    ip for ip, last_seen in self.target_last_seen.items()
+                    if now - last_seen > self.client_timeout
+                ]
+                if timed_out:
+                    for ip in timed_out:
+                        self.targets.discard(ip)
+                        del self.target_last_seen[ip]
+                        print(f"[bnmv] Client {ip} disconnected (timeout). Removed from streaming clients.")
 
     # ---- auto-gain --------------------------------------------------------
     def update_autogain(self, mags: np.ndarray) -> float:
@@ -315,6 +343,9 @@ class BNMVStreamer:
 
         pinger = threading.Thread(target=self.ping_loop, daemon=True)
         pinger.start()
+
+        cleaner = threading.Thread(target=self.cleanup_loop, daemon=True)
+        cleaner.start()
 
         try:
             self.send_loop()
