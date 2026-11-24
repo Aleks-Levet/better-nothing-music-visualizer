@@ -304,7 +304,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun connectToHost(host: UdpNetworkSync.HostInfo) {
         _selectedHost.value = host
-        setCaptureSource(AudioCaptureService.CaptureSource.NETWORK)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit {
+                    putString("network_host_ip", host.ip)
+                    putInt("network_host_port", host.port)
+                    putString("capture_source", AudioCaptureService.CaptureSource.NETWORK.name)
+                }
+        }
+        val s = MainActivity.serviceStatic
+        if (s != null) {
+            s.connectUdp(host.ip, host.port)
+        } else {
+            setCaptureSource(AudioCaptureService.CaptureSource.NETWORK)
+        }
     }
 
     private val _onScreenVisualizersEnabled = MutableStateFlow(false)
@@ -1761,6 +1774,54 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val _sensitivityInternal = MutableStateFlow(1.0f)
+    val sensitivityInternal = _sensitivityInternal.asStateFlow()
+
+    private val _sensitivityMic = MutableStateFlow(1.0f)
+    val sensitivityMic = _sensitivityMic.asStateFlow()
+
+    private val _sensitivityRoot = MutableStateFlow(1.0f)
+    val sensitivityRoot = _sensitivityRoot.asStateFlow()
+
+    private val _sensitivityVizualizer = MutableStateFlow(1.0f)
+    val sensitivityVizualizer = _sensitivityVizualizer.asStateFlow()
+
+    val currentSourceSensitivity: StateFlow<Float> = combine(
+        captureSource,
+        _sensitivityInternal,
+        _sensitivityMic,
+        _sensitivityRoot,
+        _sensitivityVizualizer
+    ) { source, internal, mic, root, viz ->
+        when (source) {
+            AudioCaptureService.CaptureSource.INTERNAL -> internal
+            AudioCaptureService.CaptureSource.MIC -> mic
+            AudioCaptureService.CaptureSource.ROOT -> root
+            AudioCaptureService.CaptureSource.VIZUALIZER -> viz
+            AudioCaptureService.CaptureSource.NETWORK -> 1.0f
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1.0f)
+
+    fun setSourceSensitivity(source: AudioCaptureService.CaptureSource, value: Float) {
+        val fixed = value.coerceIn(0.5f, 3.0f)
+        when (source) {
+            AudioCaptureService.CaptureSource.INTERNAL -> _sensitivityInternal.value = fixed
+            AudioCaptureService.CaptureSource.MIC -> _sensitivityMic.value = fixed
+            AudioCaptureService.CaptureSource.ROOT -> _sensitivityRoot.value = fixed
+            AudioCaptureService.CaptureSource.VIZUALIZER -> _sensitivityVizualizer.value = fixed
+            AudioCaptureService.CaptureSource.NETWORK -> {}
+        }
+        MainActivity.serviceStatic?.setSourceSensitivity(source, fixed)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putFloat("sensitivity_${source.name.lowercase()}", fixed) }
+        }
+    }
+
+    fun setCurrentSourceSensitivity(value: Float) {
+        setSourceSensitivity(captureSource.value, value)
+    }
+
     val _fftReadMethod = MutableStateFlow(AudioProcessor.ReadMethod.RMS)
     val fftReadMethod = _fftReadMethod.asStateFlow()
 
@@ -2096,6 +2157,57 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 .edit { putString("flashlight_mode", mode.name) }
         }
         MainActivity.serviceStatic?.setFlashlightMode(mode)
+    }
+
+    // ── Notification Button Settings ──────────────────────────────────────────
+    private val _notificationButton1 = MutableStateFlow("glyphs")
+    val notificationButton1 = _notificationButton1.asStateFlow()
+
+    private val _notificationButton2 = MutableStateFlow("haptics")
+    val notificationButton2 = _notificationButton2.asStateFlow()
+
+    private val _notificationButton3 = MutableStateFlow("torch")
+    val notificationButton3 = _notificationButton3.asStateFlow()
+
+    fun setNotificationButton1(action: String) {
+        if (_notificationButton1.value == action) return
+        _notificationButton1.value = action
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putString("notification_button_1", action) }
+        }
+        notifyServiceRefresh()
+    }
+
+    fun setNotificationButton2(action: String) {
+        if (_notificationButton2.value == action) return
+        _notificationButton2.value = action
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putString("notification_button_2", action) }
+        }
+        notifyServiceRefresh()
+    }
+
+    fun setNotificationButton3(action: String) {
+        if (_notificationButton3.value == action) return
+        _notificationButton3.value = action
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putString("notification_button_3", action) }
+        }
+        notifyServiceRefresh()
+    }
+
+    private fun notifyServiceRefresh() {
+        try {
+            val serviceIntent = Intent(ctx, AudioCaptureService::class.java).apply {
+                action = AudioCaptureService.ACTION_REFRESH_SETTINGS
+            }
+            ctx.startService(serviceIntent)
+        } catch (e: Exception) {
+            // ignore
+        }
     }
 
     fun setFlashlightFreqRange(min: Float, max: Float) {
@@ -2500,6 +2612,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _glyphThreshold.value = get("glyph_threshold", 0.0f)
         _glyphDecaySpeed.value = get("glyph_decay_speed", 0.75f)
         _spectrumGain.value = get("spectrum_gain", 4.0f)
+        _sensitivityInternal.value = get("sensitivity_internal", 1.0f).coerceIn(0.5f, 3.0f)
+        _sensitivityMic.value = get("sensitivity_mic", 1.0f).coerceIn(0.5f, 3.0f)
+        _sensitivityRoot.value = get("sensitivity_root", 1.0f).coerceIn(0.5f, 3.0f)
+        _sensitivityVizualizer.value = get("sensitivity_vizualizer", 1.0f).coerceIn(0.5f, 3.0f)
         
         val savedBrightness = get("max_brightness", 4095)
         if (savedBrightness > 0) {
@@ -2616,6 +2732,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         _isFirstTime.value = get("first_time_v2", true)
         _discordClicked.value = get("discord_clicked", false)
+
+        val defaultBtn2 = if (hasHapticMotor) "haptics" else "overlay"
+        _notificationButton1.value = get("notification_button_1", "glyphs")
+        _notificationButton2.value = get("notification_button_2", defaultBtn2)
+        _notificationButton3.value = get("notification_button_3", "torch")
 
         val savedTab = get("selected_tab", Tab.Audio.name)
         _selectedTab.value = safeValueOf(savedTab, Tab.Audio)

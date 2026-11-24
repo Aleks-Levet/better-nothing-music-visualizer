@@ -7,12 +7,9 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
-import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -67,6 +64,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -110,6 +108,9 @@ import com.better.nothing.music.vizualizer.ui.CardHeader
 import com.better.nothing.music.vizualizer.ui.ExpressiveSlider
 import com.better.nothing.music.vizualizer.ui.FineTuneButton
 import com.better.nothing.music.vizualizer.ui.ExpressiveSwitch
+import com.better.nothing.music.vizualizer.ui.MicrophoneMode
+import com.better.nothing.music.vizualizer.ui.ShowMoreSlidersSubCard
+import com.better.nothing.music.vizualizer.ui.ExpressiveSplitButton
 import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
 import com.better.nothing.music.vizualizer.ui.MainViewModel
 import java.util.Locale
@@ -263,15 +264,20 @@ fun AudioScreen(
                     onCaptureSourceChanged(source)
                 }
             },
-            developerModeEnabled = developerModeEnabled,
             networkDeviceName = if (captureSource == AudioCaptureService.CaptureSource.NETWORK) connectedDeviceName else null
         )
 
-        AnimatedVisibility(visible = isRunning) {
-            FFTSpectrumCard(
-                fftRaw = fftRaw
-            )
-        }
+        FFTSpectrumCard(
+            fftRaw = fftRaw,
+            isRunning = isRunning,
+            captureSource = captureSource,
+            sensitivity = viewModel.currentSourceSensitivity.collectAsStateWithLifecycle().value,
+            onSensitivityChanged = { viewModel.setCurrentSourceSensitivity(it) },
+            highQualityAnalysis = viewModel.highQualityAnalysis.collectAsStateWithLifecycle().value,
+            onHighQualityAnalysisChanged = { viewModel.setHighQualityAnalysis(it) },
+            microphoneMode = viewModel.microphoneMode.collectAsStateWithLifecycle().value,
+            onMicrophoneModeChanged = { viewModel.setMicrophoneMode(it) }
+        )
 
         OutputSelectionCard(
             glyphsEnabled = glyphsEnabled,
@@ -596,7 +602,6 @@ private fun BroadcastClientDetails(connectedClients: Map<InetAddress, Int?>) {
 fun CaptureSourceCard(
     selectedSource: AudioCaptureService.CaptureSource,
     onSourceSelected: (AudioCaptureService.CaptureSource) -> Unit,
-    developerModeEnabled: Boolean,
     networkDeviceName: String? = null
 ) {
     val context = LocalContext.current
@@ -930,15 +935,22 @@ fun LatencyCard(
 
 @Composable
 fun FFTSpectrumCard(
-    fftRaw: FloatArray
+    fftRaw: FloatArray,
+    isRunning: Boolean,
+    captureSource: AudioCaptureService.CaptureSource,
+    sensitivity: Float,
+    onSensitivityChanged: (Float) -> Unit,
+    highQualityAnalysis: Boolean,
+    onHighQualityAnalysisChanged: (Boolean) -> Unit,
+    microphoneMode: MicrophoneMode,
+    onMicrophoneModeChanged: (MicrophoneMode) -> Unit
 ) {
-    val haptics = LocalHapticFeedback.current
     var isExpanded by remember { mutableStateOf(false) }
     var touchX by remember { mutableStateOf<Float?>(null) }
 
     val data = fftRaw
     ExpandableExpressiveCard(
-        title = stringResource(R.string.live_spectrum),
+        title = stringResource(R.string.audio_adjustments),
         icon = Icons.Default.Leaderboard,
         expanded = isExpanded,
         onExpandedChange = { isExpanded = it }
@@ -946,136 +958,218 @@ fun FFTSpectrumCard(
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            BoxWithConstraints(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(160.dp)
-                    .clip(MaterialTheme.shapes.small)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .pointerInput(Unit) {
-                        detectDragGestures(
-                            onDragStart = { touchX = it.x },
-                            onDrag = { change, _ ->
-                                change.consume()
-                                touchX = change.position.x
-                            },
-                            onDragEnd = { touchX = null },
-                            onDragCancel = { touchX = null }
+            AnimatedVisibility(visible = isRunning) {
+                BoxWithConstraints(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(160.dp)
+                        .clip(MaterialTheme.shapes.small)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .pointerInput(Unit) {
+                            detectDragGestures(
+                                onDragStart = { touchX = it.x },
+                                onDrag = { change, _ ->
+                                    change.consume()
+                                    touchX = change.position.x
+                                },
+                                onDragEnd = { touchX = null },
+                                onDragCancel = { touchX = null }
+                            )
+                        }
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onPress = {
+                                    touchX = it.x
+                                    tryAwaitRelease()
+                                    touchX = null
+                                }
+                            )
+                        }
+                ) {
+                    val primaryColor = MaterialTheme.colorScheme.primary
+                    val width = maxWidth
+                    val density = LocalDensity.current
+
+                    Canvas(modifier = Modifier.fillMaxSize()) {
+                        if (data.isEmpty()) return@Canvas
+
+                        val w = size.width
+                        val h = size.height
+
+                        val barPath = Path()
+                        var first = true
+
+                        val gradient = Brush.verticalGradient(
+                            colors = listOf(
+                                primaryColor.copy(alpha = 0.7f),
+                                primaryColor.copy(alpha = 0.04f)
+                            ),
+                            startY = 0f,
+                            endY = h
                         )
-                    }
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onPress = {
-                                touchX = it.x
-                                tryAwaitRelease()
-                                touchX = null
+
+                        val points = data.size - 1
+                        for (i in 5..points) {
+                            val fraction = i.toFloat() / points.toFloat()
+                            val mag = data[i]
+
+                            // data is already normalized 0..1 from MainActivity/MainViewModel
+                            val y = h - (mag * (h - 40f)) - 20f
+                            val x = fraction * w
+
+                            if (first) {
+                                barPath.moveTo(x, y)
+                                first = false
+                            } else {
+                                barPath.lineTo(x, y)
                             }
+                        }
+
+                        val fillPath = Path().apply {
+                            addPath(barPath)
+                            lineTo(w, h)
+                            lineTo(0f, h)
+                            close()
+                        }
+
+                        drawPath(path = fillPath, brush = gradient)
+
+
+                        drawPath(
+                            path = barPath,
+                            color = primaryColor,
+                            style = Stroke(
+                                width = 3.dp.toPx(),
+                                cap = StrokeCap.Round,
+                                join = StrokeJoin.Round
+                            )
                         )
-                    }
-            ) {
-                val primaryColor = MaterialTheme.colorScheme.primary
-                val width = maxWidth
-                val density = LocalDensity.current
 
-                Canvas(modifier = Modifier.fillMaxSize()) {
-                    if (data.isEmpty()) return@Canvas
-
-                    val w = size.width
-                    val h = size.height
-
-                    val barPath = Path()
-                    var first = true
-
-                    val gradient = Brush.verticalGradient(
-                        colors = listOf(
-                            primaryColor.copy(alpha = 0.7f),
-                            primaryColor.copy(alpha = 0.04f)
-                        ),
-                        startY = 0f,
-                        endY = h
-                    )
-
-                    val points = data.size - 1
-                    for (i in 5..points) {
-                        val fraction = i.toFloat() / points.toFloat()
-                        val mag = data[i]
-
-                        // data is already normalized 0..1 from MainActivity/MainViewModel
-                        val y = h - (mag * (h - 40f)) - 20f
-                        val x = fraction * w
-
-                        if (first) {
-                            barPath.moveTo(x, y)
-                            first = false
-                        } else {
-                            barPath.lineTo(x, y)
+                        touchX?.let { tx ->
+                            val x = tx.coerceIn(0f, w)
+                            drawLine(
+                                color = primaryColor.copy(alpha = 0.5f),
+                                start = Offset(x, 0f),
+                                end = Offset(x, h),
+                                strokeWidth = 1.dp.toPx(),
+                                pathEffect = PathEffect.dashPathEffect(floatArrayOf(20f, 10f))
+                            )
                         }
                     }
 
-                    val fillPath = Path().apply {
-                        addPath(barPath)
-                        lineTo(w, h)
-                        lineTo(0f, h)
-                        close()
+                    touchX?.let { tx ->
+                        val fraction = (tx / constraints.maxWidth.toFloat()).coerceIn(0f, 1f)
+                        val logMin = log10(30f)
+                        val logMax = log10(16000f)
+                        val logFreq = logMin + fraction * (logMax - logMin)
+                        val freq = 10f.pow(logFreq)
+
+                        val text = if (freq >= 1000) String.format(
+                            Locale.US,
+                            "%.1fkHz",
+                            freq / 1000f
+                        ) else String.format(Locale.US, "%dHz", freq.toInt())
+                        val txDp = with(density) { tx.toDp() }
+
+                        val isPureBlack = MaterialTheme.colorScheme.background == Color.Black
+                        Surface(
+                            modifier = Modifier
+                                .offset(
+                                    x = (txDp - 30.dp).coerceIn(4.dp, width - 64.dp),
+                                    y = 12.dp
+                                ),
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = MaterialTheme.shapes.small,
+                            tonalElevation = if (isPureBlack) 0.dp else 4.dp
+                        ) {
+                            Text(
+                                text = text,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
+                }
+            }
 
-                    drawPath(path = fillPath, brush = gradient)
-
-
-                    drawPath(
-                        path = barPath,
-                        color = primaryColor,
-                        style = Stroke(
-                            width = 3.dp.toPx(),
-                            cap = StrokeCap.Round,
-                            join = StrokeJoin.Round
+            AnimatedVisibility(visible = captureSource != AudioCaptureService.CaptureSource.NETWORK) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.audio_sensitivity),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
+                        Text(
+                            text = String.format(Locale.US, "%.1fx", sensitivity),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    ExpressiveSlider(
+                        value = sensitivity,
+                        onValueChange = onSensitivityChanged,
+                        valueRange = 0.5f..3.0f,
+                        modifier = Modifier.fillMaxWidth()
                     )
 
-                    touchX?.let { tx ->
-                        val x = tx.coerceIn(0f, w)
-                        drawLine(
-                            color = primaryColor.copy(alpha = 0.5f),
-                            start = Offset(x, 0f),
-                            end = Offset(x, h),
-                            strokeWidth = 1.dp.toPx(),
-                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(20f, 10f))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.higher_quality_audio_analysis),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Text(
+                                text = stringResource(R.string.hq_audio_description),
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                        ExpressiveSwitch(
+                            checked = highQualityAnalysis,
+                            onCheckedChange = onHighQualityAnalysisChanged
                         )
                     }
                 }
+            }
 
-                touchX?.let { tx ->
-                    val fraction = (tx / constraints.maxWidth.toFloat()).coerceIn(0f, 1f)
-                    val logMin = log10(30f)
-                    val logMax = log10(16000f)
-                    val logFreq = logMin + fraction * (logMax - logMin)
-                    val freq = 10f.pow(logFreq)
-
-                    val text = if (freq >= 1000) String.format(
-                        Locale.US,
-                        "%.1fkHz",
-                        freq / 1000f
-                    ) else String.format(Locale.US, "%dHz", freq.toInt())
-                    val txDp = with(density) { tx.toDp() }
-
-                    val isPureBlack = MaterialTheme.colorScheme.background == Color.Black
-                    Surface(
-                        modifier = Modifier
-                            .offset(
-                                x = (txDp - 30.dp).coerceIn(4.dp, width - 64.dp),
-                                y = 12.dp
-                            ),
-                        color = MaterialTheme.colorScheme.primary,
-                        shape = MaterialTheme.shapes.small,
-                        tonalElevation = if (isPureBlack) 0.dp else 4.dp
+            AnimatedVisibility(visible = captureSource == AudioCaptureService.CaptureSource.MIC) {
+                var isMicModeExpanded by rememberSaveable { mutableStateOf(false) }
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    ShowMoreSlidersSubCard(
+                        title = stringResource(R.string.microphone_mode),
+                        isExpanded = isMicModeExpanded,
+                        onToggle = { isMicModeExpanded = !isMicModeExpanded }
                     ) {
-                        Text(
-                            text = text,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            ExpressiveSplitButton(
+                                items = MicrophoneMode.entries,
+                                selectedItem = microphoneMode,
+                                onItemSelection = onMicrophoneModeChanged,
+                                labelProvider = { stringResource(it.labelRes) },
+                                maxButtonsPerRow = 2,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            BodyText(
+                                text = stringResource(microphoneMode.descriptionRes),
+                                size = 12.sp
+                            )
+                        }
                     }
                 }
             }
