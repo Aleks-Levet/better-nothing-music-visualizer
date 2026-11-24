@@ -27,6 +27,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.wifi.WifiManager;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
@@ -47,6 +48,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
+import android.net.wifi.WifiManager;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Process;
@@ -225,7 +227,12 @@ public class AudioCaptureService extends Service {
         sIsRunningFlow.setValue(running);
         requestWidgetRefresh(this);
         requestTileRefresh(this);
-        if (running) IdleBreathingService.requestStop(this);
+        if (running) {
+            IdleBreathingService.requestStop(this);
+            acquireStreamingLocks();
+        } else {
+            releaseStreamingLocks();
+        }
 
         SharedPreferences prefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE);
         prefs.edit().putBoolean(PREF_KEY_SHOULD_BE_RUNNING, running).apply();
@@ -479,6 +486,53 @@ public class AudioCaptureService extends Service {
     private GlyphRenderer mGlyphRenderer;
     private UdpNetworkSync mUdpSync;
     private boolean mBroadcastEnabled = false;
+    private PowerManager.WakeLock mStreamingWakeLock;
+    private WifiManager.WifiLock mWifiLock;
+
+    private synchronized void acquireStreamingLocks() {
+        try {
+            if (mStreamingWakeLock == null) {
+                PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+                if (pm != null) {
+                    mStreamingWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "BNMV:StreamingWakeLock");
+                    mStreamingWakeLock.setReferenceCounted(false);
+                }
+            }
+            if (mStreamingWakeLock != null && !mStreamingWakeLock.isHeld()) {
+                mStreamingWakeLock.acquire();
+                Log.i(TAG, "Acquired streaming WakeLock");
+            }
+
+            if (mWifiLock == null) {
+                WifiManager wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                if (wm != null) {
+                    mWifiLock = wm.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "BNMV:WifiLock");
+                    mWifiLock.setReferenceCounted(false);
+                }
+            }
+            if (mWifiLock != null && !mWifiLock.isHeld()) {
+                mWifiLock.acquire();
+                Log.i(TAG, "Acquired streaming WifiLock");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to acquire streaming locks", e);
+        }
+    }
+
+    private synchronized void releaseStreamingLocks() {
+        try {
+            if (mStreamingWakeLock != null && mStreamingWakeLock.isHeld()) {
+                mStreamingWakeLock.release();
+                Log.i(TAG, "Released streaming WakeLock");
+            }
+            if (mWifiLock != null && mWifiLock.isHeld()) {
+                mWifiLock.release();
+                Log.i(TAG, "Released streaming WifiLock");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to release streaming locks", e);
+        }
+    }
     // Accessed by the capture thread and the main-handler fallback loop.
     private volatile long mLastSendMs = 0L;
     private long mCaptureStartTimeMs = 0L;
@@ -1065,6 +1119,7 @@ public class AudioCaptureService extends Service {
     public void onDestroy() {
         sInstance = null; stopCapture(); clearGlyphSession();
         updateIdleBreathingWakeLock(false);
+        releaseStreamingLocks();
         if (mScreenReceiver != null) {
             try { unregisterReceiver(mScreenReceiver); } catch (Exception ignored) {}
             mScreenReceiver = null;
