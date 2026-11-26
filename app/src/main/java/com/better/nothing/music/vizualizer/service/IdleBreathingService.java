@@ -642,13 +642,18 @@ public class IdleBreathingService extends Service {
             case DeviceProfile.DEVICE_NP4APRO -> Glyph.DEVICE_25111p;
             case DeviceProfile.DEVICE_NP3 -> Glyph.DEVICE_23112;
             case DeviceProfile.DEVICE_NP4B -> "26111";
+            case DeviceProfile.DEVICE_NP3ALITE -> Build.MODEL != null && Build.MODEL.contains("A001T") ? Build.MODEL : "A001T";
             default -> throw new IllegalStateException("Unsupported Glyph device");
         };
     }
 
     private void requestTileRefresh() {
-        TileService.requestListeningState(
-                this, new ComponentName(this, IdleBreathingTileService.class));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            try {
+                TileService.requestListeningState(
+                        this, new ComponentName(this, IdleBreathingTileService.class));
+            } catch (Exception ignored) {}
+        }
     }
 
     @Override
