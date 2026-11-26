@@ -48,7 +48,7 @@
     <string name="beat_engine_smooth">Плавный спад</string>
     <string name="beat_engine_short">Короткий импульс</string>
     <!-- Audio Processing -->
-    <string name="microphone_mode">Режим захвата с микрофона (для экспертов)</string>
+
     <string name="microphone_mode_desc">Изменяет способ захвата звука микрофоном.</string>
     <string name="mic_mode_mic">MIC</string>
     <string name="mic_mode_mic_desc">The default mic mode for android</string>
@@ -78,7 +78,7 @@
     <string name="flashlight_monitor_label">Монитор вспышки</string>
     <string name="flashlight_duration_label">Длительность: %d мс</string>
     <string name="flashlight_duration_desc">Длительность светового импульса в миллисекундах.</string>
-    <string name="experimental_features">Экспериментальные функции</string>
+
     <string name="feature_flashlight_levels">Уровни яркости вспышки</string>
     <string name="feature_supported_n">Поддерживается уровней: %d</string>
     <string name="feature_basic">Двоичный (только Вкл/Выкл)</string>

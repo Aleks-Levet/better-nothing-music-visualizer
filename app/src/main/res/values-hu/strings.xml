@@ -48,7 +48,7 @@
     <string name="beat_engine_smooth">Kiegyenlített Leesés</string>
     <string name="beat_engine_short">Rövid Villanás</string>
     <!-- Audio Processing -->
-    <string name="microphone_mode">Mikrofon alapú hangbevitel (Profi)</string>
+
     <string name="microphone_mode_desc">Megváltoztatja a mikrofon hangbeviteli módját.</string>
     <string name="mic_mode_mic">MIC</string>
     <string name="mic_mode_mic_desc">Az alap Androidos mikrofonbemenet érzékelés</string>
@@ -78,7 +78,7 @@
     <string name="flashlight_monitor_label">Zseblámpa monitor</string>
     <string name="flashlight_duration_label">Időtartam: %d ms</string>
     <string name="flashlight_duration_desc">A villanás időtartama, miliszekundumban megadva.</string>
-    <string name="experimental_features">Kísérleti Beállítások</string>
+
     <string name="feature_flashlight_levels">Zseblámpa intenzitási szintek</string>
     <string name="feature_supported_n">%d szint támogatott</string>
     <string name="feature_basic">Bináris (Be/Ki)</string>

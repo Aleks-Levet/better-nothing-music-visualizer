@@ -48,7 +48,7 @@
     <string name="beat_engine_smooth">Dissolvenza Graduale</string>
     <string name="beat_engine_short">Impulso Breve</string>
     <!-- Audio Processing -->
-    <string name="microphone_mode">Modalità Acquisizione Microfono (Esperto)</string>
+
     <string name="microphone_mode_desc">Controlla come il microfono cattura l\'audio.</string>
     <string name="mic_mode_mic">MIC</string>
     <string name="mic_mode_mic_desc">La modalità microfono predefinita per Android</string>
@@ -78,7 +78,7 @@
     <string name="flashlight_monitor_label">Monitor torcia</string>
     <string name="flashlight_duration_label">Durata: %d ms</string>
     <string name="flashlight_duration_desc">Durata dell\'impulso in millisecondi.</string>
-    <string name="experimental_features">Funzioni sperimentali</string>
+
     <string name="feature_flashlight_levels">Livelli Intensità Torcia</string>
     <string name="feature_supported_n">%d livelli supportati</string>
     <string name="feature_basic">Binario (solo On/Off)</string>

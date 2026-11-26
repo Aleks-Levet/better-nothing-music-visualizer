@@ -48,7 +48,7 @@
     <string name="beat_engine_smooth">Fluide</string>
     <string name="beat_engine_short">Pas fluide</string>
     <!-- Audio Processing -->
-    <string name="microphone_mode">Mode de capture du microphone (expert)</string>
+
     <string name="microphone_mode_desc">Modifie la façon dont le microphone capture l\'audio.</string>
     <string name="mic_mode_mic">MICRO</string>
     <string name="mic_mode_mic_desc">Le mode micro par défaut pour Android</string>
@@ -78,7 +78,7 @@
     <string name="flashlight_monitor_label">Moniteur Flash</string>
     <string name="flashlight_duration_label">Durée : %d ms</string>
     <string name="flashlight_duration_desc">Durée de l\'impulsion en millisecondes.</string>
-    <string name="experimental_features">Fonctionnalités expérimentales</string>
+
     <string name="feature_flashlight_levels">Niveaux d\'intensité du flash</string>
     <string name="feature_supported_n">%d niveaux pris en charge</string>
     <string name="feature_basic">Binaire (On/Off seulement)</string>

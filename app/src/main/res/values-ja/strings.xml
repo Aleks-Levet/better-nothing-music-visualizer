@@ -48,7 +48,7 @@
     <string name="beat_engine_smooth">スムーズフォールアウト</string>
     <string name="beat_engine_short">ショートパルス</string>
     <!-- Audio Processing -->
-    <string name="microphone_mode">マイクキャプチャモード (エキスパート)</string>
+
     <string name="microphone_mode_desc">マイクの音声キャプチャ方法を変更します。</string>
     <string name="mic_mode_mic">マイク</string>
     <string name="mic_mode_mic_desc">Android の既定のマイク</string>
@@ -78,7 +78,7 @@
     <string name="flashlight_monitor_label">フラッシュライトモニター</string>
     <string name="flashlight_duration_label">持続時間: %d ms</string>
     <string name="flashlight_duration_desc">ミリ秒単位のパルスの持続時間</string>
-    <string name="experimental_features">実験的機能</string>
+
     <string name="feature_flashlight_levels">フラッシュライトの輝度レベル</string>
     <string name="feature_supported_n">%d 段階の調整に対応しています</string>
     <string name="feature_basic">バイナリ(オン/オフのみ)</string>

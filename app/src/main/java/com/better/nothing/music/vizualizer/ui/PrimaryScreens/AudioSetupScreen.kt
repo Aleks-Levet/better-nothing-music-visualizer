@@ -1254,7 +1254,7 @@ fun FFTSpectrumCard(
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Spacer(modifier = Modifier.height(4.dp))
                     ShowMoreSlidersSubCard(
-                        title = stringResource(R.string.microphone_mode),
+                        title = stringResource(R.string.mic_mode),
                         isExpanded = isMicModeExpanded,
                         onToggle = { isMicModeExpanded = !isMicModeExpanded }
                     ) {

@@ -41,7 +41,7 @@
     <string name="flashlight_frequency_desc">Yr ystod Hz y bydd y fflachlamp yn ymateb iddi. Is ar gyfer bas, uwch ar gyfer drwm/llais.</string>
     <string name="flashlight_monitor_label">Monitor Fflachlamp</string>
 
-    <string name="experimental_features">Nodweddion Arbrofol</string>
+
     <string name="developer_mode">Modd Datblygwr</string>
     <string name="spoof_device_description">Gorfodi\'r ap i ymddwyn fel pe bai\'n rhedeg ar y ddyfais a ddewiswyd.</string>
     <string name="spoof_locale_description">Gorfodi\'r ap i ddefnyddio iaith benodol ar gyfer profi.</string>

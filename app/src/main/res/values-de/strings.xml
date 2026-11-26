@@ -43,7 +43,7 @@
     <string name="flashlight_frequency_desc">Der Hz-Bereich, auf den die Taschenlampe reagiert. Niedriger für Bass, höher für Snare/Gesang.</string>
     <string name="flashlight_monitor_label">Taschenlampen-Monitor</string>
 
-    <string name="experimental_features">Experimentelle Funktionen</string>
+
     <string name="developer_mode">Entwicklermodus</string>
     <string name="spoof_device_description">Zwingt die App dazu, sich so zu verhalten, als ob sie auf dem ausgewählten Gerät liefe.</string>
     <string name="idle_breathing_title">Ruheatmung</string>

@@ -48,7 +48,7 @@
     <string name="beat_engine_smooth">Smooth Falloff</string>
     <string name="beat_engine_short">Short Pulse</string>
     <!-- Audio Processing -->
-    <string name="microphone_mode">Microphone Capture Mode (Expert)</string>
+
     <string name="microphone_mode_desc">Changes how the microphone captures audio.</string>
     <string name="mic_mode_mic">MIC</string>
     <string name="mic_mode_mic_desc">The default mic mode for android</string>
@@ -78,7 +78,7 @@
     <string name="flashlight_monitor_label">Fener Monitörü</string>
     <string name="flashlight_duration_label">Duration: %d ms</string>
     <string name="flashlight_duration_desc">Duration of the pulse in milliseconds.</string>
-    <string name="experimental_features">Deneysel Özellikler</string>
+
     <string name="feature_flashlight_levels">Flashlight intensity levels</string>
     <string name="feature_supported_n">%d levels supported</string>
     <string name="feature_basic">Binary (On/Off only)</string>

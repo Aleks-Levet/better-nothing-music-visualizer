@@ -48,7 +48,7 @@
     <string name="beat_engine_smooth">تلاشي سلس</string>
     <string name="beat_engine_short">نبض قصير</string>
     <!-- Audio Processing -->
-    <string name="microphone_mode">وضع التقاط المايكروفون (متقدم)</string>
+
     <string name="microphone_mode_desc">يغير كيفية التقاط المايكروفون للصوت.</string>
     <string name="mic_mode_mic">مايكروفون</string>
     <string name="mic_mode_mic_desc">وضع الميكروفون الافتراضي لـAndroid</string>
@@ -78,7 +78,7 @@
     <string name="flashlight_monitor_label">مراقبة الكشاف</string>
     <string name="flashlight_duration_label">المدة: %d ms</string>
     <string name="flashlight_duration_desc">مدة النبض بالمللي ثانية.</string>
-    <string name="experimental_features">ميزات تجريبية</string>
+
     <string name="feature_flashlight_levels">مستويات شدة الكشاف</string>
     <string name="feature_supported_n">%d مستويات مدعومة</string>
     <string name="feature_basic">ثنائي (تشغيل/إيقاف فقط)</string>

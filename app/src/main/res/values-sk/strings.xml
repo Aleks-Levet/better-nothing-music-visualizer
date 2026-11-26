@@ -48,7 +48,7 @@
     <string name="beat_engine_smooth">Hladký útlm</string>
     <string name="beat_engine_short">Krátky pulz</string>
     <!-- Audio Processing -->
-    <string name="microphone_mode">Režim snímania mikrofónu (pre pokročilých)</string>
+
     <string name="microphone_mode_desc">Mení spôsob, akým mikrofón sníma zvuk.</string>
     <string name="mic_mode_mic">Mikrofón</string>
     <string name="mic_mode_mic_desc">Predvolený režim mikrofónu pre Android</string>
@@ -78,7 +78,7 @@
     <string name="flashlight_monitor_label">Monitor s baterkou</string>
     <string name="flashlight_duration_label">Trvanie: %d ms</string>
     <string name="flashlight_duration_desc">Trvanie impulzu v milisekundách.</string>
-    <string name="experimental_features">Experimentálne funkcie</string>
+
     <string name="feature_flashlight_levels">Úrovne intenzity baterky</string>
     <string name="feature_supported_n">Podporovaných je %d úrovní</string>
     <string name="feature_basic">Binárne (iba zapnuté/vypnuté)</string>
