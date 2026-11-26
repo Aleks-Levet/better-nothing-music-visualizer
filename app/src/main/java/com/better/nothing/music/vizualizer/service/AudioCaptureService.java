@@ -312,6 +312,7 @@ public class AudioCaptureService extends Service {
             case DeviceProfile.DEVICE_NP4APRO -> Glyph.DEVICE_25111p;
             case DeviceProfile.DEVICE_NP3 -> Glyph.DEVICE_23112;
             case DeviceProfile.DEVICE_NP4B -> "26111";
+            case DeviceProfile.DEVICE_NP3ALITE -> Build.MODEL != null && Build.MODEL.contains("A001T") ? Build.MODEL : "A001T";
             default -> Glyph.DEVICE_25111;
         };
         try {
@@ -623,9 +624,8 @@ public class AudioCaptureService extends Service {
             if (sIsRunning) {
                 long now = SystemClock.elapsedRealtime();
                 if (now - mLastNotifUpdateMs >= 1000) { 
-                    refreshNotification(); 
                     mLastNotifUpdateMs = now;
-                    if (sIsRunning && mMaxBrightness > 0) {
+                    if (sIsRunning && mMaxBrightness > 0 && !mSessionOpen) {
                         mWorkerHandler.post(AudioCaptureService.this::ensureGlyphSession);
                     }
                 }
@@ -2294,13 +2294,16 @@ public class AudioCaptureService extends Service {
         ensureNotificationChannel();
         
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        String content = (mMaxBrightness > 0 && mVisualizerConfig != null ? mVisualizerConfig.name + " • " : "") + formatDuration(getCaptureDurationMs());
+        long captureStartTime = System.currentTimeMillis() - getCaptureDurationMs();
+        String content = mMaxBrightness > 0 && mVisualizerConfig != null ? mVisualizerConfig.name : getString(R.string.notification_title);
         
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.notification_title))
             .setContentText(content)
             .setSmallIcon(getSafeNotificationIcon())
             .setContentIntent(contentIntent)
+            .setUsesChronometer(true)
+            .setWhen(captureStartTime)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setOnlyAlertOnce(true)
@@ -2507,8 +2510,12 @@ public class AudioCaptureService extends Service {
     }
 
     public static void requestTileRefresh(Context context) {
-        TileService.requestListeningState(context, new ComponentName(context, VisualizerTileService.class));
-        TileService.requestListeningState(context, new ComponentName(context, IdleBreathingTileService.class));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            try {
+                TileService.requestListeningState(context, new ComponentName(context, VisualizerTileService.class));
+                TileService.requestListeningState(context, new ComponentName(context, IdleBreathingTileService.class));
+            } catch (Exception ignored) {}
+        }
     }
 
     private void requestTileRefresh() {
@@ -2597,7 +2604,7 @@ public class AudioCaptureService extends Service {
         for (String p : prefs) if (pks.contains(p)) return p; return pks.get(0);
     }
 
-    private static String phoneModelForDevice(int d) { return switch (d) { case DeviceProfile.DEVICE_NP1 -> "PHONE1"; case DeviceProfile.DEVICE_NP2 -> "PHONE2"; case DeviceProfile.DEVICE_NP2A -> "PHONE2A"; case DeviceProfile.DEVICE_NP3A -> "PHONE3A"; case DeviceProfile.DEVICE_NP4A -> "PHONE4A"; case DeviceProfile.DEVICE_NP4APRO -> "PHONE4A_PRO"; case DeviceProfile.DEVICE_NP3 -> "PHONE3"; case DeviceProfile.DEVICE_NP4B -> "PHONE4B"; default -> "UNKNOWN"; }; }
+    private static String phoneModelForDevice(int d) { return switch (d) { case DeviceProfile.DEVICE_NP1 -> "PHONE1"; case DeviceProfile.DEVICE_NP2 -> "PHONE2"; case DeviceProfile.DEVICE_NP2A -> "PHONE2A"; case DeviceProfile.DEVICE_NP3A -> "PHONE3A"; case DeviceProfile.DEVICE_NP4A -> "PHONE4A"; case DeviceProfile.DEVICE_NP4APRO -> "PHONE4A_PRO"; case DeviceProfile.DEVICE_NP3 -> "PHONE3"; case DeviceProfile.DEVICE_NP4B -> "PHONE4B"; case DeviceProfile.DEVICE_NP3ALITE -> "PHONE3ALITE"; default -> "UNKNOWN"; }; }
     public static String loadZonesConfigVersion(Context c) { try { JSONObject root = loadZonesConfigRoot(c); return root != null ? root.optString("version", "Unknown") : "Unknown"; } catch (Exception e) { return "Unknown"; } }
     private static JSONObject loadZonesConfigRoot(Context c) throws IOException, JSONException {
         String text = loadZonesConfigText(c);
