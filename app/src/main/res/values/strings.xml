@@ -435,4 +435,5 @@
     <string name="notification_action_edge" tools:ignore="MissingTranslation">Nav bar</string>
     <string name="notification_action_lens" tools:ignore="MissingTranslation">Lens</string>
     <string name="notification_action_broadcast" tools:ignore="MissingTranslation">Broadcast</string>
+    <string name="bypass_screen_share_popup" tools:ignore="MissingTranslation">Bypass Screen Share Popup (Shizuku)</string>
 </resources>

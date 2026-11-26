@@ -1,6 +1,9 @@
 package com.better.nothing.music.vizualizer.ui.PrimaryScreens
 
 import android.Manifest
+import android.content.Context
+import android.app.AppOpsManager
+import android.widget.Toast
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
@@ -52,6 +55,14 @@ import androidx.compose.material.icons.rounded.Tag
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
+import com.better.nothing.music.vizualizer.shizuku.ShizukuManager
+import com.better.nothing.music.vizualizer.shizuku.CommandObfuscator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -753,7 +764,99 @@ fun CaptureSourceCard(
                 )
             }
         }
+
+        val isRooted = remember { isDeviceRooted() }
+        var isProjectMediaAllowedState by remember { mutableStateOf(isProjectMediaAllowed(context)) }
+
+        LaunchedEffect(selectedSource) {
+            isProjectMediaAllowedState = isProjectMediaAllowed(context)
+        }
+
+        val showBypassButton = !isRooted && !isProjectMediaAllowedState && selectedSource == AudioCaptureService.CaptureSource.INTERNAL
+
+        AnimatedVisibility(
+            visible = showBypassButton,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            val coroutineScope = rememberCoroutineScope()
+            Column(modifier = Modifier.padding(top = 16.dp)) {
+                OutlinedButton(
+                    onClick = {
+                        if (ShizukuManager.hasPermission()) {
+                            coroutineScope.launch {
+                                val cmd = CommandObfuscator.getBypassCommand()
+                                val result = ShizukuManager.execCommand(cmd)
+                                withContext(Dispatchers.Main) {
+                                    if (result.isSuccess) {
+                                        Toast.makeText(context, "Bypass command executed successfully!\n${result.output}", Toast.LENGTH_LONG).show()
+                                        isProjectMediaAllowedState = isProjectMediaAllowed(context)
+                                    } else {
+                                        Toast.makeText(context, "Execution failed: ${result.error}", Toast.LENGTH_LONG).show()
+                                    }
+                                }
+                            }
+                        } else if (ShizukuManager.isBinderAvailable()) {
+                            ShizukuManager.requestPermission(1002)
+                            Toast.makeText(context, "Please grant Shizuku permission", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Shizuku service is not running or not installed", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Security,
+                        contentDescription = null,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                    Text(text = stringResource(R.string.bypass_screen_share_popup))
+                }
+            }
+        }
     }
+}
+
+private fun isDeviceRooted(): Boolean {
+    val buildTags = Build.TAGS
+    if (buildTags != null && buildTags.contains("test-keys", ignoreCase = false)) {
+        return true
+    }
+    val paths = arrayOf(
+        "/system/app/Superuser.apk",
+        "/sbin/su",
+        "/system/bin/su",
+        "/system/xbin/su",
+        "/data/local/xbin/su",
+        "/data/local/bin/su",
+        "/system/sd/xbin/su",
+        "/system/bin/failsafe/su",
+        "/data/local/su"
+    )
+    for (path in paths) {
+        if (java.io.File(path).exists()) return true
+    }
+    return false
+}
+
+private fun isProjectMediaAllowed(context: android.content.Context): Boolean {
+    val appOpsManager = context.getSystemService(android.content.Context.APP_OPS_SERVICE) as? AppOpsManager ?: return true
+    val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        appOpsManager.unsafeCheckOpNoThrow(
+            "android:project_media",
+            android.os.Process.myUid(),
+            context.packageName
+        )
+    } else {
+        @Suppress("DEPRECATION")
+        appOpsManager.checkOpNoThrow(
+            "android:project_media",
+            android.os.Process.myUid(),
+            context.packageName
+        )
+    }
+    return mode == AppOpsManager.MODE_ALLOWED
 }
 
 @Composable
