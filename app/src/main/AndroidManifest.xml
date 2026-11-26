@@ -30,6 +30,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
 
     <attribution
         android:tag="AudioVisualizerTag"
@@ -172,6 +173,14 @@
                 <action android:name="com.better.nothing.music.vizualizer.ACTION_TOGGLE_OVERLAY" />
                 <action android:name="com.better.nothing.music.vizualizer.ACTION_TOGGLE_EDGE" />
                 <action android:name="com.better.nothing.music.vizualizer.ACTION_TOGGLE_LENS" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".updater.PackageInstallerReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.better.nothing.music.vizualizer.ACTION_INSTALL_COMPLETE" />
             </intent-filter>
         </receiver>
 
