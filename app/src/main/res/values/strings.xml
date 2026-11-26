@@ -224,6 +224,7 @@
     <string name="download_failed_http">Download failed: HTTP %d</string>
     <string name="download_error">Download error: %s</string>
     <string name="installation_failed">Installation failed: %s</string>
+    <string name="apk_verification_failed" tools:ignore="MissingTranslation">APK verification failed: invalid package or signature mismatch</string>
     <string name="license_load_error">Failed to load license: %d</string>
     <string name="unknown_error">Unknown error</string>
     <string name="update_checking">Checking for updates...</string>
@@ -283,6 +284,7 @@
     <string name="device_np4apro" translatable="false">Nothing Phone (4a) Pro</string>
     <string name="device_np3" translatable="false">Nothing Phone (3)</string>
     <string name="device_np4b" translatable="false">Nothing Phone (4b)</string>
+    <string name="device_np3alite" translatable="false">Nothing Phone (3a) Lite</string>
     <string name="device_unknown">Unknown Device</string>
 
     <!-- Stats Screen -->

@@ -499,6 +499,7 @@ internal fun SettingsScreen(
                                 DeviceProfile.DEVICE_NP2,
                                 DeviceProfile.DEVICE_NP2A,
                                 DeviceProfile.DEVICE_NP3A,
+                                DeviceProfile.DEVICE_NP3ALITE,
                                 DeviceProfile.DEVICE_NP4A,
                                 DeviceProfile.DEVICE_NP4B,
                                 DeviceProfile.DEVICE_NP4APRO,

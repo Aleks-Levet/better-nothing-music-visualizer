@@ -42,6 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.better.nothing.music.vizualizer.ui.ActuatorSettingsLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
@@ -205,6 +206,125 @@ internal fun GlyphsScreen(
         }
     }
 
+    if (selectedDevice == com.better.nothing.music.vizualizer.model.DeviceProfile.DEVICE_NP3ALITE) {
+        val torchMode by viewModel.flashlightMode.collectAsStateWithLifecycle()
+        val beatEngineMode by viewModel.flashlightBeatEngineMode.collectAsStateWithLifecycle()
+        val pulseDurationMs by viewModel.flashlightPulseDurationMs.collectAsStateWithLifecycle()
+        val freqMin by viewModel.flashlightFreqMin.collectAsStateWithLifecycle()
+        val freqMax by viewModel.flashlightFreqMax.collectAsStateWithLifecycle()
+        val threshold by viewModel.glyphThreshold.collectAsStateWithLifecycle()
+        val beatSensitivity by viewModel.flashlightBeatSensitivity.collectAsStateWithLifecycle()
+        val beatGamma by viewModel.flashlightBeatGamma.collectAsStateWithLifecycle()
+        val visualizerState by viewModel.visualizerState.collectAsStateWithLifecycle()
+        val isBeatDetected by viewModel.isBeatDetected.collectAsStateWithLifecycle()
+        val dotIntensity = visualizerState.firstOrNull() ?: 0f
+
+        ActuatorSettingsLayout(
+            title = stringResource(R.string.glyph_controls),
+            onTitleClick = {
+                viewModel.logEasterEggEvent("easter_egg_glyphs_go_brrr")
+                showEasterEggPopup = true
+            },
+            intensityControl = {
+                CardHeader(
+                    title = stringResource(
+                        R.string.flashlight_better_intensity_label,
+                        maxBrightness
+                    )
+                )
+                ExpressiveSlider(
+                    value = maxBrightness.toFloat(),
+                    onValueChange = { onMaxBrightnessChanged(it.toInt()) },
+                    valueRange = 1f..4095f,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            freqTitle = stringResource(
+                R.string.flashlight_frequency_label,
+                freqMin.toInt(),
+                freqMax.toInt()
+            ),
+            freqMin = freqMin,
+            freqMax = freqMax,
+            onFreqRangeChanged = { min, max -> viewModel.setFlashlightFreqRange(min, max) },
+            modeTitle = stringResource(R.string.flashlight_mode_label),
+            modes = com.better.nothing.music.vizualizer.model.TorchMode.entries,
+            selectedMode = torchMode,
+            onModeSelected = { viewModel.setFlashlightMode(it) },
+            modeLabelProvider = { mode ->
+                stringResource(
+                    when (mode) {
+                        com.better.nothing.music.vizualizer.model.TorchMode.AMPLITUDE -> R.string.flashlight_mode_amplitude
+                        com.better.nothing.music.vizualizer.model.TorchMode.BEAT_DETECTION -> R.string.flashlight_mode_beat
+                    }
+                )
+            },
+            isBeatDetectionMode = (torchMode == com.better.nothing.music.vizualizer.model.TorchMode.BEAT_DETECTION),
+            beatSensitivityTitle = stringResource(
+                R.string.flashlight_beat_sensitivity_label,
+                beatSensitivity
+            ),
+            beatSensitivity = beatSensitivity,
+            onBeatSensitivityChanged = { viewModel.setFlashlightBeatSensitivity(it) },
+            amplitudeModeContent = {
+                CardHeader(
+                    title = stringResource(
+                        R.string.flashlight_threshold_label,
+                        threshold
+                    )
+                )
+                ExpressiveSlider(
+                    value = threshold,
+                    onValueChange = { onThresholdChanged(it) },
+                    valueRange = 0.05f..1.0f,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            hasMultipleIntensities = true,
+            beatEngineMode = beatEngineMode,
+            onBeatEngineModeChanged = { viewModel.setFlashlightBeatEngineMode(it) },
+            beatGammaTitle = stringResource(
+                R.string.haptics_speed_label,
+                beatGamma
+            ),
+            beatGamma = beatGamma,
+            onBeatGammaChanged = { viewModel.setFlashlightBeatGamma(it) },
+            pulseDurationTitle = stringResource(
+                R.string.haptics_duration_label,
+                pulseDurationMs
+            ),
+            pulseDurationMs = pulseDurationMs,
+            onPulseDurationMsChanged = { viewModel.setFlashlightPulseDurationMs(it) },
+            monitorTitle = stringResource(R.string.flashlight_monitor_label),
+            isBeatDetected = isBeatDetected,
+            amplitude = dotIntensity,
+            monitorVisualizer = {
+                Box(
+                    modifier = Modifier
+                        .width(80.dp)
+                        .fillMaxHeight(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val dotScale = 0.4f + (dotIntensity * 0.6f)
+                    val dotAlpha = 0.2f + (dotIntensity * 0.8f)
+
+                    Canvas(modifier = Modifier.size(120.dp)) {
+                        val center = Offset(size.width / 2, size.height / 2)
+                        val baseRadius = 15.dp.toPx() * dotScale
+
+                        drawCircle(
+                            color = Color.White,
+                            center = center,
+                            radius = baseRadius,
+                            alpha = dotAlpha
+                        )
+                    }
+                }
+            },
+            padding = padding
+        )
+        return
+    }
 
     Column(
         modifier = Modifier

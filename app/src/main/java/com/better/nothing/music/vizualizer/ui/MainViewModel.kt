@@ -22,6 +22,7 @@ import com.better.nothing.music.vizualizer.logic.*
 import com.better.nothing.music.vizualizer.model.*
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
 import com.better.nothing.music.vizualizer.service.IdleBreathingService
+import com.better.nothing.music.vizualizer.updater.SilentUpdateInstaller
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.palette.graphics.Palette
@@ -1166,13 +1167,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun installApk(file: File) {
         try {
-            val uri = FileProvider.getUriForFile(ctx, "${ctx.packageName}.fileprovider", file)
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(uri, "application/vnd.android.package-archive")
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            ctx.startActivity(intent)
+            SilentUpdateInstaller.install(ctx, file)
         } catch (e: Exception) {
             Log.e("MainViewModel", "Installation failed", e)
             Toast.makeText(ctx, ctx.getString(R.string.installation_failed, e.message), Toast.LENGTH_SHORT).show()
@@ -2425,6 +2420,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             DeviceProfile.DEVICE_NP4APRO -> ctx.getString(R.string.device_np4apro)
             DeviceProfile.DEVICE_NP3 -> ctx.getString(R.string.device_np3)
             DeviceProfile.DEVICE_NP4B -> ctx.getString(R.string.device_np4b)
+            DeviceProfile.DEVICE_NP3ALITE -> ctx.getString(R.string.device_np3alite)
             else -> ctx.getString(R.string.device_unknown)
         }
     }

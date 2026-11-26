@@ -17,6 +17,7 @@ public final class DeviceProfile {
     public static final int DEVICE_NP4APRO = 6;
     public static final int DEVICE_NP3 = 7;
     public static final int DEVICE_NP4B = 8;
+    public static final int DEVICE_NP3ALITE = 9;
 
     private DeviceProfile() {
     }
@@ -31,6 +32,8 @@ public final class DeviceProfile {
             return DEVICE_NP2;
         } else if (Common.is23111() || Common.is23113()) {
             return DEVICE_NP2A;
+        } else if (android.os.Build.MODEL != null && android.os.Build.MODEL.contains("A001T")) {
+            return DEVICE_NP3ALITE;
         } else if (Common.is24111()) {
             return DEVICE_NP3A;
         }  else if (Common.is25111()) {
@@ -56,6 +59,7 @@ public final class DeviceProfile {
             case DEVICE_NP4APRO -> "Phone (4a) Pro";
             case DEVICE_NP3 -> "Phone (3)";
             case DEVICE_NP4B -> "Phone (4b)";
+            case DEVICE_NP3ALITE -> "Phone (3a) Lite";
             default -> "Unknown";
         };
     }
@@ -70,6 +74,7 @@ public final class DeviceProfile {
             case DEVICE_NP4APRO -> "np4ap";
             case DEVICE_NP3 -> "np3";
             case DEVICE_NP4B -> "np4b";
+            case DEVICE_NP3ALITE -> "np3alite";
             default -> "Other";
         };
     }
@@ -84,6 +89,7 @@ public final class DeviceProfile {
             case DEVICE_NP4APRO -> 137;
             case DEVICE_NP3 -> 625;
             case DEVICE_NP4B -> 5;
+            case DEVICE_NP3ALITE -> 1;
             default -> 0;
         };
     }
