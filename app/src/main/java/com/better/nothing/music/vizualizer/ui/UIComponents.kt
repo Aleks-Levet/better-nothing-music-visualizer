@@ -1255,15 +1255,38 @@ fun ShowMoreSlidersSubCard(
     title: String = stringResource(R.string.show_more_sliders),
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val verticalPadding by animateDpAsState(
+        targetValue = if (isExpanded) 12.dp else 4.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "showMoreVerticalPadding"
+    )
+    val spacedBy by animateDpAsState(
+        targetValue = if (isExpanded) 12.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "showMoreSpacedBy"
+    )
+
     Surface(
         shape = MaterialTheme.shapes.medium,
-        color = Color.Transparent,
-        border = BorderStroke(4.dp, MaterialTheme.colorScheme.secondary),
-        modifier = modifier.fillMaxWidth()
+        color = MaterialTheme.colorScheme.surface,
+        modifier = modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 4.dp,
+                shape = MaterialTheme.shapes.medium,
+                spotColor = MaterialTheme.colorScheme.primary,
+                ambientColor = MaterialTheme.colorScheme.primary
+            )
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = if (isExpanded) 12.dp else 4.dp),
-            verticalArrangement = Arrangement.spacedBy(if (isExpanded) 12.dp else 0.dp)
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = verticalPadding),
+            verticalArrangement = Arrangement.spacedBy(spacedBy)
         ) {
             Row(
                 modifier = Modifier

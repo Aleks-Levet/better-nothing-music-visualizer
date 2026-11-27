@@ -62,7 +62,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.launch
 import com.better.nothing.music.vizualizer.shizuku.ShizukuManager
-import com.better.nothing.music.vizualizer.shizuku.CommandObfuscator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -785,7 +784,7 @@ fun CaptureSourceCard(
                     onClick = {
                         if (ShizukuManager.hasPermission()) {
                             coroutineScope.launch {
-                                val cmd = CommandObfuscator.getBypassCommand()
+                                val cmd = "cmd appops set ${context.packageName} PROJECT_MEDIA allow"
                                 val result = ShizukuManager.execCommand(cmd)
                                 withContext(Dispatchers.Main) {
                                     if (result.isSuccess) {
