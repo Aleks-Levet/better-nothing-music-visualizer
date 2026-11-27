@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Audio Screen -->
+    <string name="audio_warning_vizualizer">此音源由 Android 提供，音频质量较低，可视化效果可能不理想。</string>
+    <string name="auto_memorize_device">按设备保存延迟设置</string>
+    <string name="saving_latency_for">延迟设置将保存到：%s</string>
+    <string name="internal_speaker">内置扬声器</string>
+    <string name="manual_mode_global_latency">所有设备共用延迟设置</string>
+    <string name="latency_compensation">延迟补偿</string>
+    <string name="live_spectrum">实时音频频谱</string>
+
+    <!-- Glyph Screen -->
+    <string name="glyph_controls">Glyph 控制</string>
+    <string name="glyph_brightness">Glyph 亮度：</string>
+    <string name="threshold_label">亮灯门槛：</string>
+    <string name="speed_label">灯光渐暗速度：</string>
+    <string name="disabled">已禁用</string>
+    <string name="threshold_description">调高后，灯光只对更强的声音作出反应，可减少背景噪声造成的闪动。</string>
+    <string name="speed_description">声音变小后，灯光会逐渐变暗。数值越高，灯光变暗越快。</string>
+    <string name="show_more_sliders">更多灯效设置</string>
+    <string name="configure">配置…</string>
+    <string name="gamma_control">亮度曲线</string>
+    <string name="gamma_description">亮度曲线决定灯光如何随声音强弱变化。数值越高，较弱的声音对应的灯光越暗，强音更突出。数值越低，较弱的声音也能带来更明显的灯光变化。</string>
+    <string name="light_gamma">亮度曲线（伽马）：</string>
+    <string name="visualizer_presets">Glyph 灯效预设</string>
+    <string name="preset_name">预设名称</string>
+    <string name="preset_description">说明</string>
+
+    <!-- Settings Screen -->
+    <string name="app_theme">应用主题和字体</string>
+    <string name="theme_normal">默认</string>
+    <string name="theme_liquorice">深灰主题</string>
+    <string name="theme_nothing_red">Nothing 红</string>
+
+    <!-- Haptics Screen -->
+    <string name="haptics_header">振动设置</string>
+    <string name="haptics_mode_label">振动触发方式</string>
+    <string name="haptics_mode_bass">随声音强弱</string>
+    <string name="haptics_mode_beat">跟随节拍</string>
+    <string name="haptics_beat_detection_1desc">检测到所选频率范围内的节拍时就会振动。振动变化更平缓，但有时可能漏掉节拍。</string>
+    <string name="haptics_frequency_label_b">频率范围：%1$d – %2$d Hz</string>
+
+    <string name="haptics_amplitude_label1">振动强度：%.1f 倍</string>
+    <string name="haptics_audio_gain_label">音频放大倍数：%.1fx</string>
+    <string name="haptics_gamma_label">振动强度曲线：%.1f</string>
+    <string name="haptics_decay_label">衰减： %.2f</string>
+    <string name="haptics_speed_label">减弱速度：%.1f</string>
+    <string name="haptics_sensitivity_label">节拍灵敏度：%.1f</string>
+
+    <string name="haptics_decay_instant">无平滑（即时）</string>
+    <string name="haptics_decay_smooth">平滑处理</string>
+    <string name="haptics_duration_label">单次持续时间：%d 毫秒</string>
+    <string name="h_beat_engine_mode_label">样式：</string>
+    <string name="beat_engine_smooth">逐渐减弱</string>
+    <string name="beat_engine_short">短促响应</string>
+
+    <!-- Audio Processing -->
+    <string name="mic_mode">麦克风模式</string>
+    <string name="microphone_mode_desc">调整麦克风采集音频的方式。</string>
+    <string name="mic_mode_mic">默认</string>
+    <string name="mic_mode_mic_desc">Android 的默认麦克风模式。</string>
+    <string name="mic_mode_voice_comm">语音通话</string>
+    <string name="mic_mode_voice_comm_desc">VOICE_COMMUNICATION：通常启用回声消除和降噪。</string>
+    <string name="mic_mode_voice_rec">语音识别</string>
+    <string name="mic_mode_voice_rec_desc">VOICE_RECOGNITION：针对语音识别优化。通常增益较高，处理较少。</string>
+    <string name="mic_mode_voice_perf">实时语音</string>
+    <string name="mic_mode_voice_perf_desc">VOICE_PERFORMANCE：针对实时语音应用优化，比普通语音通话模式的延迟更低。</string>
+    <string name="mic_mode_unprocessed">未经处理</string>
+    <string name="mic_mode_unprocessed_desc">UNPROCESSED：采集麦克风原始音频。增益控制较弱，无降噪，最适合需要精确响应的音乐可视化。</string>
+    <string name="mic_mode_camcorder">摄像</string>
+    <string name="mic_mode_camcorder_desc">CAMCORDER：通常针对定向拾音进行调校。</string>
+
+    <!-- Flashlight Screen -->
+    <string name="flashlight_header">手电筒可视化器</string>
+    <string name="flashlight_mode_label">手电筒触发方式</string>
+    <string name="flashlight_mode_amplitude">随声音强弱</string>
+    <string name="flashlight_mode_beat">跟随节拍</string>
+    <string name="flashlight_better_intensity_label">手电筒亮度：%1$d</string>
+    <string name="flashlight_frequency_label">频率： %1$d - %2$d Hz</string>
+    <string name="flashlight_frequency_desc">手电筒只对所选频率范围内的声音作出反应。低音可选较低频段，小军鼓或人声可选较高频段。</string>
+    <string name="flashlight_threshold_label">亮灯门槛：%.2f</string>
+    <string name="flashlight_threshold_desc">调高后，需要更强的声音才能点亮手电筒。只有一档亮度的手电筒会直接开启或关闭。</string>
+    <string name="flashlight_beat_sensitivity_label">节拍灵敏度：%.1f</string>
+    <string name="flashlight_beat_sensitivity_desc">数值越高，较弱的节拍也越容易触发闪光。</string>
+    <string name="flashlight_speed_label">速度：%.0f 毫秒</string>
+    <string name="flashlight_monitor_label">实时闪光强度</string>
+    <string name="flashlight_duration_label">持续时间：%d 毫秒</string>
+    <string name="flashlight_duration_desc">每次闪烁的持续时间，以毫秒为单位。</string>
+
+    <string name="feature_flashlight_levels">手电筒亮度档位</string>
+    <string name="feature_supported_n">支持 %d 档亮度</string>
+    <string name="feature_basic">只能开关</string>
+    <string name="developer_mode">模拟设备…</string>
+    <string name="spoof_device_description">让应用模拟在所选机型上运行。</string>
+    <string name="spoof_locale_description">选择 BNMV 的显示语言，也可跟随系统。</string>
+    <string name="idle_breathing_title">无声灯效</string>
+    <string name="idle_breathing_tile_desc">BNMV 未运行时，也能通过快捷设置开启或关闭灯效。点按此处添加「无声灯效」磁贴。</string>
+    <string name="start_visualizer">开始</string>
+    <string name="stop_visualizer">停止</string>
+    <string name="glyph_no_config">还没有加载 Glyph 灯效配置。请到设置检查更新，下载最新的灯效预设。</string>
+
+    <!-- About Screen -->
+    <string name="about_title">应用信息和更新</string>
+    <string name="analytics_disclaimer_title">使用情况分析</string>
+    <string name="analytics_disclaimer_text">此应用使用 Google Analytics（Firebase）收集匿名使用统计和崩溃报告，以改善应用体验。应用不会收集个人数据或音频内容。</string>
+    <string name="github_repository">GitHub 仓库</string>
+    <string name="version_info">版本 %1$s（%2$d）</string>
+    <string name="zones_config_version">配置版本： %s</string>
+    <string name="media_projection_info">BNMV 仅使用媒体投影获取实时可视化所需的音频，不会进行不必要的录制或数据存储。</string>
+    <string name="credits">鸣谢</string>
+    <string name="open_github_profile">打开 GitHub 个人资料</string>
+    <string name="discord_server">Discord 服务器</string>
+    <string name="discord_long_press_desc">未安装 Discord 时可长按</string>
+
+    <!-- Capture Source Labels -->
+    <string name="capture_media_projection">应用内音频\n（推荐）</string>
+    <string name="capture_root">Root 音频\n（需要特权，效果最佳）</string>
+    <string name="capture_microphone">麦克风</string>
+    <string name="capture_vizualizer">Android 基础音源</string>
+    <string name="update_available">有可用更新： %s</string>
+    <string name="update_now">立即更新</string>
+    <string name="welcome_to_version">欢迎使用 BNMV %1$s！</string>
+    <string name="click_to_see_changelog">点按查看更新日志！</string>
+    <string name="see_changelog">查看更新日志</string>
+    <string name="changelog_title">更新日志</string>
+    <string name="read_changelog">查看最新变更</string>
+
+    <string name="idle_pattern">灯效模式</string>
+    <string name="idle_pattern_static">常亮</string>
+    <string name="idle_pattern_pulse">脉冲</string>
+    <string name="idle_pattern_wave">波浪</string>
+    <string name="idle_pattern_cylon">往返扫描</string>
+    <string name="idle_pattern_zebra">斑马纹</string>
+    <string name="idle_pattern_heartbeat">心跳</string>
+    <string name="idle_pattern_orbit">环绕</string>
+    <string name="idle_pattern_rain">雨滴</string>
+    <string name="idle_pulse_brightness">灯效最高亮度：%d%%</string>
+    <string name="idle_background_brightness">背景亮度：%d%%</string>
+    <string name="idle_animation_speed">动画速度：%.1f 倍</string>
+    <string name="cancel">取消</string>
+    <string name="back">返回</string>
+    <string name="frequency_range_label">频率范围：%1$dHz - %2$dHz</string>
+    <string name="clear">清除</string>
+    <string name="sync_ui_to_beat">界面随节拍变化</string>
+    <string name="alternate_glyph_viz">突出声音变化</string>
+    <string name="nav_overlay">导航栏灯效</string>
+    <string name="overlays">屏幕灯效</string>
+    <string name="higher_quality_audio_analysis">高质量音频分析</string>
+    <string name="rounded_bars">圆角频谱条</string>
+    <string name="style_bars">直角频谱条</string>
+    <string name="style_rounded_bars">圆角频谱条</string>
+    <string name="style_glow">发光</string>
+    <string name="visualizer_style">样式</string>
+    <string name="visualizer_opacity">不透明度</string>
+
+    <string name="lens_visualizer">前摄周围灯效</string>
+    <string name="lens_radius">镜头半径</string>
+    <string name="lens_bar_width">频谱条宽度</string>
+    <string name="lens_max_height">频谱条最大高度</string>
+    <string name="lens_bar_count">频谱条数量</string>
+
+    <string name="overlay_width">灯效宽度</string>
+    <string name="overlay_height">灯效高度</string>
+    <string name="overlay_height_bottom">底部高度</string>
+
+    <string name="overlay_top_segment">顶部区段</string>
+    <string name="overlay_bottom_segment">底部区段</string>
+    <string name="vertical_position">垂直位置</string>
+
+    <string name="tab_glyphs">Glyph</string>
+    <string name="tab_visuals">屏幕灯效</string>
+    <string name="tab_haptics">振动</string>
+    <string name="tab_flashlight">手电筒</string>
+    <string name="tab_settings">设置</string>
+
+    <string name="glyphs_disabled">Glyph 灯光已禁用</string>
+    <string name="haptics_disabled">振动反馈已关闭</string>
+    <string name="flashlight_disabled">手电筒已禁用</string>
+    <string name="feature_disabled">此功能已禁用</string>
+
+    <string name="continue_label">继续</string>
+    <string name="audio_permission_required">需要录音权限</string>
+    <string name="screen_capture_denied">屏幕采集权限被拒绝</string>
+    <string name="overlay_permission_denied">请允许 BNMV 显示在其他应用上层，才能使用屏幕灯效。</string>
+
+    <string name="config_update_success">zones.config 更新成功</string>
+    <string name="config_import_success">zones.config 导入成功</string>
+    <string name="config_import_error">无法读取所选文件</string>
+    <string name="config_download_error">下载配置失败（HTTP %d）</string>
+    <string name="config_error_updating">更新时出错： %s</string>
+    <string name="config_error_importing">导入时出错： %s</string>
+
+    <!-- License Screen -->
+    <string name="license_title">许可证</string>
+    <string name="license_agreement">许可协议</string>
+    <string name="read_license">阅读软件许可证</string>
+    <string name="failed_load_license">无法加载当前许可证。</string>
+    <string name="retry">重试</string>
+
+    <!-- Audio Discovery -->
+    <string name="connect_to_device">连接设备</string>
+    <string name="no_devices_found">在当前 Wi-Fi 网络上未找到设备。</string>
+    <string name="search_again">重新搜索</string>
+
+    <!-- MainViewModel Toasts & Status -->
+    <string name="download_failed_http">下载失败：HTTP %d</string>
+    <string name="download_error">下载出错：%s</string>
+    <string name="installation_failed">安装失败：%s</string>
+    <string name="apk_verification_failed">APK 验证失败：安装包无效或签名不匹配</string>
+    <string name="license_load_error">许可证加载失败：%d</string>
+    <string name="unknown_error">未知错误</string>
+    <string name="update_checking">正在检查更新…</string>
+    <string name="update_downloading">正在下载：%d%%</string>
+    <string name="update_uptodate">已安装最新版本</string>
+    <string name="update_error">错误：%s</string>
+    <string name="check_software_updates">检查软件更新</string>
+
+    <!-- Tile Service -->
+    <string name="tile_running">正在运行</string>
+    <string name="tile_subtitle_default">Better Nothing 音乐可视化器</string>
+
+    <!-- Feature Monitors -->
+    <string name="haptic_monito">实时振动强度</string>
+    <string name="flashlight_level_stats">档位：%1$d / %2$d</string>
+
+    <!-- Visuals Options -->
+    <string name="top_edge_overlay">屏幕顶部灯效</string>
+    <string name="bottom_edge_overlay">屏幕底部灯效</string>
+    <string name="edge_visualizer">屏幕边缘</string>
+    <string name="edge_bar_height">边缘频谱条高度</string>
+    <string name="top_edge_segment">顶部边缘区段</string>
+    <string name="bottom_edge_segment">底部边缘区段</string>
+    <string name="screen_corner_radius">屏幕圆角半径</string>
+    <string name="horizontal_bar_count">水平频谱条数量</string>
+    <string name="vertical_bar_count">垂直频谱条数量</string>
+
+    <string name="x_position">横向位置</string>
+    <string name="y_position">纵向位置</string>
+    <string name="bar_height">频谱条高度</string>
+
+    <string name="emulate_hdr_title">模拟 HDR（OLED）</string>
+    <string name="emulate_hdr_description">调暗屏幕，让可视化效果相对于屏幕背景更亮，从而模拟 HDR 效果。在 OLED 屏幕上效果最佳。</string>
+    <string name="hdr_intensity">HDR 强度</string>
+
+    <!-- Settings Extra -->
+    <string name="vizualizer_stats">使用统计</string>
+    <string name="tablet_width_title">平板标签页宽度</string>
+
+    <!-- Notification Extra -->
+    <string name="notification_channel_name">BNMV 通知</string>
+    <string name="notification_title">Better Nothing 音乐可视化器</string>
+    <string name="notification_action_glyphs">Glyph 灯光</string>
+    <string name="notification_action_haptics">振动反馈</string>
+    <string name="notification_action_flash">手电筒</string>
+    <string name="notification_action_stop">停止 BNMV</string>
+    <string name="notification_action_previous">上一个灯效</string>
+    <string name="notification_action_next">下一个灯效</string>
+    <string name="idle_breathing_action_stop">停止</string>
+
+    <!-- Device Names -->
+    <string name="device_unknown">未知设备</string>
+
+    <!-- Stats Screen -->
+    <string name="usage_stats">使用统计</string>
+    <string name="total_visualization_time">BNMV 运行总时长</string>
+    <string name="engagement">使用情况</string>
+
+    <string name="active_music">有声音时</string>
+    <string name="idle_pulse">无声音时</string>
+    <string name="feature_breakdown">各功能使用情况</string>
+    <string name="glyph_interface">Glyph 灯带／矩阵</string>
+    <string name="haptic_feedback">振动反馈</string>
+    <string name="flashlight_sync_stat">手电筒同步</string>
+    <string name="broadcasting_stat">广播</string>
+    <string name="overlay_stat">屏幕灯效</string>
+    <string name="total_active_use">累计使用时长</string>
+    <string name="export_stats">导出统计</string>
+    <string name="import_stats">导入统计</string>
+    <string name="stats_import_success">统计已导入</string>
+    <string name="stats_import_error">无法导入统计</string>
+    <string name="stats_export_error">无法导出统计</string>
+
+    <!-- Glyphs Screen Extra -->
+    <string name="update_required">需要更新</string>
+    <string name="download_full_config">下载完整配置以查看预设</string>
+    <string name="visualizer_configuration">Glyph 灯效配置</string>
+    <string name="config_description">zones.config 决定不同频率的声音会点亮哪些 Glyph 灯。更新配置可获得新机型和灯效预设的支持。</string>
+    <string name="up_to_date">已是最新</string>
+    <string name="update_available_label">有可用更新</string>
+    <string name="local_config">导入配置</string>
+    <string name="show_gamma_info">查看亮度曲线说明</string>
+    <string name="check_github">下载配置</string>
+
+    <!-- About Screen Extra -->
+    <string name="view_source_contributions">查看源代码和贡献记录</string>
+    <string name="software_update">软件更新</string>
+    <string name="update_label">更新</string>
+
+    <!-- Audio Service -->
+    <string name="audio_route_none">无</string>
+    <string name="output_selection">2. 选择要开启的效果</string>
+    <string name="select_capture_source">1. 选择音源</string>
+    <string name="broadcast">允许其他设备连接</string>
+    <string name="broadcast_card_description">安装了 BNMV 的其他设备可以连接到此设备，同步播放可视化效果。</string>
+
+    <!-- Audio Help Guides -->
+    <string name="help_source_intro">选择用于可视化的音源：</string>
+    <string name="help_source_internal_title">应用内音频（媒体投影）</string>
+    <string name="help_source_internal_desc">从应用中采集高质量音频。Android 会显示「屏幕共享」提示，授权后 BNMV 就能采集声音。此方式不会录制屏幕，耗电也较低。</string>
+    <string name="help_source_mic_title">麦克风</string>
+    <string name="help_source_mic_desc">通过麦克风采集周围的声音，适合聚会等现场播放音乐的场合。</string>
+    <string name="help_source_network_title">其他设备或应用…</string>
+    <string name="help_source_network_desc">接收另一台设备通过本应用广播的音频数据。</string>
+    <string name="help_source_viz_title">Android 基础音源</string>
+    <string name="help_source_viz_desc">使用 Android 提供的基础音源。音频质量较低，无需授予屏幕共享权限。</string>
+    <string name="help_source_privacy">音频数据不会保存在设备上。</string>
+
+    <string name="help_output_intro">选择 BNMV 如何响应声音：</string>
+    <string name="help_output_glyphs_desc">通过 Glyph 灯带或矩阵的 LED 展示音频效果。</string>
+    <string name="help_output_haptics_desc">让手机随声音振动，用手也能感受音乐。</string>
+    <string name="help_output_flash_desc">让摄像头闪光灯随节拍闪烁。</string>
+    <string name="help_output_overlays_desc">在屏幕上显示随声音变化的灯效。灯效也能显示在其他应用上方。</string>
+    <string name="help_output_broadcast_title">「允许其他设备连接」</string>
+    <string name="help_output_broadcast_desc">将音频数据传输到同一网络中的其他设备。</string>
+    <string name="help_sync_title">连接到另一台设备：</string>
+    <string name="help_sync_step1">1. 在播放音乐的设备（音源）上启用「允许其他设备连接」。</string>
+    <string name="help_sync_step2">2. 在本设备上选择「其他设备或应用…」作为音源，再从列表中选择正在播放音乐的设备。</string>
+
+    <string name="system_language">跟随系统</string>
+    <string name="select_language">选择语言</string>
+    <string name="widget_m3_description">Material 3 可视化器小组件（支持浅色和深色模式）</string>
+    <string name="idle_breathing_desc">BNMV 运行时，如果没有检测到声音，Glyph 灯光会按所选模式亮起。</string>
+
+    <!-- Widget -->
+    <string name="widget_start_bnmv">启动 BNMV</string>
+    <string name="widget_stop_bnmv">停止 BNMV</string>
+
+    <!-- First Time Help -->
+    <string name="first_time_help_title">小提示</string>
+    <string name="first_time_help_mssg">需要帮助时，点按信息按钮。你也可以从「设置」加入 Discord 服务器寻求帮助！</string>
+
+    <!-- Easter Eggs -->
+    <string name="toast_no_output">所有输出都已关闭，BNMV 什么也不会做 😆</string>
+    <string name="toast_audio_title_tap">为什么点这里？这里什么也不会发生 😆</string>
+    <string name="easter_egg_glyph_popup_body">这个应用图标的设计概念来自 Nothing 社区最受欢迎的应用 NoVolume 的开发者。它是一款很棒的应用，欢迎到 Google Play 商店看看。\n\n他是这么说的：</string>
+    <string name="easter_egg_glyph_popup_quote">「我觉得这个图标更适合这款应用，也会让更多人愿意安装它。」</string>
+    <string name="ok">确定</string>
+    <string name="i_dont_give_a_fuck">我才不管</string>
+
+    <!-- Visualizer Color & Accessibility -->
+    <string name="visualizer_color">可视化颜色</string>
+    <string name="broadcast_clients">接收设备</string>
+    <string name="connected_count">已连接 %d 台设备</string>
+    <string name="waiting_for_devices">正在等待设备连接…</string>
+    <string name="made_by_aleks">Aleks Levet 用心制作！</string>
+    <string name="credits_extended">这个项目历经数年，由多位贡献者共同打造。完整名单请见 GitHub 项目页面！</string>
+    <string name="content_desc_internal_source">内部音源</string>
+    <string name="content_desc_mic_source">麦克风音源</string>
+    <string name="content_desc_visualizer_source">Android 基础音源</string>
+    <string name="content_desc_toggle_haptics">开启或关闭振动反馈</string>
+    <string name="content_desc_toggle_glyphs">开关 Glyph 灯光</string>
+    <string name="content_desc_toggle_torch">开关手电筒</string>
+    <string name="content_desc_start_stop">启动或停止 BNMV</string>
+    <string name="label_source">音源</string>
+    <string name="label_output">输出</string>
+    <string name="help_show">显示帮助</string>
+
+    <!-- Google Sans Flex Tuning -->
+    <string name="gsans_weight_font_settings">字重</string>
+    <string name="gsans_width_font_settings">字宽</string>
+    <string name="gsans_slant_font_settings">倾斜度</string>
+    <string name="gsans_opsz_font_settings">光学尺寸</string>
+    <string name="gsans_grade_font_settings">笔画粗细</string>
+    <string name="gsans_rounding_font_settings">圆润度</string>
+
+    <!-- Additional UI Labels -->
+    <string name="glow_blur">发光模糊度</string>
+    <string name="easter_egg_image">彩蛋图片</string>
+    <string name="config_version_format">版本：%s</string>
+    <string name="latest_version_format">最新版本：%s</string>
+    <string name="reset_font_settings">重置字体设置</string>
+    <string name="latency_format">\u0020（延迟：%d 毫秒）</string>
+
+    <!-- Precise Slider Input Dialog -->
+    <string name="set_precise_value">设置精确数值</string>
+    <string name="current_value_format">当前值：%s</string>
+    <string name="current_range_format">当前范围：%1$s – %2$s</string>
+    <string name="dialog_set">设置</string>
+    <string name="dialog_cancel">取消</string>
+    <string name="error_invalid_number">请输入有效数字</string>
+    <string name="error_value_out_of_range">数值必须介于 %1$s 和 %2$s 之间</string>
+    <string name="error_min_greater_than_max">最小值必须小于或等于最大值</string>
+    <string name="label_min_value">最小值</string>
+    <string name="label_max_value">最大值</string>
+
+    <!-- Notification Settings -->
+    <string name="notification_settings">通知设置</string>
+    <string name="notification_button_1">按钮 1 操作</string>
+    <string name="notification_button_2">按钮 2 操作</string>
+    <string name="notification_button_3">按钮 3 操作</string>
+    <string name="notification_action_overlay">屏幕灯效</string>
+    <string name="notification_action_edge">导航栏灯效</string>
+    <string name="notification_action_lens">前摄灯效</string>
+    <string name="notification_action_broadcast">广播</string>
+    <string name="bypass_screen_share_popup">跳过屏幕共享弹窗（Shizuku）</string>
+</resources>

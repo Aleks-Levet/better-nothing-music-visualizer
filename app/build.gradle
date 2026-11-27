@@ -51,7 +51,7 @@ android {
 
         resourceConfigurations += [
                 'en', 'ar', 'cy', 'de', 'es', 'fr', 'hi',
-                'hu', 'it', 'ja', 'ru', 'sk', 'tr'
+                'hu', 'it', 'ja', 'ru', 'sk', 'tr', 'zh-rCN', 'b+zh+Hant'
         ]
 
         ndk {
