@@ -31,6 +31,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.better.nothing.music.vizualizer.R
 import com.better.nothing.music.vizualizer.service.AudioCaptureService
@@ -64,6 +67,7 @@ internal fun AppBlacklistScreen(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val currentBlacklist by viewModel.overlayAppBlacklist.collectAsStateWithLifecycle()
 
     var selectedPackages by remember(currentBlacklist) { mutableStateOf(currentBlacklist) }
@@ -72,9 +76,22 @@ internal fun AppBlacklistScreen(
     var isLoading by remember { mutableStateOf(true) }
     var hasUsagePermission by remember { mutableStateOf(AudioCaptureService.hasUsageStatsPermission(context)) }
 
-    DisposableEffect(Unit) {
-        hasUsagePermission = AudioCaptureService.hasUsageStatsPermission(context)
-        onDispose {}
+    // Re-apply changes instantly when selection changes (so back gesture applies changes too)
+    LaunchedEffect(selectedPackages) {
+        viewModel.setOverlayAppBlacklist(selectedPackages)
+    }
+
+    // Observe lifecycle to re-check usage permission when returning from system settings
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                hasUsagePermission = AudioCaptureService.hasUsageStatsPermission(context)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -117,8 +134,8 @@ internal fun AppBlacklistScreen(
         }
     }
 
-    val filteredApps = remember(installedApps, searchQuery) {
-        if (searchQuery.isBlank()) {
+    val filteredApps = remember(installedApps, searchQuery, selectedPackages) {
+        val list = if (searchQuery.isBlank()) {
             installedApps
         } else {
             installedApps.filter {
@@ -126,6 +143,10 @@ internal fun AppBlacklistScreen(
                 it.packageName.contains(searchQuery, ignoreCase = true)
             }
         }
+        list.sortedWith(
+            compareByDescending<AppInfoItem> { selectedPackages.contains(it.packageName) }
+                .thenBy { it.appName.lowercase() }
+        )
     }
 
     Surface(

@@ -364,6 +364,7 @@
 
 @media (min-width: 700px) { .bn-carousel-slide { flex-basis: min(42vw, 310px); } }
 @media (min-width: 1040px) { .bn-carousel-slide { flex-basis: min(28vw, 310px); } }
+@media (max-width: 520px) { .bn-carousel-footer { flex-direction: column; align-items: flex-start; gap: 8px; } }
 
 #install h2 {
   font-variation-settings: 'opsz' 72, 'wdth' 84, 'wght' 760, 'GRAD' 5, 'ROND' 12;

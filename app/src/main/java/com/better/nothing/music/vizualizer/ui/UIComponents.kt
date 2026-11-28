@@ -1278,8 +1278,8 @@ fun ShowMoreSlidersSubCard(
         modifier = modifier
             .fillMaxWidth()
             .shadow(
-                elevation = 4.dp,
-                shape = MaterialTheme.shapes.medium,
+                elevation = 10.dp,
+                shape = MaterialTheme.shapes.large,
                 spotColor = MaterialTheme.colorScheme.primary,
                 ambientColor = MaterialTheme.colorScheme.primary
             )
@@ -1301,7 +1301,7 @@ fun ShowMoreSlidersSubCard(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 )
                 IndicatorPill(

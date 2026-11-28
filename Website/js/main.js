@@ -1011,6 +1011,44 @@ bnmv.componentDidMount();
   const imageFile = /\.(avif|gif|jpe?g|png|webp)$/i;
   let slides = [];
   let active = 0;
+  let autoplayTimer = null;
+  let autoplayDirection = 1;
+  let galleryVisible = false;
+  let userControlled = false;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const stopAutoplay = () => {
+    if (autoplayTimer !== null) {
+      window.clearInterval(autoplayTimer);
+      autoplayTimer = null;
+    }
+  };
+
+  const takeControl = () => {
+    userControlled = true;
+    stopAutoplay();
+  };
+
+  const startAutoplay = () => {
+    if (userControlled || !galleryVisible || autoplayTimer !== null || slides.length < 2 || reducedMotion.matches) { return; }
+    autoplayTimer = window.setInterval(() => {
+      if (document.hidden) { return; }
+      if (active + autoplayDirection < 0 || active + autoplayDirection >= slides.length) {
+        autoplayDirection *= -1;
+      }
+      moveTo(active + autoplayDirection);
+    }, 4000);
+  };
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((entries) => {
+      galleryVisible = entries.some((entry) => entry.isIntersecting);
+      if (galleryVisible) { startAutoplay(); }
+      else { stopAutoplay(); }
+    }).observe(gallery);
+  } else {
+    galleryVisible = true;
+  }
 
   const setActive = (index) => {
     if (!slides.length) { return; }
@@ -1068,18 +1106,30 @@ bnmv.componentDidMount();
       dot.className = 'bn-carousel-dot';
       dot.setAttribute('aria-label', `Go to screenshot ${index + 1}`);
       dot.setAttribute('aria-current', index === 0 ? 'true' : 'false');
-      dot.addEventListener('click', () => moveTo(index));
+      dot.addEventListener('click', () => {
+        takeControl();
+        moveTo(index);
+      });
       dots.appendChild(dot);
     });
     track.setAttribute('aria-busy', 'false');
+    startAutoplay();
   };
 
-  previous.addEventListener('click', () => moveTo(active - 1));
-  next.addEventListener('click', () => moveTo(active + 1));
+  previous.addEventListener('click', () => {
+    takeControl();
+    moveTo(active - 1);
+  });
+  next.addEventListener('click', () => {
+    takeControl();
+    moveTo(active + 1);
+  });
+  track.addEventListener('pointerdown', takeControl, { passive: true });
+  track.addEventListener('wheel', takeControl, { passive: true });
   track.addEventListener('scroll', () => requestAnimationFrame(updateActive), { passive: true });
   track.addEventListener('keydown', (event) => {
-    if (event.key === 'ArrowLeft') { event.preventDefault(); moveTo(active - 1); }
-    if (event.key === 'ArrowRight') { event.preventDefault(); moveTo(active + 1); }
+    if (event.key === 'ArrowLeft') { event.preventDefault(); takeControl(); moveTo(active - 1); }
+    if (event.key === 'ArrowRight') { event.preventDefault(); takeControl(); moveTo(active + 1); }
   });
 
   fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${encodeURIComponent(ref)}`, { headers: { Accept: 'application/vnd.github+json' } })
