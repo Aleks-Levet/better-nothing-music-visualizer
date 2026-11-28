@@ -2697,7 +2697,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _idleBrightness.value = get("idle_brightness", 0.4f)
         _idleBackgroundBrightness.value = get("idle_background_brightness", 0.02f)
         _idleAnimationSpeed.value = get("idle_animation_speed", 1.0f).coerceIn(0.5f, 2.0f)
-        _overlayAppBlacklist.value = prefs.getStringSet("overlay_app_blacklist", emptySet())?.toSet() ?: emptySet()
+        _overlayAppBlacklist.value = if (prefs.contains("overlay_app_blacklist")) {
+            prefs.getStringSet("overlay_app_blacklist", emptySet())?.toSet() ?: emptySet()
+        } else {
+            setOf("com.android.vending", "com.android.settings")
+        }
         _overlayEnabled.value = get("overlay_enabled", false)
         _overlayTopEnabled.value = get("overlay_top_enabled", true)
         _overlayBottomEnabled.value = get("overlay_bottom_enabled", false)
