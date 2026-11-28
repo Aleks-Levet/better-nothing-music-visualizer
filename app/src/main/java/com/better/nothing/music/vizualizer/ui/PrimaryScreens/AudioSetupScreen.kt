@@ -277,17 +277,19 @@ fun AudioScreen(
             networkDeviceName = if (captureSource == AudioCaptureService.CaptureSource.NETWORK) connectedDeviceName else null
         )
 
-        FFTSpectrumCard(
-            fftRaw = fftRaw,
-            isRunning = isRunning,
-            captureSource = captureSource,
-            sensitivity = viewModel.currentSourceSensitivity.collectAsStateWithLifecycle().value,
-            onSensitivityChanged = { viewModel.setCurrentSourceSensitivity(it) },
-            highQualityAnalysis = viewModel.highQualityAnalysis.collectAsStateWithLifecycle().value,
-            onHighQualityAnalysisChanged = { viewModel.setHighQualityAnalysis(it) },
-            microphoneMode = viewModel.microphoneMode.collectAsStateWithLifecycle().value,
-            onMicrophoneModeChanged = { viewModel.setMicrophoneMode(it) }
-        )
+        AnimatedVisibility(visible = captureSource != AudioCaptureService.CaptureSource.NETWORK || isRunning) {
+            FFTSpectrumCard(
+                fftRaw = fftRaw,
+                isRunning = isRunning,
+                captureSource = captureSource,
+                sensitivity = viewModel.currentSourceSensitivity.collectAsStateWithLifecycle().value,
+                onSensitivityChanged = { viewModel.setCurrentSourceSensitivity(it) },
+                highQualityAnalysis = viewModel.highQualityAnalysis.collectAsStateWithLifecycle().value,
+                onHighQualityAnalysisChanged = { viewModel.setHighQualityAnalysis(it) },
+                microphoneMode = viewModel.microphoneMode.collectAsStateWithLifecycle().value,
+                onMicrophoneModeChanged = { viewModel.setMicrophoneMode(it) }
+            )
+        }
 
         OutputSelectionCard(
             glyphsEnabled = glyphsEnabled,
@@ -533,7 +535,7 @@ private fun BroadcastCard(
 ) {
     ExpressiveCard(modifier = Modifier.fillMaxWidth()) {
         CardHeader(
-            title = stringResource(R.string.broadcast),
+            title = stringResource(R.string.broadcast_switch),
             trailingContent = {
                 ExpressiveSwitch(
                     checked = enabled,
@@ -1052,7 +1054,11 @@ fun FFTSpectrumCard(
 
     val data = fftRaw
     ExpandableExpressiveCard(
-        title = stringResource(R.string.audio_adjustments),
+        title = if (captureSource == AudioCaptureService.CaptureSource.NETWORK) {
+            stringResource(R.string.received_data)
+        } else {
+            stringResource(R.string.audio_adjustments)
+        },
         icon = Icons.Default.Leaderboard,
         expanded = isExpanded,
         onExpandedChange = { isExpanded = it }
