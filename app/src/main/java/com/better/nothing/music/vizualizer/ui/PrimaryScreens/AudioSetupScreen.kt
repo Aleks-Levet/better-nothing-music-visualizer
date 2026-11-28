@@ -2,6 +2,8 @@ package com.better.nothing.music.vizualizer.ui.PrimaryScreens
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.app.AppOpsManager
 import android.widget.Toast
 import android.content.pm.PackageManager
@@ -790,18 +792,32 @@ fun CaptureSourceCard(
                                 val result = ShizukuManager.execCommand(cmd)
                                 withContext(Dispatchers.Main) {
                                     if (result.isSuccess) {
-                                        Toast.makeText(context, "Bypass command executed successfully!\n${result.output}", Toast.LENGTH_LONG).show()
+                                        Toast.makeText(context, "Screen share prompt bypassed successfully!", Toast.LENGTH_SHORT).show()
                                         isProjectMediaAllowedState = isProjectMediaAllowed(context)
                                     } else {
-                                        Toast.makeText(context, "Execution failed: ${result.error}", Toast.LENGTH_LONG).show()
+                                        Toast.makeText(context, "Failed to bypass: ${result.error}", Toast.LENGTH_LONG).show()
                                     }
                                 }
                             }
                         } else if (ShizukuManager.isBinderAvailable()) {
                             ShizukuManager.requestPermission(1002)
-                            Toast.makeText(context, "Please grant Shizuku permission", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Please grant Shizuku permission in the popup dialog", Toast.LENGTH_LONG).show()
+                        } else if (ShizukuManager.isInstalled(context)) {
+                            val intent = context.packageManager.getLaunchIntentForPackage(ShizukuManager.SHIZUKU_PACKAGE_NAME)
+                            if (intent != null) {
+                                try {
+                                    context.startActivity(intent)
+                                    Toast.makeText(context, "Shizuku service is not running. Please start Shizuku.", Toast.LENGTH_LONG).show()
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Failed to open Shizuku app", Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                Toast.makeText(context, "Opening Shizuku in Play Store...", Toast.LENGTH_SHORT).show()
+                                openPlayStore(context)
+                            }
                         } else {
-                            Toast.makeText(context, "Shizuku service is not running or not installed", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Shizuku is not installed. Opening Play Store...", Toast.LENGTH_SHORT).show()
+                            openPlayStore(context)
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -858,6 +874,22 @@ private fun isProjectMediaAllowed(context: android.content.Context): Boolean {
         )
     }
     return mode == AppOpsManager.MODE_ALLOWED
+}
+
+private fun openPlayStore(context: Context) {
+    try {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${ShizukuManager.SHIZUKU_PACKAGE_NAME}"))
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
+    } catch (e: Exception) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=${ShizukuManager.SHIZUKU_PACKAGE_NAME}"))
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+        } catch (ex: Exception) {
+            Toast.makeText(context, "Please install Shizuku from the Play Store", Toast.LENGTH_SHORT).show()
+        }
+    }
 }
 
 @Composable

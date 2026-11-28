@@ -2664,7 +2664,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _microphoneMode.value = safeValueOf(get("microphone_mode", ""), MicrophoneMode.UNPROCESSED)
         _glyphsEnabled.value = get("glyphs_enabled", true)
         _selectedPreset.value = get("selected_preset", "Default")
-        _selectedTheme.value = get("selected_theme", "Default")
+        _selectedTheme.value = get(
+            "selected_theme",
+            if (DeviceProfile.detectDevice() == DeviceProfile.DEVICE_UNKNOWN) "Material You" else "Default"
+        )
         _selectedFont.value = get("selected_font", "Google Sans Flex")
         _broadcastEnabled.value = get("broadcast_enabled", false)
 
