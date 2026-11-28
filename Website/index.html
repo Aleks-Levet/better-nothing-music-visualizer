@@ -11,38 +11,10 @@
 </head>
 <body>
 <div class="bnmv-root" id="top" style="background: #000000; color: #FFFFFF; font-family: 'Google Sans Flex', system-ui, sans-serif; font-size: 17px; line-height: 1.55; overflow-x: clip">
-
-<header class="bn-nav" style="position: sticky; top: 0; z-index: 40; background: rgba(0,0,0,0.6); border-bottom: 1px solid rgba(255,255,255,0.08)">
-<div style="max-width: 1240px; margin: 0 auto; padding: 8px clamp(16px, 5vw, 48px); box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 12px">
-<a href="#top" aria-label="BNMV, back to top" style="display: flex; align-items: center; gap: 12px; min-height: 44px; text-decoration: none">
-<svg class="bn-eq" viewBox="0 0 200 200" aria-hidden="true" style="width: 34px; height: 34px; display: block; flex: none">
-<circle cx="100" cy="100" r="100" style="fill: #FFFFFF"></circle>
-<path d="M 24.13 80.24 A 78.4 78.4 0 0 1 75.77 25.44" style="fill: none; stroke: #000000; stroke-width: 7; stroke-linecap: round"></path>
-<path d="M 61.63 168.37 A 78.4 78.4 0 0 1 34.32 142.81" style="fill: none; stroke: #000000; stroke-width: 7; stroke-linecap: round"></path>
-<circle cx="54.3" cy="100" r="5.8" style="fill: #000000"></circle>
-<rect x="68.1" y="65.5" width="12" height="69.1" rx="6" style="fill: #000000"></rect>
-<rect x="88.2" y="77.9" width="12" height="44.2" rx="6" style="fill: #000000"></rect>
-<rect x="108.4" y="70.5" width="12" height="59" rx="6" style="fill: #000000"></rect>
-<rect x="128.2" y="57.3" width="12" height="85.4" rx="6" style="fill: #000000"></rect>
-<rect x="148.4" y="69" width="12" height="62.1" rx="6" style="fill: #000000"></rect>
-<rect x="169.7" y="61.2" width="12" height="77.6" rx="6" style="fill: #FA2828"></rect>
-</svg>
-<span style="font-family: 'Google Sans Flex', system-ui, sans-serif; font-weight: 500; font-size: 16px; letter-spacing: 0.04em">BNMV</span>
+<a class="bn-download-fab" href="https://github.com/Aleks-Levet/better-nothing-music-visualizer/releases/latest/download/BNMV.apk" aria-label="Download BNMV APK" title="Download BNMV">
+<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 17v3h14v-3"></path></svg>
+<span>Download</span>
 </a>
-<nav class="bn-navlinks" aria-label="Sections">
-<a class="bn-quiet" href="#screenshots" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; font-size: 15px; font-weight: 500">Screenshots</a>
-<a class="bn-quiet" href="#compare" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; font-size: 15px; font-weight: 500">Phones</a>
-<a class="bn-quiet" href="https://github.com/Aleks-Levet/better-nothing-music-visualizer" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; font-size: 15px; font-weight: 500">GitHub</a>
-</nav>
-<div style="display: flex; align-items: center; gap: 8px">
-<button class="bn-btn" type="button" data-act="toggle" data-pressed="playing" aria-pressed="false" aria-label="Play or pause the demo" style="width: 44px; height: 44px; padding: 0; border: 1px solid #6B6765; border-radius: 50%; background: transparent; color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center; cursor: pointer">
-<span data-when="paused"><svg viewBox="0 0 16 16" aria-hidden="true" style="width: 14px; height: 14px; fill: currentColor; display: block"><path d="M3 1.5v13l11-6.5z"></path></svg></span>
-<span data-when="playing" hidden><svg viewBox="0 0 16 16" aria-hidden="true" style="width: 14px; height: 14px; fill: currentColor; display: block"><path d="M3 1.5h3.5v13H3zM9.5 1.5H13v13H9.5z"></path></svg></span>
-</button>
-<a class="bn-btn bn-glow" href="https://github.com/Aleks-Levet/better-nothing-music-visualizer/releases/latest/download/BNMV.apk" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 999px; background: #FFFFFF; color: #000000; font-size: 15px; font-weight: 700; text-decoration: none; white-space: nowrap">Download</a>
-</div>
-</div>
-</header>
 
 <div class="bn-top" style="position: relative">
 <div class="bn-grid" aria-hidden="true"></div>
@@ -50,7 +22,7 @@
 
 <section style="position: relative; max-width: 1240px; margin: 0 auto; padding: clamp(20px, 4vw, 56px) clamp(20px, 5vw, 48px) clamp(56px, 8vw, 112px); box-sizing: border-box; display: flex; flex-wrap: wrap-reverse; align-items: center; gap: clamp(28px, 5vw, 72px)">
 <div style="position: relative; z-index: 1; flex: 1.15 1 440px; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 26px">
-<h1 class="bn-in" style="margin: 0; font-family: 'Google Sans Flex', system-ui, sans-serif; font-weight: 500; font-size: clamp(40px, 6vw, 84px); line-height: 1.02; letter-spacing: -0.035em; text-wrap: balance">Better Nothing Music Visualizer</h1>
+<h1 class="bn-in" style="margin: 0; font-family: 'Google Sans Flex', system-ui, sans-serif; font-weight: 500; font-size: clamp(40px, 6vw, 84px); line-height: 1.02; letter-spacing: -0.035em; text-wrap: balance">Better<br>Nothing<br>Music<br>Visualizer</h1>
 <p class="bn-in bn-d1" style="margin: 0; max-width: 33em; font-size: clamp(17px, 1.5vw, 20px); line-height: 1.55; color: #B5B1AE">BNMV makes any android device dance to the beat! Flashlight, vibration, screen edges, punch hole camera, you name it! On Nothing phones, every glyph follows its own slice of the song, so the kick, the vocal and the hi-hat each get their own light.</p>
 <div class="bn-in bn-d2" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
 <a class="bn-btn bn-glow" href="https://github.com/Aleks-Levet/better-nothing-music-visualizer/releases/latest/download/BNMV.apk" style="display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 28px; border-radius: 999px; background: #FFFFFF; color: #000000; font-size: 16px; font-weight: 700; text-decoration: none">Download</a>
@@ -136,24 +108,24 @@
 </div>
 
 <section class="bn-marquee" aria-label="Visualization features and supported devices">
-<p class="bn-marquee-sr">Visualization features: Glyph interface, Glyph matrix, Vibration motor, haptic feedback, Screen edges, Punch hole camera, navigation bar, Flashlight. Supported devices: Pixel phones, Nothing Phones, Samsong phones, Android TV, android tablets.</p>
+<p class="bn-marquee-sr">Visualization features: Glyph interface, Glyph matrix, Vibration motor, Haptic feedback, Screen edges, Punch hole camera, Navigation bar, Flashlight. Supported devices: Pixel phones, Nothing Phones, Samsung phones, Android TV, Android tablets.</p>
 <div class="bn-marquee-row" aria-hidden="true">
 <div class="bn-marquee-track">
 <div class="bn-marquee-group">
-<span>Glyph interface</span><span>Glyph matrix</span><span>Vibration motor</span><span>haptic feedback</span><span>Screen edges</span><span>Punch hole camera</span><span>navigation bar</span><span>Flashlight</span>
+<span>Glyph interface</span><span>Glyph matrix</span><span>Vibration motor</span><span>Haptic feedback</span><span>Screen edges</span><span>Punch hole camera</span><span>Navigation bar</span><span>Flashlight</span>
 </div>
 <div class="bn-marquee-group">
-<span>Glyph interface</span><span>Glyph matrix</span><span>Vibration motor</span><span>haptic feedback</span><span>Screen edges</span><span>Punch hole camera</span><span>navigation bar</span><span>Flashlight</span>
+<span>Glyph interface</span><span>Glyph matrix</span><span>Vibration motor</span><span>Haptic feedback</span><span>Screen edges</span><span>Punch hole camera</span><span>Navigation bar</span><span>Flashlight</span>
 </div>
 </div>
 </div>
 <div class="bn-marquee-row" aria-hidden="true">
 <div class="bn-marquee-track bn-marquee-track-reverse">
 <div class="bn-marquee-group">
-<span>Pixel phones</span><span>Nothing Phones</span><span>Samsong phones</span><span>Android TV</span><span>android tablets</span>
+<span>Pixel phones</span><span>Nothing Phones</span><span>Samsung phones</span><span>Android TV</span><span>Android tablets</span>
 </div>
 <div class="bn-marquee-group">
-<span>Pixel phones</span><span>Nothing Phones</span><span>Samsong phones</span><span>Android TV</span><span>android tablets</span>
+<span>Pixel phones</span><span>Nothing Phones</span><span>Samsung phones</span><span>Android TV</span><span>Android tablets</span>
 </div>
 </div>
 </div>

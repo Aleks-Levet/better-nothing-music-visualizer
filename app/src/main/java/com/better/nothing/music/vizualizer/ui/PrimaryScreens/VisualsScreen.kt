@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AppBlocking
 import androidx.compose.material.icons.filled.BlurCircular
 import androidx.compose.material.icons.filled.BorderOuter
 import androidx.compose.material.icons.filled.Brightness4
@@ -35,6 +36,7 @@ import com.better.nothing.music.vizualizer.ui.LocalAppSpacing
 import com.better.nothing.music.vizualizer.ui.MainViewModel
 import com.better.nothing.music.vizualizer.ui.VisualizerStyle
 import com.better.nothing.music.vizualizer.ui.ScreenTitle
+import com.better.nothing.music.vizualizer.ui.LinkCard
 
 @Composable
 fun VisualsScreen(
@@ -97,6 +99,13 @@ fun VisualsScreen(
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
 
         ScreenTitle(text = stringResource(R.string.tab_visuals))
+
+        LinkCard(
+            title = stringResource(R.string.app_blacklist_title),
+            subtitle = stringResource(R.string.app_blacklist_subtitle),
+            icon = Icons.Default.AppBlocking,
+            onClick = { viewModel.showAppBlacklist() }
+        )
 
         var expandedCardId by rememberSaveable { mutableStateOf<String?>(null) }
 

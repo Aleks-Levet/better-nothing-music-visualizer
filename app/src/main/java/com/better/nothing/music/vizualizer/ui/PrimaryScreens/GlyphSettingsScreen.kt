@@ -217,7 +217,12 @@ internal fun GlyphsScreen(
         val beatGamma by viewModel.flashlightBeatGamma.collectAsStateWithLifecycle()
         val visualizerState by viewModel.visualizerState.collectAsStateWithLifecycle()
         val isBeatDetected by viewModel.isBeatDetected.collectAsStateWithLifecycle()
-        val dotIntensity = visualizerState.firstOrNull() ?: 0f
+        val rawDotIntensity = visualizerState.firstOrNull() ?: 0f
+        val dotIntensity = if (torchMode == com.better.nothing.music.vizualizer.model.TorchMode.BEAT_DETECTION) {
+            if (isBeatDetected) 1.0f else (rawDotIntensity * 0.2f)
+        } else {
+            rawDotIntensity
+        }
 
         ActuatorSettingsLayout(
             title = stringResource(R.string.glyph_controls),

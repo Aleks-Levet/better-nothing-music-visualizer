@@ -437,4 +437,15 @@
     <string name="notification_action_lens" tools:ignore="MissingTranslation">Lens</string>
     <string name="notification_action_broadcast" tools:ignore="MissingTranslation">Broadcast</string>
     <string name="bypass_screen_share_popup" tools:ignore="MissingTranslation">Bypass Screen Share Popup (Shizuku)</string>
+
+    <!-- App Blacklist -->
+    <string name="app_blacklist_title" tools:ignore="MissingTranslation">App Blacklist</string>
+    <string name="app_blacklist_subtitle" tools:ignore="MissingTranslation">Disable overlay when selected apps are active</string>
+    <string name="app_blacklist_search_hint" tools:ignore="MissingTranslation">Search apps…</string>
+    <string name="app_blacklist_empty" tools:ignore="MissingTranslation">No apps found</string>
+    <string name="app_blacklist_usage_permission_title" tools:ignore="MissingTranslation">Usage Access Permission Required</string>
+    <string name="app_blacklist_usage_permission_desc" tools:ignore="MissingTranslation">To automatically hide overlays when blacklisted apps are in use, BNMV requires Usage Access permission.</string>
+    <string name="app_blacklist_grant_permission" tools:ignore="MissingTranslation">Grant Permission</string>
+    <string name="clear_all" tools:ignore="MissingTranslation">Clear all</string>
+    <string name="confirm" tools:ignore="MissingTranslation">Confirm</string>
 </resources>

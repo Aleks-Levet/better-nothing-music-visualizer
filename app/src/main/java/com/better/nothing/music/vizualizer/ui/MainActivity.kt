@@ -368,10 +368,11 @@ class MainActivity : AppCompatActivity() {
                 val isShowingAbout by viewModel.isShowingAbout.collectAsStateWithLifecycle()
                 val isShowingLicense by viewModel.isShowingLicense.collectAsStateWithLifecycle()
                 val isShowingStats by viewModel.isShowingStats.collectAsStateWithLifecycle()
+                val isShowingAppBlacklist by viewModel.isShowingAppBlacklist.collectAsStateWithLifecycle()
                 val isShowingHostPicker by viewModel.isShowingHostPicker.collectAsStateWithLifecycle()
                 val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
 
-                val shouldIntercept = isShowingAbout || isShowingLicense || isShowingStats || isShowingHostPicker || selectedTab != Tab.Audio
+                val shouldIntercept = isShowingAbout || isShowingLicense || isShowingStats || isShowingAppBlacklist || isShowingHostPicker || selectedTab != Tab.Audio
 
                 var backProgress by remember { mutableStateOf(0f) }
 
@@ -649,6 +650,7 @@ class MainActivity : AppCompatActivity() {
             it.setOverlayColor(viewModel.overlayColor.value.toArgb())
             it.setOverlayStyle(viewModel.overlayStyle.value)
             it.setOverlayOpacity(viewModel.overlayOpacity.value)
+            it.setOverlayAppBlacklist(viewModel.overlayAppBlacklist.value)
             
             it.setEdgeVisualizerEnabled(viewModel.onScreenVisualizersEnabled.value && viewModel.edgeVisualizerEnabled.value)
             it.setEdgeThickness(viewModel.edgeThickness.value)
@@ -803,8 +805,9 @@ internal fun BetterVizApp(
     val isShowingAbout by viewModel.isShowingAbout.collectAsStateWithLifecycle()
     val isShowingLicense by viewModel.isShowingLicense.collectAsStateWithLifecycle()
     val isShowingStats by viewModel.isShowingStats.collectAsStateWithLifecycle()
+    val isShowingAppBlacklist by viewModel.isShowingAppBlacklist.collectAsStateWithLifecycle()
     val isShowingHostPicker by viewModel.isShowingHostPicker.collectAsStateWithLifecycle()
-    val isAnyOverlayVisible = isShowingAbout || isShowingLicense || isShowingStats || isShowingHostPicker
+    val isAnyOverlayVisible = isShowingAbout || isShowingLicense || isShowingStats || isShowingAppBlacklist || isShowingHostPicker
 
     var predictiveBackInitialState by remember { mutableStateOf<Pair<Tab, Boolean>?>(null) }
 

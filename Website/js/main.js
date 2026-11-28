@@ -190,7 +190,7 @@ class Component {
     };
   }
 
-  /* The dot field: ripples leave the disc on every kick and snare, and dots wake up under the pointer. */
+  /* The dot field: ripples leave the disc on every kick and snare. */
   drawField(dt) {
     const E = this.els;
     const g = this.geo;
@@ -204,11 +204,7 @@ class Component {
       rp[i].age += dt;
       if (rp[i].age > 1.8) { rp.splice(i, 1); }
     }
-    let mx = -9999;
-    let my = -9999;
-    const p = this.ptr;
-    if (p && performance.now() - p.at < 2500) { mx = p.x - g.left; my = p.y - g.top; }
-    if (rp.length === 0 && mx < -9000) { return; }
+    if (rp.length === 0) { return; }
     const edge = 100 * g.s;
     const sp = 26;
     const cols = Math.ceil(g.w / sp);
@@ -226,10 +222,6 @@ class Component {
           const q = (d - edge - rp[k].age * rp[k].speed) / (40 + rp[k].age * 36);
           if (q > -1.5 && q < 1.5) { b += rp[k].str * Math.exp(-2.4 * q * q) * (1 - rp[k].age / 1.8); }
         }
-        const px = x - mx;
-        const py = y - my;
-        const pd = px * px + py * py;
-        if (pd < 19600) { b += 0.8 * (1 - pd / 19600); }
         if (b < 0.05) { continue; }
         if (b > 1) { b = 1; }
         ctx.globalAlpha = 0.12 + 0.88 * b;

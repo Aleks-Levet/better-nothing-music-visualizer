@@ -397,10 +397,11 @@
 html{background:#100000}
 body{margin:0;background:#ff0000;overflow-x:hidden}
 [hidden]{display:none !important}
-.bnmv-root .bn-nav{-webkit-backdrop-filter:blur(16px) saturate(140%);backdrop-filter:blur(16px) saturate(140%)}
-.bnmv-root .bn-navlinks{display:flex;align-items:center;gap:4px}
-@media (max-width:820px){.bnmv-root .bn-navlinks{display:none}}
-.bnmv-root section[id]{scroll-margin-top:76px}
+.bn-download-fab{position:fixed;right:max(24px,env(safe-area-inset-right));bottom:max(24px,env(safe-area-inset-bottom));z-index:50;display:flex;height:56px;align-items:center;justify-content:center;gap:12px;padding:0 18px;border-radius:16px;background:#A0FFA3;color:#1C5A21;font-family:inherit;font-size:16px;font-weight:700;line-height:1;text-decoration:none;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.4);transition:transform .15s ease,box-shadow .15s ease}
+.bn-download-fab:hover{color:#1C5A21;transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.5)}
+.bn-download-fab:active{transform:scale(.96)}
+.bn-download-fab svg{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media (min-width: 700px){.bn-download-fab{height:72px;gap:14px;padding:0 24px;font-size:20px}.bn-download-fab svg{width:30px;height:30px}}
 .bnmv-root .bn-rays{-webkit-mask-image:radial-gradient(circle closest-side,transparent 0,transparent 46%,#000 54%,transparent 100%);mask-image:radial-gradient(circle closest-side,transparent 0,transparent 46%,#000 54%,transparent 100%);filter:blur(1.5px)}
 .bnmv-root .bn-face{backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
 .bnmv-root .bn-flip{transform:rotateY(180deg)}
