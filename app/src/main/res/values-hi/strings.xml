@@ -260,7 +260,7 @@
     <string name="audio_route_none">None</string>
     <string name="output_selection">2. Select the outputs</string>
     <string name="select_capture_source">1. Select the audio source</string>
-    <string name="broadcast">Let other devices connect...</string>
+    <string name="broadcast_switch">Let other devices connect...</string>
     <string name="broadcast_card_description">Other devices that have BNMV installed will be able to connect to you for an even better experience</string>
     <!-- Audio Help Guides -->
     <string name="help_source_intro">Choose where to capture audio for visualization:</string>

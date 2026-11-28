@@ -260,7 +260,7 @@
     <string name="audio_route_none">لا شيء</string>
     <string name="output_selection">٢. اختر المخارج</string>
     <string name="select_capture_source">١. اختر مصدر الصوت</string>
-    <string name="broadcast">السماح للأجهزة الأخرى بالاتصال...</string>
+    <string name="broadcast_switch">السماح للأجهزة الأخرى بالاتصال...</string>
     <string name="broadcast_card_description">الأجهزة الأخرى التي تم تثبيت BNMV عليها ستكون قادرة على الاتصال بجهازك للحصول على تجربة أفضل</string>
     <!-- Audio Help Guides -->
     <string name="help_source_intro">اختر مكان التقاط الصوت للتصوير المرئي:</string>

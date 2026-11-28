@@ -260,7 +260,7 @@
     <string name="audio_route_none">Žiadne</string>
     <string name="output_selection">2. Vyberte výstupy</string>
     <string name="select_capture_source">1. Vyberte zdroj zvuku</string>
-    <string name="broadcast">Nech sa pripoja ďalšie zariadenia...</string>
+    <string name="broadcast_switch">Nech sa pripoja ďalšie zariadenia...</string>
     <string name="broadcast_card_description">Ostatné zariadenia, v ktorých je nainštalovaný BNMV, sa k vám budú môcť pripojiť, čo prinesie ešte lepší zážitok</string>
     <!-- Audio Help Guides -->
     <string name="help_source_intro">Vyberte, odkiaľ chcete zaznamenať zvuk na účely vizualizácie:</string>

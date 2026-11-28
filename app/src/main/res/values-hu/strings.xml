@@ -260,7 +260,7 @@
     <string name="audio_route_none">n.a.</string>
     <string name="output_selection">2. Válaszd ki a kimenetet</string>
     <string name="select_capture_source">1. Válaszd ki a bemenetet</string>
-    <string name="broadcast">Más eszközök csatlakozásának engedélyezése...</string>
+    <string name="broadcast_switch">Más eszközök csatlakozásának engedélyezése...</string>
     <string name="broadcast_card_description">Engedélyezi hogy más eszközök erre csatlakozhassanak.</string>
     <!-- Audio Help Guides -->
     <string name="help_source_intro">Honnan származzon a hang a kimutatáshoz:</string>

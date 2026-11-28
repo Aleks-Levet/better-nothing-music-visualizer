@@ -260,7 +260,7 @@
     <string name="audio_route_none">Нет</string>
     <string name="output_selection">2. Выберите вывод</string>
     <string name="select_capture_source">1. Выберите источник звука</string>
-    <string name="broadcast">Разрешить подключение устройств…</string>
+    <string name="broadcast_switch">Разрешить подключение устройств…</string>
     <string name="broadcast_card_description">Other devices that have BNMV installed will be able to connect to you for an even better experience</string>
     <!-- Audio Help Guides -->
     <string name="help_source_intro">Выберите источник захвата звука для визуализации:</string>

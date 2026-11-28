@@ -12,6 +12,7 @@
     <string name="latency_compensation">Latency Compensation</string>
     <string name="live_spectrum">Live Audio Spectrum</string>
     <string name="audio_adjustments" translatable="false">Audio adjustments</string>
+    <string name="received_data" translatable="false">Received data</string>
     <string name="audio_sensitivity" translatable="false">Sensitivity</string>
     <string name="hq_audio_description" translatable="false">More sensitive. The mids and highs are better, but the bass punch is kinda lost</string>
 
@@ -102,7 +103,7 @@
     <string name="feature_flashlight_levels">Flashlight intensity levels</string>
     <string name="feature_supported_n">%d levels supported</string>
     <string name="feature_basic">Binary (On/Off only)</string>
-    <string name="developer_mode">Spoof device...</string>
+    <string name="developer_mode">Spoof device…</string>
     <string name="spoof_flashlight_levels" translatable="false">Spoof Flashlight levels...</string>
     <string name="spoof_flashlight_default" translatable="false">Default</string>
     <string name="spoof_device_description">Forces the app to behave as if it\'s running on the selected device.</string>
@@ -227,7 +228,7 @@
     <string name="apk_verification_failed" tools:ignore="MissingTranslation">APK verification failed: invalid package or signature mismatch</string>
     <string name="license_load_error">Failed to load license: %d</string>
     <string name="unknown_error">Unknown error</string>
-    <string name="update_checking">Checking for updates...</string>
+    <string name="update_checking">Checking for updates…</string>
     <string name="update_downloading">Downloading: %d%%</string>
     <string name="update_uptodate">Latest version installed</string>
     <string name="update_error">Error: %s</string>
@@ -327,7 +328,7 @@
     <string name="audio_route_none">None</string>
     <string name="output_selection">2. Select the outputs</string>
     <string name="select_capture_source">1. Select the audio source</string>
-    <string name="broadcast">Let other devices connect to you</string>
+    <string name="broadcast_switch">Enable BNMV broadcast…</string>
     <string name="broadcast_card_description">Other devices that have BNMV installed will be able to connect to you for an even better experience</string>
 
     <!-- Audio Help Guides -->
@@ -336,7 +337,7 @@
     <string name="help_source_internal_desc">Captures high-quality audio directly from your apps. The "screen share" popup is what android needs to allow audio capture by BNMV. It does not record your screen and is highly battery efficient. </string>
     <string name="help_source_mic_title">Microphone</string>
     <string name="help_source_mic_desc">Captures sound from the environment. Useful for parties where you do not play the songs yourself.</string>
-    <string name="help_source_network_title">Another device or app...</string>
+    <string name="help_source_network_title">Another device or app…</string>
     <string name="help_source_network_desc">Receives audio data from another device that is broadcasting audio data with this app.</string>
     <string name="help_source_viz_title">Android built in Visualizer</string>
     <string name="help_source_viz_desc">This is what android officially lets visualizer apps use, a very low quality audio stream. It doesn\'t ask for screen sharing permissions tho.</string>
@@ -355,7 +356,7 @@
     <string name="help_output_broadcast_desc">Streams audio data to other devices on your network.</string>
     <string name="help_sync_title">Connecting to another device:</string>
     <string name="help_sync_step1">1. Enable \'Let other devices connect to you\' on the device playing music (Source).</string>
-    <string name="help_sync_step2">2. On this device, select \'Another device or app...\' as the Audio Source and pick the source device from the list.</string>
+    <string name="help_sync_step2">2. On this device, select \'Another device or app…\' as the Audio Source and pick the source device from the list.</string>
 
     <string name="system_language">System Language</string>
     <string name="select_language">Select Language</string>
@@ -384,7 +385,7 @@
     <string name="visualizer_color">Visualizer Color</string>
     <string name="broadcast_clients">Broadcast Clients</string>
     <string name="connected_count">%d Connected</string>
-    <string name="waiting_for_devices">Waiting for devices...</string>
+    <string name="waiting_for_devices">Waiting for devices…</string>
     <string name="made_by_aleks">Made by Aleks Levet with love!</string>
     <string name="credits_extended">I am not the only one who contributed to making this amazing project, check the github page for full credits! This took years to make!</string>
     <string name="content_desc_internal_source">Internal Source</string>

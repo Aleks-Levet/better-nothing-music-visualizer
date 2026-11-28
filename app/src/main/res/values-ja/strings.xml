@@ -260,7 +260,7 @@
     <string name="audio_route_none">None</string>
     <string name="output_selection">2.出力を選択</string>
     <string name="select_capture_source">1. オーディオソースを選択</string>
-    <string name="broadcast">他のデバイスを接続...</string>
+    <string name="broadcast_switch">他のデバイスを接続...</string>
     <string name="broadcast_card_description">他のデバイスにBNMVがインストールされていれば、接続をすることでよりよい体験を得ることができます</string>
     <!-- Audio Help Guides -->
     <string name="help_source_intro">ビジュアライゼーション用のオーディオをキャプチャする場所を選択してください:</string>
