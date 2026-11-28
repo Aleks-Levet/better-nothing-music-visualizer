@@ -514,6 +514,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val _overlayGlowSmooth = MutableStateFlow(true)
+    val overlayGlowSmooth = _overlayGlowSmooth.asStateFlow()
+    fun setOverlayGlowSmooth(smooth: Boolean) {
+        _overlayGlowSmooth.value = smooth
+        MainActivity.serviceStatic?.setOverlayGlowSmooth(smooth)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("overlay_glow_smooth", smooth) }
+        }
+    }
+
     private val _overlayColor = MutableStateFlow(Color.White)
     val overlayColor = _overlayColor.asStateFlow()
     fun setOverlayColor(color: Color) {
@@ -654,6 +665,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val _edgeGlowSmooth = MutableStateFlow(true)
+    val edgeGlowSmooth = _edgeGlowSmooth.asStateFlow()
+    fun setEdgeGlowSmooth(smooth: Boolean) {
+        _edgeGlowSmooth.value = smooth
+        MainActivity.serviceStatic?.setEdgeGlowSmooth(smooth)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("edge_glow_smooth", smooth) }
+        }
+    }
+
     private val _edgeColor = MutableStateFlow(Color.White)
     val edgeColor = _edgeColor.asStateFlow()
     fun setEdgeColor(color: Color) {
@@ -789,6 +811,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putFloat("lens_glow_blur_radius", radius) }
+        }
+    }
+
+    private val _lensGlowSmooth = MutableStateFlow(true)
+    val lensGlowSmooth = _lensGlowSmooth.asStateFlow()
+    fun setLensGlowSmooth(smooth: Boolean) {
+        _lensGlowSmooth.value = smooth
+        MainActivity.serviceStatic?.setLensGlowSmooth(smooth)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("lens_glow_smooth", smooth) }
         }
     }
 
@@ -2733,6 +2766,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _overlaySensitivity.value = get("overlay_sensitivity", 1.0f)
         _overlaySensitivityBottom.value = get("overlay_sensitivity_bottom", 1.0f)
         _overlayGlowBlurRadius.value = get("overlay_glow_blur_radius", 24f)
+        _overlayGlowSmooth.value = get("overlay_glow_smooth", true)
         _overlayColor.value = Color(get("overlay_color", Color.White.toArgb()))
         _overlayOpacity.value = get("overlay_opacity", 1.0f)
         
@@ -2740,6 +2774,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _edgeThickness.value = get("edge_thickness", 12)
         _edgeSensitivity.value = get("edge_sensitivity", 1.0f)
         _edgeGlowBlurRadius.value = get("edge_glow_blur_radius", 24f)
+        _edgeGlowSmooth.value = get("edge_glow_smooth", true)
         _edgeBarCountHoriz.value = get("edge_bar_count_horiz", 45)
         _edgeBarCountVert.value = get("edge_bar_count_vert", 45)
         _edgeCornerRadius.value = get("edge_corner_radius", 0f)
@@ -2758,6 +2793,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _lensVisualizerBarCount.value = get("lens_visualizer_bar_count", 35)
         _lensVisualizerSensitivity.value = get("lens_visualizer_sensitivity", 0.32f)
         _lensGlowBlurRadius.value = get("lens_glow_blur_radius", 24f)
+        _lensGlowSmooth.value = get("lens_glow_smooth", true)
         _lensColor.value = Color(get("lens_color", Color.White.toArgb()))
         _lensOpacity.value = get("lens_opacity", 1.0f)
 

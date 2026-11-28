@@ -515,6 +515,7 @@ public class AudioCaptureService extends Service {
     public void setLensVisualizerBarCount(int c) { mLensVisualizerBarCount = c; updateUnifiedProperties(); }
     public void setLensVisualizerSensitivity(float s) { mLensVisualizerSensitivity = s; updateUnifiedProperties(); }
     public void setLensGlowBlurRadius(float radius) { mLensGlowBlurRadius = radius; updateUnifiedProperties(); }
+    public void setLensGlowSmooth(boolean smooth) { mLensGlowSmooth = smooth; updateUnifiedProperties(); }
     public void setLensColor(int color) { mLensColor = color; updateUnifiedProperties(); }
     public void setLensOpacity(float opacity) { mLensOpacity = opacity; updateUnifiedProperties(); }
     
@@ -526,6 +527,7 @@ public class AudioCaptureService extends Service {
     private float mOverlaySensitivity = 1.0f;
     private float mOverlaySensitivityBottom = 1.0f;
     private float mOverlayGlowBlurRadius = 24f;
+    private boolean mOverlayGlowSmooth = true;
     private boolean mOverlayTopEnabled = true;
     private boolean mOverlayBottomEnabled = false;
     private int mOverlayColor = android.graphics.Color.WHITE;
@@ -538,6 +540,8 @@ public class AudioCaptureService extends Service {
     private int mEdgeThickness = 12;
     private float mEdgeSensitivity = 1.0f;
     private float mEdgeGlowBlurRadius = 24f;
+    private boolean mEdgeGlowSmooth = true;
+    private boolean mLensGlowSmooth = true;
     private int mEdgeBarCountHoriz = 45;
     private int mEdgeBarCountVert = 45;
     private float mEdgeCornerRadius = 0f;
@@ -1055,6 +1059,7 @@ public class AudioCaptureService extends Service {
         mOverlaySensitivity = getSafeFloat(appPrefs, "overlay_sensitivity", 1.0f);
         mOverlaySensitivityBottom = getSafeFloat(appPrefs, "overlay_sensitivity_bottom", 1.0f);
         mOverlayGlowBlurRadius = getSafeFloat(appPrefs, "overlay_glow_blur_radius", 24f);
+        mOverlayGlowSmooth = appPrefs.getBoolean("overlay_glow_smooth", true);
         mOverlayColor = getSafeInt(appPrefs, "overlay_color", android.graphics.Color.WHITE);
         mOverlayOpacity = getSafeFloat(appPrefs, "overlay_opacity", 1.0f);
 
@@ -1062,6 +1067,7 @@ public class AudioCaptureService extends Service {
         mEdgeThickness = getSafeInt(appPrefs, "edge_thickness", 12);
         mEdgeSensitivity = getSafeFloat(appPrefs, "edge_sensitivity", 1.0f);
         mEdgeGlowBlurRadius = getSafeFloat(appPrefs, "edge_glow_blur_radius", 24f);
+        mEdgeGlowSmooth = appPrefs.getBoolean("edge_glow_smooth", true);
         mEdgeBarCountHoriz = getSafeInt(appPrefs, "edge_bar_count_horiz", 45);
         mEdgeBarCountVert = getSafeInt(appPrefs, "edge_bar_count_vert", 45);
         mEdgeCornerRadius = getSafeFloat(appPrefs, "edge_corner_radius", 0f);
@@ -1080,6 +1086,7 @@ public class AudioCaptureService extends Service {
         mLensVisualizerBarCount = getSafeInt(appPrefs, "lens_visualizer_bar_count", 35);
         mLensVisualizerSensitivity = getSafeFloat(appPrefs, "lens_visualizer_sensitivity", 0.32f);
         mLensGlowBlurRadius = getSafeFloat(appPrefs, "lens_glow_blur_radius", 24f);
+        mLensGlowSmooth = appPrefs.getBoolean("lens_glow_smooth", true);
         mLensColor = getSafeInt(appPrefs, "lens_color", android.graphics.Color.WHITE);
         mLensOpacity = getSafeFloat(appPrefs, "lens_opacity", 1.0f);
 
@@ -1468,6 +1475,7 @@ public class AudioCaptureService extends Service {
     public void setOverlaySensitivity(float s) { mOverlaySensitivity = s; updateUnifiedProperties(); }
     public void setOverlaySensitivityBottom(float s) { mOverlaySensitivityBottom = s; updateUnifiedProperties(); }
     public void setOverlayGlowBlurRadius(float radius) { mOverlayGlowBlurRadius = radius; updateUnifiedProperties(); }
+    public void setOverlayGlowSmooth(boolean smooth) { mOverlayGlowSmooth = smooth; updateUnifiedProperties(); }
     public void setOverlayOpacity(float opacity) { mOverlayOpacity = opacity; updateUnifiedProperties(); }
 
     public void setEdgeVisualizerEnabled(boolean enabled) {
@@ -1479,6 +1487,7 @@ public class AudioCaptureService extends Service {
     public void setEdgeThickness(int thickness) { mEdgeThickness = thickness; updateUnifiedProperties(); }
     public void setEdgeSensitivity(float sensitivity) { mEdgeSensitivity = sensitivity; updateUnifiedProperties(); }
     public void setEdgeGlowBlurRadius(float radius) { mEdgeGlowBlurRadius = radius; updateUnifiedProperties(); }
+    public void setEdgeGlowSmooth(boolean smooth) { mEdgeGlowSmooth = smooth; updateUnifiedProperties(); }
     public void setEdgeBarCounts(int horiz, int vert) { mEdgeBarCountHoriz = horiz; mEdgeBarCountVert = vert; updateUnifiedProperties(); }
     public void setEdgeCornerRadius(float radius) { mEdgeCornerRadius = radius; updateUnifiedProperties(); }
     public void setEdgeColor(int color) { mEdgeColor = color; updateUnifiedProperties(); }
@@ -2622,7 +2631,8 @@ public class AudioCaptureService extends Service {
                     mEdgeColor,
                     mEdgeOpacity,
                     mEdgeGlowBlurRadius,
-                    mEdgeStyle
+                    mEdgeStyle,
+                    mEdgeGlowSmooth
             );
 
             int extraPaddingPx = (int) (64 * density);
@@ -2645,7 +2655,8 @@ public class AudioCaptureService extends Service {
                     mOverlayGlowBlurRadius,
                     mOverlayStyle,
                     glowInsetPx,
-                    mEmulateHdrOpacity
+                    mEmulateHdrOpacity,
+                    mOverlayGlowSmooth
             );
 
             mUnifiedVisualizerView.setLensProperties(
@@ -2661,7 +2672,8 @@ public class AudioCaptureService extends Service {
                     mLensColor,
                     mLensOpacity,
                     mLensGlowBlurRadius,
-                    mLensStyle
+                    mLensStyle,
+                    mLensGlowSmooth
             );
         });
     }

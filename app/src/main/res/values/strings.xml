@@ -158,7 +158,7 @@
     <string name="clear">Clear</string>
     <string name="sync_ui_to_beat">Sync UI to the beat</string>
     <string name="alternate_glyph_viz">Alternate Glyph Visualizer</string>
-    <string name="nav_overlay">Nav bar</string>
+    <string name="navbarviz" tools:ignore="MissingTranslation">Nav bar</string>
     <string name="overlays">Overlays</string>
     <string name="higher_quality_audio_analysis">Higher quality audio analysis</string>
     <string name="rounded_bars">Rounded bars</string>
@@ -409,6 +409,8 @@
 
     <!-- Additional UI Labels -->
     <string name="glow_blur">Glow blur</string>
+    <string name="glow_smooth_curve" tools:ignore="MissingTranslation">Smooth curve</string>
+    <string name="needs_more_processing" tools:ignore="MissingTranslation">Needs more processing</string>
     <string name="easter_egg_image">Easter Egg Image</string>
     <string name="config_version_format">Version: %s</string>
     <string name="latest_version_format">Latest: %s</string>

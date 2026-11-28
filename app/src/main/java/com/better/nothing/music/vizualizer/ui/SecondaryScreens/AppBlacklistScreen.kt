@@ -128,14 +128,18 @@ internal fun AppBlacklistScreen(
                 }
             }
 
-            apps.sortBy { it.appName.lowercase() }
+            // Initial sort: blacklisted first, then alphabetical (won't re-sort in real-time when toggling)
+            apps.sortWith(
+                compareByDescending<AppInfoItem> { currentBlacklist.contains(it.packageName) }
+                    .thenBy { it.appName.lowercase() }
+            )
             installedApps = apps
             isLoading = false
         }
     }
 
-    val filteredApps = remember(installedApps, searchQuery, selectedPackages) {
-        val list = if (searchQuery.isBlank()) {
+    val filteredApps = remember(installedApps, searchQuery) {
+        if (searchQuery.isBlank()) {
             installedApps
         } else {
             installedApps.filter {
@@ -143,10 +147,6 @@ internal fun AppBlacklistScreen(
                 it.packageName.contains(searchQuery, ignoreCase = true)
             }
         }
-        list.sortedWith(
-            compareByDescending<AppInfoItem> { selectedPackages.contains(it.packageName) }
-                .thenBy { it.appName.lowercase() }
-        )
     }
 
     Surface(

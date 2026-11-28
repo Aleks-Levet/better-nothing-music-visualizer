@@ -53,6 +53,7 @@ fun VisualsScreen(
     val overlaySensitivity by viewModel.overlaySensitivity.collectAsStateWithLifecycle()
     val overlaySensitivityBottom by viewModel.overlaySensitivityBottom.collectAsStateWithLifecycle()
     val overlayGlowBlurRadius by viewModel.overlayGlowBlurRadius.collectAsStateWithLifecycle()
+    val overlayGlowSmooth by viewModel.overlayGlowSmooth.collectAsStateWithLifecycle()
     val overlayTopEnabled by viewModel.overlayTopEnabled.collectAsStateWithLifecycle()
     val overlayBottomEnabled by viewModel.overlayBottomEnabled.collectAsStateWithLifecycle()
     val overlayColor by viewModel.overlayColor.collectAsStateWithLifecycle()
@@ -63,6 +64,7 @@ fun VisualsScreen(
     val edgeThickness by viewModel.edgeThickness.collectAsStateWithLifecycle()
     val edgeSensitivity by viewModel.edgeSensitivity.collectAsStateWithLifecycle()
     val edgeGlowBlurRadius by viewModel.edgeGlowBlurRadius.collectAsStateWithLifecycle()
+    val edgeGlowSmooth by viewModel.edgeGlowSmooth.collectAsStateWithLifecycle()
     val edgeBarCountHoriz by viewModel.edgeBarCountHoriz.collectAsStateWithLifecycle()
     val edgeCornerRadius by viewModel.edgeCornerRadius.collectAsStateWithLifecycle()
     val edgeTopEnabled by viewModel.edgeTopEnabled.collectAsStateWithLifecycle()
@@ -81,6 +83,7 @@ fun VisualsScreen(
     val lensBarCount by viewModel.lensVisualizerBarCount.collectAsStateWithLifecycle()
     val lensSensitivity by viewModel.lensVisualizerSensitivity.collectAsStateWithLifecycle()
     val lensGlowBlurRadius by viewModel.lensGlowBlurRadius.collectAsStateWithLifecycle()
+    val lensGlowSmooth by viewModel.lensGlowSmooth.collectAsStateWithLifecycle()
     val lensColor by viewModel.lensColor.collectAsStateWithLifecycle()
     val lensStyle by viewModel.lensStyle.collectAsStateWithLifecycle()
     val lensOpacity by viewModel.lensOpacity.collectAsStateWithLifecycle()
@@ -113,12 +116,12 @@ fun VisualsScreen(
         var isEdgeMoreExpanded by rememberSaveable { mutableStateOf(false) }
         var isLensMoreExpanded by rememberSaveable { mutableStateOf(false) }
 
-        // ── Overlay Visualizer ──────────────────────────────────────────────
+        // ── NavbarViz Visualizer ──────────────────────────────────────────────
         ExpandableExpressiveCard(
-            title = stringResource(R.string.nav_overlay),
+            title = stringResource(R.string.navbarviz),
             icon = Icons.Default.Layers,
-            expanded = expandedCardId == "overlay",
-            onExpandedChange = { expandedCardId = if (it) "overlay" else null },
+            expanded = expandedCardId == "navbarviz",
+            onExpandedChange = { expandedCardId = if (it) "navbarviz" else null },
             trailingContent = {
                 ExpressiveSwitch(
                     checked = overlayEnabled,
@@ -190,30 +193,60 @@ fun VisualsScreen(
                         onColorSelected = { viewModel.setOverlayColor(it) }
                     )
 
-                    if (overlayStyle == VisualizerStyle.GLOW) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                    AnimatedVisibility(
+                        visible = overlayStyle == VisualizerStyle.GLOW,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut()
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Text(
-                                text = stringResource(R.string.glow_blur),
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.primary
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.glow_blur),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "${overlayGlowBlurRadius.toInt()}px",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            VisualSlider(
+                                value = overlayGlowBlurRadius,
+                                onValueChange = { viewModel.setOverlayGlowBlurRadius(it) },
+                                valueRange = 0f..60f,
+                                fineTuneStep = 1f,
+                                modifier = Modifier.fillMaxWidth()
                             )
-                            Text(
-                                text = "${overlayGlowBlurRadius.toInt()}px",
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                                    Text(
+                                        text = stringResource(R.string.glow_smooth_curve),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.needs_more_processing),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                ExpressiveSwitch(
+                                    checked = overlayGlowSmooth,
+                                    onCheckedChange = { viewModel.setOverlayGlowSmooth(it) }
+                                )
+                            }
                         }
-                        VisualSlider(
-                            value = overlayGlowBlurRadius,
-                            onValueChange = { viewModel.setOverlayGlowBlurRadius(it) },
-                            valueRange = 0f..60f,
-                            fineTuneStep = 1f,
-                            modifier = Modifier.fillMaxWidth()
-                        )
                     }
 
                 }
@@ -296,30 +329,60 @@ fun VisualsScreen(
                         onColorSelected = { viewModel.setEdgeColor(it) }
                     )
 
-                    if (edgeStyle == VisualizerStyle.GLOW) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                    AnimatedVisibility(
+                        visible = edgeStyle == VisualizerStyle.GLOW,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut()
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Text(
-                                text = stringResource(R.string.glow_blur),
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.primary
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.glow_blur),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "${edgeGlowBlurRadius.toInt()}px",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            VisualSlider(
+                                value = edgeGlowBlurRadius,
+                                onValueChange = { viewModel.setEdgeGlowBlurRadius(it) },
+                                valueRange = 0f..60f,
+                                fineTuneStep = 1f,
+                                modifier = Modifier.fillMaxWidth()
                             )
-                            Text(
-                                text = "${edgeGlowBlurRadius.toInt()}px",
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                                    Text(
+                                        text = stringResource(R.string.glow_smooth_curve),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.needs_more_processing),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                ExpressiveSwitch(
+                                    checked = edgeGlowSmooth,
+                                    onCheckedChange = { viewModel.setEdgeGlowSmooth(it) }
+                                )
+                            }
                         }
-                        VisualSlider(
-                            value = edgeGlowBlurRadius,
-                            onValueChange = { viewModel.setEdgeGlowBlurRadius(it) },
-                            valueRange = 0f..60f,
-                            fineTuneStep = 1f,
-                            modifier = Modifier.fillMaxWidth()
-                        )
                     }
 
                 }
@@ -404,30 +467,60 @@ fun VisualsScreen(
                         onColorSelected = { viewModel.setLensColor(it) }
                     )
 
-                    if (lensStyle == VisualizerStyle.GLOW) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                    AnimatedVisibility(
+                        visible = lensStyle == VisualizerStyle.GLOW,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut()
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Text(
-                                text = stringResource(R.string.glow_blur),
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.primary
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.glow_blur),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "${lensGlowBlurRadius.toInt()}px",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            VisualSlider(
+                                value = lensGlowBlurRadius,
+                                onValueChange = { viewModel.setLensGlowBlurRadius(it) },
+                                valueRange = 0f..60f,
+                                fineTuneStep = 1f,
+                                modifier = Modifier.fillMaxWidth()
                             )
-                            Text(
-                                text = "${lensGlowBlurRadius.toInt()}px",
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                                    Text(
+                                        text = stringResource(R.string.glow_smooth_curve),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.needs_more_processing),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                ExpressiveSwitch(
+                                    checked = lensGlowSmooth,
+                                    onCheckedChange = { viewModel.setLensGlowSmooth(it) }
+                                )
+                            }
                         }
-                        VisualSlider(
-                            value = lensGlowBlurRadius,
-                            onValueChange = { viewModel.setLensGlowBlurRadius(it) },
-                            valueRange = 0f..60f,
-                            fineTuneStep = 1f,
-                            modifier = Modifier.fillMaxWidth()
-                        )
                     }
 
                 }
