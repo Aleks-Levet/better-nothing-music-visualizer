@@ -559,15 +559,13 @@ internal fun SettingsScreen(
                 val notifButton1 by viewModel.notificationButton1.collectAsStateWithLifecycle()
                 val notifButton2 by viewModel.notificationButton2.collectAsStateWithLifecycle()
                 val notifButton3 by viewModel.notificationButton3.collectAsStateWithLifecycle()
-                val actions = listOf("glyphs", "haptics", "torch", "overlay", "edge", "lens", "broadcast", "none")
+                val actions = listOf("glyphs", "haptics", "torch", "overlay", "broadcast", "none")
                 val labelProvider: @Composable (String) -> String = { action ->
                     when (action) {
                         "glyphs" -> stringResource(R.string.notification_action_glyphs)
                         "haptics" -> stringResource(R.string.notification_action_haptics)
                         "torch" -> stringResource(R.string.notification_action_flash)
                         "overlay" -> stringResource(R.string.notification_action_overlay)
-                        "edge" -> stringResource(R.string.notification_action_edge)
-                        "lens" -> stringResource(R.string.notification_action_lens)
                         "broadcast" -> stringResource(R.string.notification_action_broadcast)
                         "none" -> stringResource(R.string.disabled)
                         else -> action

@@ -328,7 +328,8 @@
   scrollbar-width: thin;
   scrollbar-color: #6B6765 transparent;
   overscroll-behavior-inline: contain;
-  touch-action: pan-x;
+  /* Keep native horizontal carousel swiping without blocking vertical page scrolling. */
+  touch-action: pan-x pan-y;
   -webkit-overflow-scrolling: touch;
 }
 

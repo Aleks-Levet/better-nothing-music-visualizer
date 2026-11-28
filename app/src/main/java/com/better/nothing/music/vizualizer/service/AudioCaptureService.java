@@ -1193,20 +1193,18 @@ public class AudioCaptureService extends Service {
                 setBroadcastEnabled(nextEnabled);
                 getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putBoolean("broadcast_enabled", nextEnabled).apply();
             }
-            else if (ACTION_TOGGLE_OVERLAY.equals(intentAction)) {
-                boolean nextEnabled = intent.hasExtra(EXTRA_ENABLED) ? intent.getBooleanExtra(EXTRA_ENABLED, false) : !mOverlayEnabled;
+            else if (ACTION_TOGGLE_OVERLAY.equals(intentAction) || ACTION_TOGGLE_EDGE.equals(intentAction) || ACTION_TOGGLE_LENS.equals(intentAction)) {
+                boolean anyEnabled = mOverlayEnabled || mEdgeVisualizerEnabled || mLensVisualizerEnabled;
+                boolean nextEnabled = intent.hasExtra(EXTRA_ENABLED) ? intent.getBooleanExtra(EXTRA_ENABLED, false) : !anyEnabled;
                 setOverlayEnabled(nextEnabled);
-                getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putBoolean("overlay_enabled", nextEnabled).apply();
-            }
-            else if (ACTION_TOGGLE_EDGE.equals(intentAction)) {
-                boolean nextEnabled = intent.hasExtra(EXTRA_ENABLED) ? intent.getBooleanExtra(EXTRA_ENABLED, false) : !mEdgeVisualizerEnabled;
                 setEdgeVisualizerEnabled(nextEnabled);
-                getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putBoolean("edge_visualizer_enabled", nextEnabled).apply();
-            }
-            else if (ACTION_TOGGLE_LENS.equals(intentAction)) {
-                boolean nextEnabled = intent.hasExtra(EXTRA_ENABLED) ? intent.getBooleanExtra(EXTRA_ENABLED, false) : !mLensVisualizerEnabled;
                 setLensVisualizerEnabled(nextEnabled);
-                getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit().putBoolean("lens_visualizer_enabled", nextEnabled).apply();
+                SharedPreferences.Editor editor = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE).edit();
+                editor.putBoolean("overlay_enabled", nextEnabled);
+                editor.putBoolean("edge_visualizer_enabled", nextEnabled);
+                editor.putBoolean("lens_visualizer_enabled", nextEnabled);
+                editor.putBoolean("on_screen_visualizers_enabled", nextEnabled);
+                editor.apply();
             }
             else if (ACTION_TOGGLE_GLYPHS.equals(intentAction)) {
                 int nextVal;
@@ -2503,18 +2501,10 @@ public class AudioCaptureService extends Service {
                 label = getString(R.string.notification_action_flash);
                 intentAction = ACTION_TOGGLE_TORCH;
                 isActive = mFlashlightEnabled;
-            } else if ("overlay".equals(actionType)) {
+            } else if ("overlay".equals(actionType) || "edge".equals(actionType) || "lens".equals(actionType)) {
                 label = getString(R.string.notification_action_overlay);
                 intentAction = ACTION_TOGGLE_OVERLAY;
-                isActive = mOverlayEnabled;
-            } else if ("edge".equals(actionType)) {
-                label = getString(R.string.notification_action_edge);
-                intentAction = ACTION_TOGGLE_EDGE;
-                isActive = mEdgeVisualizerEnabled;
-            } else if ("lens".equals(actionType)) {
-                label = getString(R.string.notification_action_lens);
-                intentAction = ACTION_TOGGLE_LENS;
-                isActive = mLensVisualizerEnabled;
+                isActive = mOverlayEnabled || mEdgeVisualizerEnabled || mLensVisualizerEnabled;
             } else if ("broadcast".equals(actionType)) {
                 label = getString(R.string.notification_action_broadcast);
                 intentAction = ACTION_TOGGLE_BROADCAST;
