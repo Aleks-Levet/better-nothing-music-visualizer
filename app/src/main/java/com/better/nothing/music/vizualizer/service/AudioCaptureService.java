@@ -21,6 +21,10 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.app.AppOpsManager;
+import android.app.usage.UsageEvents;
+import android.app.usage.UsageStats;
+import android.app.usage.UsageStatsManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -360,6 +364,129 @@ public class AudioCaptureService extends Service {
     private boolean mOverlayEnabled = false;
     private boolean mEdgeVisualizerEnabled = false;
     private boolean mLensVisualizerEnabled = false;
+    private Set<String> mOverlayAppBlacklist = new HashSet<>();
+    private boolean mBlacklistSuppressed = false;
+    private String mLastForegroundPackage = null;
+    private boolean mForegroundCheckScheduled = false;
+
+    public static boolean hasUsageStatsPermission(Context context) {
+        try {
+            AppOpsManager appOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            int mode = appOps.unsafeCheckOpNoThrow(
+                    AppOpsManager.OPSTR_GET_USAGE_STATS,
+                    android.os.Process.myUid(),
+                    context.getPackageName()
+            );
+            return mode == AppOpsManager.MODE_ALLOWED;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private String getForegroundPackageName() {
+        try {
+            UsageStatsManager usm = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
+            if (usm == null) return mLastForegroundPackage;
+
+            long now = System.currentTimeMillis();
+            UsageEvents events = usm.queryEvents(now - 10000, now);
+            String fgApp = null;
+            long maxTime = 0;
+
+            if (events != null) {
+                UsageEvents.Event event = new UsageEvents.Event();
+                while (events.hasNextEvent()) {
+                    events.getNextEvent(event);
+                    if (event.getEventType() == UsageEvents.Event.ACTIVITY_RESUMED) {
+                        if (event.getTimeStamp() > maxTime) {
+                            maxTime = event.getTimeStamp();
+                            fgApp = event.getPackageName();
+                        }
+                    }
+                }
+            }
+
+            if (fgApp != null) {
+                mLastForegroundPackage = fgApp;
+                return fgApp;
+            }
+
+            List<UsageStats> stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, now - 60000, now);
+            if (stats != null && !stats.isEmpty()) {
+                long recentTime = 0;
+                for (UsageStats stat : stats) {
+                    if (stat.getLastTimeUsed() > recentTime) {
+                        recentTime = stat.getLastTimeUsed();
+                        fgApp = stat.getPackageName();
+                    }
+                }
+            }
+            if (fgApp != null) {
+                mLastForegroundPackage = fgApp;
+            }
+            return mLastForegroundPackage;
+        } catch (Exception e) {
+            return mLastForegroundPackage;
+        }
+    }
+
+    private final Runnable mForegroundCheckRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mForegroundCheckScheduled = false;
+            if (!mCapturing || mOverlayAppBlacklist.isEmpty() ||
+                (!mOverlayEnabled && !mEdgeVisualizerEnabled && !mLensVisualizerEnabled)) {
+                if (mBlacklistSuppressed) {
+                    mBlacklistSuppressed = false;
+                    updateOverlayVisibility();
+                }
+                return;
+            }
+
+            checkForegroundAppInternal();
+
+            if (mWorkerHandler != null) {
+                mForegroundCheckScheduled = true;
+                mWorkerHandler.postDelayed(this, 500);
+            }
+        }
+    };
+
+    private void scheduleForegroundCheckIfNeeded() {
+        if (mWorkerHandler != null && !mForegroundCheckScheduled && mCapturing &&
+            !mOverlayAppBlacklist.isEmpty() &&
+            (mOverlayEnabled || mEdgeVisualizerEnabled || mLensVisualizerEnabled)) {
+            mForegroundCheckScheduled = true;
+            mWorkerHandler.post(mForegroundCheckRunnable);
+        }
+    }
+
+    private void checkForegroundAppInternal() {
+        if (!hasUsageStatsPermission(this)) {
+            if (mBlacklistSuppressed) {
+                mBlacklistSuppressed = false;
+                updateOverlayVisibility();
+            }
+            return;
+        }
+
+        String currentFgPackage = getForegroundPackageName();
+        boolean isBlacklisted = currentFgPackage != null && mOverlayAppBlacklist.contains(currentFgPackage);
+
+        if (isBlacklisted != mBlacklistSuppressed) {
+            mBlacklistSuppressed = isBlacklisted;
+            updateOverlayVisibility();
+        }
+    }
+
+    public void setOverlayAppBlacklist(Set<String> set) {
+        mOverlayAppBlacklist = set != null ? new HashSet<>(set) : new HashSet<>();
+        SharedPreferences prefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE);
+        prefs.edit().putStringSet("overlay_app_blacklist", new HashSet<>(mOverlayAppBlacklist)).apply();
+        if (mWorkerHandler != null) {
+            mWorkerHandler.post(this::scheduleForegroundCheckIfNeeded);
+        }
+    }
     private IconCompat mNotificationIcon;
     public volatile float mLensVisualizerRadius = 40f;
     public volatile float mLensVisualizerWidth = 0f;
@@ -547,6 +674,9 @@ public class AudioCaptureService extends Service {
     public int[] getLatestMagnitudes() { return getLatestRawFFT(); }
 
     public float[] getCurrentLightState() {
+        if (mSelectedDevice == DeviceProfile.DEVICE_NP3ALITE) {
+            return new float[] { sFlashlightMotorIntensityFlow.getValue() };
+        }
         if (mGlyphRenderer != null) return mGlyphRenderer.getCurrentLightState();
         return new float[0];
     }
@@ -789,6 +919,8 @@ public class AudioCaptureService extends Service {
             mUdpSync.startBroadcasting(Build.MODEL);
         }
         mOverlayEnabled = appPrefs.getBoolean("overlay_enabled", false);
+        Set<String> savedBlacklist = appPrefs.getStringSet("overlay_app_blacklist", new HashSet<String>());
+        if (savedBlacklist != null && !savedBlacklist.isEmpty()) mOverlayAppBlacklist = new HashSet<>(savedBlacklist);
         mRoundedBarsEnabled = appPrefs.getBoolean("rounded_bars_enabled", false);
         try {
             mOverlayStyle = VisualizerStyle.valueOf(appPrefs.getString("overlay_style", VisualizerStyle.BARS.name()));
@@ -1912,15 +2044,32 @@ public class AudioCaptureService extends Service {
             if (now - mLastSendMs < MIN_SEND_INTERVAL_MS) return;
 
             // Network broadcast is a valid output on devices without Glyph hardware.
-            // Keep it independent from preset/config loading and Glyph session state.
             if (mBroadcastEnabled && fftraw != null) {
                 mUdpSync.sendFft(fftraw);
             }
 
-            // Advance the cadence even when broadcasting is disabled or no Glyph
-            // processing can be performed. Otherwise the fallback loop can stall
-            // forever on tablets/unknown devices.
             mLastSendMs = now;
+
+            if (mSelectedDevice == DeviceProfile.DEVICE_NP3ALITE) {
+                if (mMaxBrightness > 0 && sGlyphsEnabledFlow.getValue() && mFlashlightEngine != null && fftraw != null) {
+                    if (!mSessionOpen) ensureGlyphSession();
+                    float fRawPeak = getLatestFlashlightPeak();
+                    mFlashlightEngine.performFlashlightFeedback(fRawPeak, null, fftraw, mFlashlightRange != null ? mFlashlightRange.logBinLo : 0, mFlashlightRange != null ? mFlashlightRange.logBinHi : 0);
+                    int levels = mFlashlightEngine.getTorchIntensityLevels();
+                    float intensity = (levels > 1) ? (float) mFlashlightEngine.getCurrentLevel() / levels : (mFlashlightEngine.getCurrentLevel() > 0 ? 1f : 0f);
+                    sFlashlightMotorIntensityFlow.setValue(intensity);
+                    sFlashlightBeatFlow.setValue(mFlashlightMode == TorchMode.BEAT_DETECTION && mFlashlightEngine.isBeatTriggeredThisFrame());
+                    int val = Math.round(intensity * mMaxBrightness);
+                    int[] frameColors = new int[] { Math.max(0, Math.min(4095, val)) };
+                    if (mGM != null && mSessionOpen) {
+                        try { mGM.setFrameColors(frameColors); } catch (Exception ignored) {}
+                    }
+                } else {
+                    if (mSessionOpen) clearGlyphSession();
+                    sFlashlightMotorIntensityFlow.setValue(0f);
+                }
+                return;
+            }
 
             // Glyph processing requires a device preset and a current config.
             if (config == null || configVersion != mPresetConfigVersion.get()) return;
@@ -2600,7 +2749,7 @@ public class AudioCaptureService extends Service {
 
     private static String chooseDefaultPresetKey(String pm, List<String> pks) {
         if (pks == null || pks.isEmpty()) return DEFAULT_PRESET_KEY;
-        List<String> prefs = switch (pm) { case "PHONE1" -> Arrays.asList("np1s", "np1"); case "PHONE2" -> Collections.singletonList("np2"); case "PHONE2A" -> Collections.singletonList("np2a"); case "PHONE3A" -> Arrays.asList("np3as", "np3a"); case "PHONE3" -> Collections.singletonList("np3test"); case "PHONE4A" -> Collections.singletonList("np4a"); case "PHONE4A_PRO" -> Collections.singletonList("np4ap-test"); case "PHONE4B" -> Collections.singletonList("np4b"); default -> Collections.emptyList(); };
+        List<String> prefs = switch (pm) { case "PHONE1" -> Arrays.asList("np1s", "np1"); case "PHONE2" -> Collections.singletonList("np2"); case "PHONE2A" -> Collections.singletonList("np2a"); case "PHONE3A" -> Arrays.asList("np3as", "np3a"); case "PHONE3" -> Collections.singletonList("np3test"); case "PHONE4A" -> Collections.singletonList("np4a"); case "PHONE4A_PRO" -> Collections.singletonList("np4ap-test"); case "PHONE4B" -> Collections.singletonList("np4b"); case "PHONE3ALITE" -> Collections.singletonList("np3alite"); default -> Collections.emptyList(); };
         for (String p : prefs) if (pks.contains(p)) return p; return pks.get(0);
     }
 

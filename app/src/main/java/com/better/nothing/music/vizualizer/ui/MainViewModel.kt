@@ -1179,6 +1179,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun showStats() { _isShowingStats.value = true }
     fun hideStats() { _isShowingStats.value = false }
 
+    private val _isShowingAppBlacklist = MutableStateFlow(false)
+    val isShowingAppBlacklist = _isShowingAppBlacklist.asStateFlow()
+    fun showAppBlacklist() { _isShowingAppBlacklist.value = true }
+    fun hideAppBlacklist() { _isShowingAppBlacklist.value = false }
+
     private val _isShowingHostPicker = MutableStateFlow(false)
     val isShowingHostPicker = _isShowingHostPicker.asStateFlow()
     fun showHostPicker() {
@@ -1345,6 +1350,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _overlayEnabled = MutableStateFlow(false)
     val overlayEnabled = _overlayEnabled.asStateFlow()
+
+    private val _overlayAppBlacklist = MutableStateFlow<Set<String>>(emptySet())
+    val overlayAppBlacklist = _overlayAppBlacklist.asStateFlow()
+
+    fun setOverlayAppBlacklist(blacklist: Set<String>) {
+        val newSet = blacklist.toSet()
+        _overlayAppBlacklist.value = newSet
+        MainActivity.serviceStatic?.setOverlayAppBlacklist(newSet)
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putStringSet("overlay_app_blacklist", newSet) }
+        }
+    }
 
     fun setOverlayEnabled(enabled: Boolean, fromService: Boolean = false) {
         if (fromService && !_onScreenVisualizersEnabled.value) return
@@ -1580,6 +1598,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun navigateBack(): Boolean {
+        if (_isShowingAppBlacklist.value) { hideAppBlacklist(); return true }
         if (_isShowingStats.value) { hideStats(); return true }
         if (_isShowingLicense.value) { hideLicense(); return true }
         if (_isShowingAbout.value) { hideAbout(); return true }
@@ -2678,6 +2697,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _idleBrightness.value = get("idle_brightness", 0.4f)
         _idleBackgroundBrightness.value = get("idle_background_brightness", 0.02f)
         _idleAnimationSpeed.value = get("idle_animation_speed", 1.0f).coerceIn(0.5f, 2.0f)
+        _overlayAppBlacklist.value = prefs.getStringSet("overlay_app_blacklist", emptySet())?.toSet() ?: emptySet()
         _overlayEnabled.value = get("overlay_enabled", false)
         _overlayTopEnabled.value = get("overlay_top_enabled", true)
         _overlayBottomEnabled.value = get("overlay_bottom_enabled", false)
