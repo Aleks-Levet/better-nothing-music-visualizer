@@ -87,6 +87,8 @@ class Component {
   componentWillUnmount() {
     if (this.raf) { cancelAnimationFrame(this.raf); }
     if (this.compareIdleRaf) { cancelAnimationFrame(this.compareIdleRaf); }
+    if (this.compareObserver) { this.compareObserver.disconnect(); }
+    if (this.compareVisibilityChange) { document.removeEventListener('visibilitychange', this.compareVisibilityChange); }
     if (this._ptr) { try { window.removeEventListener('pointermove', this._ptr); } catch (e) {} }
     this.stopAudio();
     if (this.audio) {
@@ -605,6 +607,7 @@ class Component {
       this.stopAudio();
       this.setState({ playing: false });
       this.stopRenderer();
+      this.scheduleComparisonIdle();
       return;
     }
     let ok = true;
@@ -634,11 +637,33 @@ class Component {
      is deliberately stepped at 15 fps in three brightness states, while BNMV
      follows the same sine signal smoothly at the display frame rate. */
   startComparisonIdle() {
-    if (this.reduced || this.compareIdleRaf) { return; }
-    let lastStockFrame = 0;
+    if (this.reduced || !this.els) { return; }
+    if (!this.compareObserver && this.els.ab && 'IntersectionObserver' in window) {
+      this.compareVisible = false;
+      this.compareObserver = new IntersectionObserver((entries) => {
+        this.compareVisible = entries.some((entry) => entry.isIntersecting);
+        if (this.compareVisible) { this.scheduleComparisonIdle(); }
+        else { this.stopComparisonIdle(); }
+      }, { rootMargin: '120px 0px' });
+      this.compareObserver.observe(this.els.ab);
+    } else if (!this.compareObserver) {
+      this.compareVisible = true;
+    }
+    if (!this.compareVisibilityChange) {
+      this.compareVisibilityChange = () => {
+        if (document.hidden) { this.stopComparisonIdle(); }
+        else if (this.compareVisible) { this.scheduleComparisonIdle(); }
+      };
+      document.addEventListener('visibilitychange', this.compareVisibilityChange);
+    }
+    this.scheduleComparisonIdle();
+  }
+
+  scheduleComparisonIdle() {
+    if (this.compareIdleRaf || this.state.playing || document.hidden || !this.compareVisible || !this.els) { return; }
     const tick = (now) => {
-      this.compareIdleRaf = requestAnimationFrame(tick);
-      if (this.state.playing || document.hidden || !this.els) { return; }
+      this.compareIdleRaf = null;
+      if (this.state.playing || document.hidden || !this.compareVisible || !this.els) { return; }
       const E = this.els;
       const t = now / 1000;
       const nLive = Math.min(12, E.live.length);
@@ -646,16 +671,25 @@ class Component {
         const sine = (Math.sin(t * Math.PI * 1.1 + i * 0.74) + 1) / 2;
         E.live[i].style.opacity = (0.08 + 0.92 * sine).toFixed(3);
       }
-      if (now - lastStockFrame < 1000 / 15) { return; }
-      lastStockFrame = now;
-      const nStock = Math.min(12, E.stock.length);
-      for (let i = 0; i < nStock; i++) {
-        const sine = (Math.sin(t * Math.PI * 1.1 + i * 0.74) + 1) / 2;
-        const level = Math.round(sine * 2);
-        E.stock[i].style.opacity = (0.39 + 0.61 * level / 2).toFixed(3);
+      if (now - (this.compareLastStockFrame || 0) >= 1000 / 15) {
+        this.compareLastStockFrame = now;
+        const nStock = Math.min(12, E.stock.length);
+        for (let i = 0; i < nStock; i++) {
+          const sine = (Math.sin(t * Math.PI * 1.1 + i * 0.74) + 1) / 2;
+          const level = Math.round(sine * 2);
+          E.stock[i].style.opacity = (0.39 + 0.61 * level / 2).toFixed(3);
+        }
       }
+      this.compareIdleRaf = requestAnimationFrame(tick);
     };
     this.compareIdleRaf = requestAnimationFrame(tick);
+  }
+
+  stopComparisonIdle() {
+    if (this.compareIdleRaf) {
+      cancelAnimationFrame(this.compareIdleRaf);
+      this.compareIdleRaf = null;
+    }
   }
 
   stopRenderer() {

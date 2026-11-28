@@ -1,9 +1,9 @@
 @font-face {
   font-family: 'Google Sans Flex';
-  src: url('../assets/fonts/google_sans_flex.ttf') format('truetype');
+  src: url('../assets/fonts/google_sans_flex.woff2') format('woff2');
   font-style: normal;
   font-weight: 100 1000;
-  font-display: swap;
+  font-display: block;
 }
 
 .bnmv-root {
@@ -397,7 +397,7 @@
 html{background:#100000}
 body{margin:0;background:#ff0000;overflow-x:hidden}
 [hidden]{display:none !important}
-.bn-download-fab{position:fixed;right:max(24px,env(safe-area-inset-right));bottom:max(24px,env(safe-area-inset-bottom));z-index:50;display:flex;height:56px;align-items:center;justify-content:center;gap:12px;padding:0 18px;border-radius:16px;background:#A0FFA3;color:#1C5A21;font-family:inherit;font-size:16px;font-weight:700;line-height:1;text-decoration:none;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.4);transition:transform .15s ease,box-shadow .15s ease}
+.bn-download-fab{position:fixed;right:max(24px,env(safe-area-inset-right));bottom:max(24px,env(safe-area-inset-bottom));z-index:50;display:flex;height:56px;align-items:center;justify-content:center;gap:12px;padding:0 18px;border-radius:16px;background:#A0FFA3;color:#1C5A21;font-family:inherit;font-size:16px;font-weight:850;font-variation-settings:'opsz' 18,'wdth' 96,'wght' 850,'GRAD' 24,'ROND' 82;line-height:1;text-decoration:none;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.4);transition:transform .15s ease,box-shadow .15s ease}
 .bn-download-fab:hover{color:#1C5A21;transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.5)}
 .bn-download-fab:active{transform:scale(.96)}
 .bn-download-fab svg{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
