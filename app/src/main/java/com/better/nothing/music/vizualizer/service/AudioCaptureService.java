@@ -1669,8 +1669,9 @@ public class AudioCaptureService extends Service {
                 try {
                     mCurrentSampleRate = (source == CaptureSource.MIC) ? SAMPLE_RATE : 48000;
                     int csr = mCurrentSampleRate;
+                    int hopSize = Math.max(1, Math.round(csr / (float) FPS));
                     int minBs = AudioRecord.getMinBufferSize(csr, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-                    int bs = Math.max(minBs * 2, 8192);
+                    int bs = Math.max(minBs, hopSize * 4 * 2);
 
                     if (source == CaptureSource.INTERNAL) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && mProjection != null) {
@@ -1727,9 +1728,24 @@ public class AudioCaptureService extends Service {
                         return;
                     } else if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
                         int maxRetries = 3;
+                        AudioFormat format = new AudioFormat.Builder()
+                                .setSampleRate(csr)
+                                .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
+                                .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                                .build();
+
                         for (int i = 0; i < maxRetries; i++) {
                             try {
-                                lr = new AudioRecord(mMicrophoneMode, SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bs);
+                                AudioRecord.Builder arb = new AudioRecord.Builder()
+                                        .setAudioSource(mMicrophoneMode)
+                                        .setAudioFormat(format)
+                                        .setBufferSizeInBytes(bs);
+
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                    arb.setContext(createAttributionContext("AudioVisualizerTag"));
+                                }
+
+                                lr = arb.build();
                                 if (lr != null && lr.getState() == AudioRecord.STATE_INITIALIZED) {
                                     break;
                                 }
