@@ -25,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.better.nothing.music.vizualizer.ui.SecondaryScreens.AboutScreen as AboutScreenSecondary
 import com.better.nothing.music.vizualizer.ui.SecondaryScreens.LicenseScreen
 import com.better.nothing.music.vizualizer.ui.SecondaryScreens.StatsScreen
+import com.better.nothing.music.vizualizer.ui.SecondaryScreens.AppBlacklistScreen
 
 @Composable
 fun MainOverlays(
@@ -37,11 +38,13 @@ fun MainOverlays(
     val isShowingAbout by viewModel.isShowingAbout.collectAsStateWithLifecycle()
     val isShowingLicense by viewModel.isShowingLicense.collectAsStateWithLifecycle()
     val isShowingStats by viewModel.isShowingStats.collectAsStateWithLifecycle()
+    val isShowingAppBlacklist by viewModel.isShowingAppBlacklist.collectAsStateWithLifecycle()
 
     var backTarget by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(backProgress > 0f) {
         if (backProgress > 0f && backTarget == null) {
             backTarget = when {
+                isShowingAppBlacklist -> "app_blacklist"
                 isShowingStats -> "stats"
                 isShowingLicense -> "license"
                 isShowingAbout -> "about"
@@ -127,6 +130,26 @@ fun MainOverlays(
             StatsScreen(
                 viewModel = viewModel,
                 onDismiss = { viewModel.hideStats() }
+            )
+        }
+
+        AnimatedVisibility(
+            visible = isShowingAppBlacklist,
+            enter = enterTransition,
+            exit = if (backProgress > 0f && backTarget == "app_blacklist") fadeOut(animationSpec = tween(500)) else exitTransition,
+            modifier = overlayModifier.graphicsLayer {
+                if (backProgress > 0f && backTarget == "app_blacklist") {
+                    translationX = size.width * backProgress
+                    val scale = 1f - (backProgress * 0.05f)
+                    scaleX = scale
+                    scaleY = scale
+                    alpha = 1f - (backProgress * 0.2f)
+                }
+            }
+        ) {
+            AppBlacklistScreen(
+                viewModel = viewModel,
+                onDismiss = { viewModel.hideAppBlacklist() }
             )
         }
     }
