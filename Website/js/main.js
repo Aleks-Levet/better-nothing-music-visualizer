@@ -1125,7 +1125,18 @@ bnmv.componentDidMount();
     moveTo(active + 1);
   });
   track.addEventListener('pointerdown', takeControl, { passive: true });
-  track.addEventListener('wheel', takeControl, { passive: true });
+  track.addEventListener('wheel', (event) => {
+    takeControl();
+    /* A horizontally-scrollable element has no vertical range. Some touchpads
+       and browsers still keep vertical wheel input on it, so forward that input
+       to the document instead of leaving the page stuck. */
+    if (event.ctrlKey || Math.abs(event.deltaY) <= Math.abs(event.deltaX)) { return; }
+    const unit = event.deltaMode === WheelEvent.DOM_DELTA_LINE
+      ? parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+      : event.deltaMode === WheelEvent.DOM_DELTA_PAGE ? window.innerHeight : 1;
+    event.preventDefault();
+    window.scrollBy({ top: event.deltaY * unit, behavior: 'auto' });
+  }, { passive: false });
   track.addEventListener('scroll', () => requestAnimationFrame(updateActive), { passive: true });
   track.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowLeft') { event.preventDefault(); takeControl(); moveTo(active - 1); }
