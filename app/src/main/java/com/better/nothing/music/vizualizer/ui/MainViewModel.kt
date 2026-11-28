@@ -1184,6 +1184,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun showAppBlacklist() { _isShowingAppBlacklist.value = true }
     fun hideAppBlacklist() { _isShowingAppBlacklist.value = false }
 
+    private val _isShowingOverlayDisclaimer = MutableStateFlow(false)
+    val isShowingOverlayDisclaimer = _isShowingOverlayDisclaimer.asStateFlow()
+    fun dismissOverlayDisclaimer() {
+        _isShowingOverlayDisclaimer.value = false
+        viewModelScope.launch(Dispatchers.IO) {
+            ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+                .edit { putBoolean("overlay_disclaimer_shown", true) }
+        }
+    }
+
     private val _isShowingHostPicker = MutableStateFlow(false)
     val isShowingHostPicker = _isShowingHostPicker.asStateFlow()
     fun showHostPicker() {
@@ -1591,6 +1601,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         
         _selectedTab.value = tab
+        if (tab == Tab.Visuals) {
+            val prefs = ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
+            if (!prefs.getBoolean("overlay_disclaimer_shown", false)) {
+                _isShowingOverlayDisclaimer.value = true
+            }
+        }
         viewModelScope.launch(Dispatchers.IO) {
             ctx.getSharedPreferences("viz_prefs", Context.MODE_PRIVATE)
                 .edit { putString("selected_tab", tab.name) }

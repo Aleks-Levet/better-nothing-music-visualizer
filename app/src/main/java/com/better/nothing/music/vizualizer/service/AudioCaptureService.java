@@ -919,8 +919,10 @@ public class AudioCaptureService extends Service {
             mUdpSync.startBroadcasting(Build.MODEL);
         }
         mOverlayEnabled = appPrefs.getBoolean("overlay_enabled", false);
-        Set<String> savedBlacklist = appPrefs.getStringSet("overlay_app_blacklist", new HashSet<String>());
-        if (savedBlacklist != null && !savedBlacklist.isEmpty()) mOverlayAppBlacklist = new HashSet<>(savedBlacklist);
+        Set<String> savedBlacklist = appPrefs.getAll().containsKey("overlay_app_blacklist")
+                ? appPrefs.getStringSet("overlay_app_blacklist", new HashSet<String>())
+                : new HashSet<>(Arrays.asList("com.android.vending", "com.android.settings"));
+        if (savedBlacklist != null) mOverlayAppBlacklist = new HashSet<>(savedBlacklist);
         mRoundedBarsEnabled = appPrefs.getBoolean("rounded_bars_enabled", false);
         try {
             mOverlayStyle = VisualizerStyle.valueOf(appPrefs.getString("overlay_style", VisualizerStyle.BARS.name()));

@@ -801,6 +801,7 @@ internal fun BetterVizApp(
     val flashlightEnabled by viewModel.flashlightEnabled.collectAsStateWithLifecycle()
     val onScreenVisualizersEnabled by viewModel.onScreenVisualizersEnabled.collectAsStateWithLifecycle()
     val isFirstTime by viewModel.isFirstTime.collectAsStateWithLifecycle()
+    val isShowingOverlayDisclaimer by viewModel.isShowingOverlayDisclaimer.collectAsStateWithLifecycle()
 
     val isShowingAbout by viewModel.isShowingAbout.collectAsStateWithLifecycle()
     val isShowingLicense by viewModel.isShowingLicense.collectAsStateWithLifecycle()
@@ -848,6 +849,19 @@ internal fun BetterVizApp(
             confirmButton = {
                 TextButton(onClick = { viewModel.dismissFirstTime() }) {
                     Text(text = stringResource(id = R.string.ok))
+                }
+            }
+        )
+    }
+
+    if (isShowingOverlayDisclaimer) {
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissOverlayDisclaimer() },
+            title = { Text(text = stringResource(id = R.string.overlay_disclaimer_title)) },
+            text = { Text(text = stringResource(id = R.string.overlay_disclaimer_message)) },
+            confirmButton = {
+                TextButton(onClick = { viewModel.dismissOverlayDisclaimer() }) {
+                    Text(text = stringResource(id = R.string.overlay_disclaimer_dismiss))
                 }
             }
         )

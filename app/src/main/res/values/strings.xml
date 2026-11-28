@@ -448,4 +448,7 @@
     <string name="app_blacklist_grant_permission" tools:ignore="MissingTranslation">Grant Permission</string>
     <string name="clear_all" tools:ignore="MissingTranslation">Clear all</string>
     <string name="confirm" tools:ignore="MissingTranslation">Confirm</string>
+    <string name="overlay_disclaimer_title" tools:ignore="MissingTranslation">Overlay Security Notice</string>
+    <string name="overlay_disclaimer_message" tools:ignore="MissingTranslation">For security reasons, overlays may not work properly with certain applications (such as banking apps). Use the App Blacklist feature to automatically disable overlays when those apps are in the foreground.</string>
+    <string name="overlay_disclaimer_dismiss" tools:ignore="MissingTranslation">Got it</string>
 </resources>
